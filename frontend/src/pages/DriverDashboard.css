@@ -1,0 +1,263 @@
+/* Driver Dashboard - Clean Professional Design */
+
+/* Trip Card */
+.trip-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  borderRadius: 8px;
+  padding: 1rem;
+  cursor: context-menu;
+  transition: all 0.2s ease;
+}
+
+.trip-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--gray-300);
+}
+
+.trip-customer-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--gray-900);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.trip-detail {
+  font-size: 13px;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+/* Trip Notes */
+.trip-notes {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.note-item {
+  color: #92400e;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.note-item:last-child {
+  margin-bottom: 0;
+}
+
+.note-item strong {
+  font-weight: 600;
+}
+
+/* Navigate Button */
+.btn-navigate {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 6px 12px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-navigate:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.trip-hint {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-200);
+  font-size: 11px;
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* Quick Action Button */
+.quick-action-btn {
+  background: white;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.quick-action-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.quick-action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Alert Items */
+.alert-item {
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 13px;
+  border-left: 3px solid;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.alert-warning {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.alert-info {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+/* Company Header */
+.driver-header {
+  background: var(--primary);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.driver-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.driver-header-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--primary-accent);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.driver-header-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.driver-header-subtitle {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+
+.driver-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.driver-header-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.driver-header-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  /* Stack today/tomorrow on mobile */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Adjust weekly overview for mobile */
+  div[style*="gridTemplateColumns: repeat(7, 1fr)"] {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important;
+  }
+
+  /* Mobile header adjustments */
+  .driver-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .driver-header-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .driver-header-title {
+    font-size: 14px;
+  }
+
+  .driver-header-subtitle {
+    font-size: 10px;
+  }
+
+  .driver-header-actions {
+    gap: 0.375rem;
+  }
+
+  .driver-header-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Very small screens - hide button text, show icons only or abbreviate */
+  .driver-header-logo {
+    gap: 0.5rem;
+  }
+
+  .driver-header-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .driver-header-subtitle {
+    display: none;
+  }
+
+  .driver-header-btn {
+    padding: 0.375rem 0.625rem;
+    font-size: 12px;
+  }
+}

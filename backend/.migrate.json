@@ -1,0 +1,12 @@
+{
+  "database-url": {
+    "env": "DATABASE_URL"
+  },
+  "migrations-dir": "database/migrations",
+  "migrations-table": "pgmigrations",
+  "schema": "public",
+  "migration-file-language": "sql",
+  "migration-filename-format": "utc",
+  "check-order": true,
+  "template-file-name": "migration-template.sql"
+}

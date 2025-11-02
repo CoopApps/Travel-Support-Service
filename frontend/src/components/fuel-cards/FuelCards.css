@@ -1,0 +1,236 @@
+/* Fuel Cards Module Styles */
+
+.fuel-cards-container {
+  padding: 0;
+}
+
+.fuel-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.fuel-cards-header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Fuel Cards Grid */
+.fuel-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.fuel-card-item {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.fuel-card-header {
+  background: var(--gray-50);
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.fuel-card-status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fuel-card-body {
+  padding: 1rem;
+}
+
+.fuel-card-info {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 14px;
+  margin-bottom: 1rem;
+}
+
+.fuel-card-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fuel-card-limit-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.fuel-card-limit-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.fuel-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Empty State */
+.fuel-cards-empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: white;
+  border: 2px dashed var(--gray-300);
+  border-radius: 8px;
+}
+
+.fuel-cards-empty-icon {
+  width: 80px;
+  height: 80px;
+  background: #e9ecef;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fuel-cards-empty-icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--gray-600);
+}
+
+/* Recent Transactions Section */
+.recent-transactions {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.recent-transactions h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+.transactions-table-container {
+  overflow-x: auto;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table thead {
+  background: var(--gray-50);
+}
+
+.transactions-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.transactions-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 14px;
+}
+
+.transactions-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+/* Alerts Section */
+.fuel-alerts {
+  margin-bottom: 1.5rem;
+}
+
+.fuel-alerts h4 {
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fuel-alerts-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.fuel-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.fuel-alert-danger {
+  background: #ffebee;
+  border-left-color: #dc3545;
+  color: #721c24;
+}
+
+.fuel-alert-warning {
+  background: #fff3cd;
+  border-left-color: #ffc107;
+  color: #856404;
+}
+
+.fuel-alert-info {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+  color: #0c5460;
+}
+
+/* Modal Specific Styles */
+.fuel-card-form-section {
+  background: var(--gray-50);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.fuel-card-form-section h4 {
+  color: #007bff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.transaction-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.transaction-form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* Loading State */
+.fuel-cards-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: var(--gray-600);
+}

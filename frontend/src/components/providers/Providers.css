@@ -1,0 +1,440 @@
+/* Providers Module Styles */
+
+.providers-container {
+  padding: 0;
+}
+
+.providers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.providers-header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Provider Stats - Matching Other Modules */
+.provider-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: inherit;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  color: inherit;
+}
+
+/* Theme Colors - Matching Legacy */
+.stat-card-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.stat-card-purple {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.stat-card-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.stat-card-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.stat-card-gold {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+/* Wrapper with defined column structure */
+.providers-and-directory-wrapper {
+  --col-name: 35%;
+  --col-customers: 12%;
+  --col-routes: 14%;
+  --col-weekly: 14%;
+  --col-monthly: 14%;
+  --col-actions: 11%;
+}
+
+/* Providers Table */
+.providers-table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.providers-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.providers-table th:nth-child(1),
+.providers-table td:nth-child(1) {
+  width: var(--col-name);
+}
+
+.providers-table th:nth-child(2),
+.providers-table td:nth-child(2) {
+  width: var(--col-customers);
+}
+
+.providers-table th:nth-child(3),
+.providers-table td:nth-child(3) {
+  width: var(--col-routes);
+}
+
+.providers-table th:nth-child(4),
+.providers-table td:nth-child(4) {
+  width: var(--col-weekly);
+}
+
+.providers-table th:nth-child(5),
+.providers-table td:nth-child(5) {
+  width: var(--col-monthly);
+}
+
+.providers-table th:nth-child(6),
+.providers-table td:nth-child(6) {
+  width: var(--col-actions);
+}
+
+.providers-table thead {
+  background: var(--gray-50);
+}
+
+.providers-table th {
+  padding: 0.875rem;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.providers-table td {
+  padding: 1rem 0.875rem;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 14px;
+}
+
+.providers-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.provider-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.provider-type-badge {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.provider-invoice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.provider-invoice-badge-configured {
+  background: #28a745;
+  color: white;
+}
+
+.provider-invoice-badge-warning {
+  background: #ffc107;
+  color: #000;
+}
+
+.provider-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Provider Directory Modal */
+.provider-directory-form {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.provider-directory-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.provider-directory-item {
+  padding: 0;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Provider Grid Layout - Matching Table Columns */
+.provider-grid-row {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  padding-bottom: 0;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 0;
+}
+
+.provider-grid-cell-name,
+.provider-grid-cell-center,
+.provider-grid-cell,
+.provider-grid-cell-actions {
+  display: table-cell;
+  padding: 1rem 0.875rem;
+  vertical-align: middle;
+}
+
+.provider-grid-cell-name {
+  /* Column 1: Provider Name */
+  width: var(--col-name);
+}
+
+.provider-grid-cell-center:nth-child(2) {
+  /* Column 2: Customers */
+  width: var(--col-customers);
+  text-align: center;
+}
+
+.provider-grid-cell-center:nth-child(3) {
+  /* Column 3: Weekly Routes */
+  width: var(--col-routes);
+  text-align: center;
+}
+
+.provider-grid-cell:nth-child(4) {
+  /* Column 4: Weekly Amount */
+  width: var(--col-weekly);
+}
+
+.provider-grid-cell:nth-child(5) {
+  /* Column 5: Monthly Estimate */
+  width: var(--col-monthly);
+}
+
+.provider-grid-cell-actions {
+  /* Column 6: Actions */
+  width: var(--col-actions);
+}
+
+.provider-grid-cell-actions > div {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.provider-directory-item-configured {
+  /* No special styling needed */
+}
+
+.provider-directory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.provider-directory-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Provider Settings Modal */
+.provider-settings-section {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.provider-settings-section h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.provider-settings-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Provider Details Modal */
+.provider-details-summary {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.provider-details-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.provider-route-distribution {
+  background: #e8f5e9;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.provider-route-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100px;
+  gap: 0.25rem;
+}
+
+.provider-route-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.provider-route-bar-fill {
+  width: 100%;
+  background: #4caf50;
+  border-radius: 4px 4px 0 0;
+}
+
+.provider-route-bar-label {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.provider-route-bar-day {
+  font-size: 10px;
+  color: var(--gray-600);
+}
+
+.provider-customer-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.provider-customer-item {
+  background: white;
+  padding: 0.875rem;
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+  border: 1px solid var(--gray-200);
+}
+
+.provider-customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 0.5rem;
+}
+
+.provider-customer-amount {
+  color: #28a745;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.provider-schedule-badges {
+  display: flex;
+  gap: 2px;
+  margin-top: 0.5rem;
+}
+
+.provider-schedule-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+}
+
+.provider-schedule-badge-active {
+  background: #4caf50;
+}
+
+.provider-schedule-badge-inactive {
+  background: #e0e0e0;
+  color: var(--gray-600);
+}
+
+/* Empty State */
+.providers-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--gray-600);
+}
+
+.providers-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  color: var(--gray-400);
+}
+
+/* Loading State */
+.providers-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: var(--gray-600);
+}

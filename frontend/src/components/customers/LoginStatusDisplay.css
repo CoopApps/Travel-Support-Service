@@ -1,0 +1,44 @@
+/* Login Status Display - Professional */
+
+.login-status {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.login-enabled {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.login-disabled {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.login-username {
+  font-family: 'Inter', sans-serif;
+  color: var(--gray-700);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.login-last {
+  color: var(--gray-500);
+  font-size: 10px;
+}

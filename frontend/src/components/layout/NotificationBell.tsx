@@ -1,0 +1,289 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTenant } from '../../context/TenantContext';
+import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
+
+/**
+ * Notification Bell Component
+ *
+ * Displays real-time alerts and notifications from the comprehensive dashboard API
+ * Shows all actionable tasks and critical alerts
+ */
+
+function NotificationBell() {
+  const { tenantId } = useTenant();
+  const [isOpen, setIsOpen] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
+  const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const count = dashboard?.summary?.totalTasks || 0;
+  const hasCritical = (dashboard?.summary?.criticalTasks || 0) > 0;
+
+  // Fetch notifications - memoized to prevent recreating on every render
+  const fetchNotifications = useCallback(async () => {
+    if (!tenantId) return;
+
+    setLoading(true);
+    try {
+      const data = await dashboardApi.getOverview(tenantId);
+      setDashboard(data);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantId]);
+
+  // Auto-refresh notifications every 5 minutes (300 seconds)
+  useEffect(() => {
+    if (!tenantId) return;
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Initial fetch
+    fetchNotifications();
+
+    // Set up new interval
+    intervalRef.current = setInterval(fetchNotifications, 300000);
+
+    // Cleanup on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenantId]);
+
+  // Handle click outside to close
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      fetchNotifications(); // Refresh when opening
+    }
+  };
+
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMins < 60) {
+      return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+    }
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    }
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="notification-bell-container" ref={dropdownRef}>
+      <button
+        className="icon-button"
+        onClick={toggleDropdown}
+        title="Notifications"
+        aria-label="Notifications"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        {count > 0 && (
+          <span className="notification-badge" style={{ background: hasCritical ? '#dc3545' : '#ffc107' }}>
+            {count}
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="notification-dropdown">
+          <div className="notification-dropdown-header">
+            <strong>Notifications</strong>
+            {count > 0 && <span className="text-muted">({count})</span>}
+          </div>
+
+          <div className="notification-dropdown-content">
+            {loading ? (
+              <div className="notification-item">
+                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '1rem auto' }}></div>
+              </div>
+            ) : count === 0 ? (
+              <div className="notification-item text-center">
+                <div style={{ color: 'var(--gray-500)', padding: '1rem' }}>
+                  <svg viewBox="0 0 24 24" width="48" height="48" style={{ opacity: 0.3, margin: '0 auto 0.5rem' }}>
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  <div>No new notifications</div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Critical Alerts */}
+                {dashboard?.tasks.expiredMots && dashboard.tasks.expiredMots.count > 0 && (
+                  <div className="notification-item notification-critical">
+                    <div className="notification-icon">🔴</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expired MOTs</div>
+                      <div className="notification-message">{dashboard.tasks.expiredMots.count} vehicle{dashboard.tasks.expiredMots.count !== 1 ? 's' : ''} with expired MOT</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.safeguardingReports && dashboard.tasks.safeguardingReports.count > 0 && (
+                  <div className="notification-item notification-critical">
+                    <div className="notification-icon">🔴</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Safeguarding Reports</div>
+                      <div className="notification-message">{dashboard.tasks.safeguardingReports.count} report{dashboard.tasks.safeguardingReports.count !== 1 ? 's' : ''} pending review</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.overdueInvoices && dashboard.tasks.overdueInvoices.count > 0 && (
+                  <div className="notification-item notification-critical">
+                    <div className="notification-icon">🔴</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Overdue Invoices</div>
+                      <div className="notification-message">{dashboard.tasks.overdueInvoices.count} invoice{dashboard.tasks.overdueInvoices.count !== 1 ? 's' : ''} overdue</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Approvals */}
+                {dashboard?.tasks.pendingLeaveRequests && dashboard.tasks.pendingLeaveRequests.count > 0 && (
+                  <div className="notification-item notification-warning">
+                    <div className="notification-icon">⚠️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Leave Requests</div>
+                      <div className="notification-message">{dashboard.tasks.pendingLeaveRequests.count} request{dashboard.tasks.pendingLeaveRequests.count !== 1 ? 's' : ''} pending approval</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.pendingTimesheets && dashboard.tasks.pendingTimesheets.count > 0 && (
+                  <div className="notification-item notification-warning">
+                    <div className="notification-icon">⚠️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Timesheets</div>
+                      <div className="notification-message">{dashboard.tasks.pendingTimesheets.count} timesheet{dashboard.tasks.pendingTimesheets.count !== 1 ? 's' : ''} pending approval</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Operational Alerts */}
+                {dashboard?.tasks.expiringMots && dashboard.tasks.expiringMots.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expiring MOTs</div>
+                      <div className="notification-message">{dashboard.tasks.expiringMots.count} MOT{dashboard.tasks.expiringMots.count !== 1 ? 's' : ''} expiring within 30 days</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.expiringTraining && dashboard.tasks.expiringTraining.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expiring Training</div>
+                      <div className="notification-message">{dashboard.tasks.expiringTraining.count} training certificate{dashboard.tasks.expiringTraining.count !== 1 ? 's' : ''} expiring soon</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.expiringPermits && dashboard.tasks.expiringPermits.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expiring Permits</div>
+                      <div className="notification-message">{dashboard.tasks.expiringPermits.count} permit{dashboard.tasks.expiringPermits.count !== 1 ? 's' : ''} expiring soon</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.unassignedJourneys && dashboard.tasks.unassignedJourneys.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Unassigned Journeys</div>
+                      <div className="notification-message">{dashboard.tasks.unassignedJourneys.count} customer{dashboard.tasks.unassignedJourneys.count !== 1 ? 's' : ''} need driver assignment</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.customerHolidays && dashboard.tasks.customerHolidays.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Customer Holidays</div>
+                      <div className="notification-message">{dashboard.tasks.customerHolidays.count} customer{dashboard.tasks.customerHolidays.count !== 1 ? 's' : ''} on holiday</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Messages */}
+                {dashboard?.tasks.driverMessages && dashboard.tasks.driverMessages.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">✉️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Driver Messages</div>
+                      <div className="notification-message">{dashboard.tasks.driverMessages.count} unread message{dashboard.tasks.driverMessages.count !== 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.customerMessages && dashboard.tasks.customerMessages.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">✉️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Customer Messages</div>
+                      <div className="notification-message">{dashboard.tasks.customerMessages.count} unread message{dashboard.tasks.customerMessages.count !== 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.outingSuggestions && dashboard.tasks.outingSuggestions.count > 0 && (
+                  <div className="notification-item notification-info">
+                    <div className="notification-icon">ℹ️</div>
+                    <div className="notification-content">
+                      <div className="notification-type">Social Outing Suggestions</div>
+                      <div className="notification-message">{dashboard.tasks.outingSuggestions.count} new suggestion{dashboard.tasks.outingSuggestions.count !== 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {count > 0 && (
+            <div className="notification-dropdown-footer">
+              <button className="btn btn-link btn-sm">View All Notifications</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default NotificationBell;

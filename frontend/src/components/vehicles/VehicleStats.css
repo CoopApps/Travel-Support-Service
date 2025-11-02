@@ -1,0 +1,67 @@
+/* Vehicle Stats - Legacy Design */
+
+.vehicle-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: inherit;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  color: inherit;
+}
+
+/* Loading State */
+.stat-card-loading {
+  background: #f5f5f5;
+  color: #999;
+}
+
+/* Theme Colors - Matching Legacy */
+.stat-card-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.stat-card-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.stat-card-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.stat-card-purple {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.stat-card-teal {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+.stat-card-indigo {
+  background: #e8eaf6;
+  color: #3f51b5;
+}

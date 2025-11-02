@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PWA Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #3b82f6;
+        }
+        .icon-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .icon-item {
+            text-align: center;
+        }
+        .icon-item canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .icon-item p {
+            margin: 10px 0 0;
+            font-size: 12px;
+            color: #666;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 10px 20px 0;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .instructions {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click "Generate Icons" to create placeholder icons</li>
+            <li>Right-click each icon and "Save image as..."</li>
+            <li>Save to <code>public/icons/</code> directory with the filename shown</li>
+            <li>For production, replace with professionally designed icons</li>
+        </ol>
+    </div>
+
+    <button onclick="generateIcons()">Generate Icons</button>
+    <button onclick="downloadAll()">Download All</button>
+
+    <div id="icons" class="icon-preview"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const canvases = [];
+
+        function generateIcons() {
+            const iconsDiv = document.getElementById('icons');
+            iconsDiv.innerHTML = '';
+            canvases.length = 0;
+
+            sizes.forEach(size => {
+                const container = document.createElement('div');
+                container.className = 'icon-item';
+
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(0, 0, size, size);
+
+                // Draw a simple truck/vehicle icon
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = size / 40;
+
+                // Simplified truck outline
+                const scale = size / 512;
+                ctx.save();
+                ctx.scale(scale, scale);
+
+                // Truck body
+                ctx.fillRect(80, 180, 200, 120);
+                ctx.fillRect(280, 200, 100, 100);
+
+                // Cabin
+                ctx.fillRect(280, 140, 100, 60);
+
+                // Windows
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(290, 150, 35, 40);
+                ctx.fillRect(335, 150, 35, 40);
+
+                // Wheels
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 8;
+
+                ctx.beginPath();
+                ctx.arc(140, 310, 30, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(340, 310, 30, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fill();
+
+                // Hub caps
+                ctx.fillStyle = '#3b82f6';
+                ctx.beginPath();
+                ctx.arc(140, 310, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(340, 310, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+
+                // Add size text at bottom
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size / 12}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(size + 'x' + size, size / 2, size - size / 20);
+
+                canvas.style.maxWidth = '150px';
+                canvas.style.height = 'auto';
+
+                const filename = document.createElement('p');
+                filename.textContent = `driver-icon-${size}.png`;
+
+                container.appendChild(canvas);
+                container.appendChild(filename);
+                iconsDiv.appendChild(container);
+
+                canvases.push({ canvas, size });
+            });
+        }
+
+        function downloadAll() {
+            if (canvases.length === 0) {
+                alert('Please generate icons first');
+                return;
+            }
+
+            canvases.forEach(({ canvas, size }) => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `driver-icon-${size}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            });
+        }
+
+        // Generate on page load
+        window.onload = generateIcons;
+    </script>
+</body>
+</html>

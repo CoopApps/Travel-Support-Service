@@ -1,0 +1,81 @@
+/* Weekly Schedule Display - Professional */
+
+.weekly-schedule {
+  font-size: 12px;
+}
+
+.day-indicators {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.day-box {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+
+.day-box:hover {
+  transform: scale(1.1);
+}
+
+.day-times-set {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.day-times-missing {
+  background: #fbbf24;
+  color: #78350f;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.day-no-service {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+}
+
+.schedule-summary {
+  font-size: 11px;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.schedule-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--gray-600);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.legend-green {
+  background: #10b981;
+}
+
+.legend-yellow {
+  background: #fbbf24;
+}

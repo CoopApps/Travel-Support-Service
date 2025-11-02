@@ -1,0 +1,561 @@
+/* Training Page Styles */
+
+.training-page {
+  /* No max-width to match other modules */
+}
+
+/* Header Section */
+.training-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.training-header h2 {
+  margin: 0;
+  color: var(--gray-900);
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+/* Statistics Grid - SCOPED like permits */
+.training-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.training-stats-grid .stat-card {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 95px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.training-stats-grid .stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.training-stats-grid .stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin: 6px 0 0 0;
+}
+
+/* Theme Colors - Matching Permits Exactly */
+.stat-card-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.stat-card-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.stat-card-red {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.stat-card-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.stat-card-teal {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+/* Tab Navigation */
+.training-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.training-tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.training-tab:hover {
+  color: #111827;
+  background: #f9fafb;
+}
+
+.training-tab.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+  font-weight: 600;
+}
+
+/* Section Container */
+.training-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: var(--gray-900);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.section-content {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+/* Table Styles */
+.training-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.training-table thead {
+  background: #f8f9fa;
+}
+
+.training-table th {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.training-table th.center {
+  text-align: center;
+}
+
+.training-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.training-table td.center {
+  text-align: center;
+}
+
+.training-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.training-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+}
+
+.status-badge.valid {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.expiring {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.compliant {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.partial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.non-compliant {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+/* Driver Compliance Section - Matching Permits */
+.driver-training-compliance-section {
+  margin-bottom: 2rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.compliance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.compliance-table thead {
+  background: #f8f9fa;
+}
+
+.compliance-table th {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.compliance-table th.center {
+  text-align: center;
+}
+
+.compliance-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 0.875rem;
+}
+
+.compliance-table td.center {
+  text-align: center;
+}
+
+.compliance-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.compliance-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.not-required {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.8125rem;
+}
+
+/* Collapsible Section */
+.collapsible-section {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.collapsible-header {
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.2s;
+}
+
+.collapsible-header:hover {
+  background: #f3f4f6;
+}
+
+.collapsible-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.collapse-icon {
+  transition: transform 0.2s;
+}
+
+.collapse-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  padding: 1.5rem;
+}
+
+/* Training Types Section */
+.training-types-management {
+  margin-bottom: 2rem;
+}
+
+/* Training Records Section */
+.training-records-section {
+  margin-bottom: 2rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+/* Modal Styles */
+.modal-dialog {
+  background-color: white !important;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  max-width: 800px;
+}
+
+.modal-lg {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-500);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
+}
+
+.modal-close:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+  background: #f8f9fa;
+}
+
+.checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* Training Category Badge */
+.category-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-safety {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.category-compliance {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.category-technical {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.category-customer-service {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.category-professional-development {
+  background: #ddd6fe;
+  color: #5b21b6;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .training-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .training-table,
+  .compliance-table {
+    font-size: 0.75rem;
+  }
+
+  .training-table th,
+  .training-table td,
+  .compliance-table th,
+  .compliance-table td {
+    padding: 0.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-lg {
+    max-width: 100%;
+  }
+
+  .training-tabs {
+    overflow-x: auto;
+  }
+
+  .training-tab {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .training-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .training-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
