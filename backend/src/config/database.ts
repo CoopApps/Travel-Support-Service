@@ -9,17 +9,27 @@ import { logger } from '../utils/logger';
  * which caused significant overhead. This pool maintains reusable connections.
  */
 
-const poolConfig: PoolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  database: process.env.DB_NAME || 'travel_support_dev',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
-  min: parseInt(process.env.DB_POOL_MIN || '2', 10),
-  max: parseInt(process.env.DB_POOL_MAX || '20', 10),
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-};
+// Support both DATABASE_URL (Railway, Heroku, etc.) and individual variables
+const poolConfig: PoolConfig | string = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      min: parseInt(process.env.DB_POOL_MIN || '2', 10),
+      max: parseInt(process.env.DB_POOL_MAX || '20', 10),
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    }
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME || 'travel_support_dev',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD,
+      min: parseInt(process.env.DB_POOL_MIN || '2', 10),
+      max: parseInt(process.env.DB_POOL_MAX || '20', 10),
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    };
 
 // Create the connection pool
 export const pool = new Pool(poolConfig);

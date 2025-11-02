@@ -13,28 +13,32 @@ interface EnvVar {
 }
 
 const ENV_VARS: EnvVar[] = [
-  // Database
+  // Database - either DATABASE_URL or individual variables
+  {
+    key: 'DATABASE_URL',
+    required: false, // Will be checked conditionally
+  },
   {
     key: 'DB_HOST',
-    required: true,
+    required: false, // Will be checked conditionally
   },
   {
     key: 'DB_PORT',
-    required: true,
+    required: false, // Will be checked conditionally
     validator: (value) => !isNaN(parseInt(value)),
     errorMessage: 'DB_PORT must be a valid number',
   },
   {
     key: 'DB_NAME',
-    required: true,
+    required: false, // Will be checked conditionally
   },
   {
     key: 'DB_USER',
-    required: true,
+    required: false, // Will be checked conditionally
   },
   {
     key: 'DB_PASSWORD',
-    required: true,
+    required: false, // Will be checked conditionally
   },
   // Security
   {
@@ -64,8 +68,31 @@ export function validateEnvironment(): void {
 
   console.log('\n🔍 Validating environment variables...\n');
 
+  // Check database configuration - either DATABASE_URL or individual variables
+  const hasDatabaseUrl = !!process.env.DATABASE_URL;
+  const hasIndividualDbVars = !!(
+    process.env.DB_HOST &&
+    process.env.DB_PORT &&
+    process.env.DB_NAME &&
+    process.env.DB_USER &&
+    process.env.DB_PASSWORD
+  );
+
+  if (!hasDatabaseUrl && !hasIndividualDbVars) {
+    errors.push('❌ Database configuration missing: Either DATABASE_URL or individual DB_* variables required');
+  } else if (hasDatabaseUrl) {
+    console.log(`✅ DATABASE_URL: ${maskSensitive('DATABASE_URL', process.env.DATABASE_URL!)}`);
+  } else {
+    console.log('✅ Using individual database variables (DB_HOST, DB_PORT, etc.)');
+  }
+
   for (const envVar of ENV_VARS) {
     const value = process.env[envVar.key];
+
+    // Skip database variables if we already validated them above
+    if (['DATABASE_URL', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'].includes(envVar.key)) {
+      continue;
+    }
 
     // Check if required variable is missing
     if (envVar.required && !value) {
