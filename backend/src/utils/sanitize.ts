@@ -14,7 +14,6 @@
  *   const cleanObj = sanitizeObject(req.body);
  */
 
-import DOMPurify from 'isomorphic-dompurify';
 import validator from 'validator';
 
 /**
@@ -40,6 +39,37 @@ const DEFAULT_OPTIONS: SanitizeOptions = {
   emailFormat: false,
   urlFormat: false,
 };
+
+/**
+ * Strip all HTML tags from a string
+ */
+function stripAllHTML(input: string): string {
+  return input.replace(/<[^>]*>/g, '');
+}
+
+/**
+ * Strip dangerous HTML tags while keeping safe formatting tags
+ * Safe tags: b, i, u, strong, em, p, br, ul, ol, li
+ */
+function stripDangerousHTML(input: string): string {
+  // Remove script tags and their content
+  let sanitized = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+  // Remove style tags and their content
+  sanitized = sanitized.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+
+  // Remove event handlers (onclick, onerror, etc.)
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '');
+
+  // Remove javascript: protocol
+  sanitized = sanitized.replace(/javascript:/gi, '');
+
+  // Remove dangerous tags: iframe, object, embed, applet, meta, link, form, input
+  sanitized = sanitized.replace(/<(iframe|object|embed|applet|meta|link|form|input)[^>]*>/gi, '');
+
+  return sanitized;
+}
 
 /**
  * Sanitize a single string input
@@ -94,17 +124,11 @@ export function sanitizeInput(
 
   // HTML/XSS sanitization
   if (opts.allowHTML) {
-    // Allow safe HTML tags (for rich text editors)
-    sanitized = DOMPurify.sanitize(sanitized, {
-      ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'ul', 'ol', 'li', 'a'],
-      ALLOWED_ATTR: ['href', 'title'],
-    });
+    // For rich text, strip dangerous tags but keep safe ones
+    sanitized = stripDangerousHTML(sanitized);
   } else {
-    // Strip all HTML tags
-    sanitized = DOMPurify.sanitize(sanitized, {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    });
+    // Strip all HTML tags for plain text
+    sanitized = stripAllHTML(sanitized);
   }
 
   // Escape any remaining special characters
