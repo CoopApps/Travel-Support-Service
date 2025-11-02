@@ -25,19 +25,20 @@ interface RouteOptimizationResult {
   feasible: boolean;
 }
 
-interface PassengerMatch {
-  customerId: number;
-  customerName: string;
-  address: string;
-  postcode?: string;
-  destination: string;
-  pickupTime: string;
-  score: number; // 0-100 compatibility score
-  distanceFromDriver: number; // meters
-  sharedDestination: boolean;
-  detourMinutes: number;
-  reasoning: string[];
-}
+// Unused interface - kept for future feature development
+// interface PassengerMatch {
+//   customerId: number;
+//   customerName: string;
+//   address: string;
+//   postcode?: string;
+//   destination: string;
+//   pickupTime: string;
+//   score: number; // 0-100 compatibility score
+//   distanceFromDriver: number; // meters
+//   sharedDestination: boolean;
+//   detourMinutes: number;
+//   reasoning: string[];
+// }
 
 /**
  * Geocode an address to lat/lng coordinates using Google Geocoding API
@@ -152,7 +153,6 @@ export async function calculateRouteWithWaypoint(
 
     if (response.data.status === 'OK' && response.data.routes.length > 0) {
       const route = response.data.routes[0];
-      const leg = route.legs[0]; // First leg to passenger
 
       const totalDistance = route.legs.reduce((sum: number, l: any) => sum + l.distance.value, 0);
       const totalDuration = route.legs.reduce((sum: number, l: any) => sum + l.duration.value, 0);

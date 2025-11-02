@@ -344,19 +344,19 @@ export function invalidateResourceCache(
 }
 
 // Log cache events
-cache.on('set', (key, value) => {
+cache.on('set', (key) => {
   logger.debug('Cache set event', { key });
 });
 
-cache.on('del', (key, value) => {
+cache.on('del', (key) => {
   logger.debug('Cache delete event', { key });
 });
 
-cache.on('expired', (key, value) => {
+cache.on('expired', (key) => {
   logger.debug('Cache expired event', { key });
 });
 
-tenantCache.on('expired', (key, value) => {
+tenantCache.on('expired', (key) => {
   logger.debug('Tenant cache expired event', { key });
 });
 
