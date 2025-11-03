@@ -88,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
 
       const response = await axios.post<LoginResponse>(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/tenants/${tenantId}/login`,
+        `${import.meta.env.VITE_API_URL || '/api'}/tenants/${tenantId}/login`,
         { username, password }
       );
 
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Verify token with backend
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/tenants/${parsedUser.tenantId}/verify`,
+        `${import.meta.env.VITE_API_URL || '/api'}/tenants/${parsedUser.tenantId}/verify`,
         {
           headers: { Authorization: `Bearer ${storedToken}` }
         }

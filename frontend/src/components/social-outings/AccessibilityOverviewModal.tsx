@@ -33,7 +33,8 @@ function AccessibilityOverviewModal({ isOpen, onClose }: AccessibilityOverviewMo
 
       if (!tenantId || !token) return;
 
-      const response = await fetch(`http://localhost:3001/api/tenants/${tenantId}/customers`, {
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${apiBase}/tenants/${tenantId}/customers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

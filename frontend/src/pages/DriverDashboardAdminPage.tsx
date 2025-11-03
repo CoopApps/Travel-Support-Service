@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
 import './AdminDashboard.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 interface DriverStats {
   total: number;

@@ -54,7 +54,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
 
       // Fetch tenant by subdomain from public endpoint
       const response = await axios.get<Tenant>(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/public/tenant/${subdomain}`
+        `${import.meta.env.VITE_API_URL || '/api'}/public/tenant/${subdomain}`
       );
 
       setTenant(response.data);
