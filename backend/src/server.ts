@@ -73,7 +73,7 @@ import feedbackRoutes from './routes/feedback.routes';
  */
 
 const app: Application = express();
-const PORT = process.env.PORT || 3001; // Use 3001 to avoid conflict with old system
+const PORT = parseInt(process.env.PORT || '3001', 10); // Use 3001 to avoid conflict with old system
 
 // Trust Railway proxy for X-Forwarded-* headers
 app.set('trust proxy', true);
