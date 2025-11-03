@@ -449,3 +449,4 @@ See [STAGE_1_README.md](STAGE_1_README.md#troubleshooting) for more.
 **Last Updated:** October 2025
 
 **Next Action:** Read [STAGED_CONVERSION_PLAN.md](STAGED_CONVERSION_PLAN.md) and decide on Stage 2
+
