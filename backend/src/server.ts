@@ -242,8 +242,8 @@ async function startServer() {
       throw new Error('Failed to connect to database');
     }
 
-    // Start listening
-    app.listen(PORT, () => {
+    // Start listening on all interfaces (0.0.0.0) for Railway
+    app.listen(PORT, '0.0.0.0', () => {
       logger.info('🚀 Server started (Stage 4)', {
         port: PORT,
         environment: process.env.NODE_ENV,
