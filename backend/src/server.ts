@@ -74,6 +74,9 @@ import feedbackRoutes from './routes/feedback.routes';
 const app: Application = express();
 const PORT = process.env.PORT || 3001; // Use 3001 to avoid conflict with old system
 
+// Trust Railway proxy for X-Forwarded-* headers
+app.set('trust proxy', true);
+
 // Enhanced security headers with Helmet
 app.use(helmet({
   // Content Security Policy
