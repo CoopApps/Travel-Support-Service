@@ -176,6 +176,22 @@ setupSwagger(app);
 // Health check routes (must be first - no middleware)
 app.use(healthRoutes);
 
+// Root route - API information
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Travel Support API',
+    version: '1.0.0',
+    status: 'running',
+    message: 'Welcome to the Travel Support Multi-Tenant API',
+    endpoints: {
+      health: '/health',
+      login: 'POST /api/tenants/:tenantId/login',
+      documentation: 'API is running. Use /api/* endpoints for tenant operations.'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Public routes (no authentication or subdomain detection required)
 app.use('/api', publicRoutes);
 
