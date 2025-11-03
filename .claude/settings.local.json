@@ -56,7 +56,15 @@
       "Bash(cmd /c \"rd /s /q node_modules\\.cache\\ts-node 2>nul\")",
       "Bash(npm run build:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(test-app.js)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

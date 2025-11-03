@@ -1,4 +1,5 @@
 import express, { Application } from 'express';
+import path from 'path';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -83,11 +84,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for now
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Vite needs inline scripts in production
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "wss:", "https:"], // Allow API calls
+      fontSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
@@ -176,22 +177,6 @@ setupSwagger(app);
 // Health check routes (must be first - no middleware)
 app.use(healthRoutes);
 
-// Root route - API information
-app.get('/', (req, res) => {
-  res.json({
-    name: 'Travel Support API',
-    version: '1.0.0',
-    status: 'running',
-    message: 'Welcome to the Travel Support Multi-Tenant API',
-    endpoints: {
-      health: '/health',
-      login: 'POST /api/tenants/:tenantId/login',
-      documentation: 'API is running. Use /api/* endpoints for tenant operations.'
-    },
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Public routes (no authentication or subdomain detection required)
 app.use('/api', publicRoutes);
 
@@ -232,6 +217,15 @@ app.use('/api', costCenterRoutes);
 app.use('/api', timesheetRoutes);
 app.use('/api', tenantSettingsRoutes);
 app.use('/api', feedbackRoutes);
+
+// Serve static frontend files (React app)
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// Catch-all route for React Router - must be after all API routes
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 // Error handling
 app.use(notFoundHandler);
