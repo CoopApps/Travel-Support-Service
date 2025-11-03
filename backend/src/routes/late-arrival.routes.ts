@@ -1,8 +1,9 @@
-import express from 'express';
-import type { Request } from 'express';
-import { Pool } from 'pg';
+import express, { Router, Request, Response } from 'express';
+import { asyncHandler } from '../middleware/errorHandler';
+import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { query, getDbClient } from '../config/database';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Extend Request type to include user
 interface AuthRequest extends Request {
@@ -12,8 +13,6 @@ interface AuthRequest extends Request {
     role: string;
   };
 }
-
-export default (pool: Pool, verifyTenantAccess: any) => {
   /**
    * Log a late arrival
    */
@@ -30,7 +29,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
     } = req.body;
 
     try {
-      const client = await pool.connect();
+      const client = await getDbClient();
 
       try {
         // Create table if it doesn't exist
@@ -87,7 +86,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
           lateArrival: result.rows[0]
         });
       } finally {
-        client.release();
+        await client.end();
       }
     } catch (error: any) {
       console.error('Error logging late arrival:', error);
@@ -110,7 +109,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
     const customerId = req.query.customerId as string | undefined;
 
     try {
-      const client = await pool.connect();
+      const client = await getDbClient();
 
       try {
         let query = `
@@ -154,7 +153,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
           lateArrivals: result.rows
         });
       } finally {
-        client.release();
+        await client.end();
       }
     } catch (error: any) {
       console.error('Error fetching late arrivals:', error);
@@ -176,7 +175,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
     const endDate = req.query.endDate as string | undefined;
 
     try {
-      const client = await pool.connect();
+      const client = await getDbClient();
 
       try {
         let query = `
@@ -236,7 +235,7 @@ export default (pool: Pool, verifyTenantAccess: any) => {
           }
         });
       } finally {
-        client.release();
+        await client.end();
       }
     } catch (error: any) {
       console.error('Error fetching late arrival stats:', error);
@@ -249,5 +248,4 @@ export default (pool: Pool, verifyTenantAccess: any) => {
     }
   });
 
-  return router;
-};
+export default router;
