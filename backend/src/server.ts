@@ -177,6 +177,10 @@ setupSwagger(app);
 // Health check routes (must be first - no middleware)
 app.use(healthRoutes);
 
+// Serve static frontend files BEFORE subdomain detection
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
 // Public routes (no authentication or subdomain detection required)
 app.use('/api', publicRoutes);
 
@@ -217,10 +221,6 @@ app.use('/api', costCenterRoutes);
 app.use('/api', timesheetRoutes);
 app.use('/api', tenantSettingsRoutes);
 app.use('/api', feedbackRoutes);
-
-// Serve static frontend files (React app)
-const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
