@@ -74,7 +74,7 @@ router.get('/tenants/:tenantId/training', verifyTenantAccess, asyncHandler(async
 
         res.json(overview);
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 
@@ -101,7 +101,7 @@ router.get('/tenants/:tenantId/training-types', verifyTenantAccess, asyncHandler
 
         res.json({ trainingTypes: result.rows });
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 
@@ -158,7 +158,7 @@ router.get('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHandl
             }
         });
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 
@@ -195,7 +195,7 @@ router.get('/tenants/:tenantId/training-compliance', verifyTenantAccess, asyncHa
             }
         });
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 
@@ -237,7 +237,7 @@ router.post('/tenants/:tenantId/training-types', verifyTenantAccess, asyncHandle
 
         res.status(201).json(result.rows[0]);
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 
@@ -321,7 +321,7 @@ router.post('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHand
 
         res.status(201).json(result.rows[0]);
     } finally {
-        await client.end();
+        client.release();
     }
 }));
 

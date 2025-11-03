@@ -1,7 +1,6 @@
-import express, { Router, Request, Response } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
+import express, { Router, Request } from 'express';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
-import { query, getDbClient } from '../config/database';
+import { getDbClient } from '../config/database';
 
 const router: Router = express.Router();
 
@@ -86,7 +85,7 @@ interface AuthRequest extends Request {
           lateArrival: result.rows[0]
         });
       } finally {
-        await client.end();
+        client.release();
       }
     } catch (error: any) {
       console.error('Error logging late arrival:', error);
@@ -153,7 +152,7 @@ interface AuthRequest extends Request {
           lateArrivals: result.rows
         });
       } finally {
-        await client.end();
+        client.release();
       }
     } catch (error: any) {
       console.error('Error fetching late arrivals:', error);
@@ -235,7 +234,7 @@ interface AuthRequest extends Request {
           }
         });
       } finally {
-        await client.end();
+        client.release();
       }
     } catch (error: any) {
       console.error('Error fetching late arrival stats:', error);
