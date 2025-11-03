@@ -127,10 +127,15 @@ app.use(cors({
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:3000',
+      'https://travel-supportbackend-production.up.railway.app',
     ];
 
-    // Check if origin is in allowed list or is a subdomain of localhost
-    if (allowedOrigins.includes(origin) || origin.match(/^http:\/\/.*\.localhost:(5173|5174)$/)) {
+    // Check if origin is in allowed list, is a subdomain of localhost, or is a Railway deployment
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.match(/^http:\/\/.*\.localhost:(5173|5174)$/) ||
+      origin.match(/^https:\/\/.*\.railway\.app$/)
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
