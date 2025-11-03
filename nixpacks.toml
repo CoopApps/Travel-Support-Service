@@ -1,0 +1,23 @@
+[phases.setup]
+nixPkgs = ["nodejs_22", "npm-9_x"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = [
+  "echo '🗑️  Clearing build caches...'",
+  "rm -rf frontend/dist || true",
+  "rm -rf backend/dist || true",
+  "rm -rf frontend/node_modules/.vite || true",
+  "echo '📦 Building backend...'",
+  "npm run build --workspace=backend",
+  "echo '🎨 Building frontend...'",
+  "npm run build --workspace=frontend",
+  "echo '📁 Copying frontend to backend public...'",
+  "mkdir -p backend/dist/public",
+  "cp -r frontend/dist/* backend/dist/public/"
+]
+
+[start]
+cmd = "npm run start --workspace=backend"

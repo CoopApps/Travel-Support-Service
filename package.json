@@ -11,6 +11,8 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "clean": "rm -rf frontend/dist backend/dist frontend/node_modules/.vite",
+    "prebuild": "npm run clean",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "test:watch": "npm run test:watch --workspaces",
