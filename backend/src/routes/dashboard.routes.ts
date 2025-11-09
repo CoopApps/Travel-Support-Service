@@ -622,34 +622,34 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
       const outstandingInvoicesResult = await pool.query(`
         SELECT
           COUNT(*) as invoice_count,
-          COALESCE(SUM(total), 0) as total_outstanding
+          COALESCE(SUM(total_amount), 0) as total_outstanding
         FROM tenant_invoices
         WHERE tenant_id = $1
-          AND status = 'unpaid'
-          AND is_active = true
+          AND invoice_status = 'unpaid'
+          AND archived = false
       `, [tenantId]);
 
       // Month-to-date revenue (from paid invoices)
       const monthlyRevenueResult = await pool.query(`
         SELECT
-          COALESCE(SUM(total), 0) as revenue_mtd
+          COALESCE(SUM(total_amount), 0) as revenue_mtd
         FROM tenant_invoices
         WHERE tenant_id = $1
-          AND status = 'paid'
-          AND is_active = true
+          AND invoice_status = 'paid'
+          AND archived = false
           AND invoice_date >= $2
           AND invoice_date <= $3
       `, [tenantId, startOfMonthStr, endOfMonthStr]);
 
-      // Payroll costs this month (from approved timesheets)
+      // Payroll costs this month (from payroll records)
       const payrollCostsResult = await pool.query(`
         SELECT
-          COALESCE(SUM(invoice_amount), 0) as payroll_costs
-        FROM tenant_freelance_timesheets
-        WHERE tenant_id = $1
-          AND approval_status = 'approved'
-          AND period_start >= $2
-          AND period_end <= $3
+          COALESCE(SUM(pr.gross_pay), 0) as payroll_costs
+        FROM tenant_payroll_records pr
+        JOIN tenant_payroll_periods pp ON pr.period_id = pp.period_id AND pr.tenant_id = pp.tenant_id
+        WHERE pr.tenant_id = $1
+          AND pp.period_start >= $2
+          AND pp.period_end <= $3
       `, [tenantId, startOfMonthStr, endOfMonthStr]);
 
       // ===== DRIVER COMPLIANCE STATUS =====
