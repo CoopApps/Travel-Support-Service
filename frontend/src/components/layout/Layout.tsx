@@ -59,6 +59,7 @@ function Layout() {
             <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
             <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
             <NavItem to="/safeguarding" label="Safeguarding" icon="shield" active={location.pathname === '/safeguarding'} />
+            <NavItem to="/documents" label="Documents" icon="file" active={location.pathname === '/documents'} />
           </div>
 
           <div className="nav-section">

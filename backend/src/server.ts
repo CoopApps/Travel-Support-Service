@@ -61,6 +61,7 @@ import costCenterRoutes from './routes/cost-center.routes';
 import timesheetRoutes from './routes/timesheet.routes';
 import tenantSettingsRoutes from './routes/tenant-settings.routes';
 import feedbackRoutes from './routes/feedback.routes';
+import documentRoutes from './routes/documents.routes';
 
 /**
  * Main Server File - Stage 4
@@ -226,6 +227,7 @@ app.use('/api', costCenterRoutes);
 app.use('/api', timesheetRoutes);
 app.use('/api', tenantSettingsRoutes);
 app.use('/api', feedbackRoutes);
+app.use('/api', documentRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

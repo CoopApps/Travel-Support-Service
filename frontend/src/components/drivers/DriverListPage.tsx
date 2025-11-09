@@ -12,6 +12,7 @@ import VehicleAssignmentDisplay from './VehicleAssignmentDisplay';
 import PermitStatusDisplay from './PermitStatusDisplay';
 import CustomerAssignmentDisplay from './CustomerAssignmentDisplay';
 import LoginHistoryModal from './LoginHistoryModal';
+import { DriverDocumentsModal } from './DriverDocumentsModal';
 
 /**
  * Driver List Page
@@ -62,6 +63,8 @@ function DriverListPage() {
   const [vehicleDriver, setVehicleDriver] = useState<Driver | null>(null);
   const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false);
   const [loginHistoryDriver, setLoginHistoryDriver] = useState<Driver | null>(null);
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
+  const [documentsDriver, setDocumentsDriver] = useState<Driver | null>(null);
 
   /**
    * Fetch drivers from API
@@ -219,6 +222,14 @@ function DriverListPage() {
   const handleLoginHistory = (driver: Driver) => {
     setLoginHistoryDriver(driver);
     setShowLoginHistoryModal(true);
+  };
+
+  /**
+   * Handle documents
+   */
+  const handleDocuments = (driver: Driver) => {
+    setDocumentsDriver(driver);
+    setShowDocumentsModal(true);
   };
 
   /**
@@ -550,6 +561,14 @@ function DriverListPage() {
                           >
                             Full Details
                           </button>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => handleDocuments(driver)}
+                            style={{ fontSize: '11px', padding: '4px 8px', background: '#6366f1', borderColor: '#6366f1', color: 'white' }}
+                            title="View and manage driver documents"
+                          >
+                            📄 Documents
+                          </button>
                           {activeTab === 'active' ? (
                             <button
                               className="btn btn-sm"
@@ -684,6 +703,18 @@ function DriverListPage() {
           onClose={() => {
             setShowLoginHistoryModal(false);
             setLoginHistoryDriver(null);
+          }}
+        />
+      )}
+
+      {/* Documents Modal */}
+      {showDocumentsModal && documentsDriver && (
+        <DriverDocumentsModal
+          driverId={documentsDriver.driver_id}
+          driverName={`${documentsDriver.first_name} ${documentsDriver.last_name}`}
+          onClose={() => {
+            setShowDocumentsModal(false);
+            setDocumentsDriver(null);
           }}
         />
       )}

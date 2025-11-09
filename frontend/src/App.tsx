@@ -23,6 +23,7 @@ import CustomerDashboardAdminPage from './pages/CustomerDashboardAdminPage';
 import PayrollPage from './components/payroll/PayrollPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import FeedbackPage from './components/admin/FeedbackPage';
+import { DocumentsPage } from './components/documents/DocumentsPage';
 import Layout from './components/layout/Layout';
 import PlatformAdminLogin from './components/platform-admin/PlatformAdminLogin';
 import TenantListPage from './components/platform-admin/TenantListPage';
@@ -158,6 +159,7 @@ function App() {
         <Route path="permits" element={<PermitsPage />} />
         <Route path="training" element={<TrainingPage />} />
         <Route path="safeguarding" element={<SafeguardingPage />} />
+        <Route path="documents" element={<DocumentsPage />} />
         <Route path="driver-messages" element={<DriverMessagesPage />} />
         <Route path="customer-messages" element={<CustomerMessagesPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
