@@ -16,6 +16,9 @@ function SafeguardingPage() {
   const [reports, setReports] = useState<SafeguardingReport[]>([]);
   const [filteredReports, setFilteredReports] = useState<SafeguardingReport[]>([]);
 
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+
   // Filters
   const [statusFilter, setStatusFilter] = useState<ReportStatus | ''>('');
   const [severityFilter, setSeverityFilter] = useState<SeverityLevel | ''>('');
@@ -33,7 +36,7 @@ function SafeguardingPage() {
 
   useEffect(() => {
     applyFilters();
-  }, [reports, statusFilter, severityFilter, searchTerm]);
+  }, [reports, activeTab, statusFilter, severityFilter, searchTerm]);
 
   const fetchReports = async () => {
     if (!tenantId) return;
@@ -51,6 +54,17 @@ function SafeguardingPage() {
 
   const applyFilters = () => {
     let filtered = [...reports];
+
+    // Filter by tab (active vs archive)
+    if (activeTab === 'active') {
+      filtered = filtered.filter(r =>
+        r.status !== 'resolved' && r.status !== 'closed'
+      );
+    } else {
+      filtered = filtered.filter(r =>
+        r.status === 'resolved' || r.status === 'closed'
+      );
+    }
 
     if (statusFilter) {
       filtered = filtered.filter(r => r.status === statusFilter);
@@ -180,6 +194,49 @@ function SafeguardingPage() {
             {tenant.company_name} - Critical Safety Reporting System
           </p>
         )}
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        borderBottom: '2px solid var(--gray-200)',
+        marginBottom: '1.5rem',
+        gap: '0.5rem'
+      }}>
+        <button
+          onClick={() => setActiveTab('active')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'active' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'active' ? '2px solid var(--danger)' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'active' ? 'var(--danger)' : 'var(--gray-600)',
+            fontWeight: activeTab === 'active' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Active Reports
+        </button>
+        <button
+          onClick={() => setActiveTab('archive')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'archive' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'archive' ? '2px solid var(--danger)' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'archive' ? 'var(--danger)' : 'var(--gray-600)',
+            fontWeight: activeTab === 'archive' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Archive
+        </button>
       </div>
 
       {/* Critical Alert Banner */}

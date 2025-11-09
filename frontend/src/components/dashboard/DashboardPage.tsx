@@ -5,6 +5,7 @@ import { useTenant } from '../../context/TenantContext';
 import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
 import { vehicleApi, customerApi, driverApi } from '../../services/api';
 import IncidentFormModal from '../vehicles/IncidentFormModal';
+import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
 import '../../pages/AdminDashboard.css';
 
 /**
@@ -32,6 +33,7 @@ function DashboardPage() {
 
   // Quick Actions State
   const [showIncidentModal, setShowIncidentModal] = useState(false);
+  const [showSafeguardingModal, setShowSafeguardingModal] = useState(false);
   const [showLateArrivalModal, setShowLateArrivalModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleModalDate, setScheduleModalDate] = useState<string>('');
@@ -137,6 +139,24 @@ function DashboardPage() {
       setShowIncidentModal(true);
     } catch (err) {
       console.error('Error loading incident form data:', err);
+    }
+  };
+
+  const handleReportSafeguarding = async () => {
+    if (!tenantId) return;
+    // Load drivers and customers for safeguarding form
+    try {
+      const [driversResponse, customersResponse] = await Promise.all([
+        driverApi.getDrivers(tenantId),
+        customerApi.getCustomers(tenantId)
+      ]);
+      // Drivers API returns { drivers: [...], total, page, etc }
+      // Customers API returns { customers: [...], total, page, etc }
+      setDrivers(Array.isArray(driversResponse) ? driversResponse : (driversResponse?.drivers || []));
+      setCustomers(Array.isArray(customersResponse) ? customersResponse : (customersResponse?.customers || []));
+      setShowSafeguardingModal(true);
+    } catch (err) {
+      console.error('Error loading safeguarding form data:', err);
     }
   };
 
@@ -557,6 +577,24 @@ function DashboardPage() {
           Report Incident
         </button>
         <button
+          onClick={handleReportSafeguarding}
+          style={{
+            padding: '0.5rem 1rem',
+            background: '#fee2e2',
+            color: '#991b1b',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'background 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#fecaca'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#fee2e2'}
+        >
+          Report Safeguarding
+        </button>
+        <button
           onClick={handleLogLateArrival}
           style={{
             padding: '0.5rem 1rem',
@@ -958,6 +996,20 @@ function DashboardPage() {
           drivers={drivers}
           onClose={(shouldRefresh) => {
             setShowIncidentModal(false);
+            if (shouldRefresh) {
+              loadDashboard();
+            }
+          }}
+        />
+      )}
+
+      {/* Safeguarding Report Modal */}
+      {showSafeguardingModal && (
+        <SafeguardingFormModal
+          drivers={drivers}
+          customers={customers}
+          onClose={(shouldRefresh) => {
+            setShowSafeguardingModal(false);
             if (shouldRefresh) {
               loadDashboard();
             }
