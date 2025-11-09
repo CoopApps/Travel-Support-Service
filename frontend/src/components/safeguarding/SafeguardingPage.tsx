@@ -157,6 +157,28 @@ function SafeguardingPage() {
     }
   };
 
+  const handleArchiveReport = async (report: SafeguardingReport) => {
+    if (!tenantId) return;
+
+    const confirmed = window.confirm(
+      `Archive report SG-${report.report_id}?\n\n` +
+      `This will mark the report as "closed" and move it to the archive.\n\n` +
+      `You can still view and edit it from the Archive tab.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await safeguardingApi.updateReport(tenantId, report.report_id, {
+        status: 'closed'
+      });
+      fetchReports();
+    } catch (err) {
+      console.error('Error archiving report:', err);
+      alert('Failed to archive report. Please try again.');
+    }
+  };
+
   // Calculate stats
   const stats = {
     total: reports.length,
@@ -412,13 +434,25 @@ function SafeguardingPage() {
                     {getStatusBadge(report.status)}
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <button
-                      onClick={() => handleViewReport(report)}
-                      className="btn btn-sm btn-primary"
-                      style={{ fontSize: '13px' }}
-                    >
-                      View Details
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <button
+                        onClick={() => handleViewReport(report)}
+                        className="btn btn-sm btn-primary"
+                        style={{ fontSize: '13px' }}
+                      >
+                        View Details
+                      </button>
+                      {activeTab === 'active' && (
+                        <button
+                          onClick={() => handleArchiveReport(report)}
+                          className="btn btn-sm btn-secondary"
+                          style={{ fontSize: '13px', background: 'var(--gray-200)', color: 'var(--gray-700)' }}
+                          title="Archive this report"
+                        >
+                          Archive
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
