@@ -127,12 +127,13 @@ function DashboardPage() {
     if (!tenantId) return;
     // Load vehicles and drivers for incident form
     try {
-      const [vehiclesData, driversData] = await Promise.all([
+      const [vehiclesData, driversResponse] = await Promise.all([
         vehicleApi.getVehicles(tenantId),
         driverApi.getDrivers(tenantId)
       ]);
-      setVehicles(vehiclesData);
-      setDrivers(driversData);
+      // Vehicles API returns array directly, drivers API returns { drivers: [...], total, page, etc }
+      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
+      setDrivers(Array.isArray(driversResponse) ? driversResponse : (driversResponse?.drivers || []));
       setShowIncidentModal(true);
     } catch (err) {
       console.error('Error loading incident form data:', err);
@@ -143,8 +144,9 @@ function DashboardPage() {
     if (!tenantId) return;
     // Load customers for late arrival form
     try {
-      const customersData = await customerApi.getCustomers(tenantId);
-      setCustomers(customersData);
+      const customersResponse = await customerApi.getCustomers(tenantId);
+      // Customers API returns { customers: [...], total, page, etc }
+      setCustomers(Array.isArray(customersResponse) ? customersResponse : (customersResponse?.customers || []));
       setShowLateArrivalModal(true);
     } catch (err) {
       console.error('Error loading customers:', err);
