@@ -36,6 +36,9 @@ function DriverListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
 
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+
   // Enhanced stats (loaded by DriverStats component)
   const [enhancedStats, setEnhancedStats] = useState<any>(null);
 
@@ -78,9 +81,15 @@ function DriverListPage() {
       };
 
       const response = await driverApi.getDrivers(tenantId, query);
-      setDrivers(response.drivers);
-      setTotal(response.total);
-      setTotalPages(response.totalPages);
+
+      // Filter by active/archive tab
+      const filteredDrivers = response.drivers.filter(driver =>
+        activeTab === 'active' ? driver.is_active : !driver.is_active
+      );
+
+      setDrivers(filteredDrivers);
+      setTotal(filteredDrivers.length);
+      setTotalPages(Math.ceil(filteredDrivers.length / limit));
     } catch (err: any) {
       console.error('Error fetching drivers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load drivers');
@@ -94,7 +103,7 @@ function DriverListPage() {
    */
   useEffect(() => {
     fetchDrivers();
-  }, [page, search, employmentTypeFilter]);
+  }, [page, search, employmentTypeFilter, activeTab]);
 
   /**
    * Handle search
@@ -118,6 +127,45 @@ function DriverListPage() {
       fetchDrivers();
     } catch (err: any) {
       alert(err.response?.data?.error?.message || 'Failed to delete driver');
+    }
+  };
+
+  /**
+   * Handle archive driver
+   */
+  const handleArchive = async (driver: Driver) => {
+    const confirmed = window.confirm(
+      `Archive driver "${driver.name}"?\n\n` +
+      `This will mark the driver as inactive and move them to the archive.\n\n` +
+      `You can still view and reactivate them from the Archive tab.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await driverApi.updateDriver(tenantId, driver.driver_id, { is_active: false });
+      fetchDrivers();
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to archive driver');
+    }
+  };
+
+  /**
+   * Handle reactivate driver
+   */
+  const handleReactivate = async (driver: Driver) => {
+    const confirmed = window.confirm(
+      `Reactivate driver "${driver.name}"?\n\n` +
+      `This will restore the driver to active status.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await driverApi.updateDriver(tenantId, driver.driver_id, { is_active: true });
+      fetchDrivers();
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to reactivate driver');
     }
   };
 
@@ -206,6 +254,55 @@ function DriverListPage() {
         </div>
         <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
           + Add Driver
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        borderBottom: '2px solid var(--gray-200)',
+        marginBottom: '1.5rem',
+        gap: '0.5rem'
+      }}>
+        <button
+          onClick={() => {
+            setActiveTab('active');
+            setPage(1);
+          }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'active' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'active' ? '2px solid #28a745' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'active' ? '#28a745' : 'var(--gray-600)',
+            fontWeight: activeTab === 'active' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Active Drivers
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('archive');
+            setPage(1);
+          }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'archive' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'archive' ? '2px solid #28a745' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'archive' ? '#28a745' : 'var(--gray-600)',
+            fontWeight: activeTab === 'archive' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Archive
         </button>
       </div>
 
@@ -453,13 +550,23 @@ function DriverListPage() {
                           >
                             Full Details
                           </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleDelete(driver)}
-                            style={{ fontSize: '11px', padding: '4px 8px' }}
-                          >
-                            Delete
-                          </button>
+                          {activeTab === 'active' ? (
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => handleArchive(driver)}
+                              style={{ fontSize: '11px', padding: '4px 8px', background: '#f59e0b', borderColor: '#f59e0b', color: 'white' }}
+                            >
+                              Archive
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => handleReactivate(driver)}
+                              style={{ fontSize: '11px', padding: '4px 8px', background: '#22c55e', borderColor: '#22c55e', color: 'white' }}
+                            >
+                              Reactivate
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

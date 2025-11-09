@@ -42,6 +42,9 @@ function CustomerListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
 
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+
   // Pagination state
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
@@ -90,9 +93,14 @@ function CustomerListPage() {
 
       const response = await customerApi.getCustomers(tenantId, query);
 
-      setCustomers(response.customers);
-      setTotal(response.total);
-      setTotalPages(response.totalPages);
+      // Filter by active/archive tab
+      const filteredCustomers = response.customers.filter(customer =>
+        activeTab === 'active' ? customer.is_active : !customer.is_active
+      );
+
+      setCustomers(filteredCustomers);
+      setTotal(filteredCustomers.length);
+      setTotalPages(Math.ceil(filteredCustomers.length / limit));
     } catch (err: any) {
       console.error('Error fetching customers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load customers');
@@ -106,7 +114,7 @@ function CustomerListPage() {
    */
   useEffect(() => {
     fetchCustomers();
-  }, [page, search]);
+  }, [page, search, activeTab]);
 
   /**
    * Handle search
@@ -130,6 +138,45 @@ function CustomerListPage() {
       fetchCustomers(); // Reload the list
     } catch (err: any) {
       alert(err.response?.data?.error?.message || 'Failed to delete customer');
+    }
+  };
+
+  /**
+   * Handle archive customer
+   */
+  const handleArchive = async (customer: Customer) => {
+    const confirmed = window.confirm(
+      `Archive customer "${customer.name}"?\n\n` +
+      `This will mark the customer as inactive and move them to the archive.\n\n` +
+      `You can still view and reactivate them from the Archive tab.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await customerApi.updateCustomer(tenantId, customer.id, { is_active: false });
+      fetchCustomers();
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to archive customer');
+    }
+  };
+
+  /**
+   * Handle reactivate customer
+   */
+  const handleReactivate = async (customer: Customer) => {
+    const confirmed = window.confirm(
+      `Reactivate customer "${customer.name}"?\n\n` +
+      `This will restore the customer to active status.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await customerApi.updateCustomer(tenantId, customer.id, { is_active: true });
+      fetchCustomers();
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to reactivate customer');
     }
   };
 
@@ -228,6 +275,55 @@ function CustomerListPage() {
         </div>
         <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
           + Add Customer
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        borderBottom: '2px solid var(--gray-200)',
+        marginBottom: '1.5rem',
+        gap: '0.5rem'
+      }}>
+        <button
+          onClick={() => {
+            setActiveTab('active');
+            setPage(1);
+          }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'active' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'active' ? '2px solid #28a745' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'active' ? '#28a745' : 'var(--gray-600)',
+            fontWeight: activeTab === 'active' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Active Customers
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('archive');
+            setPage(1);
+          }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'archive' ? 'white' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'archive' ? '2px solid #28a745' : '2px solid transparent',
+            marginBottom: '-2px',
+            color: activeTab === 'archive' ? '#28a745' : 'var(--gray-600)',
+            fontWeight: activeTab === 'archive' ? 600 : 400,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Archive
         </button>
       </div>
 
@@ -445,19 +541,34 @@ function CustomerListPage() {
                             </svg>
                             Assess
                           </button>
-                          <button
-                            className="btn btn-action btn-delete"
-                            onClick={() => handleDelete(customer)}
-                            title="Delete customer"
-                          >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                              <line x1="10" y1="11" x2="10" y2="17"></line>
-                              <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                            Delete
-                          </button>
+                          {activeTab === 'active' ? (
+                            <button
+                              className="btn btn-action btn-archive"
+                              onClick={() => handleArchive(customer)}
+                              title="Archive customer"
+                              style={{ background: '#f59e0b', borderColor: '#f59e0b' }}
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                <rect x="1" y="3" width="22" height="5"></rect>
+                                <line x1="10" y1="12" x2="14" y2="12"></line>
+                              </svg>
+                              Archive
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-action btn-reactivate"
+                              onClick={() => handleReactivate(customer)}
+                              title="Reactivate customer"
+                              style={{ background: '#22c55e', borderColor: '#22c55e' }}
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 3v18h18"></path>
+                                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                              </svg>
+                              Reactivate
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
