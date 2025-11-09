@@ -723,21 +723,21 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
           v.make,
           v.model,
           v.last_service_date,
-          v.next_service_date,
+          (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date as next_service_date,
           v.mot_expiry,
           CASE
-            WHEN v.next_service_date < $2 THEN 'overdue'
-            WHEN v.next_service_date <= ($2::date + INTERVAL '7 days')::date THEN 'due_this_week'
-            WHEN v.next_service_date <= ($2::date + INTERVAL '30 days')::date THEN 'due_this_month'
+            WHEN (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date < $2::date THEN 'overdue'
+            WHEN (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date <= ($2::date + INTERVAL '7 days')::date THEN 'due_this_week'
+            WHEN (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date <= ($2::date + INTERVAL '30 days')::date THEN 'due_this_month'
             ELSE 'scheduled'
           END as service_status,
-          ($2::date - v.next_service_date::date) as days_overdue
+          ($2::date - (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date) as days_overdue
         FROM tenant_vehicles v
         WHERE v.tenant_id = $1
           AND v.is_active = true
-          AND v.next_service_date IS NOT NULL
-          AND v.next_service_date <= ($2::date + INTERVAL '30 days')::date
-        ORDER BY v.next_service_date ASC
+          AND v.last_service_date IS NOT NULL
+          AND (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date <= ($2::date + INTERVAL '30 days')::date
+        ORDER BY (v.last_service_date + (COALESCE(v.service_interval_months, 6) || ' months')::interval)::date ASC
         LIMIT 20
       `, [tenantId, todayStr]);
 
