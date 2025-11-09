@@ -68,6 +68,7 @@ export interface DashboardTasks {
   outingSuggestions: TaskItem;
   driverMessages: TaskItem;
   customerMessages: TaskItem;
+  expiringDocuments: TaskItem;
 }
 
 export interface DashboardStats {
@@ -80,6 +81,27 @@ export interface DashboardStats {
   pendingPayments: number;
   weekStart: string;
   weekEnd: string;
+  // Financial Summary
+  outstandingInvoicesCount: number;
+  outstandingInvoicesTotal: number;
+  revenueMTD: number;
+  payrollCosts: number;
+  monthStart: string;
+  monthEnd: string;
+  // Driver Compliance
+  totalDrivers: number;
+  compliantDrivers: number;
+  nonCompliantDrivers: number;
+  compliancePercentage: number;
+  // Fleet Utilization
+  totalVehicles: number;
+  assignedVehicles: number;
+  availableVehicles: number;
+  maintenanceVehicles: number;
+  utilizationPercentage: number;
+  maintenanceOverdue: number;
+  maintenanceDueThisWeek: number;
+  motExpiringSoon: number;
 }
 
 export interface DashboardSummary {
@@ -156,11 +178,62 @@ export interface TodayData {
   };
 }
 
+export interface FleetMaintenance {
+  vehicle_id: number;
+  registration: string;
+  make: string;
+  model: string;
+  last_service_date?: string;
+  next_service_date?: string;
+  mot_expiry?: string;
+  service_status: 'overdue' | 'due_this_week' | 'due_this_month' | 'scheduled';
+  days_overdue?: number;
+}
+
+export interface FleetMOT {
+  vehicle_id: number;
+  registration: string;
+  make: string;
+  model: string;
+  mot_expiry: string;
+  days_until_expiry: number;
+  mot_status: 'expired' | 'critical' | 'warning' | 'valid';
+}
+
+export interface RecentMaintenance {
+  maintenance_id: number;
+  vehicle_id: number;
+  maintenance_type: string;
+  maintenance_date: string;
+  description?: string;
+  cost?: number;
+  completed: boolean;
+  registration: string;
+  make: string;
+  model: string;
+}
+
+export interface FleetData {
+  maintenanceDue: {
+    count: number;
+    items: FleetMaintenance[];
+  };
+  motExpiring: {
+    count: number;
+    items: FleetMOT[];
+  };
+  recentMaintenance: {
+    count: number;
+    items: RecentMaintenance[];
+  };
+}
+
 export interface DashboardOverview {
   tasks: DashboardTasks;
   stats: DashboardStats;
   summary: DashboardSummary;
   today: TodayData;
+  fleet: FleetData;
 }
 
 // ============================================================================

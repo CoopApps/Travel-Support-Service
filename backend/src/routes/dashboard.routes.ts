@@ -401,7 +401,69 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         LIMIT 50
       `, [tenantId, warningDateStr, todayStr]);
 
-      // 9. Unreviewed Safeguarding Reports
+      // 9. Expiring/Expired Documents
+      const expiringDocumentsResult = await pool.query(`
+        SELECT
+          document_id,
+          original_filename,
+          document_category,
+          expiry_date,
+          module,
+          entity_type,
+          entity_id,
+          CASE
+            WHEN expiry_date < $2 THEN 'expired'
+            WHEN expiry_date <= ($2::date + INTERVAL '7 days')::date THEN 'critical'
+            WHEN expiry_date <= $3 THEN 'warning'
+            ELSE 'valid'
+          END as expiry_status,
+          ($2::date - expiry_date::date) as days_until_expiry
+        FROM tenant_documents
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND expiry_date IS NOT NULL
+          AND expiry_date <= $3
+        ORDER BY
+          CASE
+            WHEN expiry_date < $2 THEN 1
+            WHEN expiry_date <= ($2::date + INTERVAL '7 days')::date THEN 2
+            ELSE 3
+          END,
+          expiry_date ASC
+        LIMIT 50
+      `, [tenantId, todayStr, warningDateStr]);
+
+      // Get entity names for documents
+      const documentsWithNames = await Promise.all(
+        expiringDocumentsResult.rows.map(async (doc: any) => {
+          let entityName = '';
+          if (doc.module === 'drivers' && doc.entity_id) {
+            const driverResult = await pool.query(
+              'SELECT name FROM tenant_drivers WHERE tenant_id = $1 AND driver_id = $2',
+              [tenantId, doc.entity_id]
+            );
+            entityName = driverResult.rows[0]?.name || '';
+          } else if (doc.module === 'customers' && doc.entity_id) {
+            const customerResult = await pool.query(
+              'SELECT name FROM tenant_customers WHERE tenant_id = $1 AND customer_id = $2',
+              [tenantId, doc.entity_id]
+            );
+            entityName = customerResult.rows[0]?.name || '';
+          } else if (doc.module === 'vehicles' && doc.entity_id) {
+            const vehicleResult = await pool.query(
+              'SELECT registration FROM tenant_vehicles WHERE tenant_id = $1 AND vehicle_id = $2',
+              [tenantId, doc.entity_id]
+            );
+            entityName = vehicleResult.rows[0]?.registration || '';
+          }
+          return {
+            ...doc,
+            entity_name: entityName
+          };
+        })
+      );
+
+      // 10. Unreviewed Safeguarding Reports
       const safeguardingReportsResult = await pool.query(`
         SELECT
           report_id,
@@ -547,6 +609,193 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
           AND schedule::jsonb->$2 IS NOT NULL
           AND schedule::jsonb->$2->>'destination' IS NOT NULL
       `, [tenantId, todayDayName]);
+
+      // ===== FINANCIAL SUMMARY =====
+
+      // Get start and end of current month
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const endOfMonthStr = endOfMonth.toISOString().split('T')[0];
+
+      // Outstanding invoices (unpaid, total amount)
+      const outstandingInvoicesResult = await pool.query(`
+        SELECT
+          COUNT(*) as invoice_count,
+          COALESCE(SUM(total), 0) as total_outstanding
+        FROM tenant_invoices
+        WHERE tenant_id = $1
+          AND status = 'unpaid'
+          AND is_active = true
+      `, [tenantId]);
+
+      // Month-to-date revenue (from paid invoices)
+      const monthlyRevenueResult = await pool.query(`
+        SELECT
+          COALESCE(SUM(total), 0) as revenue_mtd
+        FROM tenant_invoices
+        WHERE tenant_id = $1
+          AND status = 'paid'
+          AND is_active = true
+          AND invoice_date >= $2
+          AND invoice_date <= $3
+      `, [tenantId, startOfMonthStr, endOfMonthStr]);
+
+      // Payroll costs this month (from approved timesheets)
+      const payrollCostsResult = await pool.query(`
+        SELECT
+          COALESCE(SUM(invoice_amount), 0) as payroll_costs
+        FROM tenant_freelance_timesheets
+        WHERE tenant_id = $1
+          AND approval_status = 'approved'
+          AND period_start >= $2
+          AND period_end <= $3
+      `, [tenantId, startOfMonthStr, endOfMonthStr]);
+
+      // ===== DRIVER COMPLIANCE STATUS =====
+
+      // Get all active drivers
+      const allActiveDriversResult = await pool.query(`
+        SELECT COUNT(*) as total_drivers
+        FROM tenant_drivers
+        WHERE tenant_id = $1 AND is_active = true
+      `, [tenantId]);
+
+      // Drivers with expired or expiring training (within 30 days)
+      const driversTrainingIssuesResult = await pool.query(`
+        SELECT DISTINCT driver_id
+        FROM tenant_training_records
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND expiry_date IS NOT NULL
+          AND expiry_date <= $2
+      `, [tenantId, warningDateStr]);
+
+      // Drivers with expired or expiring permits (within 30 days)
+      const driversPermitIssuesResult = await pool.query(`
+        SELECT DISTINCT driver_id
+        FROM tenant_driver_permits
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND expiry_date IS NOT NULL
+          AND expiry_date <= $2
+      `, [tenantId, warningDateStr]);
+
+      // Drivers with expired or expiring documents (within 30 days)
+      const driversDocumentIssuesResult = await pool.query(`
+        SELECT DISTINCT entity_id as driver_id
+        FROM tenant_documents
+        WHERE tenant_id = $1
+          AND module = 'drivers'
+          AND is_active = true
+          AND expiry_date IS NOT NULL
+          AND expiry_date <= $2
+      `, [tenantId, warningDateStr]);
+
+      // Combine all driver compliance issues
+      const driversWithIssues = new Set<number>();
+      driversTrainingIssuesResult.rows.forEach((row: any) => driversWithIssues.add(row.driver_id));
+      driversPermitIssuesResult.rows.forEach((row: any) => driversWithIssues.add(row.driver_id));
+      driversDocumentIssuesResult.rows.forEach((row: any) => driversWithIssues.add(row.driver_id));
+
+      const totalDrivers = parseInt(allActiveDriversResult.rows[0]?.total_drivers || '0');
+      const nonCompliantDrivers = driversWithIssues.size;
+      const compliantDrivers = totalDrivers - nonCompliantDrivers;
+      const compliancePercentage = totalDrivers > 0 ? Math.round((compliantDrivers / totalDrivers) * 100) : 100;
+
+      // ===== FLEET UTILIZATION =====
+
+      // Fleet statistics
+      const fleetStatsResult = await pool.query(`
+        SELECT
+          COUNT(*) as total_vehicles,
+          COUNT(CASE WHEN driver_id IS NOT NULL THEN 1 END) as assigned_vehicles,
+          COUNT(CASE WHEN driver_id IS NULL AND is_active = true THEN 1 END) as available_vehicles,
+          COUNT(CASE WHEN vehicle_status = 'maintenance' OR vehicle_status = 'out_of_service' THEN 1 END) as maintenance_vehicles
+        FROM tenant_vehicles
+        WHERE tenant_id = $1 AND is_active = true
+      `, [tenantId]);
+
+      // Maintenance due soon (within 30 days)
+      const maintenanceDueResult = await pool.query(`
+        SELECT
+          v.vehicle_id,
+          v.registration,
+          v.make,
+          v.model,
+          v.last_service_date,
+          v.next_service_date,
+          v.mot_expiry,
+          CASE
+            WHEN v.next_service_date < $2 THEN 'overdue'
+            WHEN v.next_service_date <= ($2::date + INTERVAL '7 days')::date THEN 'due_this_week'
+            WHEN v.next_service_date <= ($2::date + INTERVAL '30 days')::date THEN 'due_this_month'
+            ELSE 'scheduled'
+          END as service_status,
+          ($2::date - v.next_service_date::date) as days_overdue
+        FROM tenant_vehicles v
+        WHERE v.tenant_id = $1
+          AND v.is_active = true
+          AND v.next_service_date IS NOT NULL
+          AND v.next_service_date <= ($2::date + INTERVAL '30 days')::date
+        ORDER BY v.next_service_date ASC
+        LIMIT 20
+      `, [tenantId, todayStr]);
+
+      // MOT expiring soon (within 30 days)
+      const motExpiringResult = await pool.query(`
+        SELECT
+          v.vehicle_id,
+          v.registration,
+          v.make,
+          v.model,
+          v.mot_expiry,
+          (v.mot_expiry::date - $2::date) as days_until_expiry,
+          CASE
+            WHEN v.mot_expiry < $2 THEN 'expired'
+            WHEN v.mot_expiry <= ($2::date + INTERVAL '7 days')::date THEN 'critical'
+            WHEN v.mot_expiry <= ($2::date + INTERVAL '30 days')::date THEN 'warning'
+            ELSE 'valid'
+          END as mot_status
+        FROM tenant_vehicles v
+        WHERE v.tenant_id = $1
+          AND v.is_active = true
+          AND v.mot_expiry IS NOT NULL
+          AND v.mot_expiry <= ($2::date + INTERVAL '30 days')::date
+        ORDER BY v.mot_expiry ASC
+        LIMIT 10
+      `, [tenantId, todayStr]);
+
+      // Recent maintenance activities
+      const recentMaintenanceResult = await pool.query(`
+        SELECT
+          m.maintenance_id,
+          m.vehicle_id,
+          m.maintenance_type,
+          m.maintenance_date,
+          m.description,
+          m.cost,
+          m.completed,
+          v.registration,
+          v.make,
+          v.model
+        FROM tenant_vehicle_maintenance m
+        JOIN tenant_vehicles v ON m.vehicle_id = v.vehicle_id AND m.tenant_id = v.tenant_id
+        WHERE m.tenant_id = $1
+          AND m.maintenance_date >= ($2::date - INTERVAL '30 days')::date
+        ORDER BY m.maintenance_date DESC
+        LIMIT 10
+      `, [tenantId, todayStr]);
+
+      const totalVehicles = parseInt(fleetStatsResult.rows[0]?.total_vehicles || '0');
+      const assignedVehicles = parseInt(fleetStatsResult.rows[0]?.assigned_vehicles || '0');
+      const availableVehicles = parseInt(fleetStatsResult.rows[0]?.available_vehicles || '0');
+      const maintenanceVehicles = parseInt(fleetStatsResult.rows[0]?.maintenance_vehicles || '0');
+      const utilizationPercentage = totalVehicles > 0 ? Math.round((assignedVehicles / totalVehicles) * 100) : 0;
+
+      // Count maintenance issues
+      const maintenanceOverdue = maintenanceDueResult.rows.filter((m: any) => m.service_status === 'overdue').length;
+      const maintenanceDueThisWeek = maintenanceDueResult.rows.filter((m: any) => m.service_status === 'due_this_week').length;
 
       // ===== TODAY'S OPERATIONAL DATA =====
 
@@ -697,12 +946,14 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         overdueInvoicesResult.rows.length +
         outingSuggestionsResult.rows.length +
         driverMessagesResult.rows.length +
-        customerMessagesResult.rows.length;
+        customerMessagesResult.rows.length +
+        documentsWithNames.length;
 
       const criticalTasks =
         expiredMotsResult.rows.length +
         safeguardingReportsResult.rows.filter((r: any) => r.severity === 'high' || r.severity === 'critical').length +
-        overdueInvoicesResult.rows.filter((r: any) => r.days_overdue > 7).length;
+        overdueInvoicesResult.rows.filter((r: any) => r.days_overdue > 7).length +
+        documentsWithNames.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length;
 
       res.json({
         tasks: {
@@ -757,6 +1008,10 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
           customerMessages: {
             count: customerMessagesResult.rows.length,
             items: customerMessagesResult.rows
+          },
+          expiringDocuments: {
+            count: documentsWithNames.length,
+            items: documentsWithNames
           }
         },
         stats: {
@@ -768,7 +1023,42 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
           pendingApprovals: totalPendingApprovals,
           pendingPayments: totalPendingPayments,
           weekStart: startOfWeekStr,
-          weekEnd: endOfWeekStr
+          weekEnd: endOfWeekStr,
+          // Financial Summary
+          outstandingInvoicesCount: parseInt(outstandingInvoicesResult.rows[0]?.invoice_count || '0'),
+          outstandingInvoicesTotal: parseFloat(outstandingInvoicesResult.rows[0]?.total_outstanding || '0'),
+          revenueMTD: parseFloat(monthlyRevenueResult.rows[0]?.revenue_mtd || '0'),
+          payrollCosts: parseFloat(payrollCostsResult.rows[0]?.payroll_costs || '0'),
+          monthStart: startOfMonthStr,
+          monthEnd: endOfMonthStr,
+          // Driver Compliance
+          totalDrivers: totalDrivers,
+          compliantDrivers: compliantDrivers,
+          nonCompliantDrivers: nonCompliantDrivers,
+          compliancePercentage: compliancePercentage,
+          // Fleet Utilization
+          totalVehicles: totalVehicles,
+          assignedVehicles: assignedVehicles,
+          availableVehicles: availableVehicles,
+          maintenanceVehicles: maintenanceVehicles,
+          utilizationPercentage: utilizationPercentage,
+          maintenanceOverdue: maintenanceOverdue,
+          maintenanceDueThisWeek: maintenanceDueThisWeek,
+          motExpiringSoon: motExpiringResult.rows.length
+        },
+        fleet: {
+          maintenanceDue: {
+            count: maintenanceDueResult.rows.length,
+            items: maintenanceDueResult.rows
+          },
+          motExpiring: {
+            count: motExpiringResult.rows.length,
+            items: motExpiringResult.rows
+          },
+          recentMaintenance: {
+            count: recentMaintenanceResult.rows.length,
+            items: recentMaintenanceResult.rows
+          }
         },
         today: {
           journeys: {
