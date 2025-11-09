@@ -666,7 +666,6 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         SELECT DISTINCT driver_id
         FROM tenant_training_records
         WHERE tenant_id = $1
-          AND is_active = true
           AND expiry_date IS NOT NULL
           AND expiry_date <= $2
       `, [tenantId, warningDateStr]);
@@ -676,7 +675,7 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         SELECT DISTINCT driver_id
         FROM tenant_driver_permits
         WHERE tenant_id = $1
-          AND is_active = true
+          AND has_permit = true
           AND expiry_date IS NOT NULL
           AND expiry_date <= $2
       `, [tenantId, warningDateStr]);
