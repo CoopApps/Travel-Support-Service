@@ -58,6 +58,9 @@ function ScheduledTripsGrid({
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
+  // Responsive state
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
   /**
    * Debounce search query (300ms delay)
    */
@@ -68,6 +71,18 @@ function ScheduledTripsGrid({
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  /**
+   * Handle window resize for responsive layout
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   /**
    * Handle trip status change (memoized)
@@ -428,26 +443,33 @@ function ScheduledTripsGrid({
   return (
     <>
       {/* Search Bar and Shortcuts Button */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '12px' }}>
-        <div style={{ flex: 1, maxWidth: '500px' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'space-between',
+        alignItems: isMobile ? 'stretch' : 'center',
+        marginBottom: '12px',
+        gap: '12px'
+      }}>
+        <div style={{ flex: 1, maxWidth: isMobile ? '100%' : '500px' }}>
           <input
             type="text"
-            placeholder="Search trips by customer, address, destination, driver, or status..."
+            placeholder={isMobile ? "Search trips..." : "Search trips by customer, address, destination, driver, or status..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: '8px 12px',
+              padding: isMobile ? '10px 14px' : '8px 12px',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
-              fontSize: '13px',
+              fontSize: isMobile ? '14px' : '13px',
               outline: 'none'
             }}
             onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
             onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
           />
           {searchQuery && (
-            <div style={{ marginTop: '4px', fontSize: '12px', color: '#64748b' }}>
+            <div style={{ marginTop: '4px', fontSize: isMobile ? '13px' : '12px', color: '#64748b' }}>
               Showing {filteredTrips.length} of {trips.length} trip{trips.length !== 1 ? 's' : ''}
               {filteredTrips.length === 0 && <span style={{ color: '#ef4444', marginLeft: '4px' }}>- No matches found</span>}
             </div>
@@ -456,21 +478,22 @@ function ScheduledTripsGrid({
         <button
           onClick={() => setShowKeyboardHelp(prev => !prev)}
           style={{
-            padding: '6px 12px',
+            padding: isMobile ? '10px 14px' : '6px 12px',
             background: 'white',
             border: '1px solid #cbd5e1',
             borderRadius: '4px',
-            fontSize: '12px',
+            fontSize: isMobile ? '14px' : '12px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '4px',
             color: '#64748b',
             whiteSpace: 'nowrap'
           }}
           title="Show keyboard shortcuts (press ? key)"
         >
-          <span style={{ fontSize: '14px', fontWeight: 600 }}>?</span>
+          <span style={{ fontSize: isMobile ? '16px' : '14px', fontWeight: 600 }}>?</span>
           <span>Shortcuts</span>
         </button>
       </div>
@@ -481,45 +504,50 @@ function ScheduledTripsGrid({
           background: '#eff6ff',
           border: '1px solid #3b82f6',
           borderRadius: '6px',
-          padding: '12px 16px',
+          padding: isMobile ? '12px' : '12px 16px',
           marginBottom: '12px',
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'stretch' : 'center',
           justifyContent: 'space-between',
           gap: '12px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontWeight: 600, color: '#1e40af', fontSize: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '12px' }}>
+            <span style={{ fontWeight: 600, color: '#1e40af', fontSize: isMobile ? '15px' : '14px' }}>
               {selectedTripIds.size} trip{selectedTripIds.size !== 1 ? 's' : ''} selected
             </span>
-            <button
-              onClick={handleClearSelection}
-              style={{
-                padding: '6px 12px',
-                background: 'white',
-                border: '1px solid #cbd5e1',
-                borderRadius: '4px',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              Clear Selection
-            </button>
-            <button
-              onClick={handleSelectAll}
-              style={{
-                padding: '6px 12px',
-                background: 'white',
-                border: '1px solid #cbd5e1',
-                borderRadius: '4px',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              Select All ({filteredTrips.length})
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={handleClearSelection}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  padding: isMobile ? '8px 12px' : '6px 12px',
+                  background: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  fontSize: isMobile ? '14px' : '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Clear
+              </button>
+              <button
+                onClick={handleSelectAll}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  padding: isMobile ? '8px 12px' : '6px 12px',
+                  background: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  fontSize: isMobile ? '14px' : '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Select All ({filteredTrips.length})
+              </button>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '8px' }}>
             <select
               onChange={(e) => {
                 if (e.target.value) {
@@ -528,11 +556,11 @@ function ScheduledTripsGrid({
                 }
               }}
               style={{
-                padding: '6px 12px',
+                padding: isMobile ? '8px 12px' : '6px 12px',
                 background: 'white',
                 border: '1px solid #cbd5e1',
                 borderRadius: '4px',
-                fontSize: '13px',
+                fontSize: isMobile ? '14px' : '13px',
                 cursor: 'pointer'
               }}
               defaultValue=""
@@ -546,12 +574,12 @@ function ScheduledTripsGrid({
             <button
               onClick={handleBulkDelete}
               style={{
-                padding: '6px 12px',
+                padding: isMobile ? '8px 12px' : '6px 12px',
                 background: '#ef4444',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                fontSize: '13px',
+                fontSize: isMobile ? '14px' : '13px',
                 fontWeight: 600,
                 cursor: 'pointer'
               }}
@@ -559,6 +587,21 @@ function ScheduledTripsGrid({
               Delete Selected
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Mobile Instructions */}
+      {isMobile && (
+        <div style={{
+          background: '#fef3c7',
+          border: '1px solid #f59e0b',
+          borderRadius: '6px',
+          padding: '10px 12px',
+          marginBottom: '12px',
+          fontSize: '13px',
+          color: '#92400e'
+        }}>
+          <strong>Tip:</strong> Swipe horizontally to view all days. Tap and hold trips for actions.
         </div>
       )}
 
