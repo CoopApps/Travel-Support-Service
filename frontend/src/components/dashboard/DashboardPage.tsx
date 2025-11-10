@@ -539,16 +539,19 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Financial Summary - Stats Grid (4 columns) */}
+      {/* Two Column Layout */}
       {dashboard && (
-        <>
-          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>
-            Financial Summary
-            <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 400, marginLeft: '8px' }}>
-              {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
-            </span>
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          {/* LEFT COLUMN */}
+          <div>
+            {/* Financial Summary */}
+            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>
+              Financial Summary
+              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 400, marginLeft: '8px' }}>
+                {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+              </span>
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
@@ -609,11 +612,11 @@ function DashboardPage() {
               </div>
               <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Net Profit MTD</div>
             </div>
-          </div>
+            </div>
 
-          {/* Driver Compliance - Stats Grid (4 columns) */}
-          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Driver Compliance Status</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            {/* Driver Compliance */}
+            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Driver Compliance Status</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
@@ -676,13 +679,16 @@ function DashboardPage() {
               </div>
               <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Total Active Drivers</div>
             </div>
+            </div>
           </div>
 
-          {/* Fleet Utilization - Stats Grid (4 columns) */}
-          {dashboard.fleet && (
-            <>
-              <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Fleet Utilization</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+          {/* RIGHT COLUMN */}
+          <div>
+            {/* Fleet Utilization */}
+            {dashboard.fleet && (
+              <>
+                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Fleet Utilization</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
@@ -746,11 +752,11 @@ function DashboardPage() {
                   </div>
                   <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Maintenance Due</div>
                 </div>
-              </div>
+                </div>
 
-              {/* Fleet Details - 2 Column Layout */}
-              {(dashboard.fleet.maintenanceDue.count > 0 || dashboard.fleet.motExpiring.count > 0) && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                {/* Fleet Details */}
+                {(dashboard.fleet.maintenanceDue.count > 0 || dashboard.fleet.motExpiring.count > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '20px' }}>
                   {/* Maintenance Schedule */}
                   {dashboard.fleet.maintenanceDue.count > 0 && (
                     <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px' }}>
@@ -814,11 +820,12 @@ function DashboardPage() {
                       </div>
                     </div>
                   )}
-                </div>
-              )}
-            </>
-          )}
-        </>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Today's Urgent Actions - Compact */}
