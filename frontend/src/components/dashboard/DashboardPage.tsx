@@ -539,324 +539,286 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Compact Grid Layout - Financial, Compliance, Fleet */}
+      {/* Financial Summary - Stats Grid (4 columns) */}
       {dashboard && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1rem'
-        }}>
-          {/* Financial Summary */}
-          <div style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '0.75rem'
-          }}>
-            <div style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#374151',
-              marginBottom: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-              Financial Summary
-              <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 400, marginLeft: 'auto' }}>
-                {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
-              </span>
+        <>
+          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>
+            Financial Summary
+            <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 400, marginLeft: '8px' }}>
+              {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+            </span>
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                £{dashboard.stats.revenueMTD?.toLocaleString() || '0'}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Revenue MTD</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#059669' }}>
-                  £{dashboard.stats.revenueMTD?.toLocaleString() || '0'}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Revenue MTD</div>
-              </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#dc2626' }}>
-                  £{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>
-                  Outstanding ({dashboard.stats.outstandingInvoicesCount})
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                  </svg>
                 </div>
               </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#f59e0b' }}>
-                  £{dashboard.stats.payrollCosts?.toLocaleString() || '0'}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Payroll</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                £{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}
               </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#3b82f6' }}>
-                  £{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Net Profit</div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
+                Outstanding Invoices ({dashboard.stats.outstandingInvoicesCount})
               </div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                £{dashboard.stats.payrollCosts?.toLocaleString() || '0'}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Payroll Costs</div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                £{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Net Profit MTD</div>
             </div>
           </div>
 
-          {/* Driver Compliance */}
-          <div style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '0.75rem'
-          }}>
-            <div style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#374151',
-              marginBottom: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 11l3 3L22 4"/>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
-              Driver Compliance
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: '#3b82f6' }}>
-                  {dashboard.stats.compliancePercentage}%
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Compliance Rate</div>
-              </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="10"/>
+          {/* Driver Compliance - Stats Grid (4 columns) */}
+          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Driver Compliance Status</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
                   </svg>
-                  {dashboard.stats.compliantDrivers}
                 </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Compliant</div>
               </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="10"/>
-                  </svg>
-                  {dashboard.stats.nonCompliantDrivers}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Non-Compliant</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                {dashboard.stats.compliancePercentage}%
               </div>
-              <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#6366f1' }}>
-                  {dashboard.stats.totalDrivers}
-                </div>
-                <div style={{ fontSize: '10px', color: '#6b7280' }}>Total Drivers</div>
-              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Compliance Rate</div>
             </div>
-            {dashboard.stats.nonCompliantDrivers > 0 && (
-              <div style={{
-                marginTop: '0.5rem',
-                padding: '0.4rem 0.5rem',
-                background: '#fef2f2',
-                border: '1px solid #fee2e2',
-                borderRadius: '4px',
-                fontSize: '10px',
-                color: '#dc2626'
-              }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline', marginRight: '4px' }}>
-                  <path d="M12 2L2 20h20L12 2zm0 5l6.9 12H5.1L12 7z"/>
-                </svg>
-                <strong>{dashboard.stats.nonCompliantDrivers}</strong> driver{dashboard.stats.nonCompliantDrivers > 1 ? 's' : ''} with expiring items
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
               </div>
-            )}
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                {dashboard.stats.compliantDrivers}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Compliant Drivers</div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                {dashboard.stats.nonCompliantDrivers}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Non-Compliant Drivers</div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                {dashboard.stats.totalDrivers}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Total Active Drivers</div>
+            </div>
           </div>
 
-          {/* Fleet Utilization */}
+          {/* Fleet Utilization - Stats Grid (4 columns) */}
           {dashboard.fleet && (
-            <div style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '0.75rem'
-            }}>
-              <div style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#374151',
-                marginBottom: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 17h14v-5H5v5z"/>
-                  <path d="M5 12h14l-3-5H8l-3 5z"/>
-                  <circle cx="7" cy="17" r="2"/>
-                  <circle cx="17" cy="17" r="2"/>
-                </svg>
-                Fleet Utilization
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#3b82f6' }}>
+            <>
+              <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Fleet Utilization</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
                     {dashboard.stats.totalVehicles}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#6b7280' }}>Total Fleet</div>
+                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Total Fleet</div>
                 </div>
-                <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#10b981' }}>
-                    {dashboard.stats.assignedVehicles} ({dashboard.stats.utilizationPercentage}%)
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="9 11 12 14 22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '10px', color: '#6b7280' }}>Assigned</div>
+                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                    {dashboard.stats.assignedVehicles}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
+                    Assigned ({dashboard.stats.utilizationPercentage}%)
+                  </div>
                 </div>
-                <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#6366f1' }}>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
                     {dashboard.stats.availableVehicles}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#6b7280' }}>Available</div>
+                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Available</div>
                 </div>
-                <div style={{ padding: '0.5rem', background: '#f9fafb', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: dashboard.stats.maintenanceOverdue > 0 ? '#ef4444' : '#f59e0b' }}>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: dashboard.stats.maintenanceOverdue > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: dashboard.stats.maintenanceOverdue > 0 ? '#ef4444' : '#f59e0b' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
                     {dashboard.stats.maintenanceOverdue + dashboard.stats.maintenanceDueThisWeek}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#6b7280' }}>Maintenance Due</div>
+                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Maintenance Due</div>
                 </div>
               </div>
-              {(dashboard.stats.maintenanceOverdue > 0 || dashboard.stats.motExpiringSoon > 0) && (
-                <div style={{
-                  marginTop: '0.5rem',
-                  padding: '0.4rem 0.5rem',
-                  background: '#fef2f2',
-                  border: '1px solid #fee2e2',
-                  borderRadius: '4px',
-                  fontSize: '10px',
-                  color: '#dc2626'
-                }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline', marginRight: '4px' }}>
-                    <path d="M12 2L2 20h20L12 2zm0 5l6.9 12H5.1L12 7z"/>
-                  </svg>
-                  {dashboard.stats.maintenanceOverdue > 0 && `${dashboard.stats.maintenanceOverdue} overdue`}
-                  {dashboard.stats.maintenanceOverdue > 0 && dashboard.stats.motExpiringSoon > 0 && ' • '}
-                  {dashboard.stats.motExpiringSoon > 0 && `${dashboard.stats.motExpiringSoon} MOT expiring`}
+
+              {/* Fleet Details - 2 Column Layout */}
+              {(dashboard.fleet.maintenanceDue.count > 0 || dashboard.fleet.motExpiring.count > 0) && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                  {/* Maintenance Schedule */}
+                  {dashboard.fleet.maintenanceDue.count > 0 && (
+                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>Maintenance Schedule</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400 }}>
+                          {dashboard.fleet.maintenanceDue.count} vehicles
+                        </span>
+                      </div>
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {dashboard.fleet.maintenanceDue.items.slice(0, 10).map((item: any) => (
+                          <div key={item.vehicle_id} style={{
+                            padding: '8px',
+                            marginBottom: '6px',
+                            background: item.service_status === 'overdue' ? '#fee2e2' : item.service_status === 'due_this_week' ? '#fef3c7' : '#f3f4f6',
+                            borderRadius: '6px',
+                            borderLeft: `3px solid ${item.service_status === 'overdue' ? '#ef4444' : item.service_status === 'due_this_week' ? '#f59e0b' : '#6b7280'}`
+                          }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
+                              {item.registration} {item.make && `- ${item.make} ${item.model}`}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {item.service_status === 'overdue' && `Overdue ${Math.abs(item.days_overdue)} days`}
+                              {item.service_status === 'due_this_week' && 'Due this week'}
+                              {item.service_status === 'due_this_month' && 'Due this month'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MOT Status */}
+                  {dashboard.fleet.motExpiring.count > 0 && (
+                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>MOT Status</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400 }}>
+                          {dashboard.fleet.motExpiring.count} expiring
+                        </span>
+                      </div>
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {dashboard.fleet.motExpiring.items.slice(0, 10).map((item: any) => (
+                          <div key={item.vehicle_id} style={{
+                            padding: '8px',
+                            marginBottom: '6px',
+                            background: item.mot_status === 'expired' ? '#fee2e2' : item.mot_status === 'critical' ? '#fef3c7' : '#e0f2fe',
+                            borderRadius: '6px',
+                            borderLeft: `3px solid ${item.mot_status === 'expired' ? '#ef4444' : item.mot_status === 'critical' ? '#f59e0b' : '#3b82f6'}`
+                          }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
+                              {item.registration} {item.make && `- ${item.make} ${item.model}`}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {item.mot_status === 'expired' && `Expired ${Math.abs(item.days_until_expiry)} days ago`}
+                              {item.mot_status === 'critical' && `Expires in ${item.days_until_expiry} days`}
+                              {item.mot_status === 'warning' && `Expires in ${item.days_until_expiry} days`}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
-        </div>
-      )}
-
-      {/* Fleet Details - Full Width */}
-      {dashboard && dashboard.fleet && (dashboard.fleet.maintenanceDue.count > 0 || dashboard.fleet.motExpiring.count > 0) && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.75rem',
-          marginBottom: '1rem'
-        }}>
-          {/* Maintenance Schedule */}
-          {dashboard.fleet.maintenanceDue.count > 0 && (
-            <div style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '0.75rem'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#374151',
-                marginBottom: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                  </svg>
-                  Maintenance Schedule
-                </span>
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>
-                  {dashboard.fleet.maintenanceDue.count} vehicles
-                </span>
-              </div>
-              <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                {dashboard.fleet.maintenanceDue.items.slice(0, 5).map((item: any) => (
-                  <div key={item.vehicle_id} style={{
-                    padding: '0.4rem',
-                    marginBottom: '0.4rem',
-                    background: item.service_status === 'overdue' ? '#fee2e2' : item.service_status === 'due_this_week' ? '#fef3c7' : '#f3f4f6',
-                    borderRadius: '4px',
-                    borderLeft: `2px solid ${item.service_status === 'overdue' ? '#ef4444' : item.service_status === 'due_this_week' ? '#f59e0b' : '#6b7280'}`
-                  }}>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#1f2937' }}>
-                      {item.registration} {item.make && `- ${item.make} ${item.model}`}
-                    </div>
-                    <div style={{ fontSize: '9px', color: '#6b7280' }}>
-                      {item.service_status === 'overdue' && `Overdue ${Math.abs(item.days_overdue)} days`}
-                      {item.service_status === 'due_this_week' && 'Due this week'}
-                      {item.service_status === 'due_this_month' && 'Due this month'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* MOT Status */}
-          {dashboard.fleet.motExpiring.count > 0 && (
-            <div style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '0.75rem'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#374151',
-                marginBottom: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 11l3 3L22 4"/>
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                  </svg>
-                  MOT Status
-                </span>
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>
-                  {dashboard.fleet.motExpiring.count} expiring
-                </span>
-              </div>
-              <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                {dashboard.fleet.motExpiring.items.slice(0, 5).map((item: any) => (
-                  <div key={item.vehicle_id} style={{
-                    padding: '0.4rem',
-                    marginBottom: '0.4rem',
-                    background: item.mot_status === 'expired' ? '#fee2e2' : item.mot_status === 'critical' ? '#fef3c7' : '#e0f2fe',
-                    borderRadius: '4px',
-                    borderLeft: `2px solid ${item.mot_status === 'expired' ? '#ef4444' : item.mot_status === 'critical' ? '#f59e0b' : '#3b82f6'}`
-                  }}>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#1f2937' }}>
-                      {item.registration} {item.make && `- ${item.make} ${item.model}`}
-                    </div>
-                    <div style={{ fontSize: '9px', color: '#6b7280' }}>
-                      {item.mot_status === 'expired' && `Expired ${Math.abs(item.days_until_expiry)} days ago`}
-                      {item.mot_status === 'critical' && `Expires in ${item.days_until_expiry} days`}
-                      {item.mot_status === 'warning' && `Expires in ${item.days_until_expiry} days`}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        </>
       )}
 
       {/* Today's Urgent Actions - Compact */}
