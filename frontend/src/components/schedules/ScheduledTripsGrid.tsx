@@ -54,6 +54,9 @@ function ScheduledTripsGrid({
   // Keyboard shortcuts help state
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+
   /**
    * Handle trip status change
    */
@@ -174,10 +177,10 @@ function ScheduledTripsGrid({
   };
 
   /**
-   * Select all trips
+   * Select all trips (filtered results)
    */
   const handleSelectAll = () => {
-    const allTripIds = new Set(trips.map(t => t.trip_id));
+    const allTripIds = new Set(filteredTrips.map(t => t.trip_id));
     setSelectedTripIds(allTripIds);
     setShowBulkActions(true);
   };
@@ -224,6 +227,38 @@ function ScheduledTripsGrid({
       alert(err.response?.data?.error || 'Failed to update trip status');
     }
   };
+
+  /**
+   * Filter trips based on search query
+   */
+  const filterTrips = (tripsToFilter: Trip[]): Trip[] => {
+    if (!searchQuery.trim()) {
+      return tripsToFilter;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return tripsToFilter.filter(trip => {
+      // Get driver name for this trip
+      const driver = drivers.find(d => d.driver_id === trip.driver_id);
+      const driverName = driver ? `${driver.first_name} ${driver.last_name}`.toLowerCase() : '';
+
+      // Search in multiple fields
+      const matchesCustomer = trip.customer_name?.toLowerCase().includes(query);
+      const matchesPickupLocation = trip.pickup_location?.toLowerCase().includes(query);
+      const matchesPickupAddress = trip.pickup_address?.toLowerCase().includes(query);
+      const matchesDestination = trip.destination?.toLowerCase().includes(query);
+      const matchesDestinationAddress = trip.destination_address?.toLowerCase().includes(query);
+      const matchesDriver = driverName.includes(query);
+      const matchesStatus = trip.status?.toLowerCase().includes(query);
+
+      return matchesCustomer || matchesPickupLocation || matchesPickupAddress ||
+             matchesDestination || matchesDestinationAddress || matchesDriver || matchesStatus;
+    });
+  };
+
+  // Apply search filter to trips
+  const filteredTrips = filterTrips(trips);
 
   /**
    * Keyboard shortcuts
@@ -327,10 +362,10 @@ function ScheduledTripsGrid({
   };
 
   /**
-   * Get trips for a specific driver, day, and period
+   * Get trips for a specific driver, day, and period (uses filtered trips)
    */
   const getTripsForSlot = (driverId: number, date: string, period: 'morning' | 'afternoon'): Trip[] => {
-    return trips.filter(trip => {
+    return filteredTrips.filter(trip => {
       // Normalize trip_date to YYYY-MM-DD format for comparison
       const tripDate = trip.trip_date.split('T')[0];
       if (trip.driver_id !== driverId || tripDate !== date) return false;
@@ -385,12 +420,36 @@ function ScheduledTripsGrid({
 
   return (
     <>
-      {/* Keyboard Shortcuts Help Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+      {/* Search Bar and Shortcuts Button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '12px' }}>
+        <div style={{ flex: 1, maxWidth: '500px' }}>
+          <input
+            type="text"
+            placeholder="Search trips by customer, address, destination, driver, or status..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              fontSize: '13px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+          />
+          {searchQuery && (
+            <div style={{ marginTop: '4px', fontSize: '12px', color: '#64748b' }}>
+              Showing {filteredTrips.length} of {trips.length} trip{trips.length !== 1 ? 's' : ''}
+              {filteredTrips.length === 0 && <span style={{ color: '#ef4444', marginLeft: '4px' }}>- No matches found</span>}
+            </div>
+          )}
+        </div>
         <button
           onClick={() => setShowKeyboardHelp(prev => !prev)}
           style={{
-            padding: '4px 10px',
+            padding: '6px 12px',
             background: 'white',
             border: '1px solid #cbd5e1',
             borderRadius: '4px',
@@ -399,7 +458,8 @@ function ScheduledTripsGrid({
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            color: '#64748b'
+            color: '#64748b',
+            whiteSpace: 'nowrap'
           }}
           title="Show keyboard shortcuts (press ? key)"
         >
@@ -449,7 +509,7 @@ function ScheduledTripsGrid({
                 cursor: 'pointer'
               }}
             >
-              Select All ({trips.length})
+              Select All ({filteredTrips.length})
             </button>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
