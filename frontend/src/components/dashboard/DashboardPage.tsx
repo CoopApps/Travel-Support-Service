@@ -539,79 +539,237 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Two Column Layout */}
+      {/* Main Two Column Layout */}
       {dashboard && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-          {/* LEFT COLUMN */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px' }}>
+
+          {/* ========== LEFT COLUMN: Alerts, Quick Actions, Today's Data ========== */}
           <div>
-            {/* Financial Summary */}
-            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>
-              Financial Summary
-              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 400, marginLeft: '8px' }}>
-                {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
-              </span>
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                  </svg>
+            {/* Active Alerts */}
+            {alerts.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+                  Active Alerts ({alerts.length})
+                </h3>
+                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {alerts.map(alert => {
+                    const styles = getAlertStyles(alert.type);
+                    return (
+                      <div key={alert.id} style={{
+                        background: styles.bg,
+                        border: `1px solid ${styles.border}`,
+                        borderRadius: '8px',
+                        padding: '10px 12px',
+                        marginBottom: '8px',
+                        position: 'relative'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: styles.textColor, marginBottom: '4px' }}>
+                              {alert.message}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {alert.instructions}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => dismissAlert(alert.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#64748b',
+                              cursor: 'pointer',
+                              padding: '0 4px',
+                              fontSize: '16px',
+                              lineHeight: '1'
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                £{dashboard.stats.revenueMTD?.toLocaleString() || '0'}
+            )}
+
+            {/* Quick Actions - Compact */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Quick Actions</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <button
+                  onClick={() => navigate('/schedules')}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Schedule Trip
+                </button>
+                <button
+                  onClick={() => setShowIncidentModal(true)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Log Incident
+                </button>
+                <button
+                  onClick={() => setShowSafeguardingModal(true)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Safeguarding
+                </button>
               </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Revenue MTD</div>
             </div>
 
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="5" width="20" height="14" rx="2"/>
-                    <line x1="2" y1="10" x2="22" y2="10"/>
-                  </svg>
+            {/* Today's Journeys - Compact */}
+            {dashboard.today && dashboard.today.journeys.count > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+                  Today's Journeys ({dashboard.today.journeys.count})
+                </h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
+                  {dashboard.today.journeys.items.slice(0, 5).map((journey: any, idx: number) => (
+                    <div key={idx} style={{
+                      padding: '8px 0',
+                      borderBottom: idx < 4 ? '1px solid #f1f5f9' : 'none'
+                    }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
+                        {journey.customer_name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>
+                        {journey.phone}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                £{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
-                Outstanding Invoices ({dashboard.stats.outstandingInvoicesCount})
-              </div>
-            </div>
+            )}
 
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
+            {/* Driver Roster - Compact */}
+            {dashboard.today && dashboard.today.drivers.count > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+                  Driver Roster ({dashboard.today.drivers.count})
+                </h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
+                  {dashboard.today.drivers.items.slice(0, 5).map((driver: any, idx: number) => (
+                    <div key={idx} style={{
+                      padding: '8px 0',
+                      borderBottom: idx < 4 ? '1px solid #f1f5f9' : 'none'
+                    }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
+                        {driver.name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>
+                        {driver.registration ? `${driver.make} ${driver.model} (${driver.registration})` : 'No vehicle assigned'}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                £{dashboard.stats.payrollCosts?.toLocaleString() || '0'}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Payroll Costs</div>
-            </div>
+            )}
+          </div>
 
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                  </svg>
+          {/* ========== RIGHT COLUMN: Financial, Compliance, Fleet ========== */}
+          <div>
+            {/* Financial Summary - Compact */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+                Financial Summary
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400, marginLeft: '6px' }}>
+                  {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'short' })}
+                </span>
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    £{dashboard.stats.revenueMTD?.toLocaleString() || '0'}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Revenue MTD</div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    £{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>
+                    Outstanding ({dashboard.stats.outstandingInvoicesCount})
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    £{dashboard.stats.payrollCosts?.toLocaleString() || '0'}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Payroll</div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    £{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Net Profit</div>
                 </div>
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                £{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Net Profit MTD</div>
-            </div>
             </div>
 
             {/* Driver Compliance */}
