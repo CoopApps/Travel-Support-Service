@@ -6,6 +6,7 @@ import { ServerTime } from '../../types';
 import ScheduledAppointmentsView from './ScheduledAppointmentsView';
 import AdHocJourneysView from './AdHocJourneysView';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import RouteOptimizer from './RouteOptimizer';
 
 /**
  * Schedule Page - Main Component
@@ -593,10 +594,7 @@ function SchedulePage() {
       )}
 
       {viewMode === 'routeOptimizer' && (
-        <div style={{ padding: '2rem', background: 'white', borderRadius: '8px', border: '1px solid var(--gray-200)' }}>
-          <h3>🗺️ Route Optimizer</h3>
-          <p style={{ color: 'var(--gray-600)' }}>Coming soon - Optimize driver routes for maximum efficiency</p>
-        </div>
+        <RouteOptimizer tenantId={tenantId} />
       )}
 
       {/* Generate Trips Result Modal */}
