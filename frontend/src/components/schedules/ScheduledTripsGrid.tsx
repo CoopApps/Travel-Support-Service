@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Trip, Driver } from '../../types';
 import TripContextMenu from './TripContextMenu';
 import { tripApi } from '../../services/api';
@@ -56,11 +56,23 @@ function ScheduledTripsGrid({
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   /**
-   * Handle trip status change
+   * Debounce search query (300ms delay)
    */
-  const handleStatusChange = async (trip: Trip, newStatus: string) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  /**
+   * Handle trip status change (memoized)
+   */
+  const handleStatusChange = useCallback(async (trip: Trip, newStatus: string) => {
     try {
       await tripApi.updateTrip(tenantId, trip.trip_id, { status: newStatus });
       // Trigger parent refresh via callback
@@ -68,12 +80,12 @@ function ScheduledTripsGrid({
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to update trip status');
     }
-  };
+  }, [tenantId, onRefresh]);
 
   /**
-   * Handle trip deletion
+   * Handle trip deletion (memoized)
    */
-  const handleDelete = async (trip: Trip) => {
+  const handleDelete = useCallback(async (trip: Trip) => {
     if (!confirm(`Delete trip for ${trip.customer_name}?`)) {
       return;
     }
@@ -84,37 +96,37 @@ function ScheduledTripsGrid({
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete trip');
     }
-  };
+  }, [tenantId, onRefresh]);
 
   /**
-   * Handle drag start
+   * Handle drag start (memoized)
    */
-  const handleDragStart = (e: React.DragEvent, trip: Trip) => {
+  const handleDragStart = useCallback((e: React.DragEvent, trip: Trip) => {
     setDraggedTrip(trip);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', trip.trip_id.toString());
-  };
+  }, []);
 
   /**
-   * Handle drag over (allow drop)
+   * Handle drag over (allow drop) - memoized
    */
-  const handleDragOver = (e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
+  const handleDragOver = useCallback((e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDragOverSlot({ driverId, dayIndex, period });
-  };
+  }, []);
 
   /**
-   * Handle drag leave
+   * Handle drag leave - memoized
    */
-  const handleDragLeave = () => {
+  const handleDragLeave = useCallback(() => {
     setDragOverSlot(null);
-  };
+  }, []);
 
   /**
-   * Handle drop
+   * Handle drop - memoized
    */
-  const handleDrop = async (e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
+  const handleDrop = useCallback(async (e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
     e.preventDefault();
     setDragOverSlot(null);
 
@@ -149,20 +161,20 @@ function ScheduledTripsGrid({
     } finally {
       setDraggedTrip(null);
     }
-  };
+  }, [draggedTrip, weekDays, tenantId, onRefresh]);
 
   /**
-   * Handle drag end
+   * Handle drag end - memoized
    */
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setDraggedTrip(null);
     setDragOverSlot(null);
-  };
+  }, []);
 
   /**
-   * Handle trip selection toggle
+   * Handle trip selection toggle - memoized
    */
-  const handleTripSelect = (tripId: number, isCtrlKey: boolean) => {
+  const handleTripSelect = useCallback((tripId: number, isCtrlKey: boolean) => {
     const newSelected = new Set(selectedTripIds);
     if (newSelected.has(tripId)) {
       newSelected.delete(tripId);
@@ -174,29 +186,29 @@ function ScheduledTripsGrid({
     }
     setSelectedTripIds(newSelected);
     setShowBulkActions(newSelected.size > 0);
-  };
+  }, [selectedTripIds]);
 
   /**
-   * Select all trips (filtered results)
+   * Select all trips (filtered results) - memoized
    */
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     const allTripIds = new Set(filteredTrips.map(t => t.trip_id));
     setSelectedTripIds(allTripIds);
     setShowBulkActions(true);
-  };
+  }, [filteredTrips]);
 
   /**
-   * Clear selection
+   * Clear selection - memoized
    */
-  const handleClearSelection = () => {
+  const handleClearSelection = useCallback(() => {
     setSelectedTripIds(new Set());
     setShowBulkActions(false);
-  };
+  }, []);
 
   /**
-   * Bulk delete trips
+   * Bulk delete trips - memoized
    */
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = useCallback(async () => {
     if (!confirm(`Delete ${selectedTripIds.size} selected trip(s)?`)) {
       return;
     }
@@ -210,12 +222,12 @@ function ScheduledTripsGrid({
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete trips');
     }
-  };
+  }, [selectedTripIds, tenantId, onRefresh, handleClearSelection]);
 
   /**
-   * Bulk status change
+   * Bulk status change - memoized
    */
-  const handleBulkStatusChange = async (newStatus: string) => {
+  const handleBulkStatusChange = useCallback(async (newStatus: string) => {
     try {
       const updatePromises = Array.from(selectedTripIds).map(tripId =>
         tripApi.updateTrip(tenantId, tripId, { status: newStatus })
@@ -226,19 +238,19 @@ function ScheduledTripsGrid({
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to update trip status');
     }
-  };
+  }, [selectedTripIds, tenantId, onRefresh, handleClearSelection]);
 
   /**
-   * Filter trips based on search query
+   * Filter trips based on search query (memoized for performance)
    */
-  const filterTrips = (tripsToFilter: Trip[]): Trip[] => {
-    if (!searchQuery.trim()) {
-      return tripsToFilter;
+  const filteredTrips = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) {
+      return trips;
     }
 
-    const query = searchQuery.toLowerCase().trim();
+    const query = debouncedSearchQuery.toLowerCase().trim();
 
-    return tripsToFilter.filter(trip => {
+    return trips.filter(trip => {
       // Get driver name for this trip
       const driver = drivers.find(d => d.driver_id === trip.driver_id);
       const driverName = driver ? `${driver.first_name} ${driver.last_name}`.toLowerCase() : '';
@@ -255,10 +267,7 @@ function ScheduledTripsGrid({
       return matchesCustomer || matchesPickupLocation || matchesPickupAddress ||
              matchesDestination || matchesDestinationAddress || matchesDriver || matchesStatus;
     });
-  };
-
-  // Apply search filter to trips
-  const filteredTrips = filterTrips(trips);
+  }, [trips, drivers, debouncedSearchQuery]);
 
   /**
    * Keyboard shortcuts
@@ -362,9 +371,9 @@ function ScheduledTripsGrid({
   };
 
   /**
-   * Get trips for a specific driver, day, and period (uses filtered trips)
+   * Get trips for a specific driver, day, and period (uses filtered trips) - memoized
    */
-  const getTripsForSlot = (driverId: number, date: string, period: 'morning' | 'afternoon'): Trip[] => {
+  const getTripsForSlot = useCallback((driverId: number, date: string, period: 'morning' | 'afternoon'): Trip[] => {
     return filteredTrips.filter(trip => {
       // Normalize trip_date to YYYY-MM-DD format for comparison
       const tripDate = trip.trip_date.split('T')[0];
@@ -378,16 +387,16 @@ function ScheduledTripsGrid({
         return hour >= 14;
       }
     });
-  };
+  }, [filteredTrips]);
 
   /**
-   * Get current day index
+   * Get current day index - memoized
    */
-  const getCurrentDayIndex = (): number => {
+  const currentDayIndex = useMemo(() => {
     if (!serverTime) return -1;
     const today = serverTime.formatted_date;
     return weekDays.findIndex(day => day === today);
-  };
+  }, [serverTime, weekDays]);
 
   /**
    * Format day header
@@ -402,8 +411,6 @@ function ScheduledTripsGrid({
     const monthName = date.toLocaleDateString('en-GB', { month: 'short' });
     return `${dayName} ${dayNum} ${monthName}`;
   };
-
-  const currentDayIndex = getCurrentDayIndex();
 
   // Use dummy driver data when no drivers exist
   const displayDrivers = drivers.length === 0 ? [{
