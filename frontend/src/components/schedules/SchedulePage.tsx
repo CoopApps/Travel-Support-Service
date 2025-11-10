@@ -25,8 +25,8 @@ function SchedulePage() {
     );
   }
 
-  // View mode state (scheduled or adhoc)
-  const [viewMode, setViewMode] = useState<'scheduled' | 'adhoc'>('scheduled');
+  // View mode state (scheduled, adhoc, analytics, or routeOptimizer)
+  const [viewMode, setViewMode] = useState<'scheduled' | 'adhoc' | 'analytics' | 'routeOptimizer'>('scheduled');
 
   // Client time state (using computer clock like legacy version)
   const [clientTime, setClientTime] = useState<Date>(new Date());
@@ -393,6 +393,54 @@ function SchedulePage() {
             </svg>
             Ad-hoc Journeys
           </button>
+          <button
+            onClick={() => setViewMode('analytics')}
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              background: viewMode === 'analytics' ? 'var(--primary)' : 'transparent',
+              color: viewMode === 'analytics' ? 'white' : 'var(--gray-700)',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            Analytics
+          </button>
+          <button
+            onClick={() => setViewMode('routeOptimizer')}
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              background: viewMode === 'routeOptimizer' ? 'var(--primary)' : 'transparent',
+              color: viewMode === 'routeOptimizer' ? 'white' : 'var(--gray-700)',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+              <polyline points="19 12 22 12 22 15 19 15"/>
+            </svg>
+            Route Optimizer
+          </button>
         </div>
 
         {/* Quick Action Buttons */}
@@ -521,20 +569,36 @@ function SchedulePage() {
       </div>
 
       {/* View Content */}
-      {viewMode === 'scheduled' ? (
+      {viewMode === 'scheduled' && (
         <ScheduledAppointmentsView
           tenantId={tenantId}
           serverTime={{ formatted_date: getCurrentDate() } as ServerTime}
           customStartDate={startDate}
           customEndDate={endDate}
         />
-      ) : (
+      )}
+
+      {viewMode === 'adhoc' && (
         <AdHocJourneysView
           tenantId={tenantId}
           serverTime={{ formatted_date: getCurrentDate() } as ServerTime}
           customStartDate={startDate}
           customEndDate={endDate}
         />
+      )}
+
+      {viewMode === 'analytics' && (
+        <div style={{ padding: '2rem', background: 'white', borderRadius: '8px', border: '1px solid var(--gray-200)' }}>
+          <h3>📊 Analytics Dashboard</h3>
+          <p style={{ color: 'var(--gray-600)' }}>Coming soon - Trip patterns, driver metrics, and business insights</p>
+        </div>
+      )}
+
+      {viewMode === 'routeOptimizer' && (
+        <div style={{ padding: '2rem', background: 'white', borderRadius: '8px', border: '1px solid var(--gray-200)' }}>
+          <h3>🗺️ Route Optimizer</h3>
+          <p style={{ color: 'var(--gray-600)' }}>Coming soon - Optimize driver routes for maximum efficiency</p>
+        </div>
       )}
 
       {/* Generate Trips Result Modal */}
