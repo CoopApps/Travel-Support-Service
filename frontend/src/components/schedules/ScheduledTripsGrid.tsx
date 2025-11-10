@@ -47,6 +47,10 @@ function ScheduledTripsGrid({
     period: 'morning' | 'afternoon';
   } | null>(null);
 
+  // Bulk selection state
+  const [selectedTripIds, setSelectedTripIds] = useState<Set<number>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
+
   /**
    * Handle trip status change
    */
@@ -149,6 +153,75 @@ function ScheduledTripsGrid({
     setDragOverSlot(null);
   };
 
+  /**
+   * Handle trip selection toggle
+   */
+  const handleTripSelect = (tripId: number, isCtrlKey: boolean) => {
+    const newSelected = new Set(selectedTripIds);
+    if (newSelected.has(tripId)) {
+      newSelected.delete(tripId);
+    } else {
+      if (!isCtrlKey) {
+        newSelected.clear(); // Single select if not holding Ctrl
+      }
+      newSelected.add(tripId);
+    }
+    setSelectedTripIds(newSelected);
+    setShowBulkActions(newSelected.size > 0);
+  };
+
+  /**
+   * Select all trips
+   */
+  const handleSelectAll = () => {
+    const allTripIds = new Set(trips.map(t => t.trip_id));
+    setSelectedTripIds(allTripIds);
+    setShowBulkActions(true);
+  };
+
+  /**
+   * Clear selection
+   */
+  const handleClearSelection = () => {
+    setSelectedTripIds(new Set());
+    setShowBulkActions(false);
+  };
+
+  /**
+   * Bulk delete trips
+   */
+  const handleBulkDelete = async () => {
+    if (!confirm(`Delete ${selectedTripIds.size} selected trip(s)?`)) {
+      return;
+    }
+    try {
+      const deletePromises = Array.from(selectedTripIds).map(tripId =>
+        tripApi.deleteTrip(tenantId, tripId)
+      );
+      await Promise.all(deletePromises);
+      handleClearSelection();
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to delete trips');
+    }
+  };
+
+  /**
+   * Bulk status change
+   */
+  const handleBulkStatusChange = async (newStatus: string) => {
+    try {
+      const updatePromises = Array.from(selectedTripIds).map(tripId =>
+        tripApi.updateTrip(tenantId, tripId, { status: newStatus })
+      );
+      await Promise.all(updatePromises);
+      handleClearSelection();
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to update trip status');
+    }
+  };
+
   // Color schemes based on view type (matching legacy)
   const colorScheme = viewType === 'adhoc' ? {
     morning: {
@@ -240,6 +313,94 @@ function ScheduledTripsGrid({
   const isDummyMode = drivers.length === 0;
 
   return (
+    <>
+      {/* Bulk Actions Toolbar */}
+      {showBulkActions && (
+        <div style={{
+          background: '#eff6ff',
+          border: '1px solid #3b82f6',
+          borderRadius: '6px',
+          padding: '12px 16px',
+          marginBottom: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: 600, color: '#1e40af', fontSize: '14px' }}>
+              {selectedTripIds.size} trip{selectedTripIds.size !== 1 ? 's' : ''} selected
+            </span>
+            <button
+              onClick={handleClearSelection}
+              style={{
+                padding: '6px 12px',
+                background: 'white',
+                border: '1px solid #cbd5e1',
+                borderRadius: '4px',
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+            >
+              Clear Selection
+            </button>
+            <button
+              onClick={handleSelectAll}
+              style={{
+                padding: '6px 12px',
+                background: 'white',
+                border: '1px solid #cbd5e1',
+                borderRadius: '4px',
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+            >
+              Select All ({trips.length})
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  handleBulkStatusChange(e.target.value);
+                  e.target.value = '';
+                }
+              }}
+              style={{
+                padding: '6px 12px',
+                background: 'white',
+                border: '1px solid #cbd5e1',
+                borderRadius: '4px',
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+              defaultValue=""
+            >
+              <option value="" disabled>Change Status...</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="no-show">No Show</option>
+            </select>
+            <button
+              onClick={handleBulkDelete}
+              style={{
+                padding: '6px 12px',
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
     <div style={{ overflowX: 'auto' }}>
       <table style={{
         width: '100%',
@@ -438,8 +599,13 @@ function ScheduledTripsGrid({
                                   onDragStart={(e) => handleDragStart(e, trip)}
                                   onDragEnd={handleDragEnd}
                                   onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEditTrip?.(trip);
+                                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                                      e.stopPropagation();
+                                      handleTripSelect(trip.trip_id, true);
+                                    } else {
+                                      e.stopPropagation();
+                                      onEditTrip?.(trip);
+                                    }
                                   }}
                                   onContextMenu={(e: React.MouseEvent) => {
                                     e.preventDefault();
@@ -453,15 +619,37 @@ function ScheduledTripsGrid({
                                     fontSize: '10px',
                                     padding: '4px',
                                     marginBottom: '2px',
-                                    background: trip.urgent ? '#fef9c3' : '#f8f9fa',
-                                    border: '1px solid #dee2e6',
+                                    background: selectedTripIds.has(trip.trip_id)
+                                      ? '#dbeafe'
+                                      : trip.urgent ? '#fef9c3' : '#f8f9fa',
+                                    border: selectedTripIds.has(trip.trip_id)
+                                      ? '2px solid #3b82f6'
+                                      : '1px solid #dee2e6',
                                     borderRadius: '3px',
                                     cursor: draggedTrip?.trip_id === trip.trip_id ? 'grabbing' : 'grab',
                                     userSelect: 'none',
-                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1
+                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1,
+                                    position: 'relative'
                                   }}
                                 >
-                                  <div style={{ fontWeight: 600 }}>{trip.customer_name}</div>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedTripIds.has(trip.trip_id)}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      handleTripSelect(trip.trip_id, e.shiftKey || e.ctrlKey || e.metaKey);
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '4px',
+                                      right: '4px',
+                                      cursor: 'pointer',
+                                      width: '14px',
+                                      height: '14px'
+                                    }}
+                                  />
+                                  <div style={{ fontWeight: 600, paddingRight: '20px' }}>{trip.customer_name}</div>
                                   <div style={{ color: 'var(--gray-600)' }}>
                                     {trip.pickup_time} → {trip.destination}
                                   </div>
@@ -576,8 +764,13 @@ function ScheduledTripsGrid({
                                   onDragStart={(e) => handleDragStart(e, trip)}
                                   onDragEnd={handleDragEnd}
                                   onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEditTrip?.(trip);
+                                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                                      e.stopPropagation();
+                                      handleTripSelect(trip.trip_id, true);
+                                    } else {
+                                      e.stopPropagation();
+                                      onEditTrip?.(trip);
+                                    }
                                   }}
                                   onContextMenu={(e: React.MouseEvent) => {
                                     e.preventDefault();
@@ -591,15 +784,37 @@ function ScheduledTripsGrid({
                                     fontSize: '10px',
                                     padding: '4px',
                                     marginBottom: '2px',
-                                    background: trip.urgent ? '#fef9c3' : '#f8f9fa',
-                                    border: '1px solid #dee2e6',
+                                    background: selectedTripIds.has(trip.trip_id)
+                                      ? '#dbeafe'
+                                      : trip.urgent ? '#fef9c3' : '#f8f9fa',
+                                    border: selectedTripIds.has(trip.trip_id)
+                                      ? '2px solid #3b82f6'
+                                      : '1px solid #dee2e6',
                                     borderRadius: '3px',
                                     cursor: draggedTrip?.trip_id === trip.trip_id ? 'grabbing' : 'grab',
                                     userSelect: 'none',
-                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1
+                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1,
+                                    position: 'relative'
                                   }}
                                 >
-                                  <div style={{ fontWeight: 600 }}>{trip.customer_name}</div>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedTripIds.has(trip.trip_id)}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      handleTripSelect(trip.trip_id, e.shiftKey || e.ctrlKey || e.metaKey);
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '4px',
+                                      right: '4px',
+                                      cursor: 'pointer',
+                                      width: '14px',
+                                      height: '14px'
+                                    }}
+                                  />
+                                  <div style={{ fontWeight: 600, paddingRight: '20px' }}>{trip.customer_name}</div>
                                   <div style={{ color: 'var(--gray-600)' }}>
                                     {trip.pickup_time} → {trip.destination}
                                   </div>
@@ -670,6 +885,7 @@ function ScheduledTripsGrid({
         />
       )}
     </div>
+    </>
   );
 }
 
