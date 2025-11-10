@@ -541,16 +541,28 @@ function DashboardPage() {
 
       {/* Main Two Column Layout */}
       {dashboard && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '4fr 1fr', gap: '16px', marginBottom: '16px' }}>
 
           {/* ========== LEFT COLUMN: Alerts, Quick Actions, Today's Data ========== */}
           <div>
-            {/* Active Alerts */}
-            {alerts.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
-                  Active Alerts ({alerts.length})
-                </h3>
+            {/* Active Alerts - Always visible */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+                Active Alerts ({alerts.length})
+              </h3>
+              {alerts.length === 0 ? (
+                <div style={{
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '8px',
+                  padding: '10px 12px',
+                  fontSize: '13px',
+                  color: '#166534',
+                  textAlign: 'center'
+                }}>
+                  All clear - no active alerts
+                </div>
+              ) : (
                 <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                   {alerts.map(alert => {
                     const styles = getAlertStyles(alert.type);
@@ -591,8 +603,8 @@ function DashboardPage() {
                     );
                   })}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Quick Actions - Compact */}
             <div style={{ marginBottom: '16px' }}>
@@ -702,13 +714,13 @@ function DashboardPage() {
           <div>
             {/* Financial Summary - Compact */}
             <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
                 Financial Summary
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400, marginLeft: '6px' }}>
+                <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 400, marginLeft: '4px', display: 'block' }}>
                   {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'short' })}
                 </span>
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                     <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
@@ -774,8 +786,8 @@ function DashboardPage() {
 
             {/* Driver Compliance - Compact */}
             <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Driver Compliance</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>Driver Compliance</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                     <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
@@ -844,8 +856,8 @@ function DashboardPage() {
             {/* Fleet Utilization - Compact */}
             {dashboard.fleet && (
               <div style={{ marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Fleet Utilization</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>Fleet Utilization</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                       <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
