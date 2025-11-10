@@ -39,6 +39,14 @@ function ScheduledTripsGrid({
     position: { x: number; y: number };
   } | null>(null);
 
+  // Drag and drop state
+  const [draggedTrip, setDraggedTrip] = useState<Trip | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<{
+    driverId: number;
+    dayIndex: number;
+    period: 'morning' | 'afternoon';
+  } | null>(null);
+
   /**
    * Handle trip status change
    */
@@ -66,6 +74,79 @@ function ScheduledTripsGrid({
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete trip');
     }
+  };
+
+  /**
+   * Handle drag start
+   */
+  const handleDragStart = (e: React.DragEvent, trip: Trip) => {
+    setDraggedTrip(trip);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', trip.trip_id.toString());
+  };
+
+  /**
+   * Handle drag over (allow drop)
+   */
+  const handleDragOver = (e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverSlot({ driverId, dayIndex, period });
+  };
+
+  /**
+   * Handle drag leave
+   */
+  const handleDragLeave = () => {
+    setDragOverSlot(null);
+  };
+
+  /**
+   * Handle drop
+   */
+  const handleDrop = async (e: React.DragEvent, driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => {
+    e.preventDefault();
+    setDragOverSlot(null);
+
+    if (!draggedTrip) return;
+
+    const targetDate = weekDays[dayIndex];
+    const targetTime = period === 'morning' ? '09:00' : '14:00'; // Default times
+
+    // Check if anything actually changed
+    const sameDriver = draggedTrip.driver_id === driverId;
+    const sameDate = draggedTrip.trip_date.split('T')[0] === targetDate;
+    const currentHour = parseInt(draggedTrip.pickup_time?.split(':')[0] || '9');
+    const samePeriod = (currentHour < 12 && period === 'morning') || (currentHour >= 12 && period === 'afternoon');
+
+    if (sameDriver && sameDate && samePeriod) {
+      setDraggedTrip(null);
+      return; // No change needed
+    }
+
+    try {
+      // Update trip with new driver, date, and time
+      await tripApi.updateTrip(tenantId, draggedTrip.trip_id, {
+        driver_id: driverId,
+        trip_date: targetDate,
+        pickup_time: targetTime,
+      });
+
+      // Refresh grid
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to reassign trip');
+    } finally {
+      setDraggedTrip(null);
+    }
+  };
+
+  /**
+   * Handle drag end
+   */
+  const handleDragEnd = () => {
+    setDraggedTrip(null);
+    setDragOverSlot(null);
   };
 
   // Color schemes based on view type (matching legacy)
@@ -319,7 +400,26 @@ function ScheduledTripsGrid({
                           <span>MORNING</span>
                           <span>({morningTrips.length})</span>
                         </div>
-                        <div style={{ padding: '6px' }}>
+                        <div
+                          onDragOver={(e) => handleDragOver(e, driver.driver_id, dayIndex, 'morning')}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, driver.driver_id, dayIndex, 'morning')}
+                          style={{
+                            padding: '6px',
+                            minHeight: '60px',
+                            background: dragOverSlot?.driverId === driver.driver_id &&
+                                       dragOverSlot?.dayIndex === dayIndex &&
+                                       dragOverSlot?.period === 'morning'
+                              ? 'rgba(59, 130, 246, 0.1)'
+                              : 'transparent',
+                            border: dragOverSlot?.driverId === driver.driver_id &&
+                                   dragOverSlot?.dayIndex === dayIndex &&
+                                   dragOverSlot?.period === 'morning'
+                              ? '2px dashed #3b82f6'
+                              : '2px dashed transparent',
+                            transition: 'all 0.2s'
+                          }}
+                        >
                           {morningTrips.length === 0 ? (
                             <div style={{
                               fontSize: '10px',
@@ -334,6 +434,9 @@ function ScheduledTripsGrid({
                               {morningTrips.map(trip => (
                                 <div
                                   key={trip.trip_id}
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, trip)}
+                                  onDragEnd={handleDragEnd}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onEditTrip?.(trip);
@@ -353,8 +456,9 @@ function ScheduledTripsGrid({
                                     background: trip.urgent ? '#fef9c3' : '#f8f9fa',
                                     border: '1px solid #dee2e6',
                                     borderRadius: '3px',
-                                    cursor: 'pointer',
-                                    userSelect: 'none'
+                                    cursor: draggedTrip?.trip_id === trip.trip_id ? 'grabbing' : 'grab',
+                                    userSelect: 'none',
+                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1
                                   }}
                                 >
                                   <div style={{ fontWeight: 600 }}>{trip.customer_name}</div>
@@ -434,7 +538,26 @@ function ScheduledTripsGrid({
                           <span>AFTERNOON</span>
                           <span>({afternoonTrips.length})</span>
                         </div>
-                        <div style={{ padding: '6px' }}>
+                        <div
+                          onDragOver={(e) => handleDragOver(e, driver.driver_id, dayIndex, 'afternoon')}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, driver.driver_id, dayIndex, 'afternoon')}
+                          style={{
+                            padding: '6px',
+                            minHeight: '60px',
+                            background: dragOverSlot?.driverId === driver.driver_id &&
+                                       dragOverSlot?.dayIndex === dayIndex &&
+                                       dragOverSlot?.period === 'afternoon'
+                              ? 'rgba(59, 130, 246, 0.1)'
+                              : 'transparent',
+                            border: dragOverSlot?.driverId === driver.driver_id &&
+                                   dragOverSlot?.dayIndex === dayIndex &&
+                                   dragOverSlot?.period === 'afternoon'
+                              ? '2px dashed #3b82f6'
+                              : '2px dashed transparent',
+                            transition: 'all 0.2s'
+                          }}
+                        >
                           {afternoonTrips.length === 0 ? (
                             <div style={{
                               fontSize: '10px',
@@ -449,6 +572,9 @@ function ScheduledTripsGrid({
                               {afternoonTrips.map(trip => (
                                 <div
                                   key={trip.trip_id}
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, trip)}
+                                  onDragEnd={handleDragEnd}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onEditTrip?.(trip);
@@ -468,8 +594,9 @@ function ScheduledTripsGrid({
                                     background: trip.urgent ? '#fef9c3' : '#f8f9fa',
                                     border: '1px solid #dee2e6',
                                     borderRadius: '3px',
-                                    cursor: 'pointer',
-                                    userSelect: 'none'
+                                    cursor: draggedTrip?.trip_id === trip.trip_id ? 'grabbing' : 'grab',
+                                    userSelect: 'none',
+                                    opacity: draggedTrip?.trip_id === trip.trip_id ? 0.5 : 1
                                   }}
                                 >
                                   <div style={{ fontWeight: 600 }}>{trip.customer_name}</div>
