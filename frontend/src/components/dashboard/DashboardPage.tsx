@@ -772,699 +772,151 @@ function DashboardPage() {
               </div>
             </div>
 
-            {/* Driver Compliance */}
-            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Driver Compliance Status</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                  </svg>
+            {/* Driver Compliance - Compact */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Driver Compliance</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    {dashboard.stats.compliancePercentage}%
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Compliance</div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    {dashboard.stats.compliantDrivers}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Compliant</div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    {dashboard.stats.nonCompliantDrivers}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Non-Compliant</div>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                    {dashboard.stats.totalDrivers}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>Total Drivers</div>
                 </div>
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                {dashboard.stats.compliancePercentage}%
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Compliance Rate</div>
             </div>
 
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </div>
-              </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                {dashboard.stats.compliantDrivers}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Compliant Drivers</div>
-            </div>
-
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                </div>
-              </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                {dashboard.stats.nonCompliantDrivers}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Non-Compliant Drivers</div>
-            </div>
-
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                </div>
-              </div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                {dashboard.stats.totalDrivers}
-              </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Total Active Drivers</div>
-            </div>
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN */}
-          <div>
-            {/* Fleet Utilization */}
+            {/* Fleet Utilization - Compact */}
             {dashboard.fleet && (
-              <>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', marginTop: '20px' }}>Fleet Utilization</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                    {dashboard.stats.totalVehicles}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Total Fleet</div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="9 11 12 14 22 4"/>
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                    {dashboard.stats.assignedVehicles}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
-                    Assigned ({dashboard.stats.utilizationPercentage}%)
-                  </div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                    {dashboard.stats.availableVehicles}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Available</div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', transition: 'all 0.2s' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: dashboard.stats.maintenanceOverdue > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: dashboard.stats.maintenanceOverdue > 0 ? '#ef4444' : '#f59e0b' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
-                    {dashboard.stats.maintenanceOverdue + dashboard.stats.maintenanceDueThisWeek}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Maintenance Due</div>
-                </div>
-                </div>
-
-                {/* Fleet Details */}
-                {(dashboard.fleet.maintenanceDue.count > 0 || dashboard.fleet.motExpiring.count > 0) && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '20px' }}>
-                  {/* Maintenance Schedule */}
-                  {dashboard.fleet.maintenanceDue.count > 0 && (
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span>Maintenance Schedule</span>
-                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400 }}>
-                          {dashboard.fleet.maintenanceDue.count} vehicles
-                        </span>
-                      </div>
-                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {dashboard.fleet.maintenanceDue.items.slice(0, 10).map((item: any) => (
-                          <div key={item.vehicle_id} style={{
-                            padding: '8px',
-                            marginBottom: '6px',
-                            background: item.service_status === 'overdue' ? '#fee2e2' : item.service_status === 'due_this_week' ? '#fef3c7' : '#f3f4f6',
-                            borderRadius: '6px',
-                            borderLeft: `3px solid ${item.service_status === 'overdue' ? '#ef4444' : item.service_status === 'due_this_week' ? '#f59e0b' : '#6b7280'}`
-                          }}>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
-                              {item.registration} {item.make && `- ${item.make} ${item.model}`}
-                            </div>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>
-                              {item.service_status === 'overdue' && `Overdue ${Math.abs(item.days_overdue)} days`}
-                              {item.service_status === 'due_this_week' && 'Due this week'}
-                              {item.service_status === 'due_this_month' && 'Due this month'}
-                            </div>
-                          </div>
-                        ))}
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Fleet Utilization</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="1" y="3" width="15" height="13"/>
+                          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                          <circle cx="5.5" cy="18.5" r="2.5"/>
+                          <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
                       </div>
                     </div>
-                  )}
-
-                  {/* MOT Status */}
-                  {dashboard.fleet.motExpiring.count > 0 && (
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span>MOT Status</span>
-                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 400 }}>
-                          {dashboard.fleet.motExpiring.count} expiring
-                        </span>
-                      </div>
-                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {dashboard.fleet.motExpiring.items.slice(0, 10).map((item: any) => (
-                          <div key={item.vehicle_id} style={{
-                            padding: '8px',
-                            marginBottom: '6px',
-                            background: item.mot_status === 'expired' ? '#fee2e2' : item.mot_status === 'critical' ? '#fef3c7' : '#e0f2fe',
-                            borderRadius: '6px',
-                            borderLeft: `3px solid ${item.mot_status === 'expired' ? '#ef4444' : item.mot_status === 'critical' ? '#f59e0b' : '#3b82f6'}`
-                          }}>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
-                              {item.registration} {item.make && `- ${item.make} ${item.model}`}
-                            </div>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>
-                              {item.mot_status === 'expired' && `Expired ${Math.abs(item.days_until_expiry)} days ago`}
-                              {item.mot_status === 'critical' && `Expires in ${item.days_until_expiry} days`}
-                              {item.mot_status === 'warning' && `Expires in ${item.days_until_expiry} days`}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                      {dashboard.stats.totalVehicles}
                     </div>
-                  )}
+                    <div style={{ fontSize: '10px', color: '#475569' }}>Total Fleet</div>
                   </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Today's Urgent Actions - Compact */}
-      {dashboard && dashboard.summary?.criticalTasks > 0 && (
-        <div style={{
-          background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
-          color: 'white',
-          borderRadius: '8px',
-          padding: '0.75rem 1rem',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          boxShadow: '0 2px 8px rgba(255, 107, 107, 0.3)'
-        }}>
-          <div style={{ fontWeight: 700, fontSize: '14px' }}>
-            URGENT: {dashboard.summary.criticalTasks} Critical Issue{dashboard.summary.criticalTasks !== 1 ? 's' : ''}
-          </div>
-          <div style={{ display: 'flex', gap: '1rem', fontSize: '13px' }}>
-            {dashboard.tasks.unassignedJourneys.count > 0 && (
-              <span>{dashboard.tasks.unassignedJourneys.count} Unassigned Journey{dashboard.tasks.unassignedJourneys.count !== 1 ? 's' : ''}</span>
-            )}
-            {dashboard.tasks.expiredMots.count > 0 && (
-              <span>{dashboard.tasks.expiredMots.count} Expired MOT{dashboard.tasks.expiredMots.count !== 1 ? 's' : ''}</span>
-            )}
-            {dashboard.tasks.safeguardingReports.count > 0 && (
-              <span>{dashboard.tasks.safeguardingReports.count} Safeguarding Report{dashboard.tasks.safeguardingReports.count !== 1 ? 's' : ''}</span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions Panel */}
-      <div style={{
-        background: 'white',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-        padding: '0.75rem 1rem',
-        marginBottom: '1rem',
-        display: 'flex',
-        gap: '0.75rem',
-        flexWrap: 'wrap'
-      }}>
-        <button
-          onClick={handleViewTomorrowSchedule}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#e6e6fa',
-            color: '#4b0082',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#d8d8f0'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#e6e6fa'}
-        >
-          View Tomorrow's Schedule
-        </button>
-        <button
-          onClick={handleReportIncident}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#ffe4e1',
-            color: '#8b0000',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#ffd4d0'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#ffe4e1'}
-        >
-          Report Incident
-        </button>
-        <button
-          onClick={handleReportSafeguarding}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#fee2e2',
-            color: '#991b1b',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#fecaca'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#fee2e2'}
-        >
-          Report Safeguarding
-        </button>
-        <button
-          onClick={handleLogLateArrival}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#e0f2f7',
-            color: '#006064',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#b2ebf2'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#e0f2f7'}
-        >
-          Log Late Arrival
-        </button>
-        <button
-          onClick={handleExportReport}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#e8f5e9',
-            color: '#1b5e20',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#c8e6c9'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#e8f5e9'}
-        >
-          Export Today's Report
-        </button>
-      </div>
-
-      {/* Three Column Layout - Today's Operations (Compact) */}
-      {dashboard && dashboard.today && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-          {/* Today's Journeys */}
-          <div style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '0.75rem'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--gray-900)' }}>
-                Today's Journeys ({dashboard.today.journeys.count})
-              </h3>
-              <button
-                onClick={handleViewTodaySchedule}
-                style={{
-                  padding: '4px 8px',
-                  background: '#e6e6fa',
-                  color: '#4b0082',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#d8d8f0'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#e6e6fa'}
-              >
-                View All
-              </button>
-            </div>
-            {dashboard.today.journeys.count === 0 ? (
-              <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--gray-500)', fontSize: '12px' }}>
-                No journeys scheduled
-              </div>
-            ) : (
-              <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
-                {dashboard.today.journeys.items.slice(0, 8).map((journey: any) => (
-                  <div
-                    key={journey.customer_id}
-                    style={{
-                      padding: '0.5rem',
-                      borderBottom: '1px solid #f3f4f6',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: '12px', color: 'var(--gray-900)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {journey.customer_name}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9 11 12 14 22 4"/>
+                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
                       </div>
-                      {journey.today_schedule?.pickupTime && (
-                        <div style={{ fontSize: '11px', color: 'var(--gray-600)' }}>
-                          {journey.today_schedule.pickupTime}
-                        </div>
-                      )}
                     </div>
-                    <div style={{
-                      fontSize: '10px',
-                      padding: '2px 6px',
-                      borderRadius: '3px',
-                      background: journey.today_schedule?.driverId ? '#e8f5e9' : '#ffebee',
-                      color: journey.today_schedule?.driverId ? '#2e7d32' : '#c62828',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                      marginLeft: '0.5rem'
-                    }}>
-                      {journey.today_schedule?.driverId ? 'OK' : 'UNASSIGNED'}
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                      {dashboard.stats.assignedVehicles}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#475569' }}>
+                      Assigned ({dashboard.stats.utilizationPercentage}%)
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Driver Roster Today */}
-          <div style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '0.75rem'
-          }}>
-            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--gray-900)', marginBottom: '0.5rem' }}>
-              Driver Roster ({dashboard.today.drivers.count})
-            </h3>
-            <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
-              {dashboard.today.drivers.items.map((driver: any) => (
-                <div
-                  key={driver.driver_id}
-                  style={{
-                    padding: '0.5rem',
-                    borderBottom: '1px solid #f3f4f6',
-                    opacity: driver.on_leave ? 0.5 : 1
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: '12px', color: 'var(--gray-900)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {driver.on_leave && '[LEAVE] '}{driver.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--gray-600)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {driver.registration || 'No vehicle'}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="12" y1="8" x2="12" y2="12"/>
+                          <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
                       </div>
                     </div>
-                    {!driver.on_leave && (
-                      <div style={{
-                        fontSize: '10px',
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                        background: driver.vehicle_id ? '#e3f2fd' : '#fff3e0',
-                        color: driver.vehicle_id ? '#1976d2' : '#f57c00',
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap',
-                        marginLeft: '0.5rem'
-                      }}>
-                        {driver.vehicle_id ? 'READY' : 'NO VEH'}
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                      {dashboard.stats.availableVehicles}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#475569' }}>Available</div>
+                  </div>
+
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: dashboard.stats.maintenanceOverdue > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: dashboard.stats.maintenanceOverdue > 0 ? '#ef4444' : '#f59e0b' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                        </svg>
                       </div>
-                    )}
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                      {dashboard.stats.maintenanceOverdue + dashboard.stats.maintenanceDueThisWeek}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#475569' }}>Maintenance Due</div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Customer Alerts */}
-          <div style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '0.75rem'
-          }}>
-            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--gray-900)', marginBottom: '0.5rem' }}>
-              Customer Alerts ({dashboard.today.customerAlerts.count})
-            </h3>
-            {dashboard.today.customerAlerts.count === 0 ? (
-              <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--gray-500)', fontSize: '12px' }}>
-                No alerts
-              </div>
-            ) : (
-              <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
-                {dashboard.today.customerAlerts.items.map((alert: any, index: number) => (
-                  <div
-                    key={`alert-${alert.customer_id}-${index}`}
-                    style={{
-                      padding: '0.5rem',
-                      borderBottom: '1px solid #f3f4f6',
-                      background: alert.alert_type === 'holiday' ? '#fffbeb' : '#f0f9ff',
-                      marginBottom: '0.25rem',
-                      borderRadius: '4px'
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, fontSize: '12px', color: 'var(--gray-900)' }}>
-                      [{alert.alert_type === 'holiday' ? 'HOLIDAY' : 'SPECIAL'}] {alert.name}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {alert.alert_type === 'holiday' && `Until ${new Date(alert.end_date).toLocaleDateString('en-GB')}`}
-                      {alert.alert_type === 'special_requirement' && alert.notes}
-                    </div>
-                  </div>
-                ))}
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Vehicle Status - Full Width Bar */}
-      {dashboard && dashboard.today && (
-        <div style={{
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '0.75rem',
-          marginBottom: '0.75rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--gray-900)' }}>
-              Vehicle Status ({dashboard.today.vehicles.active} active)
-            </h3>
-            {dashboard.today.vehicles.issues > 0 && (
-              <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 600 }}>
-                {dashboard.today.vehicles.issues} issue{dashboard.today.vehicles.issues !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.5rem' }}>
-            {dashboard.today.vehicles.items.map((vehicle: any) => (
-              <div
-                key={vehicle.vehicle_id}
-                style={{
-                  padding: '0.5rem',
-                  border: '1px solid #f3f4f6',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: '12px', color: 'var(--gray-900)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {vehicle.registration}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--gray-600)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {vehicle.driver_name || 'Unassigned'}
-                  </div>
-                </div>
-                <div style={{
-                  fontSize: '10px',
-                  padding: '2px 6px',
-                  borderRadius: '3px',
-                  background: vehicle.status === 'active' ? '#e8f5e9' : vehicle.status === 'expired_mot' ? '#ffebee' : '#fff3e0',
-                  color: vehicle.status === 'active' ? '#2e7d32' : vehicle.status === 'expired_mot' ? '#c62828' : '#f57c00',
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
-                  marginLeft: '0.5rem'
-                }}>
-                  {vehicle.status === 'active' && 'OK'}
-                  {vehicle.status === 'expired_mot' && 'EXPIRED'}
-                  {vehicle.status === 'mot_expiring_soon' && 'SOON'}
-                  {vehicle.status === 'unassigned' && 'UNASSIGNED'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Alert Summary (existing alerts) */}
-      {alerts.length > 0 && (
-        <div style={{
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          gap: '2rem',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontSize: '14px', color: 'var(--gray-700)', fontWeight: 600 }}>
-            {alerts.length} Active Alert{alerts.length !== 1 ? 's' : ''}
-          </div>
-          <div style={{ display: 'flex', gap: '1.5rem', fontSize: '13px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#ef4444' }}>●</span>
-              <span>{alerts.filter(a => a.type === 'critical').length} Critical</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#f59e0b' }}>●</span>
-              <span>{alerts.filter(a => a.type === 'warning').length} Warning</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#3b82f6' }}>●</span>
-              <span>{alerts.filter(a => a.type === 'info').length} Info</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Alerts List */}
-      {alerts.length === 0 ? (
-        <div style={{
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '3rem',
-          textAlign: 'center'
-        }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)', margin: '0 0 0.5rem 0' }}>
-            All Clear!
-          </h2>
-          <p style={{ fontSize: '14px', color: 'var(--gray-600)', margin: 0 }}>
-            No active alerts. Everything is running smoothly.
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {alerts.map((alert) => {
-            const styles = getAlertStyles(alert.type);
-            return (
-              <div
-                key={alert.id}
-                style={{
-                  background: styles.bg,
-                  border: `1px solid ${styles.border}`,
-                  borderLeft: `4px solid ${styles.border}`,
-                  borderRadius: '6px',
-                  padding: '1rem',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '1rem',
-                  transition: 'all 0.2s'
-                }}
-              >
-                {/* Content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color: styles.textColor,
-                    marginBottom: '0.5rem',
-                    lineHeight: 1.4
-                  }}>
-                    {alert.message}
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: 'var(--gray-600)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    <span style={{ fontWeight: 500 }}>→</span>
-                    {alert.instructions}
-                  </div>
-                </div>
-
-                {/* Dismiss Button */}
-                <button
-                  onClick={() => dismissAlert(alert.id)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--gray-400)',
-                    fontSize: '18px',
-                    cursor: 'pointer',
-                    padding: '0.25rem',
-                    lineHeight: 1,
-                    flexShrink: 0,
-                    transition: 'color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--gray-600)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--gray-400)'}
-                  title="Dismiss alert"
-                >
-                  ×
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
+      {/* Modals and handlers below */}
       {/* Schedule View Modal */}
       {showScheduleModal && (
         <ScheduleModal

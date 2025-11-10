@@ -64,7 +64,12 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(test-app.js)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(railway.json)",
+      "Bash(README.md)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" node:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" node -e:*)"
     ],
     "deny": [],
     "ask": []
