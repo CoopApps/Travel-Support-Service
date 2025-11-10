@@ -422,6 +422,14 @@ export const tripApi = {
   },
 
   /**
+   * Create multiple trips in a transaction (for carpooling)
+   */
+  bulkCreateTrips: async (tenantId: number, trips: any[]): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/trips/bulk`, { trips });
+    return response.data;
+  },
+
+  /**
    * Update a trip
    */
   updateTrip: async (tenantId: number, tripId: number, data: any): Promise<any> => {

@@ -11,6 +11,7 @@ interface ScheduledTripsGridProps {
   tenantId: number;
   onEditTrip?: (trip: Trip) => void;
   onCreateTrip?: (driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => void;
+  onRefresh?: () => void; // Callback to refresh data after updates
   viewType?: 'regular' | 'adhoc'; // To apply different colors based on view
 }
 
@@ -28,6 +29,7 @@ function ScheduledTripsGrid({
   tenantId,
   onEditTrip,
   onCreateTrip,
+  onRefresh,
   viewType = 'regular'
 }: ScheduledTripsGridProps) {
 
@@ -43,8 +45,8 @@ function ScheduledTripsGrid({
   const handleStatusChange = async (trip: Trip, newStatus: string) => {
     try {
       await tripApi.updateTrip(tenantId, trip.trip_id, { status: newStatus });
-      // Trigger parent refresh by editing trip (which should trigger a refresh)
-      window.location.reload(); // Simple approach for now
+      // Trigger parent refresh via callback
+      onRefresh?.();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to update trip status');
     }
@@ -54,9 +56,13 @@ function ScheduledTripsGrid({
    * Handle trip deletion
    */
   const handleDelete = async (trip: Trip) => {
+    if (!confirm(`Delete trip for ${trip.customer_name}?`)) {
+      return;
+    }
     try {
       await tripApi.deleteTrip(tenantId, trip.trip_id);
-      window.location.reload(); // Simple approach for now
+      // Trigger parent refresh via callback
+      onRefresh?.();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete trip');
     }

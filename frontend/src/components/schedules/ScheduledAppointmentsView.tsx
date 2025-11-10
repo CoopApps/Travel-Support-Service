@@ -387,6 +387,7 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
           } as any);
           setShowFormModal(true);
         }}
+        onRefresh={fetchData}
         viewType="regular"
       />
 

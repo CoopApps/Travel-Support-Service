@@ -295,6 +295,7 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
           } as any);
           setShowFormModal(true);
         }}
+        onRefresh={fetchData}
         viewType="adhoc"
       />
 

@@ -149,6 +149,15 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Block submission if critical conflicts exist
+    const hasCriticalConflicts = conflicts.some(c => c.severity === 'critical');
+    if (hasCriticalConflicts) {
+      setError('Cannot save trip: Critical conflicts must be resolved first');
+      setShowConflictWarning(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -178,8 +187,11 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
         };
         await tripApi.updateTrip(tenantId, trip.trip_id, data);
       } else {
-        // Create mode - create trip for primary passenger
+        // Create mode - build array of all trips to create (primary + carpooling passengers)
         const primaryCustomer = customers.find(c => c.id.toString() === formData.customer_id.toString());
+        const tripsToCreate: any[] = [];
+
+        // Primary passenger trip
         const primaryData = {
           ...baseData,
           customer_id: parseInt(formData.customer_id.toString()),
@@ -188,9 +200,9 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
           requires_wheelchair: formData.requires_wheelchair,
           requires_escort: formData.requires_escort,
         };
-        await tripApi.createTrip(tenantId, primaryData);
+        tripsToCreate.push(primaryData);
 
-        // Create trips for all additional passengers (carpooling)
+        // Additional passengers (carpooling)
         if (additionalPassengers.length > 0) {
           const additionalNotes = formData.notes
             ? `${formData.notes}\n\n🚗 Carpooling with ${primaryCustomer?.name || 'primary passenger'}`
@@ -208,10 +220,13 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                 requires_wheelchair: false, // These come from customer record
                 requires_escort: false,
               };
-              await tripApi.createTrip(tenantId, passengerData);
+              tripsToCreate.push(passengerData);
             }
           }
         }
+
+        // Create all trips in a single transaction
+        await tripApi.bulkCreateTrips(tenantId, tripsToCreate);
       }
 
       onClose(true); // Close and refresh
@@ -403,10 +418,14 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                     <div style={{
                       marginTop: '0.75rem',
                       fontSize: '12px',
-                      color: '#78350f',
-                      fontStyle: 'italic'
+                      color: conflicts.filter(c => c.severity === 'critical').length > 0 ? '#991b1b' : '#78350f',
+                      fontStyle: 'italic',
+                      fontWeight: conflicts.filter(c => c.severity === 'critical').length > 0 ? 600 : 400
                     }}>
-                      You can still save this trip, but please review the conflicts above.
+                      {conflicts.filter(c => c.severity === 'critical').length > 0
+                        ? '❌ Cannot save trip: Critical conflicts must be resolved first'
+                        : 'You can still save this trip, but please review the warnings above.'
+                      }
                     </div>
                   </div>
                 </div>
@@ -789,8 +808,12 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={loading}
-                  style={{ background: '#10b981' }}
+                  disabled={loading || conflicts.some(c => c.severity === 'critical')}
+                  style={{
+                    background: conflicts.some(c => c.severity === 'critical') ? '#9ca3af' : '#10b981',
+                    cursor: conflicts.some(c => c.severity === 'critical') ? 'not-allowed' : 'pointer'
+                  }}
+                  title={conflicts.some(c => c.severity === 'critical') ? 'Resolve critical conflicts before saving' : ''}
                 >
                   {loading ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

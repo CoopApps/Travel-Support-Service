@@ -388,6 +388,117 @@ router.post(
 );
 
 /**
+ * @route POST /api/tenants/:tenantId/trips/bulk
+ * @desc Create multiple trips in a transaction (for carpooling)
+ * @access Protected
+ */
+router.post(
+  '/tenants/:tenantId/trips/bulk',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { trips } = req.body;
+
+    logger.info('Creating bulk trips', { tenantId, count: trips?.length });
+
+    // Validate input
+    if (!trips || !Array.isArray(trips) || trips.length === 0) {
+      throw new ValidationError('trips array is required and must not be empty');
+    }
+
+    // Import pg for transaction support
+    const { Pool } = require('pg');
+    const pool = new Pool({
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    });
+
+    const client = await pool.connect();
+    const createdTrips: any[] = [];
+
+    try {
+      // Start transaction
+      await client.query('BEGIN');
+
+      // Create each trip within the transaction
+      for (const tripData of trips) {
+        const {
+          customer_id,
+          driver_id,
+          vehicle_id,
+          trip_date,
+          pickup_time,
+          pickup_location,
+          pickup_address,
+          destination,
+          destination_address,
+          trip_type = 'adhoc',
+          status = 'scheduled',
+          urgent = false,
+          price,
+          notes,
+          requires_wheelchair = false,
+          requires_escort = false,
+          passenger_count = 1
+        } = tripData;
+
+        // Validate required fields
+        if (!customer_id || !trip_date || !pickup_time || !destination) {
+          throw new ValidationError('Missing required fields in trip data: customer_id, trip_date, pickup_time, destination');
+        }
+
+        // Get day of week from trip_date
+        const dayOfWeekResult = await client.query(
+          `SELECT TO_CHAR($1::date, 'Day') as day_name`,
+          [trip_date]
+        );
+
+        const result = await client.query(
+          `INSERT INTO tenant_trips (
+            tenant_id, customer_id, driver_id, vehicle_id, trip_date, day_of_week,
+            pickup_time, pickup_location, pickup_address, destination, destination_address,
+            trip_type, trip_source, status, urgent, price, notes,
+            requires_wheelchair, requires_escort, passenger_count
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+          ) RETURNING *`,
+          [
+            tenantId, customer_id, driver_id, vehicle_id, trip_date, dayOfWeekResult.rows[0]?.day_name?.trim(),
+            pickup_time, pickup_location, pickup_address, destination, destination_address,
+            trip_type, 'manual', status, urgent, price, notes,
+            requires_wheelchair, requires_escort, passenger_count
+          ]
+        );
+
+        createdTrips.push(result.rows[0]);
+      }
+
+      // Commit transaction
+      await client.query('COMMIT');
+
+      logger.info('Bulk trips created successfully', { count: createdTrips.length });
+
+      res.status(201).json({
+        success: true,
+        count: createdTrips.length,
+        trips: createdTrips
+      });
+    } catch (error) {
+      // Rollback transaction on any error
+      await client.query('ROLLBACK');
+      logger.error('Bulk trip creation failed, rolled back transaction', { error });
+      throw error;
+    } finally {
+      client.release();
+      await pool.end();
+    }
+  })
+);
+
+/**
  * @route PUT /api/tenants/:tenantId/trips/:tripId
  * @desc Update a trip
  * @access Protected
