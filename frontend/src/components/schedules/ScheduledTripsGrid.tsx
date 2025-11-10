@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Trip, Driver } from '../../types';
 import TripContextMenu from './TripContextMenu';
 import { tripApi } from '../../services/api';
@@ -50,6 +50,9 @@ function ScheduledTripsGrid({
   // Bulk selection state
   const [selectedTripIds, setSelectedTripIds] = useState<Set<number>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
+
+  // Keyboard shortcuts help state
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   /**
    * Handle trip status change
@@ -222,6 +225,74 @@ function ScheduledTripsGrid({
     }
   };
 
+  /**
+   * Keyboard shortcuts
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts if user is typing in an input/textarea/select
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        return;
+      }
+
+      // N - New trip (open create dialog for first driver)
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        if (drivers.length > 0 && onCreateTrip) {
+          // Create a trip for the first driver on the current day
+          const today = serverTime?.day_of_week || 0;
+          onCreateTrip(drivers[0].driver_id, today, 'morning');
+        }
+      }
+
+      // E - Edit selected trip
+      if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        if (selectedTripIds.size === 1) {
+          const selectedId = Array.from(selectedTripIds)[0];
+          const trip = trips.find(t => t.trip_id === selectedId);
+          if (trip && onEditTrip) {
+            onEditTrip(trip);
+          }
+        } else if (selectedTripIds.size > 1) {
+          alert('Please select only one trip to edit');
+        } else {
+          alert('Please select a trip to edit (click checkbox)');
+        }
+      }
+
+      // Delete - Quick delete selected trips
+      if (e.key === 'Delete' && selectedTripIds.size > 0) {
+        e.preventDefault();
+        handleBulkDelete();
+      }
+
+      // ESC - Clear selection
+      if (e.key === 'Escape') {
+        if (selectedTripIds.size > 0) {
+          e.preventDefault();
+          handleClearSelection();
+        }
+      }
+
+      // Ctrl+A - Select all trips
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        handleSelectAll();
+      }
+
+      // ? - Toggle keyboard shortcuts help
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setShowKeyboardHelp(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [drivers, trips, selectedTripIds, onCreateTrip, onEditTrip, serverTime]);
+
   // Color schemes based on view type (matching legacy)
   const colorScheme = viewType === 'adhoc' ? {
     morning: {
@@ -314,6 +385,29 @@ function ScheduledTripsGrid({
 
   return (
     <>
+      {/* Keyboard Shortcuts Help Button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+        <button
+          onClick={() => setShowKeyboardHelp(prev => !prev)}
+          style={{
+            padding: '4px 10px',
+            background: 'white',
+            border: '1px solid #cbd5e1',
+            borderRadius: '4px',
+            fontSize: '12px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            color: '#64748b'
+          }}
+          title="Show keyboard shortcuts (press ? key)"
+        >
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>?</span>
+          <span>Shortcuts</span>
+        </button>
+      </div>
+
       {/* Bulk Actions Toolbar */}
       {showBulkActions && (
         <div style={{
@@ -883,6 +977,71 @@ function ScheduledTripsGrid({
           }}
           onClose={() => setContextMenu(null)}
         />
+      )}
+
+      {/* Keyboard Shortcuts Help */}
+      {showKeyboardHelp && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            background: 'white',
+            border: '2px solid #3b82f6',
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            maxWidth: '400px'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Keyboard Shortcuts</h3>
+            <button
+              onClick={() => setShowKeyboardHelp(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                padding: '0 4px',
+                color: '#64748b'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ display: 'grid', gap: '8px', fontSize: '13px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>N</span>
+              <span style={{ color: '#64748b' }}>New trip</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>E</span>
+              <span style={{ color: '#64748b' }}>Edit selected trip</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Delete</span>
+              <span style={{ color: '#64748b' }}>Delete selected trips</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Ctrl+A</span>
+              <span style={{ color: '#64748b' }}>Select all trips</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Ctrl+Click</span>
+              <span style={{ color: '#64748b' }}>Multi-select trips</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Esc</span>
+              <span style={{ color: '#64748b' }}>Clear selection</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>?</span>
+              <span style={{ color: '#64748b' }}>Toggle this help</span>
+            </div>
+          </div>
+        </div>
       )}
     </div>
     </>
