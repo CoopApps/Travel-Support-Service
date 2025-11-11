@@ -80,17 +80,7 @@ function RouteOptimizationSettings() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: '0.5rem' }}>
-          Route Optimization Settings
-        </h1>
-        <p style={{ color: 'var(--gray-600)', fontSize: '14px' }}>
-          Configure how the system recommends passengers for carpooling
-        </p>
-      </div>
-
+    <div>
       {/* Alerts */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>

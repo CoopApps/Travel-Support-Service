@@ -83,14 +83,9 @@ function Layout() {
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Settings</div>
-            <NavItem to="/settings/reminders" label="Reminder Settings" icon="bell" active={location.pathname === '/settings/reminders'} />
-            <NavItem to="/settings/route-optimization" label="Route Optimization" icon="map" active={location.pathname === '/settings/route-optimization'} />
-          </div>
-
-          <div className="nav-section">
             <div className="nav-section-label">Company Admin</div>
             <NavItem to="/admin" label="Administration" icon="settings" active={location.pathname === '/admin'} />
+            <NavItem to="/admin/settings" label="Settings" icon="cog" active={location.pathname === '/admin/settings'} />
           </div>
 
           <div className="nav-section">

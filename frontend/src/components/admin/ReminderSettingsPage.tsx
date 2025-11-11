@@ -175,14 +175,7 @@ const ReminderSettingsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem' }}>📨 Reminder Settings</h1>
-        <p style={{ color: '#6b7280', fontSize: '14px' }}>
-          Configure SMS and Email reminders for customers. Requires Twilio (SMS) or SendGrid (Email) credentials.
-        </p>
-      </div>
-
+    <div>
       {/* Status Message */}
       {message && (
         <div
