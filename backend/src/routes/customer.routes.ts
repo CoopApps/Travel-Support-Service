@@ -68,8 +68,23 @@ router.get(
     );
     const splitPayment = parseInt(splitPaymentResult[0]?.count || '0', 10);
 
-    // Get customers with times set (placeholder - would need schedule analysis)
-    const withTimes = 0; // TODO: Implement schedule time analysis
+    // Get customers with times set (analyze schedule JSONB)
+    const withTimesResult = await query<{ count: string }>(
+      `SELECT COUNT(DISTINCT customer_id) as count
+       FROM tenant_customers,
+       LATERAL jsonb_each(schedule) AS day_entry
+       WHERE tenant_id = $1
+         AND is_active = true
+         AND schedule IS NOT NULL
+         AND (
+           (day_entry.value->>'pickup_time') IS NOT NULL
+           OR (day_entry.value->>'drop_off_time') IS NOT NULL
+           OR (day_entry.value->>'outbound_time') IS NOT NULL
+           OR (day_entry.value->>'return_time') IS NOT NULL
+         )`,
+      [tenantId]
+    );
+    const withTimes = parseInt(withTimesResult[0]?.count || '0', 10);
 
     // Get login enabled customers
     const loginEnabledResult = await query<{ count: string }>(
@@ -85,6 +100,299 @@ router.get(
       splitPayment,
       withTimes,
       loginEnabled,
+    });
+  })
+);
+
+/**
+ * @route GET /api/tenants/:tenantId/customers/enhanced-stats
+ * @desc Get enhanced customer statistics with trip history, revenue, and detailed breakdowns
+ * @access Protected
+ */
+router.get(
+  '/tenants/:tenantId/customers/enhanced-stats',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+
+    logger.info('Fetching enhanced customer stats', { tenantId });
+
+    // Get all active customers with their details
+    const customers = await query<{
+      customer_id: number;
+      name: string;
+      has_split_payment: boolean;
+      payment_split: any;
+      schedule: any;
+      reminder_opt_in: boolean;
+      reminder_preference: string;
+      is_login_enabled: boolean;
+      no_show_count: number;
+      total_completed_trips: number;
+      total_trips_attempted: number;
+      reliability_percentage: number;
+      default_price: number;
+    }>(
+      `SELECT customer_id, name, has_split_payment, payment_split, schedule,
+              reminder_opt_in, reminder_preference, is_login_enabled,
+              no_show_count, total_completed_trips, total_trips_attempted,
+              reliability_percentage, default_price
+       FROM tenant_customers
+       WHERE tenant_id = $1 AND is_active = true`,
+      [tenantId]
+    );
+
+    // Get trip statistics from tenant_trips table
+    const tripStats = await query<{
+      customer_id: number;
+      total_trips: string;
+      completed_trips: string;
+      cancelled_trips: string;
+      total_revenue: string;
+    }>(
+      `SELECT
+        customer_id,
+        COUNT(*) as total_trips,
+        COUNT(*) FILTER (WHERE trip_status = 'completed') as completed_trips,
+        COUNT(*) FILTER (WHERE trip_status = 'cancelled') as cancelled_trips,
+        COALESCE(SUM(price), 0) as total_revenue
+       FROM tenant_trips
+       WHERE tenant_id = $1
+       GROUP BY customer_id`,
+      [tenantId]
+    );
+
+    // Create a map of trip stats by customer
+    const tripStatsMap = new Map();
+    tripStats.forEach((stat) => {
+      tripStatsMap.set(stat.customer_id, {
+        totalTrips: parseInt(stat.total_trips || '0'),
+        completedTrips: parseInt(stat.completed_trips || '0'),
+        cancelledTrips: parseInt(stat.cancelled_trips || '0'),
+        totalRevenue: parseFloat(stat.total_revenue || '0'),
+      });
+    });
+
+    // Calculate aggregated statistics
+    const stats = {
+      payment: {
+        selfPay: 0,
+        splitPayment: 0,
+        totalSplitProviders: 0,
+      },
+      schedule: {
+        hasSchedule: 0,
+        withPickupTimes: 0,
+        uniqueDestinations: new Set<string>(),
+      },
+      reminders: {
+        optedIn: 0,
+        optedOut: 0,
+        preferSms: 0,
+        preferEmail: 0,
+        preferBoth: 0,
+        preferNone: 0,
+      },
+      portal: {
+        loginEnabled: 0,
+        noAccess: 0,
+      },
+      trips: {
+        totalTrips: 0,
+        completedTrips: 0,
+        cancelledTrips: 0,
+        totalRevenue: 0,
+        noShows: 0,
+        averageReliability: 0,
+      },
+    };
+
+    let reliabilityCount = 0;
+    let reliabilitySum = 0;
+
+    customers.forEach((customer) => {
+      // Payment stats
+      if (customer.has_split_payment) {
+        stats.payment.splitPayment++;
+        const paymentSplit = typeof customer.payment_split === 'string'
+          ? JSON.parse(customer.payment_split)
+          : customer.payment_split || {};
+        stats.payment.totalSplitProviders += Object.keys(paymentSplit).length;
+      } else {
+        stats.payment.selfPay++;
+      }
+
+      // Schedule stats
+      if (customer.schedule) {
+        const schedule = typeof customer.schedule === 'string'
+          ? JSON.parse(customer.schedule)
+          : customer.schedule;
+
+        if (Object.keys(schedule).length > 0) {
+          stats.schedule.hasSchedule++;
+
+          // Check each day for times and destinations
+          Object.values(schedule).forEach((day: any) => {
+            if (day.pickup_time || day.drop_off_time) {
+              stats.schedule.withPickupTimes++;
+            }
+            if (day.destination) {
+              stats.schedule.uniqueDestinations.add(day.destination);
+            }
+            if (day.outbound_destination) {
+              stats.schedule.uniqueDestinations.add(day.outbound_destination);
+            }
+            if (day.return_destination) {
+              stats.schedule.uniqueDestinations.add(day.return_destination);
+            }
+          });
+        }
+      }
+
+      // Reminder stats
+      if (customer.reminder_opt_in) {
+        stats.reminders.optedIn++;
+      } else {
+        stats.reminders.optedOut++;
+      }
+
+      switch (customer.reminder_preference) {
+        case 'sms':
+          stats.reminders.preferSms++;
+          break;
+        case 'email':
+          stats.reminders.preferEmail++;
+          break;
+        case 'both':
+          stats.reminders.preferBoth++;
+          break;
+        case 'none':
+          stats.reminders.preferNone++;
+          break;
+      }
+
+      // Portal stats
+      if (customer.is_login_enabled) {
+        stats.portal.loginEnabled++;
+      } else {
+        stats.portal.noAccess++;
+      }
+
+      // Trip stats from map
+      const customerTripStats = tripStatsMap.get(customer.customer_id);
+      if (customerTripStats) {
+        stats.trips.totalTrips += customerTripStats.totalTrips;
+        stats.trips.completedTrips += customerTripStats.completedTrips;
+        stats.trips.cancelledTrips += customerTripStats.cancelledTrips;
+        stats.trips.totalRevenue += customerTripStats.totalRevenue;
+      }
+
+      // No-show and reliability stats
+      if (customer.no_show_count) {
+        stats.trips.noShows += customer.no_show_count;
+      }
+
+      if (customer.reliability_percentage !== null && customer.reliability_percentage !== undefined) {
+        reliabilitySum += customer.reliability_percentage;
+        reliabilityCount++;
+      }
+    });
+
+    // Calculate average reliability
+    if (reliabilityCount > 0) {
+      stats.trips.averageReliability = Math.round(reliabilitySum / reliabilityCount);
+    }
+
+    // Get top destinations (from schedule JSONB)
+    const destinationsResult = await query<{ destination: string; count: string }>(
+      `WITH RECURSIVE destinations AS (
+        SELECT
+          customer_id,
+          jsonb_each(schedule) AS day_entry
+        FROM tenant_customers
+        WHERE tenant_id = $1 AND is_active = true AND schedule IS NOT NULL
+      ),
+      extracted_destinations AS (
+        SELECT
+          (day_entry).value->>'destination' AS destination
+        FROM destinations
+        WHERE (day_entry).value->>'destination' IS NOT NULL
+        UNION ALL
+        SELECT
+          (day_entry).value->>'outbound_destination' AS destination
+        FROM destinations
+        WHERE (day_entry).value->>'outbound_destination' IS NOT NULL
+        UNION ALL
+        SELECT
+          (day_entry).value->>'return_destination' AS destination
+        FROM destinations
+        WHERE (day_entry).value->>'return_destination' IS NOT NULL
+      )
+      SELECT destination, COUNT(*) as count
+      FROM extracted_destinations
+      WHERE destination IS NOT NULL AND destination != ''
+      GROUP BY destination
+      ORDER BY count DESC
+      LIMIT 10`,
+      [tenantId]
+    );
+
+    const topDestinations = destinationsResult.map((d) => ({
+      destination: d.destination,
+      count: parseInt(d.count),
+    }));
+
+    res.json({
+      summary: {
+        totalCustomers: customers.length,
+        activeCustomers: customers.length, // All queried customers are active
+        loginEnabled: stats.portal.loginEnabled,
+        hasSchedules: stats.schedule.hasSchedule,
+      },
+      payment: {
+        selfPay: stats.payment.selfPay,
+        splitPayment: stats.payment.splitPayment,
+        averageProvidersPerSplit: stats.payment.splitPayment > 0
+          ? Math.round(stats.payment.totalSplitProviders / stats.payment.splitPayment * 10) / 10
+          : 0,
+      },
+      schedule: {
+        withSchedules: stats.schedule.hasSchedule,
+        withPickupTimes: stats.schedule.withPickupTimes,
+        uniqueDestinations: stats.schedule.uniqueDestinations.size,
+        topDestinations,
+      },
+      reminders: {
+        optedIn: stats.reminders.optedIn,
+        optedOut: stats.reminders.optedOut,
+        preferSms: stats.reminders.preferSms,
+        preferEmail: stats.reminders.preferEmail,
+        preferBoth: stats.reminders.preferBoth,
+        preferNone: stats.reminders.preferNone,
+      },
+      portal: {
+        loginEnabled: stats.portal.loginEnabled,
+        noAccess: stats.portal.noAccess,
+      },
+      trips: {
+        totalTrips: stats.trips.totalTrips,
+        completedTrips: stats.trips.completedTrips,
+        cancelledTrips: stats.trips.cancelledTrips,
+        noShows: stats.trips.noShows,
+        completionRate: stats.trips.totalTrips > 0
+          ? Math.round((stats.trips.completedTrips / stats.trips.totalTrips) * 100)
+          : 0,
+        averageReliability: stats.trips.averageReliability,
+      },
+      financial: {
+        totalRevenue: Math.round(stats.trips.totalRevenue * 100) / 100,
+        averageRevenuePerCustomer: customers.length > 0
+          ? Math.round((stats.trips.totalRevenue / customers.length) * 100) / 100
+          : 0,
+        averageRevenuePerTrip: stats.trips.completedTrips > 0
+          ? Math.round((stats.trips.totalRevenue / stats.trips.completedTrips) * 100) / 100
+          : 0,
+      },
     });
   })
 );
@@ -550,6 +858,102 @@ router.delete(
 );
 
 /**
+ * @route PUT /api/tenants/:tenantId/customers/:customerId/archive
+ * @desc Archive a customer (different from soft delete - for inactive customers you want to keep)
+ * @access Protected
+ */
+router.put(
+  '/tenants/:tenantId/customers/:customerId/archive',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, customerId } = req.params;
+
+    logger.info('Archiving customer', { tenantId, customerId });
+
+    // Check if customer exists
+    const existing = await queryOne<{ customer_id: number; name: string }>(
+      'SELECT customer_id, name FROM tenant_customers WHERE tenant_id = $1 AND customer_id = $2 AND is_active = true',
+      [tenantId, customerId]
+    );
+
+    if (!existing) {
+      throw new NotFoundError('Customer not found');
+    }
+
+    // Archive customer
+    await query(
+      `UPDATE tenant_customers
+       SET archived = TRUE,
+           archived_at = CURRENT_TIMESTAMP,
+           archived_by = $3,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = $2`,
+      [tenantId, customerId, (req as any).user?.userId || null]
+    );
+
+    logger.info('Customer archived successfully', {
+      tenantId,
+      customerId,
+      name: existing.name,
+    });
+
+    res.json({
+      message: 'Customer archived successfully',
+      customerId: existing.customer_id,
+      customerName: existing.name,
+    });
+  })
+);
+
+/**
+ * @route PUT /api/tenants/:tenantId/customers/:customerId/unarchive
+ * @desc Unarchive a customer
+ * @access Protected
+ */
+router.put(
+  '/tenants/:tenantId/customers/:customerId/unarchive',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, customerId } = req.params;
+
+    logger.info('Unarchiving customer', { tenantId, customerId });
+
+    // Check if customer exists (can be archived)
+    const existing = await queryOne<{ customer_id: number; name: string }>(
+      'SELECT customer_id, name FROM tenant_customers WHERE tenant_id = $1 AND customer_id = $2 AND is_active = true',
+      [tenantId, customerId]
+    );
+
+    if (!existing) {
+      throw new NotFoundError('Customer not found');
+    }
+
+    // Unarchive customer
+    await query(
+      `UPDATE tenant_customers
+       SET archived = FALSE,
+           archived_at = NULL,
+           archived_by = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = $2`,
+      [tenantId, customerId]
+    );
+
+    logger.info('Customer unarchived successfully', {
+      tenantId,
+      customerId,
+      name: existing.name,
+    });
+
+    res.json({
+      message: 'Customer unarchived successfully',
+      customerId: existing.customer_id,
+      customerName: existing.name,
+    });
+  })
+);
+
+/**
  * @route POST /api/tenants/:tenantId/customers/:customerId/enable-login
  * @desc Enable customer portal login
  * @access Protected
@@ -823,6 +1227,47 @@ router.put(
     res.json({
       message: 'Username updated successfully',
       username,
+    });
+  })
+);
+
+/**
+ * @route GET /api/tenants/:tenantId/customers/check-username/:username
+ * @desc Check if username is available for customer portal
+ * @access Protected
+ */
+router.get(
+  '/tenants/:tenantId/customers/check-username/:username',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, username } = req.params;
+    const { exclude } = req.query; // Customer ID to exclude (for updates)
+
+    logger.info('Checking username availability', { tenantId, username, exclude });
+
+    let result;
+    if (exclude) {
+      // Check username availability excluding current customer's user
+      result = await query(
+        `SELECT u.user_id FROM tenant_users u
+         WHERE u.username = $1 AND u.tenant_id = $2
+         AND u.user_id NOT IN (
+           SELECT user_id FROM tenant_customers
+           WHERE customer_id = $3 AND tenant_id = $2 AND user_id IS NOT NULL
+         )`,
+        [username, tenantId, exclude]
+      );
+    } else {
+      // Check username availability (new customer)
+      result = await query(
+        'SELECT user_id FROM tenant_users WHERE username = $1 AND tenant_id = $2',
+        [username, tenantId]
+      );
+    }
+
+    res.json({
+      available: result.length === 0,
+      username: username,
     });
   })
 );
