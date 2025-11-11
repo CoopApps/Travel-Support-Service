@@ -204,13 +204,33 @@ function ScheduledTripsGrid({
   }, [selectedTripIds]);
 
   /**
-   * Select all trips (filtered results) - memoized
+   * Filter trips based on search query (memoized for performance)
    */
-  const handleSelectAll = useCallback(() => {
-    const allTripIds = new Set(filteredTrips.map(t => t.trip_id));
-    setSelectedTripIds(allTripIds);
-    setShowBulkActions(true);
-  }, [filteredTrips]);
+  const filteredTrips = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) {
+      return trips;
+    }
+
+    const query = debouncedSearchQuery.toLowerCase().trim();
+
+    return trips.filter(trip => {
+      // Get driver name for this trip
+      const driver = drivers.find(d => d.driver_id === trip.driver_id);
+      const driverName = driver ? `${driver.first_name} ${driver.last_name}`.toLowerCase() : '';
+
+      // Search in multiple fields
+      const matchesCustomer = trip.customer_name?.toLowerCase().includes(query);
+      const matchesPickupLocation = trip.pickup_location?.toLowerCase().includes(query);
+      const matchesPickupAddress = trip.pickup_address?.toLowerCase().includes(query);
+      const matchesDestination = trip.destination?.toLowerCase().includes(query);
+      const matchesDestinationAddress = trip.destination_address?.toLowerCase().includes(query);
+      const matchesDriver = driverName.includes(query);
+      const matchesStatus = trip.status?.toLowerCase().includes(query);
+
+      return matchesCustomer || matchesPickupLocation || matchesPickupAddress ||
+             matchesDestination || matchesDestinationAddress || matchesDriver || matchesStatus;
+    });
+  }, [trips, drivers, debouncedSearchQuery]);
 
   /**
    * Clear selection - memoized
@@ -219,6 +239,15 @@ function ScheduledTripsGrid({
     setSelectedTripIds(new Set());
     setShowBulkActions(false);
   }, []);
+
+  /**
+   * Select all trips (filtered results) - memoized
+   */
+  const handleSelectAll = useCallback(() => {
+    const allTripIds = new Set(filteredTrips.map(t => t.trip_id));
+    setSelectedTripIds(allTripIds);
+    setShowBulkActions(true);
+  }, [filteredTrips]);
 
   /**
    * Bulk delete trips - memoized
@@ -254,35 +283,6 @@ function ScheduledTripsGrid({
       alert(err.response?.data?.error || 'Failed to update trip status');
     }
   }, [selectedTripIds, tenantId, onRefresh, handleClearSelection]);
-
-  /**
-   * Filter trips based on search query (memoized for performance)
-   */
-  const filteredTrips = useMemo(() => {
-    if (!debouncedSearchQuery.trim()) {
-      return trips;
-    }
-
-    const query = debouncedSearchQuery.toLowerCase().trim();
-
-    return trips.filter(trip => {
-      // Get driver name for this trip
-      const driver = drivers.find(d => d.driver_id === trip.driver_id);
-      const driverName = driver ? `${driver.first_name} ${driver.last_name}`.toLowerCase() : '';
-
-      // Search in multiple fields
-      const matchesCustomer = trip.customer_name?.toLowerCase().includes(query);
-      const matchesPickupLocation = trip.pickup_location?.toLowerCase().includes(query);
-      const matchesPickupAddress = trip.pickup_address?.toLowerCase().includes(query);
-      const matchesDestination = trip.destination?.toLowerCase().includes(query);
-      const matchesDestinationAddress = trip.destination_address?.toLowerCase().includes(query);
-      const matchesDriver = driverName.includes(query);
-      const matchesStatus = trip.status?.toLowerCase().includes(query);
-
-      return matchesCustomer || matchesPickupLocation || matchesPickupAddress ||
-             matchesDestination || matchesDestinationAddress || matchesDriver || matchesStatus;
-    });
-  }, [trips, drivers, debouncedSearchQuery]);
 
   /**
    * Keyboard shortcuts
