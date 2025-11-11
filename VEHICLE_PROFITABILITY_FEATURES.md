@@ -1,12 +1,14 @@
-# Vehicle Profitability & Cost-Benefit Analysis Features
+# Profitability & Cost-Benefit Analysis Features
 
 **Date:** November 11, 2025
-**Module:** Vehicles - Profitability Analysis
+**Module:** Admin Analytics (moved from Vehicles)
 **Status:** ✅ Completed and Deployed
 
 ## Overview
 
-Added comprehensive profitability and cost-benefit analysis capabilities to the Vehicles module. These features enable fleet managers to analyze profitability at the driver level, trip level, and overall fleet level, with detailed cost breakdowns and automated optimization recommendations.
+Added comprehensive profitability and cost-benefit analysis capabilities to the Admin Analytics module. These features enable business administrators to analyze profitability at the driver level, trip level, and overall fleet level, with detailed cost breakdowns and automated optimization recommendations.
+
+**Note:** These endpoints were originally implemented in the Vehicles module but have been reorganized into a dedicated Admin Analytics module for better logical separation. Profitability analysis is a business intelligence/financial reporting feature, not a vehicle-specific metric.
 
 ## Business Value
 
@@ -29,7 +31,7 @@ Added comprehensive profitability and cost-benefit analysis capabilities to the 
 
 ### 1. Driver Profitability Analysis
 
-**Endpoint:** `GET /api/tenants/:tenantId/vehicles/profitability/drivers`
+**Endpoint:** `GET /api/tenants/:tenantId/admin/analytics/driver-profitability`
 
 **Query Parameters:**
 - `startDate` (optional) - Start date for analysis period
@@ -101,7 +103,7 @@ Added comprehensive profitability and cost-benefit analysis capabilities to the 
 
 ### 2. Trip Profitability Analysis
 
-**Endpoint:** `GET /api/tenants/:tenantId/vehicles/profitability/trips`
+**Endpoint:** `GET /api/tenants/:tenantId/admin/analytics/trip-profitability`
 
 **Query Parameters:**
 - `limit` (optional, default: 100) - Maximum trips to analyze
@@ -172,7 +174,7 @@ Added comprehensive profitability and cost-benefit analysis capabilities to the 
 
 ### 3. Cost-Benefit Dashboard
 
-**Endpoint:** `GET /api/tenants/:tenantId/vehicles/profitability/dashboard`
+**Endpoint:** `GET /api/tenants/:tenantId/admin/analytics/profitability-dashboard`
 
 **Query Parameters:**
 - `startDate` (optional) - Start date for analysis period
@@ -304,9 +306,11 @@ The system generates intelligent recommendations based on cost analysis:
 
 ### Code Structure
 
-**File:** `backend/src/routes/vehicle.routes.ts`
+**File:** `backend/src/routes/admin-analytics.routes.ts`
 
-**Lines:** 1905-2496 (~590 lines)
+**Lines:** 1-650 (~650 lines)
+
+**Previous Location:** Originally in `vehicle.routes.ts` lines 1905-2496, reorganized into dedicated analytics module
 
 **Key Components:**
 1. **Driver Profitability Endpoint** (lines 1911-2102)
@@ -358,20 +362,27 @@ The system generates intelligent recommendations based on cost analysis:
 ## Deployment
 
 ### Files Changed
-- `backend/src/routes/vehicle.routes.ts` - Added ~590 lines
+- `backend/src/routes/admin-analytics.routes.ts` - New file with ~650 lines
+- `backend/src/routes/vehicle.routes.ts` - Removed profitability section (~600 lines)
+- `backend/src/server.ts` - Added admin analytics routes registration
 
 ### Git Status
-- Modified: `backend/src/routes/vehicle.routes.ts`
-- New: `VEHICLE_PROFITABILITY_FEATURES.md` (this file)
+- **New:** `backend/src/routes/admin-analytics.routes.ts`
+- **Modified:** `backend/src/routes/vehicle.routes.ts` (removed profitability endpoints)
+- **Modified:** `backend/src/server.ts` (added route registration)
+- **Modified:** `VEHICLE_PROFITABILITY_FEATURES.md` (updated with new paths)
 
 ## API Endpoints Summary
 
-### New Endpoints (3 total)
-1. `GET /api/tenants/:tenantId/vehicles/profitability/drivers` - Driver profitability analysis
-2. `GET /api/tenants/:tenantId/vehicles/profitability/trips` - Trip profitability analysis
-3. `GET /api/tenants/:tenantId/vehicles/profitability/dashboard` - Overall cost-benefit dashboard
+### Admin Analytics Endpoints (3 total)
+1. `GET /api/tenants/:tenantId/admin/analytics/driver-profitability` - Driver profitability analysis
+2. `GET /api/tenants/:tenantId/admin/analytics/trip-profitability` - Trip profitability analysis
+3. `GET /api/tenants/:tenantId/admin/analytics/profitability-dashboard` - Overall cost-benefit dashboard
 
-### Total Vehicle Endpoints (12 total)
+### Module Reorganization
+These endpoints were moved from the Vehicles module to a dedicated Admin Analytics module to better reflect their purpose as business intelligence/financial reporting features rather than vehicle-specific metrics.
+
+### Total Vehicle Endpoints (9 total - after reorganization)
 1. Enhanced fleet statistics
 2. Individual vehicle utilization
 3. Fleet-wide utilization report
@@ -380,10 +391,9 @@ The system generates intelligent recommendations based on cost analysis:
 6. Idle vehicles report
 7. Archive vehicle
 8. Unarchive vehicle
-9. **Driver profitability (NEW)**
-10. **Trip profitability (NEW)**
-11. **Cost-benefit dashboard (NEW)**
-12. Plus existing CRUD and incidents endpoints
+9. Plus existing CRUD and incidents endpoints
+
+**Note:** Driver profitability, trip profitability, and cost-benefit dashboard endpoints moved to Admin Analytics module
 
 ## Business Impact
 

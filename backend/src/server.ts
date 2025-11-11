@@ -71,6 +71,7 @@ import timesheetRoutes from './routes/timesheet.routes';
 import tenantSettingsRoutes from './routes/tenant-settings.routes';
 import feedbackRoutes from './routes/feedback.routes';
 import documentRoutes from './routes/documents.routes';
+import adminAnalyticsRoutes from './routes/admin-analytics.routes';
 
 /**
  * Main Server File - Stage 4
@@ -246,6 +247,7 @@ app.use('/api', timesheetRoutes);
 app.use('/api', tenantSettingsRoutes);
 app.use('/api', feedbackRoutes);
 app.use('/api', documentRoutes);
+app.use('/api', adminAnalyticsRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
