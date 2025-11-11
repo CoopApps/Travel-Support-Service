@@ -50,8 +50,44 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
   const [checkingConflicts, setCheckingConflicts] = useState(false);
   const [showConflictWarning, setShowConflictWarning] = useState(false);
 
+  // Return journey state
+  const [createReturnJourney, setCreateReturnJourney] = useState(false);
+  const [returnTime, setReturnTime] = useState('');
+  const [suggestedReturnTime, setSuggestedReturnTime] = useState<string | null>(null);
+
+  // Smart driver suggestions state
+  const [driverSuggestions, setDriverSuggestions] = useState<any[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showDriverSuggestions, setShowDriverSuggestions] = useState(true);
+
+  // Reminder state
+  const [sendingReminder, setSendingReminder] = useState(false);
+  const [reminderHistory, setReminderHistory] = useState<any[]>([]);
+  const [showReminderHistory, setShowReminderHistory] = useState(false);
+  const [reminderMessage, setReminderMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  /**
+   * Get customer reliability info
+   */
+  const getSelectedCustomer = () => {
+    if (formData.customer_id) {
+      return customers.find(c => c.id.toString() === formData.customer_id.toString());
+    }
+    return null;
+  };
+
+  const selectedCustomer = getSelectedCustomer();
+
+  // Check if customer has poor reliability
+  const hasLowReliability = selectedCustomer &&
+    selectedCustomer.total_trips_attempted &&
+    selectedCustomer.total_trips_attempted >= 5 &&
+    selectedCustomer.reliability_percentage !== undefined &&
+    selectedCustomer.reliability_percentage < 80;
+
   /**
    * Auto-fill customer's home address when customer is selected
+   * Also check for return journey time from customer's schedule
    */
   useEffect(() => {
     if (formData.customer_id && !isEdit) {
@@ -62,47 +98,80 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
           pickup_location: prev.pickup_location || 'Home',
           pickup_address: prev.pickup_address || customer.address || '',
         }));
+
+        // Check customer's schedule for return journey time
+        if (customer.schedule && formData.trip_date) {
+          const tripDate = new Date(formData.trip_date);
+          const dayOfWeek = tripDate.getDay();
+          const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+          const dayKey = dayNames[dayOfWeek];
+
+          const daySchedule = customer.schedule[dayKey];
+
+          if (daySchedule) {
+            // Check for enhanced schedule with return_time
+            if (daySchedule.return_time) {
+              setSuggestedReturnTime(daySchedule.return_time);
+              setReturnTime(daySchedule.return_time);
+            }
+            // Fallback: Calculate return time based on pickup time (add 5 hours)
+            else if (formData.pickup_time) {
+              const [hours, minutes] = formData.pickup_time.split(':');
+              const returnHours = (parseInt(hours) + 5) % 24;
+              const calculatedReturnTime = `${returnHours.toString().padStart(2, '0')}:${minutes}`;
+              setSuggestedReturnTime(calculatedReturnTime);
+              setReturnTime(calculatedReturnTime);
+            }
+          }
+        }
       }
     }
-  }, [formData.customer_id, customers, isEdit]);
+  }, [formData.customer_id, formData.trip_date, formData.pickup_time, customers, isEdit]);
 
   /**
    * Check for conflicts when key fields change
    */
+  /**
+   * Enhanced conflict detection - checks vehicle MOT, driver hours, customer preferences, etc.
+   */
   useEffect(() => {
     const checkConflicts = async () => {
       // Only check if we have the required fields
-      if (!formData.driver_id || !formData.trip_date || !formData.pickup_time || !formData.customer_id) {
+      if (!formData.trip_date || !formData.pickup_time || !formData.customer_id) {
         setConflicts([]);
         return;
       }
 
+      // Get vehicle ID from driver's assigned vehicle or form data
+      let vehicleId: number | undefined = undefined;
+      if (formData.driver_id) {
+        const selectedDriver = drivers.find(d => d.id.toString() === formData.driver_id.toString());
+        vehicleId = selectedDriver?.current_vehicle_id || undefined;
+      }
+
       setCheckingConflicts(true);
       try {
-        const response = await fetch(`/api/tenants/${tenantId}/trips/check-conflicts`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            driverId: parseInt(formData.driver_id.toString()),
-            customerId: parseInt(formData.customer_id.toString()),
-            tripDate: formData.trip_date,
-            pickupTime: formData.pickup_time,
-            excludeTripId: trip?.trip_id // Exclude current trip if editing
-          })
+        const result = await tripApi.checkConflicts(tenantId, {
+          driverId: formData.driver_id ? parseInt(formData.driver_id.toString()) : undefined,
+          vehicleId,
+          customerId: parseInt(formData.customer_id.toString()),
+          tripDate: formData.trip_date,
+          pickupTime: formData.pickup_time,
+          returnTime: returnTime || undefined,
+          requiresWheelchair: formData.requires_wheelchair
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          if (result.hasConflicts) {
-            setConflicts(result.conflicts);
-            setShowConflictWarning(true);
-          } else {
-            setConflicts([]);
-            setShowConflictWarning(false);
-          }
+        if (result.hasConflicts) {
+          // Combine critical conflicts and warnings, but mark them with severity
+          const allConflicts = [
+            ...result.criticalConflicts.map(c => ({ ...c, severity: 'critical' as const })),
+            ...result.warnings.map(w => ({ ...w, severity: 'warning' as const }))
+          ];
+          setConflicts(allConflicts);
+          setShowConflictWarning(result.hasCriticalConflicts);
+        } else {
+          setConflicts([]);
+          setShowConflictWarning(false);
         }
       } catch (err) {
         console.error('Error checking conflicts:', err);
@@ -115,7 +184,127 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
     // Debounce conflict checking
     const timeoutId = setTimeout(checkConflicts, 500);
     return () => clearTimeout(timeoutId);
-  }, [formData.driver_id, formData.trip_date, formData.pickup_time, formData.customer_id, tenantId, trip?.trip_id, token]);
+  }, [formData.driver_id, formData.trip_date, formData.pickup_time, formData.customer_id, formData.requires_wheelchair, returnTime, tenantId, drivers]);
+
+  /**
+   * Fetch smart driver suggestions when customer, date, time change
+   */
+  useEffect(() => {
+    const fetchDriverSuggestions = async () => {
+      // Only fetch suggestions for new trips with required data
+      if (isEdit || !formData.customer_id || !formData.trip_date || !formData.pickup_time) {
+        setDriverSuggestions([]);
+        return;
+      }
+
+      setLoadingSuggestions(true);
+      try {
+        const response = await tripApi.suggestDriver(tenantId, {
+          customerId: Number(formData.customer_id),
+          tripDate: formData.trip_date,
+          pickupTime: formData.pickup_time,
+          requiresWheelchair: formData.requires_wheelchair,
+          passengersCount: formData.passenger_count || 1
+        });
+
+        setDriverSuggestions(response.recommendations || []);
+      } catch (err: any) {
+        console.error('Failed to fetch driver suggestions:', err);
+        setDriverSuggestions([]);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    // Debounce suggestions
+    const timeoutId = setTimeout(fetchDriverSuggestions, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.customer_id, formData.trip_date, formData.pickup_time, formData.requires_wheelchair, formData.passenger_count, tenantId, isEdit]);
+
+  /**
+   * Load reminder history when modal opens in edit mode
+   */
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (isEdit && trip?.trip_id && token) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/tenants/${tenantId}/reminders/history/${trip.trip_id}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            setReminderHistory(data.history || []);
+          }
+        } catch (err) {
+          console.error('Failed to load reminder history:', err);
+        }
+      }
+    };
+
+    loadHistory();
+  }, [isEdit, trip?.trip_id, tenantId, token]);
+
+  /**
+   * Send reminder now
+   */
+  const sendReminder = async () => {
+    if (!trip?.trip_id) return;
+
+    setSendingReminder(true);
+    setReminderMessage(null);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/tenants/${tenantId}/reminders/send`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ tripId: trip.trip_id })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setReminderMessage({ type: 'success', text: 'Reminder sent successfully!' });
+        // Reload history
+        const historyResponse = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/tenants/${tenantId}/reminders/history/${trip.trip_id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          setReminderHistory(historyData.history || []);
+        }
+      } else {
+        setReminderMessage({
+          type: 'error',
+          text: data.error || 'Failed to send reminder'
+        });
+      }
+    } catch (err: any) {
+      setReminderMessage({
+        type: 'error',
+        text: err.message || 'Failed to send reminder'
+      });
+    } finally {
+      setSendingReminder(false);
+    }
+  };
 
   /**
    * Handle input change
@@ -223,6 +412,23 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
               tripsToCreate.push(passengerData);
             }
           }
+        }
+
+        // Return journey for primary passenger (if enabled)
+        if (createReturnJourney && returnTime) {
+          const returnJourneyData = {
+            ...baseData,
+            customer_id: parseInt(formData.customer_id.toString()),
+            pickup_time: returnTime,
+            pickup_location: formData.destination || 'Destination', // Return from destination
+            pickup_address: formData.destination_address || formData.destination,
+            destination: 'Home',
+            destination_address: formData.pickup_address || primaryCustomer?.address || null,
+            notes: formData.notes ? `${formData.notes}\n\n↩️ Return Journey` : '↩️ Return Journey',
+            requires_wheelchair: formData.requires_wheelchair,
+            requires_escort: formData.requires_escort,
+          };
+          tripsToCreate.push(returnJourneyData);
         }
 
         // Create all trips in a single transaction
@@ -398,11 +604,10 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                               color: conflict.severity === 'critical' ? '#991b1b' : '#92400e',
                               marginBottom: '4px'
                             }}>
-                              {conflict.type === 'driver_overlap' && 'Driver Time Conflict'}
-                              {conflict.type === 'driver_leave' && 'Driver On Leave'}
-                              {conflict.type === 'vehicle_mot' && 'Vehicle MOT Issue'}
-                              {conflict.type === 'customer_overlap' && 'Customer Overlap'}
-                              {conflict.type === 'customer_holiday' && 'Customer On Holiday'}
+                              {conflict.category === 'vehicle' && '🚗 Vehicle Issue'}
+                              {conflict.category === 'driver' && '👤 Driver Issue'}
+                              {conflict.category === 'customer' && '👥 Customer Issue'}
+                              {conflict.category === 'scheduling' && '📅 Scheduling Conflict'}
                             </div>
                             <div style={{
                               fontSize: '12px',
@@ -455,6 +660,56 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                         </option>
                       ))}
                     </select>
+
+                    {/* Reliability Warning */}
+                    {hasLowReliability && selectedCustomer && (
+                      <div style={{
+                        marginTop: '0.5rem',
+                        padding: '0.75rem',
+                        backgroundColor: '#fff3cd',
+                        border: '1px solid #ffc107',
+                        borderRadius: '4px',
+                        fontSize: '13px'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.5rem'
+                        }}>
+                          <span style={{ fontSize: '16px' }}>⚠️</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{
+                              fontWeight: 600,
+                              color: '#856404',
+                              marginBottom: '4px'
+                            }}>
+                              Low Reliability Customer
+                            </div>
+                            <div style={{ color: '#856404' }}>
+                              {selectedCustomer.reliability_percentage?.toFixed(0)}% reliable
+                              ({selectedCustomer.no_show_count || 0} no-shows in {selectedCustomer.total_trips_attempted || 0} trips)
+                            </div>
+                            {selectedCustomer.last_no_show_date && (
+                              <div style={{
+                                fontSize: '11px',
+                                color: '#6c757d',
+                                marginTop: '4px'
+                              }}>
+                                Last no-show: {new Date(selectedCustomer.last_no_show_date).toLocaleDateString()}
+                              </div>
+                            )}
+                            <div style={{
+                              fontSize: '12px',
+                              color: '#856404',
+                              marginTop: '6px',
+                              fontStyle: 'italic'
+                            }}>
+                              💡 Consider calling before pickup
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -474,6 +729,187 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                       ))}
                     </select>
                   </div>
+
+                  {/* Smart Driver Suggestions */}
+                  {!isEdit && formData.customer_id && formData.trip_date && formData.pickup_time && showDriverSuggestions && (
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '1rem',
+                      backgroundColor: '#f0f9ff',
+                      borderRadius: '8px',
+                      border: '1px solid #0ea5e9'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <h4 style={{
+                          margin: 0,
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          color: '#0369a1'
+                        }}>
+                          🎯 Recommended Drivers
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => setShowDriverSuggestions(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#6b7280',
+                            fontSize: '18px',
+                            padding: '0 4px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+
+                      {loadingSuggestions ? (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '1rem',
+                          justifyContent: 'center'
+                        }}>
+                          <div className="spinner" style={{ width: '1rem', height: '1rem' }}></div>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                            Analyzing drivers...
+                          </span>
+                        </div>
+                      ) : driverSuggestions.length > 0 ? (
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem',
+                          maxHeight: '300px',
+                          overflowY: 'auto'
+                        }}>
+                          {driverSuggestions.map((suggestion) => {
+                            const getRecommendationColor = () => {
+                              switch (suggestion.recommendation) {
+                                case 'highly_recommended': return { bg: '#d1fae5', border: '#10b981', text: '#065f46' };
+                                case 'recommended': return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' };
+                                case 'acceptable': return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' };
+                                default: return { bg: '#f3f4f6', border: '#9ca3af', text: '#4b5563' };
+                              }
+                            };
+                            const colors = getRecommendationColor();
+
+                            return (
+                              <div
+                                key={suggestion.driverId}
+                                onClick={() => {
+                                  setFormData(prev => ({ ...prev, driver_id: suggestion.driverId }));
+                                }}
+                                style={{
+                                  padding: '0.75rem',
+                                  backgroundColor: 'white',
+                                  borderRadius: '6px',
+                                  border: `2px solid ${colors.border}`,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.boxShadow = 'none';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                              >
+                                <div style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'flex-start',
+                                  marginBottom: '0.5rem'
+                                }}>
+                                  <div>
+                                    <div style={{
+                                      fontWeight: 600,
+                                      fontSize: '14px',
+                                      color: '#111827',
+                                      marginBottom: '2px'
+                                    }}>
+                                      {suggestion.driverName}
+                                      {suggestion.isRegularDriver && (
+                                        <span style={{
+                                          marginLeft: '6px',
+                                          padding: '2px 6px',
+                                          borderRadius: '3px',
+                                          backgroundColor: '#dbeafe',
+                                          color: '#1e40af',
+                                          fontSize: '10px',
+                                          fontWeight: 600
+                                        }}>
+                                          REGULAR
+                                        </span>
+                                      )}
+                                    </div>
+                                    {suggestion.vehicle && (
+                                      <div style={{
+                                        fontSize: '11px',
+                                        color: '#6b7280'
+                                      }}>
+                                        {suggestion.vehicle.registration} • {suggestion.vehicle.seats} seats
+                                        {suggestion.vehicle.wheelchairAccessible && ' • ♿'}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end'
+                                  }}>
+                                    <div style={{
+                                      fontSize: '20px',
+                                      fontWeight: 700,
+                                      color: colors.text
+                                    }}>
+                                      {suggestion.score}
+                                    </div>
+                                    <div style={{
+                                      fontSize: '9px',
+                                      color: '#6b7280',
+                                      textTransform: 'uppercase'
+                                    }}>
+                                      {suggestion.completionRate.toFixed(0)}% completion
+                                    </div>
+                                  </div>
+                                </div>
+                                <div style={{
+                                  fontSize: '11px',
+                                  color: '#4b5563',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '2px'
+                                }}>
+                                  {suggestion.reasons.slice(0, 3).map((reason: string, idx: number) => (
+                                    <div key={idx}>• {reason}</div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div style={{
+                          padding: '1rem',
+                          textAlign: 'center',
+                          color: '#6b7280',
+                          fontSize: '13px'
+                        }}>
+                          No driver recommendations available
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-row">
@@ -504,6 +940,84 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                   </div>
                 </div>
               </div>
+
+              {/* Return Journey Section */}
+              {!isEdit && suggestedReturnTime && (
+                <div style={{
+                  marginBottom: '1.5rem',
+                  padding: '1rem',
+                  backgroundColor: '#f0f9ff',
+                  border: '1px solid #0ea5e9',
+                  borderRadius: '6px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.75rem'
+                  }}>
+                    <input
+                      type="checkbox"
+                      id="createReturnJourney"
+                      checked={createReturnJourney}
+                      onChange={(e) => setCreateReturnJourney(e.target.checked)}
+                      disabled={loading}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        marginTop: '2px',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <label
+                        htmlFor="createReturnJourney"
+                        style={{
+                          fontWeight: 600,
+                          color: '#0369a1',
+                          cursor: 'pointer',
+                          marginBottom: '0.5rem',
+                          display: 'block'
+                        }}
+                      >
+                        ↩️ Create Return Journey
+                      </label>
+                      <div style={{
+                        fontSize: '13px',
+                        color: '#0c4a6e',
+                        marginBottom: '0.75rem'
+                      }}>
+                        Automatically create a return trip from <strong>{formData.destination || 'destination'}</strong> back to Home
+                      </div>
+
+                      {createReturnJourney && (
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label htmlFor="returnTime" style={{ fontSize: '13px', color: '#0c4a6e' }}>
+                            Return Pickup Time
+                          </label>
+                          <input
+                            id="returnTime"
+                            type="time"
+                            value={returnTime}
+                            onChange={(e) => setReturnTime(e.target.value)}
+                            disabled={loading}
+                            style={{
+                              marginTop: '0.25rem',
+                              maxWidth: '200px'
+                            }}
+                          />
+                          <div style={{
+                            fontSize: '11px',
+                            color: '#64748b',
+                            marginTop: '0.25rem'
+                          }}>
+                            💡 Suggested from customer's schedule
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Location Information */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -795,6 +1309,219 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
                   />
                 </div>
               </div>
+
+              {/* Send Reminder Section (Edit Mode Only) */}
+              {isEdit && trip?.trip_id && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <div style={{
+                    padding: '1rem',
+                    backgroundColor: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: reminderMessage || (showReminderHistory && reminderHistory.length > 0) ? '1rem' : '0'
+                    }}>
+                      <h4 style={{
+                        margin: 0,
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: '#374151',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        Trip Reminder
+                      </h4>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {reminderHistory.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowReminderHistory(!showReminderHistory)}
+                            style={{
+                              padding: '0.5rem 0.75rem',
+                              fontSize: '13px',
+                              background: 'white',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              color: '#6b7280',
+                              fontWeight: 500
+                            }}
+                          >
+                            {showReminderHistory ? 'Hide History' : `View History (${reminderHistory.length})`}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={sendReminder}
+                          disabled={sendingReminder}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            fontSize: '13px',
+                            background: sendingReminder ? '#d1d5db' : '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: sendingReminder ? 'not-allowed' : 'pointer',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          {sendingReminder ? (
+                            <>
+                              <div className="spinner" style={{ width: '0.875rem', height: '0.875rem' }}></div>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+                              </svg>
+                              Send Reminder Now
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Success/Error Message */}
+                    {reminderMessage && (
+                      <div style={{
+                        padding: '0.75rem',
+                        backgroundColor: reminderMessage.type === 'success' ? '#d1fae5' : '#fee2e2',
+                        border: `1px solid ${reminderMessage.type === 'success' ? '#10b981' : '#ef4444'}`,
+                        borderRadius: '6px',
+                        marginBottom: showReminderHistory && reminderHistory.length > 0 ? '1rem' : '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        {reminderMessage.type === 'success' ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                          </svg>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                          </svg>
+                        )}
+                        <span style={{
+                          fontSize: '13px',
+                          color: reminderMessage.type === 'success' ? '#065f46' : '#991b1b',
+                          fontWeight: 500
+                        }}>
+                          {reminderMessage.text}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Reminder History */}
+                    {showReminderHistory && reminderHistory.length > 0 && (
+                      <div style={{
+                        marginTop: reminderMessage ? '0' : '1rem',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        backgroundColor: 'white'
+                      }}>
+                        <div style={{
+                          padding: '0.75rem',
+                          backgroundColor: '#f3f4f6',
+                          borderBottom: '1px solid #e5e7eb',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          color: '#374151'
+                        }}>
+                          Reminder History
+                        </div>
+                        <div style={{
+                          maxHeight: '200px',
+                          overflowY: 'auto'
+                        }}>
+                          {reminderHistory.map((reminder: any, idx: number) => (
+                            <div
+                              key={reminder.reminder_id || idx}
+                              style={{
+                                padding: '0.75rem',
+                                borderBottom: idx < reminderHistory.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '1rem'
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  color: '#111827',
+                                  marginBottom: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px'
+                                }}>
+                                  {reminder.reminder_type === 'sms' ? (
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                                    </svg>
+                                  ) : (
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                      <polyline points="22,6 12,13 2,6" />
+                                    </svg>
+                                  )}
+                                  {reminder.reminder_type.toUpperCase()} to {reminder.recipient}
+                                </div>
+                                <div style={{
+                                  fontSize: '11px',
+                                  color: '#6b7280',
+                                  marginBottom: '4px'
+                                }}>
+                                  {new Date(reminder.sent_at).toLocaleString()}
+                                </div>
+                                <div style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  backgroundColor:
+                                    reminder.delivery_status === 'sent' || reminder.delivery_status === 'delivered'
+                                      ? '#d1fae5'
+                                      : reminder.delivery_status === 'pending'
+                                        ? '#fef3c7'
+                                        : '#fee2e2',
+                                  color:
+                                    reminder.delivery_status === 'sent' || reminder.delivery_status === 'delivered'
+                                      ? '#065f46'
+                                      : reminder.delivery_status === 'pending'
+                                        ? '#92400e'
+                                        : '#991b1b',
+                                  display: 'inline-block',
+                                  fontWeight: 600
+                                }}>
+                                  {reminder.delivery_status?.toUpperCase() || 'UNKNOWN'}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid var(--gray-200)', marginTop: '1.5rem' }}>
                 <button

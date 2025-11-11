@@ -508,6 +508,232 @@ export const tripApi = {
     const response = await apiClient.post(`/tenants/${tenantId}/trips/recommend-passengers`, params);
     return response.data;
   },
+
+  /**
+   * Get smart driver suggestions for a trip
+   */
+  suggestDriver: async (
+    tenantId: number,
+    params: {
+      customerId: number;
+      tripDate: string;
+      pickupTime: string;
+      requiresWheelchair?: boolean;
+      passengersCount?: number;
+    }
+  ): Promise<{
+    success: boolean;
+    recommendations: Array<{
+      driverId: number;
+      driverName: string;
+      phone: string;
+      vehicle: {
+        id: number;
+        registration: string;
+        make: string;
+        model: string;
+        seats: number;
+        wheelchairAccessible: boolean;
+      } | null;
+      score: number;
+      reasons: string[];
+      recommendation: 'highly_recommended' | 'recommended' | 'acceptable' | 'not_recommended' | 'unavailable';
+      isRegularDriver: boolean;
+      dailyWorkload: number;
+      completionRate: number;
+    }>;
+    totalDriversAnalyzed: number;
+    availableDrivers: number;
+  }> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/suggest-driver`, params);
+    return response.data;
+  },
+
+  /**
+   * Get efficiency report for schedule optimization
+   */
+  getEfficiencyReport: async (
+    tenantId: number,
+    params: {
+      startDate: string;
+      endDate: string;
+    }
+  ): Promise<{
+    success: boolean;
+    dateRange: { startDate: string; endDate: string };
+    summary: {
+      totalTrips: number;
+      operatingDays: number;
+      activeDrivers: number;
+      activeVehicles: number;
+      customersServed: number;
+      totalRevenue: number;
+      avgRevenuePerTrip: number;
+      completionRate: number;
+      noShowRate: number;
+      avgVehicleUtilization: number;
+      totalEmptySeats: number;
+      totalMissedRevenue: number;
+    };
+    vehicleUtilization: Array<{
+      vehicleId: number;
+      registration: string;
+      make: string;
+      model: string;
+      capacity: number;
+      totalTrips: number;
+      daysUsed: number;
+      avgPassengers: number;
+      utilizationPercentage: number;
+      totalRevenue: number;
+    }>;
+    driverProductivity: Array<{
+      driverId: number;
+      driverName: string;
+      totalTrips: number;
+      daysWorked: number;
+      avgTripsPerDay: number;
+      totalRevenue: number;
+      revenuePerTrip: number;
+      completedTrips: number;
+      noShowTrips: number;
+      cancelledTrips: number;
+      completionRate: number;
+    }>;
+    emptySeatAnalysis: Array<{
+      date: string;
+      uniqueTrips: number;
+      totalEmptySeats: number;
+      avgTripPrice: number;
+      missedRevenue: number;
+    }>;
+    routeEfficiency: Array<{
+      destination: string;
+      tripCount: number;
+      driversUsed: number;
+      vehiclesUsed: number;
+      avgPassengersPerTrip: number;
+      totalRevenue: number;
+      revenuePerTrip: number;
+    }>;
+    timeAnalysis: Array<{
+      hour: number;
+      tripCount: number;
+      activeDrivers: number;
+      activeVehicles: number;
+      totalRevenue: number;
+      avgPrice: number;
+    }>;
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/efficiency-report`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get capacity alerts for underutilized vehicles
+   */
+  getCapacityAlerts: async (
+    tenantId: number,
+    params: {
+      date: string;
+      driverId?: number;
+    }
+  ): Promise<{
+    success: boolean;
+    date: string;
+    summary: {
+      total_alerts: number;
+      total_empty_seats: number;
+      total_potential_revenue: number;
+      average_utilization: number;
+    };
+    alerts: Array<{
+      trip_group_key: string;
+      driver_id: number;
+      driver_name: string;
+      vehicle: {
+        id: number;
+        registration: string;
+        make: string;
+        model: string;
+        capacity: number;
+        wheelchair_accessible: boolean;
+      };
+      trip_details: {
+        pickup_time: string;
+        destination: string;
+        destination_address: string;
+        trip_ids: number[];
+      };
+      capacity: {
+        total_seats: number;
+        occupied_seats: number;
+        empty_seats: number;
+        utilization_percentage: number;
+      };
+      revenue: {
+        average_trip_price: number;
+        potential_additional_revenue: number;
+      };
+      current_passengers: Array<{
+        customer_id: number;
+        customer_name: string;
+        price: number;
+      }>;
+      recommended_passengers: Array<{
+        customer_id: number;
+        customer_name: string;
+        address: string;
+        postcode: string;
+        phone: string;
+        destination: string;
+        pickup_time: string;
+        time_diff_minutes: number;
+        mobility_requirements: string;
+      }>;
+      severity: 'high' | 'medium' | 'low';
+    }>;
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/capacity-alerts`, { params });
+    return response.data;
+  },
+
+  /**
+   * Check for conflicts before creating/updating a trip
+   */
+  checkConflicts: async (
+    tenantId: number,
+    params: {
+      driverId?: number;
+      vehicleId?: number;
+      customerId: number;
+      tripDate: string;
+      pickupTime: string;
+      returnTime?: string;
+      requiresWheelchair?: boolean;
+    }
+  ): Promise<{
+    success: boolean;
+    hasConflicts: boolean;
+    hasCriticalConflicts: boolean;
+    canProceed: boolean;
+    message: string;
+    criticalConflicts: Array<{
+      type: 'critical';
+      category: 'vehicle' | 'driver' | 'customer' | 'scheduling';
+      message: string;
+      details?: any;
+    }>;
+    warnings: Array<{
+      type: 'warning';
+      category: 'vehicle' | 'driver' | 'customer' | 'scheduling';
+      message: string;
+      details?: any;
+    }>;
+  }> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/check-conflicts`, params);
+    return response.data;
+  },
 };
 
 /**

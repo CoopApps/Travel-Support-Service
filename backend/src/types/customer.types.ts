@@ -33,6 +33,14 @@ export interface Customer {
   last_login?: Date;
   created_at: Date;
   updated_at: Date;
+
+  // No-show tracking fields
+  no_show_count?: number;
+  total_completed_trips?: number;
+  total_trips_attempted?: number;
+  reliability_percentage?: number;
+  last_no_show_date?: Date;
+  last_completed_trip_date?: Date;
 }
 
 export interface ProviderSplit {

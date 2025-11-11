@@ -108,9 +108,16 @@ export function DocumentsPage() {
           fontSize: '28px',
           fontWeight: 700,
           color: '#111827',
-          marginBottom: '8px'
+          marginBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          📁 Documents
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <polyline points="13 2 13 9 20 9" />
+          </svg>
+          Documents
         </h1>
         <p style={{ color: '#6b7280', fontSize: '16px' }}>
           Manage all documents across your organization

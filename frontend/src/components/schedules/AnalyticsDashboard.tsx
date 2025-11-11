@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
+import EfficiencyReport from './EfficiencyReport';
 
 interface AnalyticsDashboardProps {
   tenantId: number;
@@ -39,6 +40,7 @@ function AnalyticsDashboard({ tenantId }: AnalyticsDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'standard' | 'efficiency'>('standard');
 
   useEffect(() => {
     fetchAnalytics();
@@ -104,16 +106,79 @@ function AnalyticsDashboard({ tenantId }: AnalyticsDashboardProps) {
 
   const maxTripsByDay = Math.max(...data.tripsByDay.map(d => d.count), 1);
 
+  // Calculate date range for efficiency report
+  const getDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    const days = parseInt(dateRange);
+    startDate.setDate(startDate.getDate() - days);
+
+    const formatDate = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    return {
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate)
+    };
+  };
+
   return (
     <div>
-      {/* Header with Date Range Selector */}
+      {/* Header with View Toggle and Date Range Selector */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
+        flexWrap: 'wrap',
+        gap: '1rem'
       }}>
-        <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>📊 Analytics Dashboard</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>📊 Analytics Dashboard</h3>
+
+          {/* View Mode Toggle */}
+          <div style={{ display: 'flex', gap: '4px', backgroundColor: 'var(--gray-100)', borderRadius: '6px', padding: '4px' }}>
+            <button
+              onClick={() => setViewMode('standard')}
+              style={{
+                padding: '6px 12px',
+                background: viewMode === 'standard' ? 'white' : 'transparent',
+                color: viewMode === 'standard' ? 'var(--gray-900)' : 'var(--gray-600)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '12px',
+                boxShadow: viewMode === 'standard' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              Standard
+            </button>
+            <button
+              onClick={() => setViewMode('efficiency')}
+              style={{
+                padding: '6px 12px',
+                background: viewMode === 'efficiency' ? 'white' : 'transparent',
+                color: viewMode === 'efficiency' ? 'var(--gray-900)' : 'var(--gray-600)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '12px',
+                boxShadow: viewMode === 'efficiency' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              💰 Efficiency Report
+            </button>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => setDateRange('7')}
@@ -162,6 +227,12 @@ function AnalyticsDashboard({ tenantId }: AnalyticsDashboardProps) {
           </button>
         </div>
       </div>
+
+      {/* Show Efficiency Report or Standard Analytics */}
+      {viewMode === 'efficiency' ? (
+        <EfficiencyReport {...getDateRange()} />
+      ) : (
+        <div>
 
       {/* Overview Cards */}
       <div style={{
@@ -370,6 +441,8 @@ function AnalyticsDashboard({ tenantId }: AnalyticsDashboardProps) {
           </div>
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 }

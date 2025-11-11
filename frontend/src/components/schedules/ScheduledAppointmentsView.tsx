@@ -5,6 +5,7 @@ import ScheduledTripsGrid from './ScheduledTripsGrid';
 import TripFormModal from './TripFormModal';
 import UnassignedCustomersPanel from './UnassignedCustomersPanel';
 import FailedAssignmentModal from './FailedAssignmentModal';
+import CapacityAlerts from './CapacityAlerts';
 
 interface ScheduledAppointmentsViewProps {
   tenantId: number;
@@ -389,6 +390,12 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
         }}
         onRefresh={fetchData}
         viewType="regular"
+      />
+
+      {/* Capacity Alerts - Show revenue opportunities */}
+      <CapacityAlerts
+        date={serverTime?.formatted_date || new Date().toISOString().split('T')[0]}
+        driverId={selectedDriver ? Number(selectedDriver) : undefined}
       />
 
       {/* Unassigned Customers Panel */}

@@ -39,6 +39,8 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
     medication_notes: '',
     driver_notes: '',
     mobility_requirements: '',
+    reminder_opt_in: true,
+    reminder_preference: 'sms',
   });
 
   // Split payment providers state
@@ -93,6 +95,8 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
         medication_notes: customer.medication_notes || '',
         driver_notes: customer.driver_notes || '',
         mobility_requirements: customer.mobility_requirements || '',
+        reminder_opt_in: customer.reminder_opt_in !== undefined ? customer.reminder_opt_in : true,
+        reminder_preference: customer.reminder_preference || 'sms',
       });
 
       // Initialize providers array from provider_split
@@ -602,6 +606,51 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
                   style={{ width: '100%', resize: 'vertical' }}
                   placeholder="Wheelchair requirements, walking aids, assistance needed..."
                 />
+              </div>
+
+              <div className="mb-2" style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f3f4f6', borderRadius: '6px' }}>
+                <h4 style={{ marginBottom: '0.75rem', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  Reminder Preferences
+                </h4>
+
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.reminder_opt_in || false}
+                      onChange={(e) => handleChange('reminder_opt_in', e.target.checked)}
+                      disabled={loading}
+                      style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '14px' }}>Send reminders to this customer</span>
+                  </label>
+                  <p style={{ fontSize: '12px', color: '#6b7280', marginLeft: '1.5rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                    Customer will receive SMS or email reminders before scheduled trips
+                  </p>
+                </div>
+
+                {formData.reminder_opt_in && (
+                  <div>
+                    <label htmlFor="reminder_preference" style={{ display: 'block', marginBottom: '0.25rem', fontSize: '14px', fontWeight: 500 }}>
+                      Reminder Method
+                    </label>
+                    <select
+                      id="reminder_preference"
+                      value={formData.reminder_preference || 'sms'}
+                      onChange={(e) => handleChange('reminder_preference', e.target.value)}
+                      disabled={loading}
+                      style={{ width: '100%', padding: '0.5rem', fontSize: '14px' }}
+                    >
+                      <option value="sms">SMS Only</option>
+                      <option value="email">Email Only</option>
+                      <option value="both">Both SMS & Email</option>
+                      <option value="none">None (Opt Out)</option>
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 

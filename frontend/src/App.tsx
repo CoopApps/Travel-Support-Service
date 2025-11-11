@@ -23,6 +23,8 @@ import CustomerDashboardAdminPage from './pages/CustomerDashboardAdminPage';
 import PayrollPage from './components/payroll/PayrollPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import FeedbackPage from './components/admin/FeedbackPage';
+import ReminderSettingsPage from './components/admin/ReminderSettingsPage';
+import RouteOptimizationSettings from './components/admin/RouteOptimizationSettings';
 import { DocumentsPage } from './components/documents/DocumentsPage';
 import Layout from './components/layout/Layout';
 import PlatformAdminLogin from './components/platform-admin/PlatformAdminLogin';
@@ -166,6 +168,8 @@ function App() {
         <Route path="driver-dashboard-admin" element={<DriverDashboardAdminPage />} />
         <Route path="customer-dashboard-admin" element={<CustomerDashboardAdminPage />} />
         <Route path="admin" element={<AdminDashboard />} />
+        <Route path="settings/reminders" element={<ReminderSettingsPage />} />
+        <Route path="settings/route-optimization" element={<RouteOptimizationSettings />} />
         {/* More routes will be added in future stages */}
       </Route>
 
