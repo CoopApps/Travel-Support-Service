@@ -93,6 +93,8 @@ export const createCustomerSchema = Joi.object({
   medication_notes: Joi.string().optional().allow(''),
   driver_notes: Joi.string().optional().allow(''),
   mobility_requirements: Joi.string().optional().allow(''),
+  reminder_opt_in: Joi.boolean().optional(),
+  reminder_preference: Joi.string().valid('sms', 'email', 'both', 'none').optional(),
 });
 
 export const updateCustomerSchema = Joi.object({
@@ -115,6 +117,8 @@ export const updateCustomerSchema = Joi.object({
   medication_notes: Joi.string().optional().allow(''),
   driver_notes: Joi.string().optional().allow(''),
   mobility_requirements: Joi.string().optional().allow(''),
+  reminder_opt_in: Joi.boolean().optional(),
+  reminder_preference: Joi.string().valid('sms', 'email', 'both', 'none').optional(),
 });
 
 export const customerListQuerySchema = Joi.object({

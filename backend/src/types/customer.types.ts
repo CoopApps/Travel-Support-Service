@@ -41,6 +41,10 @@ export interface Customer {
   reliability_percentage?: number;
   last_no_show_date?: Date;
   last_completed_trip_date?: Date;
+
+  // Reminder preferences
+  reminder_opt_in?: boolean;
+  reminder_preference?: 'sms' | 'email' | 'both' | 'none';
 }
 
 export interface ProviderSplit {
@@ -102,6 +106,8 @@ export interface CreateCustomerDto {
   medication_notes?: string;
   driver_notes?: string;
   mobility_requirements?: string;
+  reminder_opt_in?: boolean;
+  reminder_preference?: 'sms' | 'email' | 'both' | 'none';
 }
 
 export interface UpdateCustomerDto extends Partial<CreateCustomerDto> {

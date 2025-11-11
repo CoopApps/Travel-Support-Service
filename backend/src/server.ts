@@ -31,6 +31,7 @@ import { setupSwagger } from './config/swagger';
 import healthRoutes from './routes/health.routes';
 import authRoutes from './routes/auth.routes';
 import customerRoutes from './routes/customer.routes';
+import customerReminderRoutes from './routes/customer-reminder.routes';
 import driverRoutes from './routes/driver.routes';
 import driverDashboardRoutes from './routes/driver-dashboard.routes';
 import customerDashboardRoutes from './routes/customer-dashboard.routes';
@@ -208,6 +209,7 @@ app.use('/api', tenantUsersRoutes);
 // Tenant-specific API Routes
 app.use('/api', authRoutes);
 app.use('/api', customerRoutes);
+app.use('/api', customerReminderRoutes);
 app.use('/api', driverRoutes);
 app.use('/api', driverDashboardRoutes);
 app.use('/api', customerDashboardRoutes);

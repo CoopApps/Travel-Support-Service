@@ -360,8 +360,9 @@ router.post(
         has_split_payment, provider_split, payment_split, schedule,
         emergency_contact_name, emergency_contact_phone,
         medical_notes, medication_notes, driver_notes, mobility_requirements,
+        reminder_opt_in, reminder_preference,
         is_active, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING customer_id as id, name, created_at`,
       [
         tenantId,
@@ -384,6 +385,8 @@ router.post(
         medicationNotes || '',
         driverNotes || '',
         mobilityRequirements || '',
+        customerData.reminder_opt_in !== undefined ? customerData.reminder_opt_in : true,
+        customerData.reminder_preference || 'sms',
       ]
     );
 
@@ -461,6 +464,8 @@ router.put(
         medication_notes = COALESCE($19, medication_notes),
         driver_notes = COALESCE($20, driver_notes),
         mobility_requirements = COALESCE($21, mobility_requirements),
+        reminder_opt_in = COALESCE($22, reminder_opt_in),
+        reminder_preference = COALESCE($23, reminder_preference),
         updated_at = CURRENT_TIMESTAMP
       WHERE tenant_id = $1 AND customer_id = $2
       RETURNING customer_id as id, name, updated_at`,
@@ -486,6 +491,8 @@ router.put(
         medicationNotes,
         driverNotes,
         mobilityRequirements,
+        customerData.reminder_opt_in,
+        customerData.reminder_preference,
       ]
     );
 
