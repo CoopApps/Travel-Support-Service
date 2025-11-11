@@ -1998,27 +1998,28 @@ router.get(
       });
     });
 
-    // Get vehicle costs for assigned drivers
+    // Get vehicle costs from actual trips (not current assignment)
+    // Only count costs for company-owned or leased vehicles (exclude 'personal')
     const vehicleCosts = await query<any>(`
       SELECT
-        v.driver_id,
-        v.lease_monthly_cost,
-        v.insurance_monthly_cost,
-        v.created_at as vehicle_assigned_date
-      FROM tenant_vehicles v
-      WHERE v.tenant_id = $1 AND v.driver_id IS NOT NULL AND v.is_active = true
-    `, [tenantId]);
+        t.driver_id,
+        COALESCE(SUM(CASE
+          WHEN v.ownership IN ('owned', 'leased')
+          THEN (v.lease_monthly_cost + v.insurance_monthly_cost) / 80.0
+          ELSE 0
+        END), 0) as total_vehicle_cost,
+        COUNT(DISTINCT t.vehicle_id) as vehicles_used
+      FROM tenant_trips t
+      LEFT JOIN tenant_vehicles v ON t.vehicle_id = v.vehicle_id AND t.tenant_id = v.tenant_id
+      WHERE t.tenant_id = $1 ${dateFilter}
+      GROUP BY t.driver_id
+    `, params);
 
     const vehicleMap = new Map();
     vehicleCosts.forEach((vc: any) => {
-      const monthlyLease = parseFloat(vc.lease_monthly_cost || '0');
-      const monthlyInsurance = parseFloat(vc.insurance_monthly_cost || '0');
-      const monthsAssigned = startDate && endDate
-        ? Math.ceil((new Date(endDate as string).getTime() - new Date(startDate as string).getTime()) / (1000 * 60 * 60 * 24 * 30.44))
-        : 1;
-
       vehicleMap.set(vc.driver_id, {
-        totalVehicleCost: (monthlyLease + monthlyInsurance) * monthsAssigned
+        totalVehicleCost: parseFloat(vc.total_vehicle_cost || '0'),
+        vehiclesUsed: parseInt(vc.vehicles_used || '0', 10)
       });
     });
 
@@ -2156,6 +2157,7 @@ router.get(
         d.weekly_wage,
         d.employment_type,
         t.vehicle_id,
+        v.ownership,
         v.lease_monthly_cost,
         v.insurance_monthly_cost,
         c.name as customer_name
@@ -2196,9 +2198,13 @@ router.get(
       const fuelCost = distance * fuelCostPerKm;
 
       // Calculate vehicle cost allocation (monthly cost / ~80 trips per month)
+      // Only charge for company-owned or leased vehicles (not personal)
+      const ownership = trip.ownership;
       const monthlyLease = parseFloat(trip.lease_monthly_cost || '0');
       const monthlyInsurance = parseFloat(trip.insurance_monthly_cost || '0');
-      const vehicleCostPerTrip = (monthlyLease + monthlyInsurance) / 80;
+      const vehicleCostPerTrip = (ownership === 'owned' || ownership === 'leased')
+        ? (monthlyLease + monthlyInsurance) / 80
+        : 0; // No cost for personal vehicles
 
       // Total costs
       const totalCosts = wageCost + fuelCost + vehicleCostPerTrip + avgMaintenancePerTrip;
@@ -2315,9 +2321,10 @@ router.get(
 
     const vehicleCosts = await queryOne<any>(`
       SELECT
-        COALESCE(SUM(lease_monthly_cost), 0) as total_lease,
-        COALESCE(SUM(insurance_monthly_cost), 0) as total_insurance,
-        COUNT(*) as active_vehicles
+        COALESCE(SUM(CASE WHEN ownership IN ('owned', 'leased') THEN lease_monthly_cost ELSE 0 END), 0) as total_lease,
+        COALESCE(SUM(CASE WHEN ownership IN ('owned', 'leased') THEN insurance_monthly_cost ELSE 0 END), 0) as total_insurance,
+        COUNT(*) as active_vehicles,
+        COUNT(*) FILTER (WHERE ownership = 'personal') as personal_vehicles
       FROM tenant_vehicles
       WHERE tenant_id = $1 AND is_active = true
     `, [tenantId]);
