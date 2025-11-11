@@ -414,9 +414,10 @@ router.get(
       search = '',
       paying_org,
       is_login_enabled,
+      archived,
       sortBy = 'name',
       sortOrder = 'asc'
-    } = req.query as CustomerListQuery;
+    } = req.query as CustomerListQuery & { archived?: string };
 
     logger.info('Fetching customers', {
       tenantId,
@@ -424,6 +425,7 @@ router.get(
       limit,
       search,
       paying_org,
+      archived,
       sortBy
     });
 
@@ -457,6 +459,14 @@ router.get(
       params.push(is_login_enabled);
       paramCount++;
     }
+
+    // Archived filter (default: show only non-archived)
+    if (archived === 'true') {
+      conditions.push('c.archived = true');
+    } else if (archived === 'false' || archived === undefined) {
+      conditions.push('c.archived = false');
+    }
+    // If archived === 'all', don't add any filter (show both)
 
     const whereClause = conditions.join(' AND ');
 
@@ -548,6 +558,164 @@ router.get(
     });
 
     res.json(response);
+  })
+);
+
+/**
+ * @route GET /api/tenants/:tenantId/customers/export
+ * @desc Export customers to CSV format
+ * @access Protected
+ */
+router.get(
+  '/tenants/:tenantId/customers/export',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { search, paying_org, is_login_enabled, archived } = req.query;
+
+    logger.info('Exporting customers to CSV', { tenantId });
+
+    // Build WHERE clause (same as list endpoint)
+    const conditions: string[] = ['c.tenant_id = $1', 'c.is_active = true'];
+    const params: any[] = [tenantId];
+    let paramCount = 2;
+
+    if (search && typeof search === 'string' && search.trim()) {
+      conditions.push(`(
+        c.name ILIKE $${paramCount} OR
+        c.email ILIKE $${paramCount} OR
+        c.phone ILIKE $${paramCount} OR
+        c.address ILIKE $${paramCount}
+      )`);
+      params.push(`%${search}%`);
+      paramCount++;
+    }
+
+    if (paying_org) {
+      conditions.push(`c.paying_org = $${paramCount}`);
+      params.push(paying_org);
+      paramCount++;
+    }
+
+    if (is_login_enabled !== undefined) {
+      conditions.push(`c.is_login_enabled = $${paramCount}`);
+      params.push(is_login_enabled);
+      paramCount++;
+    }
+
+    if (archived === 'true') {
+      conditions.push('c.archived = true');
+    } else if (archived === 'false' || archived === undefined) {
+      conditions.push('c.archived = false');
+    }
+
+    const whereClause = conditions.join(' AND ');
+
+    // Get all customers (no pagination for export)
+    const customers = await query<any>(
+      `SELECT
+        c.customer_id,
+        c.name,
+        c.address,
+        c.address_line_2,
+        c.city,
+        c.county,
+        c.postcode,
+        c.phone,
+        c.email,
+        c.paying_org,
+        c.is_login_enabled,
+        c.reminder_opt_in,
+        c.reminder_preference,
+        c.emergency_contact_name,
+        c.emergency_contact_phone,
+        c.medical_notes,
+        c.medication_notes,
+        c.mobility_requirements,
+        c.driver_notes,
+        c.archived,
+        c.created_at,
+        c.updated_at
+       FROM tenant_customers c
+       WHERE ${whereClause}
+       ORDER BY c.name ASC`,
+      params
+    );
+
+    // Generate CSV
+    const csvHeaders = [
+      'ID',
+      'Name',
+      'Address',
+      'Address Line 2',
+      'City',
+      'County',
+      'Postcode',
+      'Phone',
+      'Email',
+      'Paying Organization',
+      'Portal Login Enabled',
+      'Reminder Opt-in',
+      'Reminder Preference',
+      'Emergency Contact Name',
+      'Emergency Contact Phone',
+      'Medical Notes',
+      'Medication Notes',
+      'Mobility Requirements',
+      'Driver Notes',
+      'Archived',
+      'Created At',
+      'Updated At',
+    ];
+
+    // Escape CSV values
+    const escapeCsvValue = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      const str = String(value);
+      // If contains comma, newline, or quotes, wrap in quotes and escape quotes
+      if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csvRows = customers.map((c) => [
+      escapeCsvValue(c.customer_id),
+      escapeCsvValue(c.name),
+      escapeCsvValue(c.address),
+      escapeCsvValue(c.address_line_2),
+      escapeCsvValue(c.city),
+      escapeCsvValue(c.county),
+      escapeCsvValue(c.postcode),
+      escapeCsvValue(c.phone),
+      escapeCsvValue(c.email),
+      escapeCsvValue(c.paying_org),
+      escapeCsvValue(c.is_login_enabled ? 'Yes' : 'No'),
+      escapeCsvValue(c.reminder_opt_in ? 'Yes' : 'No'),
+      escapeCsvValue(c.reminder_preference),
+      escapeCsvValue(c.emergency_contact_name),
+      escapeCsvValue(c.emergency_contact_phone),
+      escapeCsvValue(c.medical_notes),
+      escapeCsvValue(c.medication_notes),
+      escapeCsvValue(c.mobility_requirements),
+      escapeCsvValue(c.driver_notes),
+      escapeCsvValue(c.archived ? 'Yes' : 'No'),
+      escapeCsvValue(c.created_at?.toISOString()),
+      escapeCsvValue(c.updated_at?.toISOString()),
+    ]);
+
+    const csv = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
+
+    // Set headers for file download
+    const filename = `customers-${new Date().toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+
+    logger.info('Customers exported successfully', {
+      tenantId,
+      count: customers.length,
+    });
   })
 );
 
@@ -811,6 +979,355 @@ router.put(
     });
 
     res.json(result);
+  })
+);
+
+/**
+ * @route POST /api/tenants/:tenantId/customers/bulk
+ * @desc Create multiple customers at once (bulk import)
+ * @access Protected
+ */
+router.post(
+  '/tenants/:tenantId/customers/bulk',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { customers } = req.body;
+
+    logger.info('Bulk creating customers', { tenantId, count: customers?.length });
+
+    if (!Array.isArray(customers) || customers.length === 0) {
+      throw new ValidationError('customers array is required and must not be empty');
+    }
+
+    if (customers.length > 500) {
+      throw new ValidationError('Maximum 500 customers per bulk operation');
+    }
+
+    const results = {
+      success: [] as any[],
+      errors: [] as any[],
+      summary: {
+        total: customers.length,
+        created: 0,
+        failed: 0,
+      },
+    };
+
+    // Process each customer
+    for (let i = 0; i < customers.length; i++) {
+      const customerData = customers[i];
+      const rowNumber = i + 1;
+
+      try {
+        // Validate required fields
+        if (!customerData.name || customerData.name.trim().length === 0) {
+          throw new Error('Name is required');
+        }
+
+        // Sanitize inputs
+        const name = sanitizeInput(customerData.name, { maxLength: 200 });
+        const address = sanitizeInput(customerData.address, { maxLength: 500 });
+        const addressLine2 = sanitizeInput(customerData.address_line_2, { maxLength: 200 });
+        const city = sanitizeInput(customerData.city, { maxLength: 100 });
+        const county = sanitizeInput(customerData.county, { maxLength: 100 });
+        const postcode = sanitizeInput(customerData.postcode, { maxLength: 20 });
+        const phone = sanitizePhone(customerData.phone || '');
+        const email = sanitizeEmail(customerData.email || '');
+        const payingOrg = sanitizeInput(customerData.paying_org, { maxLength: 200 });
+        const emergencyContactName = sanitizeInput(customerData.emergency_contact_name, { maxLength: 200 });
+        const emergencyContactPhone = sanitizePhone(customerData.emergency_contact_phone || '');
+        const medicalNotes = sanitizeInput(customerData.medical_notes, { maxLength: 2000 });
+        const medicationNotes = sanitizeInput(customerData.medication_notes, { maxLength: 2000 });
+        const driverNotes = sanitizeInput(customerData.driver_notes, { maxLength: 2000 });
+        const mobilityRequirements = sanitizeInput(customerData.mobility_requirements, { maxLength: 1000 });
+
+        // Insert customer
+        const result = await queryOne<{ id: number; name: string }>(
+          `INSERT INTO tenant_customers (
+            tenant_id, name, address, address_line_2, city, county, postcode,
+            phone, email, paying_org,
+            has_split_payment, provider_split, payment_split, schedule,
+            emergency_contact_name, emergency_contact_phone,
+            medical_notes, medication_notes, driver_notes, mobility_requirements,
+            reminder_opt_in, reminder_preference,
+            is_active, created_at, updated_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          RETURNING customer_id as id, name`,
+          [
+            tenantId,
+            name,
+            address || '',
+            addressLine2 || '',
+            city || '',
+            county || '',
+            postcode || '',
+            phone || '',
+            email || '',
+            payingOrg || 'Self-Pay',
+            customerData.has_split_payment || false,
+            JSON.stringify(customerData.provider_split || {}),
+            JSON.stringify(customerData.payment_split || {}),
+            JSON.stringify(customerData.schedule || {}),
+            emergencyContactName || '',
+            emergencyContactPhone || '',
+            medicalNotes || '',
+            medicationNotes || '',
+            driverNotes || '',
+            mobilityRequirements || '',
+            customerData.reminder_opt_in !== undefined ? customerData.reminder_opt_in : true,
+            customerData.reminder_preference || 'sms',
+          ]
+        );
+
+        results.success.push({
+          row: rowNumber,
+          customerId: result?.id,
+          name: result?.name,
+        });
+        results.summary.created++;
+      } catch (error: any) {
+        results.errors.push({
+          row: rowNumber,
+          name: customerData.name,
+          error: error.message,
+        });
+        results.summary.failed++;
+      }
+    }
+
+    logger.info('Bulk customer creation completed', {
+      tenantId,
+      created: results.summary.created,
+      failed: results.summary.failed,
+    });
+
+    res.status(results.summary.failed > 0 ? 207 : 201).json(results);
+  })
+);
+
+/**
+ * @route PUT /api/tenants/:tenantId/customers/bulk-update
+ * @desc Update multiple customers at once
+ * @access Protected
+ */
+router.put(
+  '/tenants/:tenantId/customers/bulk-update',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { updates } = req.body;
+
+    logger.info('Bulk updating customers', { tenantId, count: updates?.length });
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      throw new ValidationError('updates array is required and must not be empty');
+    }
+
+    if (updates.length > 500) {
+      throw new ValidationError('Maximum 500 customers per bulk operation');
+    }
+
+    const results = {
+      success: [] as any[],
+      errors: [] as any[],
+      summary: {
+        total: updates.length,
+        updated: 0,
+        failed: 0,
+      },
+    };
+
+    // Process each update
+    for (let i = 0; i < updates.length; i++) {
+      const updateData = updates[i];
+      const rowNumber = i + 1;
+
+      try {
+        if (!updateData.customer_id) {
+          throw new Error('customer_id is required');
+        }
+
+        // Check if customer exists
+        const existing = await queryOne<{ customer_id: number }>(
+          'SELECT customer_id FROM tenant_customers WHERE tenant_id = $1 AND customer_id = $2 AND is_active = true',
+          [tenantId, updateData.customer_id]
+        );
+
+        if (!existing) {
+          throw new Error('Customer not found');
+        }
+
+        // Build dynamic update query based on provided fields
+        const updateFields: string[] = [];
+        const params: any[] = [tenantId, updateData.customer_id];
+        let paramIndex = 3;
+
+        if (updateData.name !== undefined) {
+          updateFields.push(`name = $${paramIndex++}`);
+          params.push(sanitizeInput(updateData.name, { maxLength: 200 }));
+        }
+        if (updateData.phone !== undefined) {
+          updateFields.push(`phone = $${paramIndex++}`);
+          params.push(sanitizePhone(updateData.phone));
+        }
+        if (updateData.email !== undefined) {
+          updateFields.push(`email = $${paramIndex++}`);
+          params.push(sanitizeEmail(updateData.email));
+        }
+        if (updateData.address !== undefined) {
+          updateFields.push(`address = $${paramIndex++}`);
+          params.push(sanitizeInput(updateData.address, { maxLength: 500 }));
+        }
+        if (updateData.city !== undefined) {
+          updateFields.push(`city = $${paramIndex++}`);
+          params.push(sanitizeInput(updateData.city, { maxLength: 100 }));
+        }
+        if (updateData.postcode !== undefined) {
+          updateFields.push(`postcode = $${paramIndex++}`);
+          params.push(sanitizeInput(updateData.postcode, { maxLength: 20 }));
+        }
+        if (updateData.paying_org !== undefined) {
+          updateFields.push(`paying_org = $${paramIndex++}`);
+          params.push(sanitizeInput(updateData.paying_org, { maxLength: 200 }));
+        }
+        if (updateData.reminder_opt_in !== undefined) {
+          updateFields.push(`reminder_opt_in = $${paramIndex++}`);
+          params.push(updateData.reminder_opt_in);
+        }
+        if (updateData.reminder_preference !== undefined) {
+          updateFields.push(`reminder_preference = $${paramIndex++}`);
+          params.push(updateData.reminder_preference);
+        }
+
+        if (updateFields.length === 0) {
+          throw new Error('No fields to update');
+        }
+
+        updateFields.push('updated_at = CURRENT_TIMESTAMP');
+
+        await query(
+          `UPDATE tenant_customers SET ${updateFields.join(', ')} WHERE tenant_id = $1 AND customer_id = $2`,
+          params
+        );
+
+        results.success.push({
+          row: rowNumber,
+          customerId: updateData.customer_id,
+        });
+        results.summary.updated++;
+      } catch (error: any) {
+        results.errors.push({
+          row: rowNumber,
+          customerId: updateData.customer_id,
+          error: error.message,
+        });
+        results.summary.failed++;
+      }
+    }
+
+    logger.info('Bulk customer update completed', {
+      tenantId,
+      updated: results.summary.updated,
+      failed: results.summary.failed,
+    });
+
+    res.status(results.summary.failed > 0 ? 207 : 200).json(results);
+  })
+);
+
+/**
+ * @route POST /api/tenants/:tenantId/customers/bulk-archive
+ * @desc Archive multiple customers at once
+ * @access Protected
+ */
+router.post(
+  '/tenants/:tenantId/customers/bulk-archive',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { customer_ids } = req.body;
+
+    logger.info('Bulk archiving customers', { tenantId, count: customer_ids?.length });
+
+    if (!Array.isArray(customer_ids) || customer_ids.length === 0) {
+      throw new ValidationError('customer_ids array is required and must not be empty');
+    }
+
+    if (customer_ids.length > 500) {
+      throw new ValidationError('Maximum 500 customers per bulk operation');
+    }
+
+    // Archive all customers in one query
+    const result = await query(
+      `UPDATE tenant_customers
+       SET archived = TRUE,
+           archived_at = CURRENT_TIMESTAMP,
+           archived_by = $3,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = ANY($2::int[]) AND is_active = true
+       RETURNING customer_id, name`,
+      [tenantId, customer_ids, (req as any).user?.userId || null]
+    );
+
+    logger.info('Bulk archive completed', {
+      tenantId,
+      requested: customer_ids.length,
+      archived: result.length,
+    });
+
+    res.json({
+      message: `${result.length} customer(s) archived successfully`,
+      archived: result.length,
+      requested: customer_ids.length,
+      customers: result.map((c: any) => ({ id: c.customer_id, name: c.name })),
+    });
+  })
+);
+
+/**
+ * @route POST /api/tenants/:tenantId/customers/bulk-delete
+ * @desc Soft delete multiple customers at once
+ * @access Protected
+ */
+router.post(
+  '/tenants/:tenantId/customers/bulk-delete',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { customer_ids } = req.body;
+
+    logger.info('Bulk deleting customers', { tenantId, count: customer_ids?.length });
+
+    if (!Array.isArray(customer_ids) || customer_ids.length === 0) {
+      throw new ValidationError('customer_ids array is required and must not be empty');
+    }
+
+    if (customer_ids.length > 500) {
+      throw new ValidationError('Maximum 500 customers per bulk operation');
+    }
+
+    // Soft delete all customers in one query
+    const result = await query(
+      `UPDATE tenant_customers
+       SET is_active = false, updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = ANY($2::int[]) AND is_active = true
+       RETURNING customer_id, name`,
+      [tenantId, customer_ids]
+    );
+
+    logger.info('Bulk delete completed', {
+      tenantId,
+      requested: customer_ids.length,
+      deleted: result.length,
+    });
+
+    res.json({
+      message: `${result.length} customer(s) deleted successfully`,
+      deleted: result.length,
+      requested: customer_ids.length,
+      customers: result.map((c: any) => ({ id: c.customer_id, name: c.name })),
+    });
   })
 );
 
