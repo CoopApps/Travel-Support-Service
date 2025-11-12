@@ -6,6 +6,7 @@ import { customerDashboardApi } from '../services/customerDashboardApi';
 import CustomerMessagesModal from '../components/customer/CustomerMessagesModal';
 import SocialOutingsModal from '../components/customer/SocialOutingsModal';
 import CustomerFeedbackModal from '../components/customer/CustomerFeedbackModal';
+import CooperativeMemberWidget from '../components/dashboard/CooperativeMemberWidget';
 import './CustomerDashboard.css';
 
 /**
@@ -365,6 +366,13 @@ function CustomerDashboard() {
           </button>
         </div>
       </div>
+
+      {/* Cooperative Member Widget */}
+      {!loading && tenantId && (
+        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+          <CooperativeMemberWidget tenantId={tenantId} memberType="customer" />
+        </div>
+      )}
 
       {/* 7-Day Schedule View */}
       <div style={{ padding: '0 1.5rem 2rem' }}>

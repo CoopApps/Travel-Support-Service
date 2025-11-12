@@ -4,9 +4,10 @@ import OfficeStaffPage from './OfficeStaffPage';
 import CostCenterPage from './CostCenterPage';
 import TimesheetApprovalPage from './TimesheetApprovalPage';
 import CooperativeStructurePage from './CooperativeStructurePage';
+import ProfitabilityAnalytics from './ProfitabilityAnalytics';
 import './AdminDashboard.css';
 
-type AdminTab = 'staff' | 'cost-centers' | 'timesheets' | 'cooperative';
+type AdminTab = 'staff' | 'cost-centers' | 'timesheets' | 'cooperative' | 'profitability';
 
 /**
  * Company Admin Dashboard
@@ -30,6 +31,11 @@ function AdminDashboard() {
       </div>
     );
   }
+
+  // Check if tenant is a cooperative
+  const isCooperative = tenant.organization_type === 'cooperative' ||
+                        tenant.organization_type === 'cooperative_commonwealth' ||
+                        !!tenant.cooperative_model;
 
   return (
     <div className="admin-dashboard">
@@ -90,19 +96,34 @@ function AdminDashboard() {
           Timesheet Approval
         </button>
 
+        {isCooperative && (
+          <button
+            className={`tab-button ${activeTab === 'cooperative' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cooperative')}
+          >
+            <span className="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+                <path d="M16.24 7.76l-2.12 2.12" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
+            </span>
+            Co-operative Structure
+          </button>
+        )}
+
         <button
-          className={`tab-button ${activeTab === 'cooperative' ? 'active' : ''}`}
-          onClick={() => setActiveTab('cooperative')}
+          className={`tab-button ${activeTab === 'profitability' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profitability')}
         >
           <span className="tab-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-              <path d="M16.24 7.76l-2.12 2.12" />
-              <circle cx="12" cy="12" r="2" />
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
           </span>
-          Co-operative Structure
+          Profitability Analytics
         </button>
       </div>
 
@@ -111,7 +132,8 @@ function AdminDashboard() {
         {activeTab === 'staff' && <OfficeStaffPage />}
         {activeTab === 'cost-centers' && <CostCenterPage />}
         {activeTab === 'timesheets' && <TimesheetApprovalPage />}
-        {activeTab === 'cooperative' && <CooperativeStructurePage />}
+        {activeTab === 'cooperative' && isCooperative && <CooperativeStructurePage />}
+        {activeTab === 'profitability' && <ProfitabilityAnalytics />}
       </div>
     </div>
   );

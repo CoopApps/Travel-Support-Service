@@ -121,7 +121,14 @@ router.get(
       const driverPerformanceQuery = `
         SELECT
           d.driver_id,
-          CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+          COALESCE(
+            CASE
+              WHEN d.first_name IS NOT NULL AND d.last_name IS NOT NULL
+              THEN CONCAT(d.first_name, ' ', d.last_name)
+              ELSE d.name
+            END,
+            d.name
+          ) as driver_name,
           COUNT(t.trip_id) as total_trips,
           COUNT(CASE WHEN t.status = 'completed' THEN 1 END) as completed_trips,
           ROUND(
@@ -135,7 +142,7 @@ router.get(
           AND t.trip_date <= $3
         WHERE d.tenant_id = $1
           AND d.is_active = true
-        GROUP BY d.driver_id, d.first_name, d.last_name
+        GROUP BY d.driver_id, d.name, d.first_name, d.last_name
         HAVING COUNT(t.trip_id) > 0
         ORDER BY total_trips DESC
         LIMIT 10

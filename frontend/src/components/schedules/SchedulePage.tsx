@@ -7,6 +7,7 @@ import ScheduledAppointmentsView from './ScheduledAppointmentsView';
 import AdHocJourneysView from './AdHocJourneysView';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import RouteOptimizer from './RouteOptimizer';
+import CapacityAlerts from './CapacityAlerts';
 
 /**
  * Schedule Page - Main Component
@@ -27,8 +28,8 @@ function SchedulePage() {
     );
   }
 
-  // View mode state (scheduled, adhoc, analytics, or routeOptimizer)
-  const [viewMode, setViewMode] = useState<'scheduled' | 'adhoc' | 'analytics' | 'routeOptimizer'>('scheduled');
+  // View mode state (scheduled, adhoc, analytics, capacity, or routeOptimizer)
+  const [viewMode, setViewMode] = useState<'scheduled' | 'adhoc' | 'analytics' | 'capacity' | 'routeOptimizer'>('scheduled');
 
   // Client time state (using computer clock like legacy version)
   const [clientTime, setClientTime] = useState<Date>(new Date());
@@ -420,6 +421,31 @@ function SchedulePage() {
             Analytics
           </button>
           <button
+            onClick={() => setViewMode('capacity')}
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              background: viewMode === 'capacity' ? 'var(--primary)' : 'transparent',
+              color: viewMode === 'capacity' ? 'white' : 'var(--gray-700)',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Capacity
+          </button>
+          <button
             onClick={() => setViewMode('routeOptimizer')}
             style={{
               padding: '8px 20px',
@@ -595,6 +621,10 @@ function SchedulePage() {
 
       {viewMode === 'routeOptimizer' && (
         <RouteOptimizer tenantId={tenantId} />
+      )}
+
+      {viewMode === 'capacity' && (
+        <CapacityAlerts date={getCurrentDate()} />
       )}
 
       {/* Generate Trips Result Modal */}

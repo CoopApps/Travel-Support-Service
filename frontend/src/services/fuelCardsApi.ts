@@ -143,3 +143,114 @@ export const exportFuelData = async (
 
   return options?.format === 'csv' ? response.data : response.data;
 };
+
+// ============================================================================
+// ENHANCED FEATURES - November 2025
+// ============================================================================
+
+/**
+ * Archive a fuel card
+ */
+export const archiveFuelCard = async (
+  tenantId: number,
+  cardId: number,
+  reason: string
+): Promise<{ message: string; fuelCard: FuelCard }> => {
+  const response = await apiClient.put(
+    `/tenants/${tenantId}/fuelcards/${cardId}/archive`,
+    { reason }
+  );
+  return response.data;
+};
+
+/**
+ * Unarchive a fuel card
+ */
+export const unarchiveFuelCard = async (
+  tenantId: number,
+  cardId: number
+): Promise<{ message: string; fuelCard: FuelCard }> => {
+  const response = await apiClient.put(
+    `/tenants/${tenantId}/fuelcards/${cardId}/unarchive`
+  );
+  return response.data;
+};
+
+/**
+ * Get fuel cards with archive filter
+ */
+export const getFuelCardsWithFilter = async (
+  tenantId: number,
+  archived?: boolean
+): Promise<FuelCard[]> => {
+  let url = `/tenants/${tenantId}/fuelcards`;
+  if (archived !== undefined) {
+    url += `?archived=${archived}`;
+  }
+  const response = await apiClient.get(url);
+  return response.data;
+};
+
+/**
+ * Enhanced bulk import with validation
+ */
+export const enhancedBulkImport = async (
+  tenantId: number,
+  importData: {
+    provider_name?: string;
+    validate_only: boolean;
+    transactions: any[];
+  }
+): Promise<any> => {
+  const response = await apiClient.post(
+    `/tenants/${tenantId}/fuel-transactions/enhanced-import`,
+    importData
+  );
+  return response.data;
+};
+
+/**
+ * Get fuel reconciliation data
+ */
+export const getFuelReconciliation = async (
+  tenantId: number,
+  options?: {
+    start_date?: string;
+    end_date?: string;
+  }
+): Promise<any> => {
+  const params = new URLSearchParams();
+  if (options?.start_date) params.append('start_date', options.start_date);
+  if (options?.end_date) params.append('end_date', options.end_date);
+
+  const url = `/tenants/${tenantId}/fuel-reconciliation${
+    params.toString() ? `?${params.toString()}` : ''
+  }`;
+  const response = await apiClient.get(url);
+  return response.data;
+};
+
+/**
+ * Get advanced fuel analytics
+ */
+export const getFuelAnalytics = async (
+  tenantId: number,
+  period: string = '6'
+): Promise<any> => {
+  const response = await apiClient.get(
+    `/tenants/${tenantId}/fuel-analytics?period=${period}`
+  );
+  return response.data;
+};
+
+/**
+ * Get fuel spending analysis
+ */
+export const getFuelSpendingAnalysis = async (
+  tenantId: number
+): Promise<any> => {
+  const response = await apiClient.get(
+    `/tenants/${tenantId}/fuel-spending-analysis`
+  );
+  return response.data;
+};

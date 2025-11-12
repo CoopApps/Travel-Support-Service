@@ -10,6 +10,8 @@ import LogServiceModal from './LogServiceModal';
 import MaintenanceOverview from './MaintenanceOverview';
 import IncidentsTab from './IncidentsTab';
 import IncidentFormModal from './IncidentFormModal';
+import FleetAnalyticsDashboard from './FleetAnalyticsDashboard';
+import IdleVehiclesReport from './IdleVehiclesReport';
 
 /**
  * Vehicle List Page
@@ -21,7 +23,7 @@ function VehicleListPage() {
   const [loading, setLoading] = useState(true);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'maintenance' | 'incidents'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'maintenance' | 'incidents' | 'analytics'>('overview');
 
   // Filter state
   const [showOwned, setShowOwned] = useState(true);
@@ -215,6 +217,23 @@ function VehicleListPage() {
         >
           Incidents
         </button>
+        <button
+          onClick={() => setActiveTab('analytics')}
+          style={{
+            padding: '0.75rem 0',
+            border: 'none',
+            background: 'none',
+            fontSize: '1rem',
+            fontWeight: 600,
+            color: activeTab === 'analytics' ? 'var(--primary)' : 'var(--gray-600)',
+            borderBottom: activeTab === 'analytics' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-2px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Analytics
+        </button>
       </div>
 
       {/* Overview Tab */}
@@ -349,6 +368,67 @@ function VehicleListPage() {
         <IncidentsTab
           onReportIncident={() => setShowIncidentForm(true)}
         />
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && tenantId && (
+        <div>
+          {/* Analytics Sub-tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '1.5rem',
+            borderBottom: '1px solid var(--gray-200)',
+            paddingBottom: '0.5rem'
+          }}>
+            <button
+              onClick={() => {
+                const dashboardSection = document.getElementById('fleet-dashboard');
+                dashboardSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 500
+              }}
+            >
+              Fleet Dashboard
+            </button>
+            <button
+              onClick={() => {
+                const idleSection = document.getElementById('idle-vehicles');
+                idleSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'var(--gray-100)',
+                color: 'var(--gray-700)',
+                border: '1px solid var(--gray-300)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 500
+              }}
+            >
+              Idle Vehicles
+            </button>
+          </div>
+
+          {/* Fleet Dashboard Section */}
+          <div id="fleet-dashboard" style={{ marginBottom: '2rem' }}>
+            <FleetAnalyticsDashboard tenantId={tenantId} />
+          </div>
+
+          {/* Idle Vehicles Section */}
+          <div id="idle-vehicles">
+            <IdleVehiclesReport tenantId={tenantId} />
+          </div>
+        </div>
       )}
 
       {/* Modals */}

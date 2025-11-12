@@ -72,6 +72,9 @@ import tenantSettingsRoutes from './routes/tenant-settings.routes';
 import feedbackRoutes from './routes/feedback.routes';
 import documentRoutes from './routes/documents.routes';
 import adminAnalyticsRoutes from './routes/admin-analytics.routes';
+import cooperativeRoutes from './routes/cooperative.routes';
+import votingRoutes from './routes/voting.routes';
+import profitDistributionRoutes from './routes/profit-distribution.routes';
 
 /**
  * Main Server File - Stage 4
@@ -248,6 +251,9 @@ app.use('/api', tenantSettingsRoutes);
 app.use('/api', feedbackRoutes);
 app.use('/api', documentRoutes);
 app.use('/api', adminAnalyticsRoutes);
+app.use('/api', cooperativeRoutes);
+app.use('/api', votingRoutes);
+app.use('/api', profitDistributionRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

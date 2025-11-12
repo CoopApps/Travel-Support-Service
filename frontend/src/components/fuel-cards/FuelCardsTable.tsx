@@ -6,13 +6,17 @@ interface FuelCardsTableProps {
   onEdit: (cardId: number) => void;
   onToggleStatus: (cardId: number) => void;
   onViewDetails: (cardId: number) => void;
+  onArchive?: (cardId: number) => void;
+  onUnarchive?: (cardId: number) => void;
 }
 
 const FuelCardsTable: React.FC<FuelCardsTableProps> = ({
   fuelCards,
   onEdit,
   onToggleStatus,
-  onViewDetails
+  onViewDetails,
+  onArchive,
+  onUnarchive
 }) => {
   const getVehicleDisplay = (card: FuelCard) => {
     if (card.vehicle_make && card.vehicle_model && card.vehicle_registration) {
@@ -49,7 +53,21 @@ const FuelCardsTable: React.FC<FuelCardsTableProps> = ({
           <div key={card.fuel_card_id} className="fuel-card-item">
             <div className="fuel-card-header">
               <div>
-                <h5 style={{ margin: 0 }}>Card ••••{card.card_number_last_four}</h5>
+                <h5 style={{ margin: 0 }}>
+                  Card ••••{card.card_number_last_four}
+                  {card.archived && (
+                    <span style={{
+                      marginLeft: '0.5rem',
+                      fontSize: '12px',
+                      padding: '0.2rem 0.5rem',
+                      background: 'var(--gray-200)',
+                      color: 'var(--gray-700)',
+                      borderRadius: '4px',
+                    }}>
+                      Archived
+                    </span>
+                  )}
+                </h5>
                 <small style={{ color: '#666' }}>{card.provider}</small>
               </div>
               <span
@@ -103,15 +121,40 @@ const FuelCardsTable: React.FC<FuelCardsTableProps> = ({
                   className="btn btn-sm"
                   onClick={() => onEdit(card.fuel_card_id)}
                   style={{ flex: 1, background: '#17a2b8', color: 'white' }}
+                  disabled={card.archived}
                 >
                   ✏️ Edit
                 </button>
                 <button
                   className={`btn btn-${card.status === 'active' ? 'warning' : 'success'} btn-sm`}
                   onClick={() => onToggleStatus(card.fuel_card_id)}
+                  disabled={card.archived}
                 >
                   {card.status === 'active' ? '🔒' : '🔓'}
                 </button>
+                {card.archived ? (
+                  onUnarchive && (
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => onUnarchive(card.fuel_card_id)}
+                      style={{ background: '#28a745', color: 'white' }}
+                      title="Unarchive card"
+                    >
+                      📥
+                    </button>
+                  )
+                ) : (
+                  onArchive && (
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => onArchive(card.fuel_card_id)}
+                      style={{ background: '#6c757d', color: 'white' }}
+                      title="Archive card"
+                    >
+                      📦
+                    </button>
+                  )
+                )}
               </div>
             </div>
           </div>

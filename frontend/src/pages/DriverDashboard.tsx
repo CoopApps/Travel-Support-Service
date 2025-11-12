@@ -16,6 +16,7 @@ import MessagesModal from '../components/driver/MessagesModal';
 import DocumentsModal from '../components/driver/DocumentsModal';
 import PWAInstallPrompt from '../components/driver/PWAInstallPrompt';
 import PWAMetaTags from '../components/driver/PWAMetaTags';
+import CooperativeMemberWidget from '../components/dashboard/CooperativeMemberWidget';
 import './DriverDashboard.css';
 
 /**
@@ -455,6 +456,13 @@ function DriverDashboard() {
           )}
         </div>
       </div>
+
+      {/* Cooperative Member Widget */}
+      {!loading && tenantId && (
+        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+          <CooperativeMemberWidget tenantId={tenantId} memberType="driver" />
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (

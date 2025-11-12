@@ -861,6 +861,75 @@ export const vehicleApi = {
     const response = await apiClient.get(`/tenants/${tenantId}/vehicles/incidents/stats`);
     return response.data;
   },
+
+  /**
+   * Get enhanced fleet statistics
+   */
+  getEnhancedStats: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/enhanced-stats`);
+    return response.data;
+  },
+
+  /**
+   * Get vehicle utilization metrics
+   */
+  getVehicleUtilization: async (tenantId: number, vehicleId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/${vehicleId}/utilization`);
+    return response.data;
+  },
+
+  /**
+   * Get fleet-wide utilization report
+   */
+  getFleetUtilization: async (tenantId: number, query?: { sortBy?: string; sortOrder?: string; minTrips?: number }): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/fleet-utilization`, {
+      params: query
+    });
+    return response.data;
+  },
+
+  /**
+   * Get vehicle trip history
+   */
+  getVehicleTripHistory: async (tenantId: number, vehicleId: number, query?: { limit?: number; status?: string; startDate?: string; endDate?: string }): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/${vehicleId}/trip-history`, {
+      params: query
+    });
+    return response.data;
+  },
+
+  /**
+   * Get vehicle financial summary
+   */
+  getVehicleFinancialSummary: async (tenantId: number, vehicleId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/${vehicleId}/financial-summary`);
+    return response.data;
+  },
+
+  /**
+   * Get idle vehicles report
+   */
+  getIdleReport: async (tenantId: number, days?: number): Promise<any> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get(`/tenants/${tenantId}/vehicles/idle-report`, { params });
+    return response.data;
+  },
+
+  /**
+   * Archive vehicle
+   */
+  archiveVehicle: async (tenantId: number, vehicleId: number, reason?: string): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/vehicles/${vehicleId}/archive`, { reason });
+    return response.data;
+  },
+
+  /**
+   * Unarchive vehicle
+   */
+  unarchiveVehicle: async (tenantId: number, vehicleId: number): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/vehicles/${vehicleId}/unarchive`);
+    return response.data;
+  },
 };
 
 /**
