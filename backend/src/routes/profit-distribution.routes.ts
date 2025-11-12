@@ -471,7 +471,7 @@ router.get(
       [membership.membership_id]
     );
 
-    res.json({ distributions });
+    return res.json({ distributions });
   })
 );
 

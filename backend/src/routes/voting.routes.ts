@@ -513,7 +513,7 @@ router.get(
       [membership.membership_id]
     );
 
-    res.json({ votes });
+    return res.json({ votes });
   })
 );
 
