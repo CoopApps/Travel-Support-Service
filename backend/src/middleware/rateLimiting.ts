@@ -44,6 +44,8 @@ export const apiRateLimiter: RateLimitRequestHandler = rateLimit({
   handler: rateLimitHandler,
   // Skip health check endpoints
   skip: (req) => req.path.startsWith('/health'),
+  // For Railway/production: validate proxy headers
+  validate: { trustProxy: false }, // Disable IP validation warning in production
 });
 
 /**
