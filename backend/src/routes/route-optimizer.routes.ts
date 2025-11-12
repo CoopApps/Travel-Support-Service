@@ -273,4 +273,233 @@ router.post(
   })
 );
 
+/**
+ * GET /api/tenants/:tenantId/routes/optimization-scores
+ * Calculate optimization scores for all drivers in a date range
+ */
+router.get(
+  '/tenants/:tenantId/routes/optimization-scores',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const client = await getDbClient();
+
+    try {
+      // Get all trips in date range grouped by driver and date
+      const tripsQuery = `
+        SELECT
+          driver_id,
+          trip_date,
+          json_agg(
+            json_build_object(
+              'trip_id', trip_id,
+              'pickup_location', pickup_location,
+              'pickup_address', pickup_address,
+              'destination', destination,
+              'destination_address', destination_address,
+              'pickup_time', pickup_time,
+              'customer_name', customer_name
+            ) ORDER BY pickup_time
+          ) as trips
+        FROM tenant_trips
+        WHERE tenant_id = $1
+          AND trip_date >= $2
+          AND trip_date <= $3
+          AND driver_id IS NOT NULL
+          AND status != 'cancelled'
+        GROUP BY driver_id, trip_date
+        HAVING COUNT(*) >= 2
+      `;
+
+      const result = await client.query(tripsQuery, [tenantId, startDate, endDate]);
+      client.release();
+
+      // Calculate scores for each driver-date combination
+      const scores = await Promise.all(
+        result.rows.map(async (row: any) => {
+          const trips = row.trips;
+
+          if (trips.length < 2) {
+            return {
+              driverId: row.driver_id,
+              date: row.trip_date,
+              score: 100,
+              status: 'optimal',
+              tripCount: trips.length,
+              currentDistance: 0,
+              optimalDistance: 0,
+              savingsPotential: 0
+            };
+          }
+
+          try {
+            // Calculate current distance (sequential order)
+            let currentDistance = 0;
+            const googleApiKey = process.env.GOOGLE_MAPS_API_KEY;
+            let useGoogle = googleApiKey && googleApiKey.trim() !== '' && googleApiKey !== 'your_google_maps_api_key_here';
+
+            if (useGoogle) {
+              // Try Google Distance Matrix
+              try {
+                for (let i = 0; i < trips.length - 1; i++) {
+                  const origin = trips[i].destination_address || trips[i].destination;
+                  const destination = trips[i + 1].pickup_address || trips[i + 1].pickup_location;
+
+                  const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+                    params: {
+                      origins: origin,
+                      destinations: destination,
+                      key: googleApiKey,
+                      units: 'imperial'
+                    }
+                  });
+
+                  if (response.data.status === 'OK' && response.data.rows[0]?.elements[0]?.status === 'OK') {
+                    currentDistance += response.data.rows[0].elements[0].distance.value * 0.000621371;
+                  } else {
+                    useGoogle = false;
+                    break;
+                  }
+                }
+              } catch (err) {
+                useGoogle = false;
+              }
+            }
+
+            // Fallback to Haversine if Google failed or unavailable
+            if (!useGoogle) {
+              const geocodedTrips = await Promise.all(
+                trips.map(async (trip: any) => {
+                  const pickupCoords = await geocodeAddress(trip.pickup_address || trip.pickup_location);
+                  const destCoords = await geocodeAddress(trip.destination_address || trip.destination);
+                  return { ...trip, pickupCoords, destCoords };
+                })
+              );
+
+              for (let i = 0; i < geocodedTrips.length - 1; i++) {
+                const from = geocodedTrips[i].destCoords;
+                const to = geocodedTrips[i + 1].pickupCoords;
+                if (from && to) {
+                  currentDistance += haversineDistance(from.lat, from.lng, to.lat, to.lng);
+                }
+              }
+            }
+
+            // Calculate optimal distance using nearest neighbor
+            const distances: number[][] = [];
+
+            if (useGoogle) {
+              // Build distance matrix with Google
+              const origins = trips.map((t: any) => t.destination_address || t.destination);
+              const destinations = trips.map((t: any) => t.pickup_address || t.pickup_location);
+
+              const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+                params: {
+                  origins: origins.join('|'),
+                  destinations: destinations.join('|'),
+                  key: googleApiKey,
+                  units: 'imperial'
+                }
+              });
+
+              if (response.data.status === 'OK') {
+                response.data.rows.forEach((row: any) => {
+                  const rowDistances = row.elements.map((element: any) => {
+                    if (element.status === 'OK') {
+                      return element.distance.value * 0.000621371;
+                    }
+                    return 0;
+                  });
+                  distances.push(rowDistances);
+                });
+              }
+            } else {
+              // Build distance matrix with Haversine
+              const geocodedTrips = await Promise.all(
+                trips.map(async (trip: any) => {
+                  const pickupCoords = await geocodeAddress(trip.pickup_address || trip.pickup_location);
+                  const destCoords = await geocodeAddress(trip.destination_address || trip.destination);
+                  return { ...trip, pickupCoords, destCoords };
+                })
+              );
+
+              geocodedTrips.forEach((tripI: any) => {
+                const row = geocodedTrips.map((tripJ: any) => {
+                  if (!tripI.destCoords || !tripJ.pickupCoords) return 0;
+                  return haversineDistance(
+                    tripI.destCoords.lat,
+                    tripI.destCoords.lng,
+                    tripJ.pickupCoords.lat,
+                    tripJ.pickupCoords.lng
+                  );
+                });
+                distances.push(row);
+              });
+            }
+
+            // Calculate optimal route distance
+            const optimizedTrips = optimizeRouteOrder(trips, distances);
+            let optimalDistance = 0;
+
+            const optimizedIndices = optimizedTrips.map((trip: any) =>
+              trips.findIndex((t: any) => t.trip_id === trip.trip_id)
+            );
+
+            for (let i = 0; i < optimizedIndices.length - 1; i++) {
+              optimalDistance += distances[optimizedIndices[i]][optimizedIndices[i + 1]];
+            }
+
+            // Calculate score
+            const score = currentDistance > 0
+              ? Math.round((optimalDistance / currentDistance) * 100)
+              : 100;
+
+            const savingsPotential = Math.max(0, currentDistance - optimalDistance);
+
+            let status: 'optimal' | 'good' | 'needs-optimization' = 'optimal';
+            if (score < 70) status = 'needs-optimization';
+            else if (score < 90) status = 'good';
+
+            return {
+              driverId: row.driver_id,
+              date: row.trip_date,
+              score,
+              status,
+              tripCount: trips.length,
+              currentDistance: parseFloat(currentDistance.toFixed(2)),
+              optimalDistance: parseFloat(optimalDistance.toFixed(2)),
+              savingsPotential: parseFloat(savingsPotential.toFixed(2))
+            };
+          } catch (error) {
+            console.error(`Error calculating score for driver ${row.driver_id} on ${row.trip_date}:`, error);
+            return {
+              driverId: row.driver_id,
+              date: row.trip_date,
+              score: 0,
+              status: 'error',
+              tripCount: trips.length,
+              currentDistance: 0,
+              optimalDistance: 0,
+              savingsPotential: 0,
+              error: 'Failed to calculate score'
+            };
+          }
+        })
+      );
+
+      return res.json({ scores });
+    } catch (error) {
+      console.error('Error fetching optimization scores:', error);
+      client.release();
+      return res.status(500).json({ error: 'Failed to fetch optimization scores' });
+    }
+  })
+);
+
 export default router;

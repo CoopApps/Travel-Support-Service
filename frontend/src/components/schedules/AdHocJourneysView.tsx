@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { tripApi, customerApi, driverApi } from '../../services/api';
 import { Trip, ServerTime, Customer, Driver } from '../../types';
+import { useAuthStore } from '../../store/authStore';
 import ScheduledTripsGrid from './ScheduledTripsGrid';
 import TripFormModal from './TripFormModal';
+import RouteOptimizationPanel from './RouteOptimizationPanel';
 
 interface AdHocJourneysViewProps {
   tenantId: number;
@@ -18,6 +20,7 @@ interface AdHocJourneysViewProps {
  * Same grid layout as scheduled view with driver column
  */
 function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDate }: AdHocJourneysViewProps) {
+  const token = useAuthStore(state => state.token);
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -31,6 +34,15 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
   // Modal state
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
+
+  // Route optimization state
+  const [optimizationPanelOpen, setOptimizationPanelOpen] = useState(false);
+  const [selectedDriverForOptimization, setSelectedDriverForOptimization] = useState<{
+    driverId: number;
+    driverName: string;
+    date: string;
+  } | null>(null);
+  const [optimizationScores, setOptimizationScores] = useState<any[]>([]);
 
   /**
    * Fetch trips and reference data
@@ -75,6 +87,53 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
       fetchData();
     }
   }, [tenantId, serverTime, selectedDriver, selectedCustomer, selectedStatus, customStartDate, customEndDate]);
+
+  /**
+   * Fetch optimization scores for all drivers in date range
+   */
+  const fetchOptimizationScores = async () => {
+    try {
+      const today = serverTime?.formatted_date || new Date().toISOString().split('T')[0];
+      const weekStart = customStartDate || getWeekStart(today);
+      const weekEnd = customEndDate || getWeekEnd(weekStart);
+
+      const response = await fetch(
+        `/api/tenants/${tenantId}/routes/optimization-scores?startDate=${weekStart}&endDate=${weekEnd}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setOptimizationScores(data.scores || []);
+      }
+    } catch (err) {
+      console.error('Error fetching optimization scores:', err);
+    }
+  };
+
+  /**
+   * Fetch scores when date range or trips change
+   */
+  useEffect(() => {
+    if (serverTime && trips.length > 0) {
+      fetchOptimizationScores();
+    }
+  }, [customStartDate, customEndDate, trips.length]);
+
+  /**
+   * Handle optimize driver - opens optimization panel
+   */
+  const handleOptimizeDriver = (driverId: number, date: string) => {
+    const driver = drivers.find(d => d.driver_id === driverId);
+    if (driver) {
+      setSelectedDriverForOptimization({
+        driverId,
+        driverName: driver.name || `${driver.first_name} ${driver.last_name}`,
+        date
+      });
+      setOptimizationPanelOpen(true);
+    }
+  };
 
   /**
    * Get week start (Monday) - avoiding timezone issues
@@ -297,6 +356,8 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
         }}
         onRefresh={fetchData}
         viewType="adhoc"
+        optimizationScores={optimizationScores}
+        onOptimizeDriver={handleOptimizeDriver}
       />
 
       {/* Trip Form Modal */}
@@ -308,6 +369,24 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
           drivers={drivers}
           serverTime={serverTime}
           onClose={handleModalClose}
+        />
+      )}
+
+      {/* Route Optimization Panel */}
+      {optimizationPanelOpen && selectedDriverForOptimization && (
+        <RouteOptimizationPanel
+          tenantId={tenantId}
+          driverId={selectedDriverForOptimization.driverId}
+          driverName={selectedDriverForOptimization.driverName}
+          date={selectedDriverForOptimization.date}
+          onClose={() => {
+            setOptimizationPanelOpen(false);
+            setSelectedDriverForOptimization(null);
+          }}
+          onOptimized={() => {
+            fetchData();
+            fetchOptimizationScores();
+          }}
         />
       )}
     </div>

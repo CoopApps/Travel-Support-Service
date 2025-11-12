@@ -158,7 +158,14 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
 
   return (
     <div>
-      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '20px', fontWeight: 700 }}>🗺️ Route Optimizer</h3>
+      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+          <line x1="8" y1="2" x2="8" y2="18"/>
+          <line x1="16" y1="6" x2="16" y2="22"/>
+        </svg>
+        Route Optimizer
+      </h3>
 
       {/* Driver and Date Selection */}
       <div style={{
@@ -331,9 +338,35 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
               fontSize: '14px',
               fontWeight: 600
             }}>
-              {optimizationResult.method === 'google' && '✓ Optimized with Google Maps'}
-              {optimizationResult.method === 'haversine' && '⚠️ Optimized with estimated distances'}
-              {optimizationResult.method === 'manual' && '🖐️ Manual reordering required'}
+              {optimizationResult.method === 'google' && (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Optimized with Google Maps
+                </>
+              )}
+              {optimizationResult.method === 'haversine' && (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  Optimized with estimated distances
+                </>
+              )}
+              {optimizationResult.method === 'manual' && (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                  </svg>
+                  Manual reordering required
+                </>
+              )}
               {optimizationResult.warning && (
                 <span style={{ marginLeft: '8px', fontWeight: 400 }}>- {optimizationResult.warning}</span>
               )}

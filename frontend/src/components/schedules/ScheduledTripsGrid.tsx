@@ -13,6 +13,8 @@ interface ScheduledTripsGridProps {
   onCreateTrip?: (driverId: number, dayIndex: number, period: 'morning' | 'afternoon') => void;
   onRefresh?: () => void; // Callback to refresh data after updates
   viewType?: 'regular' | 'adhoc'; // To apply different colors based on view
+  optimizationScores?: any[]; // Optimization scores for each driver-date combination
+  onOptimizeDriver?: (driverId: number, date: string) => void; // Callback to open optimization panel
 }
 
 /**
@@ -30,7 +32,9 @@ function ScheduledTripsGrid({
   onEditTrip,
   onCreateTrip,
   onRefresh,
-  viewType = 'regular'
+  viewType = 'regular',
+  optimizationScores,
+  onOptimizeDriver
 }: ScheduledTripsGridProps) {
 
   // Context menu state
@@ -386,6 +390,25 @@ function ScheduledTripsGrid({
   };
 
   /**
+   * Get optimization score for a driver on a specific date
+   */
+  const getOptimizationScore = useCallback((driverId: number, date: string) => {
+    if (!optimizationScores) return null;
+    return optimizationScores.find(
+      s => s.driverId === driverId && s.date === date
+    );
+  }, [optimizationScores]);
+
+  /**
+   * Get color for optimization score
+   */
+  const getScoreColor = (score: number): string => {
+    if (score >= 90) return '#10b981'; // green
+    if (score >= 70) return '#f59e0b'; // yellow
+    return '#ef4444'; // red
+  };
+
+  /**
    * Get trips for a specific driver, day, and period (uses filtered trips) - memoized
    */
   const getTripsForSlot = useCallback((driverId: number, date: string, period: 'morning' | 'afternoon'): Trip[] => {
@@ -666,8 +689,27 @@ function ScheduledTripsGrid({
                   zIndex: 9,
                   verticalAlign: 'top'
                 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {driver.name}
+                    {/* Show aggregate score for driver across week */}
+                    {optimizationScores && (() => {
+                      const driverScores = weekDays
+                        .map(date => getOptimizationScore(driver.driver_id, date))
+                        .filter(s => s !== null);
+                      if (driverScores.length > 0) {
+                        const avgScore = driverScores.reduce((sum, s) => sum + (s?.score || 0), 0) / driverScores.length;
+                        return (
+                          <span style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: getScoreColor(avgScore),
+                            display: 'inline-block'
+                          }} title={`Avg optimization: ${avgScore.toFixed(0)}%`} />
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginBottom: '8px' }}>
                     {driver.phone || 'No phone'}
@@ -700,6 +742,40 @@ function ScheduledTripsGrid({
                       >
                         Email Schedule
                       </button>
+                      {onOptimizeDriver && (
+                        <button
+                          className="btn btn-sm"
+                          onClick={() => {
+                            // Find first date with trips for this driver
+                            const driverTripsDate = trips.find(t => t.driver_id === driver.driver_id)?.trip_date.split('T')[0];
+                            if (driverTripsDate) {
+                              onOptimizeDriver(driver.driver_id, driverTripsDate);
+                            } else {
+                              // Default to first day of week
+                              onOptimizeDriver(driver.driver_id, weekDays[0]);
+                            }
+                          }}
+                          style={{
+                            fontSize: '10px',
+                            padding: '4px 8px',
+                            background: '#6366f1',
+                            color: 'white',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            justifyContent: 'center'
+                          }}
+                          title="Optimize routes"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                            <line x1="8" y1="2" x2="8" y2="18"/>
+                            <line x1="16" y1="6" x2="16" y2="22"/>
+                          </svg>
+                          Optimize
+                        </button>
+                      )}
                       <small style={{
                         fontSize: '10px',
                         color: hasTrips ? '#28a745' : '#6c757d',
@@ -724,8 +800,29 @@ function ScheduledTripsGrid({
                       borderLeft: isToday ? '3px solid #2196f3' : '1px solid var(--gray-200)',
                       borderRight: isToday ? '3px solid #2196f3' : undefined,
                       background: isToday ? '#f0f9ff' : 'white',
-                      verticalAlign: 'top'
+                      verticalAlign: 'top',
+                      position: 'relative'
                     }}>
+                      {/* Optimization Score Indicator */}
+                      {optimizationScores && (() => {
+                        const score = getOptimizationScore(driver.driver_id, date);
+                        if (score && score.tripCount >= 2) {
+                          return (
+                            <div style={{
+                              position: 'absolute',
+                              top: '4px',
+                              right: '4px',
+                              width: '6px',
+                              height: '6px',
+                              borderRadius: '50%',
+                              backgroundColor: getScoreColor(score.score),
+                              cursor: 'help',
+                              zIndex: 5
+                            }} title={`Optimization: ${score.score}% (${score.savingsPotential.toFixed(1)} mi savings)`} />
+                          );
+                        }
+                        return null;
+                      })()}
                       {/* Morning Period */}
                       <div
                         onClick={() => {
