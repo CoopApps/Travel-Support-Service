@@ -152,6 +152,14 @@ router.post(
 
     logger.info('Previewing bulk invoice generation', { tenantId, start_date, end_date });
 
+    // Get default trip rate from tenant settings
+    const settingsResult = await query<{ setting_value: string }>(`
+      SELECT setting_value FROM tenant_settings
+      WHERE tenant_id = $1 AND setting_key = 'default_trip_rate'
+    `, [tenantId]);
+
+    const tenantDefaultRate = settingsResult.length > 0 ? parseFloat(settingsResult[0].setting_value) : null;
+
     // Get all active customers with their payment providers
     const customers = await query<{
       customer_id: number;
@@ -178,7 +186,8 @@ router.post(
       ORDER BY c.last_name, c.first_name
     `, [tenantId, start_date, end_date]);
 
-    const rate = parseFloat(default_rate) || 25.00; // Default £25 per trip
+    // Use tenant setting first, then provided rate, then fallback to £25
+    const rate = tenantDefaultRate || parseFloat(default_rate) || 25.00;
 
     const preview = customers.map(customer => ({
       customerId: customer.customer_id,
@@ -218,7 +227,16 @@ router.post(
       throw new ValidationError('Start date and end date are required');
     }
 
-    const rate = parseFloat(default_rate) || 25.00;
+    // Get default trip rate from tenant settings
+    const settingsResult = await query<{ setting_value: string }>(`
+      SELECT setting_value FROM tenant_settings
+      WHERE tenant_id = $1 AND setting_key = 'default_trip_rate'
+    `, [tenantId]);
+
+    const tenantDefaultRate = settingsResult.length > 0 ? parseFloat(settingsResult[0].setting_value) : null;
+
+    // Use tenant setting first, then provided rate, then fallback to £25
+    const rate = tenantDefaultRate || parseFloat(default_rate) || 25.00;
     const dueDays = parseInt(due_days) || 30;
 
     logger.info('Generating bulk invoices', { tenantId, start_date, end_date, rate, dueDays });
@@ -399,7 +417,7 @@ router.get(
     }
 
     if (provider) {
-      queryText += ` AND paying_org = $${paramIndex}`;
+      queryText += ` AND paying_organisation = $${paramIndex}`;
       params.push(provider);
       paramIndex++;
     }
@@ -427,7 +445,7 @@ router.get(
       id: inv.invoice_id,
       number: inv.invoice_number,
       customerName: inv.customer_name,
-      payingOrg: inv.paying_org,
+      payingOrg: inv.paying_organisation,
       date: inv.invoice_date.toISOString().split('T')[0],
       dueDate: inv.due_date.toISOString().split('T')[0],
       periodStart: inv.period_start.toISOString().split('T')[0],
@@ -484,7 +502,7 @@ router.get(
       id: invoice.invoice_id,
       number: invoice.invoice_number,
       customerName: invoice.customer_name,
-      payingOrg: invoice.paying_org,
+      payingOrg: invoice.paying_organisation,
       date: invoice.invoice_date.toISOString().split('T')[0],
       dueDate: invoice.due_date.toISOString().split('T')[0],
       periodStart: invoice.period_start.toISOString().split('T')[0],
@@ -1240,67 +1258,79 @@ router.post(
       throw new ValidationError('Split percentage must be between 0 and 100');
     }
 
-    // Get invoice details
-    const invoices = await query<any>(`
-      SELECT total_amount FROM tenant_invoices
-      WHERE invoice_id = $1 AND tenant_id = $2
-    `, [invoiceId, tenantId]);
+    // Use transaction for atomicity
+    await query('BEGIN');
 
-    if (invoices.length === 0) {
-      throw new NotFoundError('Invoice not found');
-    }
+    try {
+      // Get invoice details
+      const invoices = await query<any>(`
+        SELECT total_amount FROM tenant_invoices
+        WHERE invoice_id = $1 AND tenant_id = $2
+        FOR UPDATE
+      `, [invoiceId, tenantId]);
 
-    const totalAmount = parseFloat(invoices[0].total_amount);
-    const splitAmount = (totalAmount * split_percentage) / 100;
-
-    // Check if total percentages don't exceed 100%
-    const existingSplits = await query<any>(`
-      SELECT COALESCE(SUM(split_percentage), 0) as total_percentage
-      FROM tenant_invoice_split_payments
-      WHERE invoice_id = $1 AND tenant_id = $2
-    `, [invoiceId, tenantId]);
-
-    const newTotalPercentage = parseFloat(existingSplits[0].total_percentage) + split_percentage;
-    if (newTotalPercentage > 100) {
-      throw new ValidationError(
-        `Total split percentage would exceed 100% (current: ${existingSplits[0].total_percentage}%, adding: ${split_percentage}%)`
-      );
-    }
-
-    // Create split payment
-    const result = await query<any>(`
-      INSERT INTO tenant_invoice_split_payments (
-        tenant_id, invoice_id, provider_name, provider_id,
-        split_percentage, split_amount, notes, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
-    `, [tenantId, invoiceId, provider_name, provider_id, split_percentage, splitAmount, notes, userId]);
-
-    // Log the creation
-    await query(`
-      INSERT INTO tenant_invoice_reminder_log (
-        tenant_id, invoice_id, event_type, reminder_type,
-        success, created_at, created_by
-      ) VALUES ($1, $2, 'split_payment_created', 'info', true, CURRENT_TIMESTAMP, $3)
-    `, [tenantId, invoiceId, userId]);
-
-    const splitPayment = result[0];
-
-    res.status(201).json({
-      message: 'Split payment created successfully',
-      splitPayment: {
-        id: splitPayment.split_payment_id,
-        providerName: splitPayment.provider_name,
-        providerId: splitPayment.provider_id,
-        splitPercentage: parseFloat(splitPayment.split_percentage),
-        splitAmount: parseFloat(splitPayment.split_amount),
-        amountPaid: parseFloat(splitPayment.amount_paid),
-        amountOutstanding: parseFloat(splitPayment.split_amount),
-        paymentStatus: splitPayment.payment_status,
-        notes: splitPayment.notes,
-        createdAt: splitPayment.created_at.toISOString()
+      if (invoices.length === 0) {
+        throw new NotFoundError('Invoice not found');
       }
-    });
+
+      const totalAmount = parseFloat(invoices[0].total_amount);
+      const splitAmount = (totalAmount * split_percentage) / 100;
+
+      // Check if total percentages don't exceed 100%
+      const existingSplits = await query<any>(`
+        SELECT COALESCE(SUM(split_percentage), 0) as total_percentage
+        FROM tenant_invoice_split_payments
+        WHERE invoice_id = $1 AND tenant_id = $2
+      `, [invoiceId, tenantId]);
+
+      const newTotalPercentage = parseFloat(existingSplits[0].total_percentage) + split_percentage;
+      if (newTotalPercentage > 100) {
+        throw new ValidationError(
+          `Total split percentage would exceed 100% (current: ${existingSplits[0].total_percentage}%, adding: ${split_percentage}%)`
+        );
+      }
+
+      // Create split payment
+      const result = await query<any>(`
+        INSERT INTO tenant_invoice_split_payments (
+          tenant_id, invoice_id, provider_name, provider_id,
+          split_percentage, split_amount, notes, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `, [tenantId, invoiceId, provider_name, provider_id, split_percentage, splitAmount, notes, userId]);
+
+      // Log the creation
+      await query(`
+        INSERT INTO tenant_invoice_reminder_log (
+          tenant_id, invoice_id, event_type, reminder_type,
+          success, created_at, created_by
+        ) VALUES ($1, $2, 'split_payment_created', 'info', true, CURRENT_TIMESTAMP, $3)
+      `, [tenantId, invoiceId, userId]);
+
+      const splitPayment = result[0];
+
+      // Commit transaction
+      await query('COMMIT');
+
+      res.status(201).json({
+        message: 'Split payment created successfully',
+        splitPayment: {
+          id: splitPayment.split_payment_id,
+          providerName: splitPayment.provider_name,
+          providerId: splitPayment.provider_id,
+          splitPercentage: parseFloat(splitPayment.split_percentage),
+          splitAmount: parseFloat(splitPayment.split_amount),
+          amountPaid: parseFloat(splitPayment.amount_paid),
+          amountOutstanding: parseFloat(splitPayment.split_amount),
+          paymentStatus: splitPayment.payment_status,
+          notes: splitPayment.notes,
+          createdAt: splitPayment.created_at.toISOString()
+        }
+      });
+    } catch (error) {
+      await query('ROLLBACK');
+      throw error;
+    }
   })
 );
 
@@ -1776,6 +1806,17 @@ router.post(
 
     if (!recipientEmail) {
       throw new ValidationError('No recipient email provided');
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      throw new ValidationError('Invalid email address format');
+    }
+
+    // Validate CC email if provided
+    if (cc_email && !emailRegex.test(cc_email)) {
+      throw new ValidationError('Invalid CC email address format');
     }
 
     // Generate PDF
