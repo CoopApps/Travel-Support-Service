@@ -26,8 +26,7 @@ SELECT
   cc.budget_annual,
   cc.budget_monthly,
   cc.is_active,
-  cc.manager_name,
-  cc.manager_email,
+  cc.owner_id,
   cc.created_at,
   cc.updated_at,
 
