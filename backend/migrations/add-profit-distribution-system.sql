@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS cooperative_distribution_periods (
   status VARCHAR(50) DEFAULT 'draft', -- 'draft', 'calculated', 'approved', 'distributed', 'cancelled'
 
   -- Metadata
-  created_by INT REFERENCES users(user_id),
+  created_by INT REFERENCES tenant_users(user_id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  approved_by INT REFERENCES users(user_id),
+  approved_by INT REFERENCES tenant_users(user_id),
   approved_at TIMESTAMP,
   distributed_at TIMESTAMP,
   notes TEXT,
@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS cooperative_distribution_periods (
 );
 
 -- Indexes
-CREATE INDEX idx_distribution_periods_tenant ON cooperative_distribution_periods(tenant_id);
-CREATE INDEX idx_distribution_periods_status ON cooperative_distribution_periods(status);
-CREATE INDEX idx_distribution_periods_dates ON cooperative_distribution_periods(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_distribution_periods_tenant ON cooperative_distribution_periods(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_distribution_periods_status ON cooperative_distribution_periods(status);
+CREATE INDEX IF NOT EXISTS idx_distribution_periods_dates ON cooperative_distribution_periods(period_start, period_end);
 
 -- =====================================================
 -- 2. MEMBER DISTRIBUTIONS TABLE
@@ -97,9 +97,9 @@ CREATE TABLE IF NOT EXISTS cooperative_member_distributions (
 );
 
 -- Indexes
-CREATE INDEX idx_member_distributions_period ON cooperative_member_distributions(period_id);
-CREATE INDEX idx_member_distributions_member ON cooperative_member_distributions(member_id);
-CREATE INDEX idx_member_distributions_paid ON cooperative_member_distributions(paid);
+CREATE INDEX IF NOT EXISTS idx_member_distributions_period ON cooperative_member_distributions(period_id);
+CREATE INDEX IF NOT EXISTS idx_member_distributions_member ON cooperative_member_distributions(member_id);
+CREATE INDEX IF NOT EXISTS idx_member_distributions_paid ON cooperative_member_distributions(paid);
 
 -- =====================================================
 -- 3. INVESTMENT TRACKING TABLE
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS cooperative_member_investments (
   status VARCHAR(50) DEFAULT 'active', -- 'active', 'returned', 'converted'
 
   -- Metadata
-  created_by INT REFERENCES users(user_id),
+  created_by INT REFERENCES tenant_users(user_id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   notes TEXT,
@@ -132,9 +132,9 @@ CREATE TABLE IF NOT EXISTS cooperative_member_investments (
 );
 
 -- Indexes
-CREATE INDEX idx_member_investments_tenant ON cooperative_member_investments(tenant_id);
-CREATE INDEX idx_member_investments_member ON cooperative_member_investments(member_id);
-CREATE INDEX idx_member_investments_status ON cooperative_member_investments(status);
+CREATE INDEX IF NOT EXISTS idx_member_investments_tenant ON cooperative_member_investments(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_member_investments_member ON cooperative_member_investments(member_id);
+CREATE INDEX IF NOT EXISTS idx_member_investments_status ON cooperative_member_investments(status);
 
 -- =====================================================
 -- 4. HELPER FUNCTIONS
@@ -155,15 +155,20 @@ DECLARE
   v_cooperative_model VARCHAR(50);
 BEGIN
   -- Get period details
-  SELECT dp.*, t.cooperative_model
-  INTO v_period, v_cooperative_model
+  SELECT dp.*
+  INTO v_period
   FROM cooperative_distribution_periods dp
-  JOIN tenants t ON dp.tenant_id = t.tenant_id
   WHERE dp.period_id = p_period_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Distribution period not found';
   END IF;
+
+  -- Get cooperative model
+  SELECT t.cooperative_model
+  INTO v_cooperative_model
+  FROM tenants t
+  WHERE t.tenant_id = v_period.tenant_id;
 
   -- Calculate distribution pool if not set
   IF v_period.distribution_pool IS NULL THEN
@@ -355,7 +360,7 @@ CREATE OR REPLACE VIEW v_active_distribution_periods AS
 SELECT
   dp.*,
   u.email as created_by_email,
-  u.name as created_by_name,
+  u.full_name as created_by_name,
   CASE
     WHEN dp.status = 'distributed' THEN 'completed'
     WHEN dp.status = 'approved' THEN 'ready_to_pay'
@@ -363,7 +368,7 @@ SELECT
     ELSE 'in_progress'
   END as period_status
 FROM cooperative_distribution_periods dp
-LEFT JOIN users u ON dp.created_by = u.user_id
+LEFT JOIN tenant_users u ON dp.created_by = u.user_id
 WHERE dp.status IN ('draft', 'calculated', 'approved')
 ORDER BY dp.period_start DESC;
 
@@ -384,8 +389,8 @@ SELECT
 FROM cooperative_member_distributions md
 JOIN cooperative_membership cm ON md.member_id = cm.membership_id
 JOIN cooperative_distribution_periods dp ON md.period_id = dp.period_id
-LEFT JOIN drivers d ON cm.member_type = 'driver' AND cm.member_reference_id = d.driver_id
-LEFT JOIN customers c ON cm.member_type = 'customer' AND cm.member_reference_id = c.id
+LEFT JOIN tenant_drivers d ON cm.member_type = 'driver' AND cm.member_reference_id = d.driver_id
+LEFT JOIN tenant_customers c ON cm.member_type = 'customer' AND cm.member_reference_id = c.customer_id
 ORDER BY md.created_at DESC;
 
 -- =====================================================

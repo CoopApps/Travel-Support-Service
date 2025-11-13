@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS cooperative_proposals (
   result JSONB, -- { yes: 10, no: 5, abstain: 2, total_votes: 17, eligible_voters: 25 }
 
   -- Metadata
-  created_by INT REFERENCES users(user_id),
+  created_by INT REFERENCES tenant_users(user_id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   closed_at TIMESTAMP,
@@ -56,11 +56,11 @@ CREATE TABLE IF NOT EXISTS cooperative_proposals (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_proposals_tenant ON cooperative_proposals(tenant_id);
-CREATE INDEX idx_proposals_status ON cooperative_proposals(status);
-CREATE INDEX idx_proposals_type ON cooperative_proposals(proposal_type);
-CREATE INDEX idx_proposals_voting_period ON cooperative_proposals(voting_opens, voting_closes);
-CREATE INDEX idx_proposals_tenant_status ON cooperative_proposals(tenant_id, status);
+CREATE INDEX IF NOT EXISTS idx_proposals_tenant ON cooperative_proposals(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_proposals_status ON cooperative_proposals(status);
+CREATE INDEX IF NOT EXISTS idx_proposals_type ON cooperative_proposals(proposal_type);
+CREATE INDEX IF NOT EXISTS idx_proposals_voting_period ON cooperative_proposals(voting_opens, voting_closes);
+CREATE INDEX IF NOT EXISTS idx_proposals_tenant_status ON cooperative_proposals(tenant_id, status);
 
 -- =====================================================
 -- 2. VOTES TABLE
@@ -92,9 +92,9 @@ CREATE TABLE IF NOT EXISTS cooperative_votes (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_votes_proposal ON cooperative_votes(proposal_id);
-CREATE INDEX idx_votes_member ON cooperative_votes(member_id);
-CREATE INDEX idx_votes_proposal_choice ON cooperative_votes(proposal_id, vote_choice);
+CREATE INDEX IF NOT EXISTS idx_votes_proposal ON cooperative_votes(proposal_id);
+CREATE INDEX IF NOT EXISTS idx_votes_member ON cooperative_votes(member_id);
+CREATE INDEX IF NOT EXISTS idx_votes_proposal_choice ON cooperative_votes(proposal_id, vote_choice);
 
 -- =====================================================
 -- 3. VOTING ELIGIBILITY TABLE
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS cooperative_voting_eligibility (
 
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  created_by INT REFERENCES users(user_id),
+  created_by INT REFERENCES tenant_users(user_id),
   notes TEXT,
 
   -- Constraints
@@ -123,10 +123,10 @@ CREATE TABLE IF NOT EXISTS cooperative_voting_eligibility (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_eligibility_tenant ON cooperative_voting_eligibility(tenant_id);
-CREATE INDEX idx_eligibility_member ON cooperative_voting_eligibility(member_id);
-CREATE INDEX idx_eligibility_type ON cooperative_voting_eligibility(proposal_type);
-CREATE INDEX idx_eligibility_active ON cooperative_voting_eligibility(eligible, effective_date, expires_date);
+CREATE INDEX IF NOT EXISTS idx_eligibility_tenant ON cooperative_voting_eligibility(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_eligibility_member ON cooperative_voting_eligibility(member_id);
+CREATE INDEX IF NOT EXISTS idx_eligibility_type ON cooperative_voting_eligibility(proposal_type);
+CREATE INDEX IF NOT EXISTS idx_eligibility_active ON cooperative_voting_eligibility(eligible, effective_date, expires_date);
 
 -- =====================================================
 -- 4. HELPER FUNCTIONS
@@ -325,7 +325,7 @@ SELECT
   p.result,
   p.created_at,
   u.email AS created_by_email,
-  u.name AS created_by_name,
+  u.full_name AS created_by_name,
   CASE
     WHEN p.voting_opens > CURRENT_TIMESTAMP THEN 'pending'
     WHEN p.voting_closes < CURRENT_TIMESTAMP THEN 'expired'
@@ -333,7 +333,7 @@ SELECT
   END AS voting_status,
   EXTRACT(EPOCH FROM (p.voting_closes - CURRENT_TIMESTAMP)) / 3600 AS hours_remaining
 FROM cooperative_proposals p
-LEFT JOIN users u ON p.created_by = u.user_id
+LEFT JOIN tenant_users u ON p.created_by = u.user_id
 WHERE p.status IN ('open', 'draft')
 ORDER BY p.voting_closes ASC;
 
@@ -358,8 +358,8 @@ SELECT
 FROM cooperative_votes v
 JOIN cooperative_proposals p ON v.proposal_id = p.proposal_id
 JOIN cooperative_membership m ON v.member_id = m.membership_id
-LEFT JOIN drivers d ON m.member_type = 'driver' AND m.member_reference_id = d.driver_id
-LEFT JOIN customers c ON m.member_type = 'customer' AND m.member_reference_id = c.id
+LEFT JOIN tenant_drivers d ON m.member_type = 'driver' AND m.member_reference_id = d.driver_id
+LEFT JOIN tenant_customers c ON m.member_type = 'customer' AND m.member_reference_id = c.customer_id
 ORDER BY v.voted_at DESC;
 
 -- =====================================================
