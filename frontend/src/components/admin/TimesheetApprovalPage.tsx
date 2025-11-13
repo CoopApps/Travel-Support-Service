@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Package } from 'lucide-react';
 import { useTenant } from '../../context/TenantContext';
 import { useAuthStore } from '../../store/authStore';
 import { timesheetApi } from '../../services/api';
@@ -316,7 +317,9 @@ function TimesheetApprovalPage() {
           borderRadius: '8px',
           border: '1px dashed var(--gray-300)'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+            <Package size={48} color="var(--gray-400)" />
+          </div>
           <h3 style={{ margin: '0 0 8px 0', color: 'var(--gray-700)' }}>Timesheet Archive</h3>
           <p style={{ color: 'var(--gray-500)', margin: 0 }}>
             Archived timesheets will be displayed here. Feature coming soon...

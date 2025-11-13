@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Check, AlertTriangle, DollarSign, Lightbulb } from 'lucide-react';
 import { useTenant } from '../../context/TenantContext';
 import { tenantSettingsApi } from '../../services/api';
 
@@ -155,20 +156,20 @@ function RouteOptimizationSettings() {
               fontSize: '13px',
               color: 'var(--gray-700)'
             }}>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ Works offline - no internet required
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> Works offline - no internet required
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ No additional costs
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> No additional costs
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ ~70-80% accuracy for UK postcodes
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> ~70-80% accuracy for UK postcodes
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ Detects same street/neighborhood matches
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> Detects same street/neighborhood matches
               </div>
-              <div style={{ marginTop: '8px', padding: '8px', background: '#f0fdf4', borderRadius: '4px', color: '#166534', fontWeight: 600 }}>
-                💰 Recommended for most users
+              <div style={{ marginTop: '8px', padding: '8px', background: '#f0fdf4', borderRadius: '4px', color: '#166534', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <DollarSign size={16} /> Recommended for most users
               </div>
             </div>
           </label>
@@ -200,20 +201,20 @@ function RouteOptimizationSettings() {
               fontSize: '13px',
               color: 'var(--gray-700)'
             }}>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ Precise route calculations with actual roads
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> Precise route calculations with actual roads
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ Exact detour times (e.g., "+3 minutes")
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> Exact detour times (e.g., "+3 minutes")
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ Traffic-aware routing
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> Traffic-aware routing
               </div>
-              <div style={{ marginBottom: '6px' }}>
-                ✓ ~95% accuracy
+              <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={14} color="#16a34a" /> ~95% accuracy
               </div>
-              <div style={{ marginTop: '8px', padding: '8px', background: '#fff7ed', borderRadius: '4px', color: '#9a3412' }}>
-                ⚠️ Cost: ~£0.50-2.00/month (depends on usage)
+              <div style={{ marginTop: '8px', padding: '8px', background: '#fff7ed', borderRadius: '4px', color: '#9a3412', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <AlertTriangle size={16} /> Cost: ~£0.50-2.00/month (depends on usage)
               </div>
               <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--gray-600)', fontStyle: 'italic' }}>
                 Google Maps API key must be configured in environment variables
@@ -304,7 +305,10 @@ function RouteOptimizationSettings() {
         fontSize: '13px',
         color: '#1e40af'
       }}>
-        <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>💡 How It Works:</div>
+        <div style={{ fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Lightbulb size={16} />
+          How It Works:
+        </div>
         <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
           <li>When creating a trip, the system finds compatible passengers going the same way</li>
           <li>Recommendations are ranked by proximity, destination similarity, and time compatibility</li>

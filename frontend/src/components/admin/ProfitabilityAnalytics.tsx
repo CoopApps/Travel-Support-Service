@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Download, TrendingUp, User, Car, AlertTriangle, Lightbulb } from 'lucide-react';
 import { useTenant } from '../../context/TenantContext';
 import {
   getDriverProfitability,
@@ -133,8 +134,9 @@ const ProfitabilityAnalytics: React.FC = () => {
               fontSize: '14px',
             }}
           />
-          <button className="btn btn-secondary" onClick={exportToCSV}>
-            📊 Export CSV
+          <button className="btn btn-secondary" onClick={exportToCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={16} />
+            Export CSV
           </button>
         </div>
       </div>
@@ -147,9 +149,9 @@ const ProfitabilityAnalytics: React.FC = () => {
         marginBottom: '1.5rem',
       }}>
         {[
-          { id: 'dashboard', label: 'Overview Dashboard', icon: '📈' },
-          { id: 'drivers', label: 'Driver Profitability', icon: '👤' },
-          { id: 'trips', label: 'Trip Profitability', icon: '🚗' },
+          { id: 'dashboard', label: 'Overview Dashboard', icon: <TrendingUp size={16} /> },
+          { id: 'drivers', label: 'Driver Profitability', icon: <User size={16} /> },
+          { id: 'trips', label: 'Trip Profitability', icon: <Car size={16} /> },
         ].map(tab => (
           <button
             key={tab.id}
@@ -163,6 +165,9 @@ const ProfitabilityAnalytics: React.FC = () => {
               fontWeight: activeSubTab === tab.id ? 600 : 400,
               cursor: 'pointer',
               fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
             }}
           >
             {tab.icon} {tab.label}
@@ -179,7 +184,9 @@ const ProfitabilityAnalytics: React.FC = () => {
           borderRadius: '8px',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '1rem' }}>⚠️</div>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+            <AlertTriangle size={48} color="var(--warning-700)" />
+          </div>
           <p style={{ color: 'var(--warning-700)', fontSize: '16px', fontWeight: 500, marginBottom: '0.5rem' }}>
             Backend Not Available
           </p>
@@ -259,7 +266,10 @@ const ProfitabilityAnalytics: React.FC = () => {
 
             {/* Recommendations */}
             <div style={{ padding: '1.5rem', background: 'var(--info-50)', border: '1px solid var(--info-200)', borderRadius: '8px' }}>
-              <h4 style={{ marginBottom: '1rem', color: 'var(--info-700)' }}>💡 Recommendations</h4>
+              <h4 style={{ marginBottom: '1rem', color: 'var(--info-700)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Lightbulb size={18} />
+                Recommendations
+              </h4>
               <div style={{ display: 'grid', gap: '0.5rem' }}>
                 {((dashboardData as any).recommendations || []).map((rec: string, idx: number) => (
                   <div key={idx} style={{ fontSize: '14px', color: 'var(--gray-700)', paddingLeft: '1rem', position: 'relative' }}>

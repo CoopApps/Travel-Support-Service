@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircle, Smartphone } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import axios from 'axios';
 
@@ -143,7 +144,7 @@ const ReminderSettingsPage: React.FC = () => {
       if (response.data.success) {
         setMessage({
           type: 'success',
-          text: `✅ ${type === 'twilio' ? 'Twilio' : 'SendGrid'} connection successful!`
+          text: `${type === 'twilio' ? 'Twilio' : 'SendGrid'} connection successful!`
         });
       }
     } catch (error: any) {
@@ -288,10 +289,14 @@ const ReminderSettingsPage: React.FC = () => {
                   color: activeTab === 'sms' ? '#3b82f6' : '#6b7280',
                   fontWeight: activeTab === 'sms' ? 600 : 400,
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
                 }}
               >
-                📱 SMS Configuration
+                <Smartphone size={16} />
+                SMS Configuration
               </button>
               <button
                 onClick={() => setActiveTab('email')}
