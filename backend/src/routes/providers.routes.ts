@@ -677,4 +677,144 @@ router.get(
   })
 );
 
+/**
+ * POST /api/tenants/:tenantId/providers/:providerName/invoice
+ * Generate and save provider invoice with database record
+ */
+router.post(
+  '/tenants/:tenantId/providers/:providerName/invoice',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, providerName } = req.params;
+    const { weekStart, weekEnd, period } = req.body;
+    const userId = (req as any).userId;
+
+    // Get customers for this provider
+    const customersResult = await query(`
+      SELECT
+        customer_id,
+        name,
+        address,
+        phone,
+        paying_org,
+        has_split_payment,
+        provider_split,
+        schedule
+      FROM tenant_customers
+      WHERE tenant_id = $1 AND is_active = true
+        AND (paying_org = $2 OR (has_split_payment = true AND provider_split::text LIKE '%' || $2 || '%'))
+      ORDER BY name ASC
+    `, [tenantId, providerName]);
+
+    let totalAmount = 0;
+    const lineItems: any[] = [];
+    let lineNumber = 1;
+
+    customersResult.forEach((customer: any) => {
+      const schedule = typeof customer.schedule === 'string' ?
+        JSON.parse(customer.schedule || '{}') : (customer.schedule || {});
+      const providerSplit = typeof customer.provider_split === 'string' ?
+        JSON.parse(customer.provider_split || '{}') : (customer.provider_split || {});
+
+      let customerWeeklyAmount = 0;
+      let customerRouteCount = 0;
+
+      Object.values(schedule).forEach((day: any) => {
+        if (day && day.destination) {
+          const dailyPrice = day.daily_price || day.dailyPrice || day.price || 0;
+          customerWeeklyAmount += parseFloat(dailyPrice);
+          customerRouteCount++;
+        }
+      });
+
+      // Adjust for split payment
+      if (customer.has_split_payment && providerSplit[providerName]) {
+        const percentage = providerSplit[providerName].percentage || 0;
+        customerWeeklyAmount = (customerWeeklyAmount * percentage) / 100;
+      }
+
+      if (customerWeeklyAmount > 0) {
+        lineItems.push({
+          lineNumber: lineNumber++,
+          description: `${customer.name} - ${customerRouteCount} routes/week`,
+          quantity: 1,
+          unitPrice: customerWeeklyAmount,
+          lineTotal: customerWeeklyAmount,
+          providerName: providerName
+        });
+
+        totalAmount += customerWeeklyAmount;
+      }
+    });
+
+    // Generate invoice number
+    const invoiceNumber = `PRV-${tenantId}-${Date.now()}`;
+    const invoiceDate = new Date();
+    const dueDate = new Date(invoiceDate);
+    dueDate.setDate(dueDate.getDate() + 30);
+
+    const periodStart = weekStart || invoiceDate.toISOString().split('T')[0];
+    const periodEnd = weekEnd || invoiceDate.toISOString().split('T')[0];
+
+    // Create invoice record
+    const invoiceResult = await query(`
+      INSERT INTO tenant_invoices (
+        tenant_id, invoice_number, customer_name, paying_org,
+        invoice_date, due_date, period_start, period_end,
+        subtotal, tax_amount, total_amount, invoice_status,
+        invoice_type, notes, payment_terms_days, created_by
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+      ) RETURNING invoice_id
+    `, [
+      tenantId,
+      invoiceNumber,
+      providerName,
+      providerName,
+      invoiceDate,
+      dueDate,
+      periodStart,
+      periodEnd,
+      totalAmount,
+      0,
+      totalAmount,
+      'sent',
+      'provider',
+      period || 'Weekly service',
+      30,
+      userId
+    ]);
+
+    const invoiceId = invoiceResult[0].invoice_id;
+
+    // Create line items
+    for (const item of lineItems) {
+      await query(`
+        INSERT INTO tenant_invoice_line_items (
+          tenant_id, invoice_id, line_number, description,
+          quantity, unit_price, line_total, provider_name
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [
+        tenantId,
+        invoiceId,
+        item.lineNumber,
+        item.description,
+        item.quantity,
+        item.unitPrice,
+        item.lineTotal,
+        item.providerName
+      ]);
+    }
+
+    res.json({
+      success: true,
+      invoiceId,
+      invoiceNumber,
+      totalAmount,
+      lineItemCount: lineItems.length,
+      message: 'Provider invoice created successfully'
+    });
+  })
+);
+
 export default router;

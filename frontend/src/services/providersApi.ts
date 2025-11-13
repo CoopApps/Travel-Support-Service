@@ -95,6 +95,32 @@ export const getProviderInvoice = async (
   return response.data;
 };
 
+/**
+ * Create provider invoice record in database
+ */
+export const createProviderInvoice = async (
+  tenantId: number,
+  providerName: string,
+  data: {
+    weekStart?: string;
+    weekEnd?: string;
+    period?: string;
+  }
+): Promise<{
+  success: boolean;
+  invoiceId: number;
+  invoiceNumber: string;
+  totalAmount: number;
+  lineItemCount: number;
+  message: string;
+}> => {
+  const response = await apiClient.post(
+    `/tenants/${tenantId}/providers/${encodeURIComponent(providerName)}/invoice`,
+    data
+  );
+  return response.data;
+};
+
 const providersApi = {
   getProviderStats,
   getProviderDirectory,
@@ -102,7 +128,8 @@ const providersApi = {
   updateProvider,
   deleteProvider,
   getProviderDetails,
-  getProviderInvoice
+  getProviderInvoice,
+  createProviderInvoice
 };
 
 export default providersApi;

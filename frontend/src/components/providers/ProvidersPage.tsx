@@ -66,6 +66,14 @@ function ProvidersPage() {
     if (!tenantId) return;
 
     try {
+      // Create invoice record in database
+      const createResult = await providersApi.createProviderInvoice(tenantId, providerName, {
+        period: 'Current Week'
+      });
+
+      toast.success(`Invoice ${createResult.invoiceNumber} created successfully`);
+
+      // Get invoice data for display
       const invoiceData = await providersApi.getProviderInvoice(tenantId, providerName);
 
       // Open invoice in new window
