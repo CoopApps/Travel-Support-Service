@@ -132,6 +132,57 @@ CREATE TRIGGER trigger_calculate_timesheet_totals
   EXECUTE FUNCTION calculate_timesheet_totals();
 
 -- ============================================================================
+-- View for pending timesheet approvals
+-- ============================================================================
+
+CREATE OR REPLACE VIEW view_pending_timesheet_approvals AS
+SELECT
+  t.id,
+  t.tenant_id,
+  t.driver_id,
+  t.week_starting,
+  t.week_ending,
+  t.regular_hours,
+  t.overtime_hours,
+  t.total_hours,
+  t.regular_pay,
+  t.overtime_pay,
+  t.total_pay,
+  t.monday_hours,
+  t.tuesday_hours,
+  t.wednesday_hours,
+  t.thursday_hours,
+  t.friday_hours,
+  t.saturday_hours,
+  t.sunday_hours,
+  t.status,
+  t.submitted_at,
+  t.approved_at,
+  t.approved_by,
+  t.rejected_at,
+  t.rejected_by,
+  t.rejection_reason,
+  t.payroll_period_id,
+  t.paid_at,
+  t.notes,
+  t.driver_notes,
+  t.created_at,
+  t.updated_at,
+  d.name as driver_name,
+  d.email as driver_email,
+  d.employment_type,
+  approver.full_name as approved_by_name,
+  rejecter.full_name as rejected_by_name
+FROM tenant_timesheets t
+JOIN tenant_drivers d ON t.driver_id = d.driver_id AND t.tenant_id = d.tenant_id
+LEFT JOIN tenant_users approver ON t.approved_by = approver.user_id
+LEFT JOIN tenant_users rejecter ON t.rejected_by = rejecter.user_id
+WHERE t.status = 'submitted'
+ORDER BY t.submitted_at ASC;
+
+COMMENT ON VIEW view_pending_timesheet_approvals IS 'View of timesheets awaiting approval with driver information';
+
+-- ============================================================================
 -- Grant permissions
 -- ============================================================================
 
