@@ -209,25 +209,25 @@ const ProfitabilityAnalytics: React.FC = () => {
             <div style={{ padding: '1.5rem', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px' }}>
               <div style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '0.5rem' }}>Total Revenue</div>
               <div style={{ fontSize: '28px', fontWeight: 600, color: 'var(--gray-900)' }}>
-                £{dashboardData.period_summary.total_revenue.toLocaleString()}
+                £{((dashboardData as any).overview?.totalRevenue || (dashboardData as any).period_summary?.total_revenue || 0).toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '1.5rem', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px' }}>
               <div style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '0.5rem' }}>Total Costs</div>
               <div style={{ fontSize: '28px', fontWeight: 600, color: 'var(--danger)' }}>
-                £{dashboardData.period_summary.total_costs.toLocaleString()}
+                £{((dashboardData as any).overview?.totalCosts || (dashboardData as any).period_summary?.total_costs || 0).toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '1.5rem', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px' }}>
               <div style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '0.5rem' }}>Net Profit</div>
-              <div style={{ fontSize: '28px', fontWeight: 600, color: getProfitColor(dashboardData.period_summary.profit_margin_percent) }}>
-                £{dashboardData.period_summary.net_profit.toLocaleString()}
+              <div style={{ fontSize: '28px', fontWeight: 600, color: getProfitColor((dashboardData as any).overview?.profitMargin || (dashboardData as any).period_summary?.profit_margin_percent || 0) }}>
+                £{((dashboardData as any).overview?.netProfit || (dashboardData as any).period_summary?.net_profit || 0).toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '1.5rem', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px' }}>
               <div style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '0.5rem' }}>Profit Margin</div>
-              <div style={{ fontSize: '28px', fontWeight: 600, color: getProfitColor(dashboardData.period_summary.profit_margin_percent) }}>
-                {dashboardData.period_summary.profit_margin_percent.toFixed(1)}%
+              <div style={{ fontSize: '28px', fontWeight: 600, color: getProfitColor((dashboardData as any).overview?.profitMargin || (dashboardData as any).period_summary?.profit_margin_percent || 0) }}>
+                {((dashboardData as any).overview?.profitMargin || (dashboardData as any).period_summary?.profit_margin_percent || 0).toFixed(1)}%
               </div>
             </div>
           </div>
@@ -240,19 +240,19 @@ const ProfitabilityAnalytics: React.FC = () => {
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--gray-700)' }}>Fuel Costs</span>
-                  <span style={{ fontWeight: 600 }}>£{dashboardData.cost_breakdown.fuel_costs.toLocaleString()}</span>
+                  <span style={{ fontWeight: 600 }}>£{(((dashboardData as any).costBreakdown?.fuel || (dashboardData as any).cost_breakdown?.fuel_costs || 0)).toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--gray-700)' }}>Driver Costs</span>
-                  <span style={{ fontWeight: 600 }}>£{dashboardData.cost_breakdown.driver_costs.toLocaleString()}</span>
+                  <span style={{ color: 'var(--gray-700)' }}>Driver Costs (Wages)</span>
+                  <span style={{ fontWeight: 600 }}>£{(((dashboardData as any).costBreakdown?.wages || (dashboardData as any).cost_breakdown?.driver_costs || 0)).toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--gray-700)' }}>Vehicle Costs</span>
-                  <span style={{ fontWeight: 600 }}>£{dashboardData.cost_breakdown.vehicle_costs.toLocaleString()}</span>
+                  <span style={{ fontWeight: 600 }}>£{((((dashboardData as any).costBreakdown?.vehicleLease || 0) + ((dashboardData as any).costBreakdown?.vehicleInsurance || 0)) || (dashboardData as any).cost_breakdown?.vehicle_costs || 0).toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--gray-700)' }}>Other Costs</span>
-                  <span style={{ fontWeight: 600 }}>£{dashboardData.cost_breakdown.other_costs.toLocaleString()}</span>
+                  <span style={{ color: 'var(--gray-700)' }}>Maintenance & Incidents</span>
+                  <span style={{ fontWeight: 600 }}>£{((((dashboardData as any).costBreakdown?.maintenance || 0) + ((dashboardData as any).costBreakdown?.incidents || 0)) || (dashboardData as any).cost_breakdown?.other_costs || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -261,7 +261,7 @@ const ProfitabilityAnalytics: React.FC = () => {
             <div style={{ padding: '1.5rem', background: 'var(--info-50)', border: '1px solid var(--info-200)', borderRadius: '8px' }}>
               <h4 style={{ marginBottom: '1rem', color: 'var(--info-700)' }}>💡 Recommendations</h4>
               <div style={{ display: 'grid', gap: '0.5rem' }}>
-                {dashboardData.recommendations.map((rec, idx) => (
+                {((dashboardData as any).recommendations || []).map((rec: string, idx: number) => (
                   <div key={idx} style={{ fontSize: '14px', color: 'var(--gray-700)', paddingLeft: '1rem', position: 'relative' }}>
                     <span style={{ position: 'absolute', left: 0 }}>•</span>
                     {rec}
