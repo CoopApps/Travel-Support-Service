@@ -1,0 +1,82 @@
+/**
+ * Safeguarding Component Styles
+ */
+
+/* ============================================================================
+   STATS CARDS
+   ============================================================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 95px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.1;
+  color: inherit;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin: 6px 0 0 0;
+  color: inherit;
+}
+
+.stat-subtitle {
+  font-size: 10px;
+  opacity: 0.75;
+  margin: 4px 0 0 0;
+  line-height: 1.3;
+  color: inherit;
+}
+
+/* Theme Colors for Safeguarding */
+.stat-card-gray {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.stat-card-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.stat-card-orange {
+  background: #fed7aa;
+  color: #ea580c;
+}
+
+.stat-card-yellow {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.stat-card-green {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.stat-card-blue {
+  background: #dbeafe;
+  color: #3b82f6;
+}

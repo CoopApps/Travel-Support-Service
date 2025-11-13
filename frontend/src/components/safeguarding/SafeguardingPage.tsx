@@ -3,6 +3,8 @@ import { safeguardingApi } from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { SafeguardingReport, ReportStatus, SeverityLevel } from '../../types';
 import ReportDetailModal from './ReportDetailModal';
+import SafeguardingStatsCards from './SafeguardingStatsCards';
+import './Safeguarding.css';
 
 /**
  * Safeguarding Reports Management Page
@@ -290,28 +292,7 @@ function SafeguardingPage() {
       )}
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: 'var(--gray-600)', marginBottom: '4px' }}>Total Reports</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--gray-900)' }}>{stats.total}</div>
-        </div>
-        <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: '#991b1b', marginBottom: '4px' }}>Critical (Open)</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: '#dc2626' }}>{stats.critical}</div>
-        </div>
-        <div style={{ background: '#fed7aa', border: '1px solid #fdba74', borderRadius: '8px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: '#9a3412', marginBottom: '4px' }}>High Priority (Open)</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: '#ea580c' }}>{stats.high}</div>
-        </div>
-        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '4px' }}>Pending Review</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: '#f59e0b' }}>{stats.pending}</div>
-        </div>
-        <div style={{ background: '#d1fae5', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: '#065f46', marginBottom: '4px' }}>Resolved</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: '#22c55e' }}>{stats.resolved}</div>
-        </div>
-      </div>
+      <SafeguardingStatsCards stats={stats} />
 
       {/* Filters */}
       <div style={{
