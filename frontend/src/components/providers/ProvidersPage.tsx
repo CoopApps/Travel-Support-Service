@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
 import providersApi from '../../services/providersApi';
 import ProviderStats from './ProviderStats';
 import ProvidersTable from './ProvidersTable';
@@ -15,6 +16,7 @@ import './Providers.css';
  */
 function ProvidersPage() {
   const { tenantId, tenant } = useTenant();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [statsData, setStatsData] = useState<ProvidersStatsResponse | null>(null);
   const [directory, setDirectory] = useState<Provider[]>([]);
@@ -69,7 +71,7 @@ function ProvidersPage() {
       // Open invoice in new window
       const invoiceWindow = window.open('', '_blank', 'width=800,height=600');
       if (!invoiceWindow) {
-        alert('Please allow popups to generate invoices');
+        toast.warning('Please allow popups to generate invoices');
         return;
       }
 
@@ -149,7 +151,7 @@ function ProvidersPage() {
       setTimeout(() => invoiceWindow.print(), 500);
     } catch (error) {
       console.error('Error generating invoice:', error);
-      alert('Failed to generate invoice');
+      toast.error('Failed to generate invoice');
     }
   };
 
@@ -309,9 +311,10 @@ function ProvidersPage() {
                             try {
                               await providersApi.deleteProvider(tenantId, provider.provider_id);
                               loadData();
+                              toast.success('Provider deleted successfully');
                             } catch (error) {
                               console.error('Error deleting provider:', error);
-                              alert('Failed to delete provider');
+                              toast.error('Failed to delete provider');
                             }
                           }}
                           title="Delete provider"

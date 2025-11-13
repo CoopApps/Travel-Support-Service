@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
 import { payrollApi } from '../../services/api';
 import Modal from '../common/Modal';
 import './Payroll.css';
@@ -109,6 +110,7 @@ interface PeriodSummary {
 
 const PayrollPage: React.FC = () => {
   const { tenantId } = useTenant();
+  const toast = useToast();
 
   // Stats state
   const [stats, setStats] = useState<PayrollStats | null>(null);
@@ -198,8 +200,9 @@ const PayrollPage: React.FC = () => {
       await payrollApi.createPeriod(tenantId!, data);
       await loadPeriods();
       setShowCreatePeriodModal(false);
+      toast.success('Payroll period created successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create period');
+      toast.error(err.response?.data?.error || 'Failed to create period');
     }
   };
 
@@ -219,8 +222,9 @@ const PayrollPage: React.FC = () => {
       if (selectedPeriod?.period_id === periodId) {
         setSelectedPeriod(null);
       }
+      toast.success('Payroll period deleted successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to delete period');
+      toast.error(err.response?.data?.error || 'Failed to delete period');
     }
   };
 
@@ -232,9 +236,9 @@ const PayrollPage: React.FC = () => {
     try {
       await payrollApi.generateRecords(tenantId!, periodId);
       await loadPeriodDetails(periodId);
-      alert('Payroll records generated successfully');
+      toast.success('Payroll records generated successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to generate payroll');
+      toast.error(err.response?.data?.error || 'Failed to generate payroll');
     }
   };
 
@@ -251,8 +255,9 @@ const PayrollPage: React.FC = () => {
       await loadPeriodDetails(selectedPeriod!.period_id);
       setShowEditRecordModal(false);
       setEditingRecord(null);
+      toast.success('Payroll record updated successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to update record');
+      toast.error(err.response?.data?.error || 'Failed to update record');
     }
   };
 
@@ -263,8 +268,9 @@ const PayrollPage: React.FC = () => {
         payment_date: new Date().toISOString().split('T')[0]
       });
       await loadPeriodDetails(selectedPeriod!.period_id);
+      toast.success('Payment recorded successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to mark as paid');
+      toast.error(err.response?.data?.error || 'Failed to mark as paid');
     }
   };
 
@@ -285,7 +291,17 @@ const PayrollPage: React.FC = () => {
       r.payment_status
     ]);
 
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    // Properly escape CSV values to prevent injection and handle special characters
+    const escapeCsvValue = (val: any): string => {
+      const str = String(val ?? '');
+      // If value contains comma, quote, newline, or starts with special chars, wrap in quotes and escape quotes
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || /^[=+\-@]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csv = [headers, ...rows].map(row => row.map(escapeCsvValue).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

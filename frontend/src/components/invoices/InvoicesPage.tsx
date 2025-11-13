@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
 import { invoiceApi } from '../../services/api';
 import type { InvoiceListItem, InvoiceStats, InvoiceFilters, InvoiceStatus } from '../../types/invoice.types';
 import { InvoiceFiltersBar } from './InvoiceFiltersBar';
@@ -20,6 +21,7 @@ import './Invoices.css';
 export const InvoicesPage: React.FC = () => {
   const { user } = useAuthStore();
   const { tenant } = useTenant();
+  const toast = useToast();
   const tenantId = user?.tenantId;
 
   // State
@@ -133,8 +135,9 @@ export const InvoicesPage: React.FC = () => {
       await invoiceApi.updateStatus(tenantId, invoiceId, newStatus);
       await fetchInvoices();
       await fetchStats();
+      toast.success('Invoice status updated successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to update invoice status');
+      toast.error(err.response?.data?.error || 'Failed to update invoice status');
     }
   };
 
@@ -165,8 +168,9 @@ export const InvoicesPage: React.FC = () => {
       await invoiceApi.archiveInvoice(tenantId, invoiceId);
       await fetchInvoices();
       await fetchStats();
+      toast.success('Invoice archived successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to archive invoice');
+      toast.error(err.response?.data?.error || 'Failed to archive invoice');
     }
   };
 
@@ -180,8 +184,9 @@ export const InvoicesPage: React.FC = () => {
       await invoiceApi.unarchiveInvoice(tenantId, invoiceId);
       await fetchInvoices();
       await fetchStats();
+      toast.success('Invoice unarchived successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to unarchive invoice');
+      toast.error(err.response?.data?.error || 'Failed to unarchive invoice');
     }
   };
 
@@ -196,8 +201,9 @@ export const InvoicesPage: React.FC = () => {
       await invoiceApi.deleteInvoice(tenantId, invoiceId);
       await fetchInvoices();
       await fetchStats();
+      toast.success('Invoice deleted successfully');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to delete invoice');
+      toast.error(err.response?.data?.error || 'Failed to delete invoice');
     }
   };
 
