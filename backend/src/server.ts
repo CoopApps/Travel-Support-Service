@@ -100,13 +100,15 @@ const app: Application = express();
 const PORT = parseInt(process.env.PORT || '3001', 10); // Use 3001 to avoid conflict with old system
 
 // Initialize Sentry error tracking
-initializeSentry(app);
+const isSentryEnabled = initializeSentry(app);
 
 // Trust Railway proxy for X-Forwarded-* headers
 app.set('trust proxy', true);
 
-// Sentry request handler MUST be the first middleware
-app.use(Sentry.Handlers.requestHandler());
+// Sentry request handler MUST be the first middleware (only if enabled)
+if (isSentryEnabled) {
+  app.use(Sentry.Handlers.requestHandler());
+}
 
 // Enhanced security headers with Helmet
 app.use(helmet({
@@ -287,8 +289,10 @@ app.get('*', (_req, res) => {
 // Error handling
 app.use(notFoundHandler);
 
-// Sentry error handler MUST be before custom error handler
-app.use(Sentry.Handlers.errorHandler());
+// Sentry error handler MUST be before custom error handler (only if enabled)
+if (isSentryEnabled) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 
 app.use(errorHandler);
 

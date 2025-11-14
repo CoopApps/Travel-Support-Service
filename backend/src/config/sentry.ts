@@ -18,7 +18,7 @@ import { Application } from 'express';
  * - Request data
  */
 
-export function initializeSentry(app: Application) {
+export function initializeSentry(app: Application): boolean {
   const dsn = process.env.SENTRY_DSN;
   const environment = process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development';
 
@@ -26,7 +26,7 @@ export function initializeSentry(app: Application) {
   if (!dsn) {
     console.warn('⚠️  Sentry DSN not configured. Error tracking disabled.');
     console.warn('   Set SENTRY_DSN in .env to enable error monitoring.');
-    return;
+    return false;
   }
 
   Sentry.init({
@@ -78,6 +78,7 @@ export function initializeSentry(app: Application) {
   });
 
   console.log(`✅ Sentry initialized (${environment})`);
+  return true;
 }
 
 /**
