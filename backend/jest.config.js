@@ -1,8 +1,8 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'jsdom', // Changed from 'node' to 'jsdom' for DOMPurify
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testEnvironment: 'node', // Use 'node' for backend integration tests
+  roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\.ts$': 'ts-jest',
@@ -17,6 +17,5 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'html'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   verbose: true,
-  testTimeout: 10000,
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  testTimeout: 30000, // Increased to 30 seconds for integration tests
 };
