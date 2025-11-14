@@ -1,49 +1,82 @@
+/**
+ * Run Section 19/22 Compliance Migration on Railway
+ *
+ * This script connects to the Railway PostgreSQL database and runs
+ * the compliance migration.
+ *
+ * Usage:
+ *   node run-railway-migration.js
+ *
+ * Make sure DATABASE_URL is set in your environment or .env file
+ */
+
+const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
+require('dotenv').config();
 
 async function runMigration() {
-  const migrationFile = process.argv[2] || 'add-customer-archive-fields.sql';
-  const migrationPath = path.join(__dirname, 'migrations', migrationFile);
+  // Use DATABASE_URL from environment (Railway provides this)
+  const connectionString = process.env.DATABASE_URL;
 
-  if (!fs.existsSync(migrationPath)) {
-    console.error(`Migration file not found: ${migrationPath}`);
+  if (!connectionString) {
+    console.error('❌ DATABASE_URL environment variable not set');
+    console.error('   Set it in your .env file or run with: DATABASE_URL=your_url node run-railway-migration.js');
     process.exit(1);
   }
 
-  const sql = fs.readFileSync(migrationPath, 'utf8');
+  console.log('🔗 Connecting to Railway database...');
 
   const pool = new Pool({
-    connectionString: 'postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway',
+    connectionString,
     ssl: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false // Railway requires SSL
     }
   });
 
   try {
-    console.log(`Running migration: ${migrationFile}`);
-    console.log(`Database: Railway Production`);
-    console.log('---');
+    const client = await pool.connect();
+    console.log('✅ Connected to database');
 
-    const result = await pool.query(sql);
+    // Read the migration file
+    const migrationPath = path.join(__dirname, 'migrations', 'add-section-19-22-compliance.sql');
+    console.log(`📄 Reading migration file: ${migrationPath}`);
 
-    console.log('✅ Migration completed successfully!');
-    console.log('---');
-
-    // If there's a verification query at the end, the last result will show it
-    if (result.rows && result.rows.length > 0) {
-      console.log('Verification results:');
-      console.table(result.rows);
+    if (!fs.existsSync(migrationPath)) {
+      throw new Error(`Migration file not found: ${migrationPath}`);
     }
 
+    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    console.log('📝 Migration file loaded');
+
+    // Execute the migration
+    console.log('🚀 Running migration...');
+    console.log('   This may take a minute...');
+
+    await client.query(migrationSQL);
+
+    console.log('✅ Migration completed successfully!');
+    console.log('');
+    console.log('Summary of changes:');
+    console.log('  - Enhanced tenant_organizational_permits (13 new columns)');
+    console.log('  - Enhanced tenants table (3 new columns)');
+    console.log('  - Enhanced tenant_drivers (18 new columns)');
+    console.log('  - Enhanced tenant_vehicles (14 new columns)');
+    console.log('  - Created local_bus_service_registrations table');
+    console.log('  - Created tenant_financial_surplus table');
+    console.log('  - Created section19_passenger_class_definitions table');
+    console.log('  - Created permit_compliance_alerts table');
+    console.log('  - Created 6 standard passenger class definitions');
+    console.log('  - Created 8 Traffic Commissioner area definitions');
+
+    client.release();
   } catch (error) {
-    console.error('❌ Migration failed:');
-    console.error(error.message);
-    console.error(error.stack);
+    console.error('❌ Migration failed:', error.message);
+    console.error('');
+    console.error('Error details:', error);
     process.exit(1);
   } finally {
     await pool.end();
-    console.log('\n✅ Database connection closed');
   }
 }
 
