@@ -111,17 +111,22 @@ function PermitsPage() {
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', padding: '60px 20px', background: '#f8f9fa', borderRadius: '8px' }}>
-          <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-            <h3 style={{ color: '#495057', marginBottom: '15px' }}>No Drivers Found</h3>
-            <p style={{ color: '#6c757d', marginBottom: '25px', lineHeight: '1.5' }}>
-              Add drivers first to manage their permits and compliance status.
-              Permits include DBS checks, Section 19/22 authorizations, and MOT certificates.
-            </p>
-            <button className="btn btn-primary btn-lg" onClick={() => window.location.href = '/drivers'}>
-              Manage Drivers First
-            </button>
+        <div className="empty-state">
+          <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%', color: 'var(--gray-400)' }}>
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <path d="M20 8v6M23 11h-6"></path>
+            </svg>
           </div>
+          <h3 style={{ color: 'var(--gray-700)', marginBottom: '0.5rem' }}>No Drivers Found</h3>
+          <p style={{ color: 'var(--gray-600)', marginBottom: '1.5rem' }}>
+            Add drivers first to manage their permits and compliance status.<br />
+            Permits include DBS checks, Section 19/22 authorizations, and MOT certificates.
+          </p>
+          <button className="btn btn-primary" onClick={() => window.location.href = '/drivers'}>
+            Manage Drivers First
+          </button>
         </div>
       </div>
     );
