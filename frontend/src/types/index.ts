@@ -99,6 +99,7 @@ export interface CustomerListQuery {
   search?: string;
   paying_org?: string;
   is_login_enabled?: boolean;
+  archived?: boolean;
   sortBy?: 'name' | 'created_at' | 'updated_at';
   sortOrder?: 'asc' | 'desc';
 }

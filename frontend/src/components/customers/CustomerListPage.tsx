@@ -91,7 +91,7 @@ function CustomerListPage() {
         search,
         sortBy: 'name',
         sortOrder: 'asc',
-        is_active: activeTab === 'active', // Backend filtering instead of client-side
+        archived: activeTab === 'archive', // Backend filtering: true for archive, false/undefined for active
       };
 
       const response = await customerApi.getCustomers(tenantId, query);
@@ -248,7 +248,7 @@ function CustomerListPage() {
     try {
       const response = await customerApi.exportCustomers(tenantId, {
         search,
-        is_active: activeTab === 'active',
+        archived: activeTab === 'archive',
       });
 
       // Create blob and download
