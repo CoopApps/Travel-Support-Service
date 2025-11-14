@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { customerApi } from '../../services/api';
 import { Customer, CustomerListQuery } from '../../types';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
 import CustomerFormModal from './CustomerFormModal';
 import CustomerStats from './CustomerStats';
 import LoginStatusDisplay from './LoginStatusDisplay';
@@ -26,6 +27,7 @@ import AssessmentModal from './AssessmentModal';
 
 function CustomerListPage() {
   const { tenantId, tenant } = useTenant();
+  const toast = useToast();
 
   // Safety check: should never happen if tenant context loaded
   if (!tenantId) {
@@ -89,21 +91,18 @@ function CustomerListPage() {
         search,
         sortBy: 'name',
         sortOrder: 'asc',
+        is_active: activeTab === 'active', // Backend filtering instead of client-side
       };
 
       const response = await customerApi.getCustomers(tenantId, query);
 
-      // Filter by active/archive tab
-      const filteredCustomers = response.customers.filter(customer =>
-        activeTab === 'active' ? customer.is_active : !customer.is_active
-      );
-
-      setCustomers(filteredCustomers);
-      setTotal(filteredCustomers.length);
-      setTotalPages(Math.ceil(filteredCustomers.length / limit));
+      setCustomers(response.customers);
+      setTotal(response.total);
+      setTotalPages(response.totalPages);
     } catch (err: any) {
       console.error('Error fetching customers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load customers');
+      toast.error(err.response?.data?.error?.message || 'Failed to load customers');
     } finally {
       setLoading(false);
     }
@@ -129,15 +128,16 @@ function CustomerListPage() {
    * Handle delete customer
    */
   const handleDelete = async (customer: Customer) => {
-    if (!confirm(`Are you sure you want to delete ${customer.name}?`)) {
+    if (!window.confirm(`Are you sure you want to delete ${customer.name}?`)) {
       return;
     }
 
     try {
       await customerApi.deleteCustomer(tenantId, customer.id);
+      toast.success(`${customer.name} deleted successfully`);
       fetchCustomers(); // Reload the list
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to delete customer');
+      toast.error(err.response?.data?.error?.message || 'Failed to delete customer');
     }
   };
 
@@ -155,9 +155,10 @@ function CustomerListPage() {
 
     try {
       await customerApi.updateCustomer(tenantId, customer.id, { is_active: false });
+      toast.success(`${customer.name} archived successfully`);
       fetchCustomers();
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to archive customer');
+      toast.error(err.response?.data?.error?.message || 'Failed to archive customer');
     }
   };
 
@@ -174,9 +175,10 @@ function CustomerListPage() {
 
     try {
       await customerApi.updateCustomer(tenantId, customer.id, { is_active: true });
+      toast.success(`${customer.name} reactivated successfully`);
       fetchCustomers();
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to reactivate customer');
+      toast.error(err.response?.data?.error?.message || 'Failed to reactivate customer');
     }
   };
 
@@ -240,6 +242,33 @@ function CustomerListPage() {
   };
 
   /**
+   * Handle export to CSV
+   */
+  const handleExportCSV = async () => {
+    try {
+      const response = await customerApi.exportCustomers(tenantId, {
+        search,
+        is_active: activeTab === 'active',
+      });
+
+      // Create blob and download
+      const blob = new Blob([response], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `customers-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Customer data exported successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || 'Failed to export customers');
+    }
+  };
+
+  /**
    * Calculate weekly cost for a customer
    */
   const calculateWeeklyCost = (customer: Customer): number => {
@@ -273,9 +302,26 @@ function CustomerListPage() {
             </p>
           )}
         </div>
-        <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
-          + Add Customer
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+            </svg>
+            Export CSV
+          </button>
+          <button className="btn btn-secondary" onClick={fetchCustomers}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Refresh
+          </button>
+          <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Add Customer
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

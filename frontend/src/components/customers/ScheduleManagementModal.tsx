@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Customer, WeeklySchedule, DaySchedule, Driver } from '../../types';
 import { customerApi, driverApi } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 interface ScheduleManagementModalProps {
   customer: Customer;
@@ -14,6 +15,7 @@ interface ScheduleManagementModalProps {
  * Configure outbound (morning) and return (afternoon) journeys for each day
  */
 function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManagementModalProps) {
+  const toast = useToast();
   const initialSchedule: WeeklySchedule = (customer.schedule as WeeklySchedule) || {
     monday: { enabled: false, returnDestination: 'Home' },
     tuesday: { enabled: false, returnDestination: 'Home' },
@@ -104,7 +106,7 @@ function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManage
    */
   const applyToWeekdays = () => {
     if (!expandedDay || !schedule[expandedDay]?.enabled) {
-      alert('Please select and configure a day first');
+      toast.warning('Please select and configure a day first');
       return;
     }
 
@@ -134,7 +136,7 @@ function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManage
    */
   const applyToAllDays = () => {
     if (!expandedDay || !schedule[expandedDay]?.enabled) {
-      alert('Please select and configure a day first');
+      toast.warning('Please select and configure a day first');
       return;
     }
 
@@ -162,7 +164,7 @@ function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManage
    * Clear all schedule data
    */
   const clearAll = () => {
-    if (!confirm('Are you sure you want to clear all schedule data?')) {
+    if (!window.confirm('Are you sure you want to clear all schedule data?')) {
       return;
     }
 
@@ -175,6 +177,7 @@ function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManage
       saturday: { enabled: false, returnDestination: 'Home' },
       sunday: { enabled: false, returnDestination: 'Home' },
     });
+    toast.success('Schedule cleared');
   };
 
   /**

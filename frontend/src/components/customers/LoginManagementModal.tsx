@@ -93,7 +93,7 @@ function LoginManagementModal({ customer, tenantId, onClose }: LoginManagementMo
    * Handle disable login
    */
   const handleDisableLogin = async () => {
-    if (!confirm(`Are you sure you want to disable login for ${customer.name}?`)) {
+    if (!window.confirm(`Are you sure you want to disable login for ${customer.name}?`)) {
       return;
     }
 
