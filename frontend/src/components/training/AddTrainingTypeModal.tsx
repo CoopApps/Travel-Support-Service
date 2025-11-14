@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import { CreateTrainingTypeDTO, TrainingCategory } from '../../types/training.types';
+import { useToast } from '../../context/ToastContext';
 
 interface AddTrainingTypeModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ const AddTrainingTypeModal: React.FC<AddTrainingTypeModalProps> = ({
   onClose,
   onSave
 }) => {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateTrainingTypeDTO>({
     name: '',
@@ -55,7 +57,7 @@ const AddTrainingTypeModal: React.FC<AddTrainingTypeModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Error saving training type:', error);
-      alert('Failed to create training type. Please try again.');
+      toast.error('Failed to create training type. Please try again.');
     } finally {
       setLoading(false);
     }

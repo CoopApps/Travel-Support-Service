@@ -1433,6 +1433,17 @@ export const trainingApi = {
   },
 
   /**
+   * Export training records to CSV
+   */
+  exportTrainingRecords: async (tenantId: number, query?: any): Promise<string> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/training-records/export`, {
+      params: query,
+      responseType: 'text',
+    });
+    return response.data;
+  },
+
+  /**
    * Get driver compliance data
    */
   getCompliance: async (tenantId: number, filters?: any): Promise<any> => {

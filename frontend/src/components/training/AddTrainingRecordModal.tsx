@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import { CreateTrainingRecordDTO } from '../../types/training.types';
 import { TrainingType, Driver } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 interface AddTrainingRecordModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const AddTrainingRecordModal: React.FC<AddTrainingRecordModalProps> = ({
   drivers,
   trainingTypes
 }) => {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateTrainingRecordDTO>({
     driverId: 0,
@@ -60,7 +62,7 @@ const AddTrainingRecordModal: React.FC<AddTrainingRecordModalProps> = ({
     e.preventDefault();
 
     if (!formData.driverId || !formData.trainingTypeId) {
-      alert('Please select both a driver and training type');
+      toast.error('Please select both a driver and training type');
       return;
     }
 
@@ -71,7 +73,7 @@ const AddTrainingRecordModal: React.FC<AddTrainingRecordModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Error saving training record:', error);
-      alert('Failed to create training record. Please try again.');
+      toast.error('Failed to create training record. Please try again.');
     } finally {
       setLoading(false);
     }
