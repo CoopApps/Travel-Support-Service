@@ -11,6 +11,7 @@ import { requestIdMiddleware } from '../../middleware/requestLogger';
 
 // Import routes for testing
 import authRoutes from '../../routes/auth.routes';
+import tenantRegistrationRoutes from '../../routes/tenant-registration.routes';
 import customerRoutes from '../../routes/customer.routes';
 import driverRoutes from '../../routes/driver.routes';
 import trainingRoutes from '../../routes/training-minimal.routes';
@@ -33,6 +34,7 @@ export function createTestApp(): Application {
 
   // Mount API routes
   app.use('/api', authRoutes);
+  app.use('/api', tenantRegistrationRoutes);
   app.use('/api', customerRoutes);
   app.use('/api', driverRoutes);
   app.use('/api', trainingRoutes);

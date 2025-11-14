@@ -1345,6 +1345,290 @@ export const permitsApi = {
   },
 };
 
+/**
+ * Service Registrations API (Section 22 Local Bus Services)
+ */
+export const serviceRegistrationsApi = {
+  /**
+   * Get all service registrations
+   */
+  getRegistrations: async (tenantId: number, params?: { status?: string; permitId?: number }): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/service-registrations`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get specific service registration
+   */
+  getRegistration: async (tenantId: number, registrationId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/service-registrations/${registrationId}`);
+    return response.data;
+  },
+
+  /**
+   * Create new service registration
+   */
+  createRegistration: async (tenantId: number, data: any): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/service-registrations`, data);
+    return response.data;
+  },
+
+  /**
+   * Update service registration (variation)
+   */
+  updateRegistration: async (tenantId: number, registrationId: number, data: any): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/service-registrations/${registrationId}`, data);
+    return response.data;
+  },
+
+  /**
+   * Cancel service registration
+   */
+  cancelRegistration: async (tenantId: number, registrationId: number, data: { cancellation_date?: string; reason?: string }): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/service-registrations/${registrationId}/cancel`, data);
+    return response.data;
+  },
+
+  /**
+   * Check compliance with 28-day notice requirements
+   */
+  checkCompliance: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/service-registrations/check-compliance`);
+    return response.data;
+  },
+
+  /**
+   * Delete service registration
+   */
+  deleteRegistration: async (tenantId: number, registrationId: number): Promise<any> => {
+    const response = await apiClient.delete(`/tenants/${tenantId}/service-registrations/${registrationId}`);
+    return response.data;
+  },
+};
+
+/**
+ * Financial Surplus API (Not-for-Profit Compliance)
+ */
+export const financialSurplusApi = {
+  /**
+   * Get all financial surplus records
+   */
+  getSurplusRecords: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/financial-surplus`);
+    return response.data;
+  },
+
+  /**
+   * Get specific surplus record
+   */
+  getSurplusRecord: async (tenantId: number, surplusId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/financial-surplus/${surplusId}`);
+    return response.data;
+  },
+
+  /**
+   * Get surplus by financial year
+   */
+  getSurplusByYear: async (tenantId: number, financialYear: string): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/financial-surplus/year/${financialYear}`);
+    return response.data;
+  },
+
+  /**
+   * Create new surplus record
+   */
+  createSurplus: async (tenantId: number, data: any): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/financial-surplus`, data);
+    return response.data;
+  },
+
+  /**
+   * Update surplus record
+   */
+  updateSurplus: async (tenantId: number, surplusId: number, data: any): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/financial-surplus/${surplusId}`, data);
+    return response.data;
+  },
+
+  /**
+   * Get surplus summary (multi-year analysis)
+   */
+  getSummary: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/financial-surplus/summary`);
+    return response.data;
+  },
+
+  /**
+   * Mark surplus as reviewed
+   */
+  reviewSurplus: async (tenantId: number, surplusId: number, data: { reviewed_by?: string; review_notes?: string }): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/financial-surplus/${surplusId}/review`, data);
+    return response.data;
+  },
+
+  /**
+   * Delete surplus record
+   */
+  deleteSurplus: async (tenantId: number, surplusId: number): Promise<any> => {
+    const response = await apiClient.delete(`/tenants/${tenantId}/financial-surplus/${surplusId}`);
+    return response.data;
+  },
+};
+
+/**
+ * Passenger Class API (Section 19 Passenger Eligibility)
+ */
+export const passengerClassApi = {
+  /**
+   * Get all passenger class definitions
+   */
+  getClasses: async (tenantId: number, params?: { permitId?: number; isActive?: boolean }): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/passenger-classes`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get specific passenger class
+   */
+  getClass: async (tenantId: number, classId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/passenger-classes/${classId}`);
+    return response.data;
+  },
+
+  /**
+   * Get passenger class by code (A-F)
+   */
+  getClassByCode: async (tenantId: number, classCode: string): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/passenger-classes/by-code/${classCode}`);
+    return response.data;
+  },
+
+  /**
+   * Create new passenger class definition
+   */
+  createClass: async (tenantId: number, data: any): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/passenger-classes`, data);
+    return response.data;
+  },
+
+  /**
+   * Update passenger class definition
+   */
+  updateClass: async (tenantId: number, classId: number, data: any): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/passenger-classes/${classId}`, data);
+    return response.data;
+  },
+
+  /**
+   * Deactivate passenger class
+   */
+  deactivateClass: async (tenantId: number, classId: number): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/passenger-classes/${classId}/deactivate`);
+    return response.data;
+  },
+
+  /**
+   * Reactivate passenger class
+   */
+  activateClass: async (tenantId: number, classId: number): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/passenger-classes/${classId}/activate`);
+    return response.data;
+  },
+
+  /**
+   * Get standard definitions for classes A-F
+   */
+  getStandardDefinitions: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/passenger-classes/standard-definitions`);
+    return response.data;
+  },
+
+  /**
+   * Delete passenger class
+   */
+  deleteClass: async (tenantId: number, classId: number): Promise<any> => {
+    const response = await apiClient.delete(`/tenants/${tenantId}/passenger-classes/${classId}`);
+    return response.data;
+  },
+};
+
+/**
+ * Compliance Alerts API
+ */
+export const complianceAlertsApi = {
+  /**
+   * Get all compliance alerts
+   */
+  getAlerts: async (tenantId: number, params?: { status?: string; severity?: string; alertType?: string; entityType?: string }): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/compliance-alerts`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get specific alert
+   */
+  getAlert: async (tenantId: number, alertId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/compliance-alerts/${alertId}`);
+    return response.data;
+  },
+
+  /**
+   * Get alerts summary
+   */
+  getSummary: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/compliance-alerts/summary`);
+    return response.data;
+  },
+
+  /**
+   * Create new alert
+   */
+  createAlert: async (tenantId: number, data: any): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/compliance-alerts`, data);
+    return response.data;
+  },
+
+  /**
+   * Acknowledge alert
+   */
+  acknowledgeAlert: async (tenantId: number, alertId: number, data: { acknowledged_by?: number }): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/compliance-alerts/${alertId}/acknowledge`, data);
+    return response.data;
+  },
+
+  /**
+   * Resolve alert
+   */
+  resolveAlert: async (tenantId: number, alertId: number, data: { resolved_by?: number; resolution_notes?: string }): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/compliance-alerts/${alertId}/resolve`, data);
+    return response.data;
+  },
+
+  /**
+   * Dismiss alert
+   */
+  dismissAlert: async (tenantId: number, alertId: number, data: { resolution_notes?: string }): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/compliance-alerts/${alertId}/dismiss`, data);
+    return response.data;
+  },
+
+  /**
+   * Generate alerts based on current data
+   */
+  generateAlerts: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/compliance-alerts/generate`);
+    return response.data;
+  },
+
+  /**
+   * Delete alert
+   */
+  deleteAlert: async (tenantId: number, alertId: number): Promise<any> => {
+    const response = await apiClient.delete(`/tenants/${tenantId}/compliance-alerts/${alertId}`);
+    return response.data;
+  },
+};
+
 // ============================================================================
 // TRAINING API
 // ============================================================================

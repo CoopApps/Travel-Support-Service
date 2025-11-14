@@ -409,6 +409,19 @@ router.get(
       status: string;
       created_at: Date;
       updated_at: Date;
+      permit_size_type: string;
+      permitted_passenger_classes: string[];
+      class_e_geographic_definition: string;
+      class_e_radius_miles: number;
+      class_e_center_point: string;
+      class_f_description: string;
+      issued_by_type: string;
+      issuing_body_name: string;
+      designated_body_id: string;
+      disc_number: string;
+      permit_conditions: string;
+      renewal_reminder_sent: boolean;
+      renewal_reminder_date: Date;
     }>(
       `SELECT
         permit_id as id,
@@ -420,7 +433,20 @@ router.get(
         notes,
         status,
         created_at,
-        updated_at
+        updated_at,
+        permit_size_type,
+        permitted_passenger_classes,
+        class_e_geographic_definition,
+        class_e_radius_miles,
+        class_e_center_point,
+        class_f_description,
+        issued_by_type,
+        issuing_body_name,
+        designated_body_id,
+        disc_number,
+        permit_conditions,
+        renewal_reminder_sent,
+        renewal_reminder_date
       FROM tenant_organizational_permits
       WHERE tenant_id = $1 AND status = 'active'
       ORDER BY permit_type, organisation_name`,
@@ -502,9 +528,14 @@ router.post(
       status: string;
     }>(
       `INSERT INTO tenant_organizational_permits
-      (tenant_id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes, status, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-      RETURNING permit_id as id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes, status`,
+      (tenant_id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes,
+       permit_size_type, permitted_passenger_classes, class_e_geographic_definition,
+       class_e_radius_miles, class_e_center_point, class_f_description,
+       issued_by_type, issuing_body_name, designated_body_id, disc_number, permit_conditions,
+       status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING permit_id as id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes, status,
+                permit_size_type, permitted_passenger_classes, disc_number`,
       [
         tenantId,
         permitData.permit_type,
@@ -513,6 +544,17 @@ router.post(
         permitData.issue_date || null,
         permitData.expiry_date,
         permitData.notes || null,
+        permitData.permit_size_type || 'standard',
+        permitData.permitted_passenger_classes || null,
+        permitData.class_e_geographic_definition || null,
+        permitData.class_e_radius_miles || null,
+        permitData.class_e_center_point || null,
+        permitData.class_f_description || null,
+        permitData.issued_by_type || 'traffic_commissioner',
+        permitData.issuing_body_name || null,
+        permitData.designated_body_id || null,
+        permitData.disc_number || null,
+        permitData.permit_conditions || null,
       ]
     );
 
@@ -584,9 +626,23 @@ router.put(
           issue_date = COALESCE($5, issue_date),
           expiry_date = COALESCE($6, expiry_date),
           notes = COALESCE($7, notes),
+          permit_size_type = COALESCE($8, permit_size_type),
+          permitted_passenger_classes = COALESCE($9, permitted_passenger_classes),
+          class_e_geographic_definition = COALESCE($10, class_e_geographic_definition),
+          class_e_radius_miles = COALESCE($11, class_e_radius_miles),
+          class_e_center_point = COALESCE($12, class_e_center_point),
+          class_f_description = COALESCE($13, class_f_description),
+          issued_by_type = COALESCE($14, issued_by_type),
+          issuing_body_name = COALESCE($15, issuing_body_name),
+          designated_body_id = COALESCE($16, designated_body_id),
+          disc_number = COALESCE($17, disc_number),
+          permit_conditions = COALESCE($18, permit_conditions),
+          renewal_reminder_sent = COALESCE($19, renewal_reminder_sent),
+          renewal_reminder_date = COALESCE($20, renewal_reminder_date),
           updated_at = CURRENT_TIMESTAMP
       WHERE tenant_id = $1 AND permit_id = $2
-      RETURNING permit_id as id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes, status`,
+      RETURNING permit_id as id, permit_type, organisation_name, permit_number, issue_date, expiry_date, notes, status,
+                permit_size_type, permitted_passenger_classes, disc_number`,
       [
         tenantId,
         permitId,
@@ -595,6 +651,19 @@ router.put(
         permitData.issue_date,
         permitData.expiry_date,
         permitData.notes,
+        permitData.permit_size_type,
+        permitData.permitted_passenger_classes,
+        permitData.class_e_geographic_definition,
+        permitData.class_e_radius_miles,
+        permitData.class_e_center_point,
+        permitData.class_f_description,
+        permitData.issued_by_type,
+        permitData.issuing_body_name,
+        permitData.designated_body_id,
+        permitData.disc_number,
+        permitData.permit_conditions,
+        permitData.renewal_reminder_sent,
+        permitData.renewal_reminder_date,
       ]
     );
 

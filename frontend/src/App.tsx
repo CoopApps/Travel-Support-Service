@@ -30,6 +30,10 @@ import PlatformAdminLogin from './components/platform-admin/PlatformAdminLogin';
 import TenantListPage from './components/platform-admin/TenantListPage';
 import DriverDashboard from './pages/DriverDashboard';
 import CustomerDashboard from './pages/CustomerDashboard';
+import ComplianceAlertsPage from './components/compliance/ComplianceAlertsPage';
+import ServiceRegistrationsPage from './components/compliance/ServiceRegistrationsPage';
+import FinancialSurplusPage from './components/compliance/FinancialSurplusPage';
+import PassengerClassPage from './components/compliance/PassengerClassPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -161,6 +165,12 @@ function App() {
         <Route path="training" element={<TrainingPage />} />
         <Route path="safeguarding" element={<SafeguardingPage />} />
         <Route path="documents" element={<DocumentsPage />} />
+
+        {/* Compliance Routes */}
+        <Route path="compliance/alerts" element={<ComplianceAlertsPage />} />
+        <Route path="compliance/service-registrations" element={<ServiceRegistrationsPage />} />
+        <Route path="compliance/financial-surplus" element={<FinancialSurplusPage />} />
+        <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
         <Route path="driver-messages" element={<DriverMessagesPage />} />
         <Route path="customer-messages" element={<CustomerMessagesPage />} />
         <Route path="feedback" element={<FeedbackPage />} />

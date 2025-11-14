@@ -392,6 +392,286 @@ export async function sendInvoiceEmail(
 }
 
 /**
+ * Send password reset email
+ */
+export async function sendPasswordResetEmail(
+  recipientEmail: string,
+  recipientName: string,
+  resetUrl: string,
+  tenantId: number
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get tenant info
+    const tenants = await query<{
+      company_name: string;
+      email: string;
+    }>(`
+      SELECT company_name, email
+      FROM tenants
+      WHERE tenant_id = $1
+    `, [tenantId]);
+
+    const tenant = tenants[0] || {
+      company_name: 'Travel Support',
+      email: process.env.SMTP_USER || 'noreply@travelsupport.com'
+    };
+
+    // Create transporter
+    const transporter = createTransporter();
+    if (!transporter) {
+      logger.warn('Password reset email not sent - SMTP not configured', {
+        recipientEmail,
+        tenantId
+      });
+      return {
+        success: false,
+        error: 'SMTP not configured'
+      };
+    }
+
+    // Generate email content
+    const subject = `Password Reset Request - ${tenant.company_name}`;
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; padding: 15px 30px; background: #1976D2; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔒 Password Reset</h1>
+  </div>
+  <div class="content">
+    <p>Hello ${recipientName},</p>
+    <p>We received a request to reset your password for your ${tenant.company_name} account.</p>
+    <p style="text-align: center;">
+      <a href="${resetUrl}" class="button">Reset Your Password</a>
+    </p>
+    <p style="font-size: 12px; color: #666;">
+      Or copy and paste this link into your browser:<br>
+      <a href="${resetUrl}">${resetUrl}</a>
+    </p>
+    <div class="warning">
+      <strong>⚠️ Important:</strong>
+      <ul style="margin: 10px 0 0 0;">
+        <li>This link will expire in <strong>1 hour</strong></li>
+        <li>If you didn't request this, please ignore this email</li>
+        <li>Your password won't change until you create a new one</li>
+      </ul>
+    </div>
+    <p style="margin-top: 30px; color: #666; font-size: 14px;">
+      Need help? Contact your system administrator.
+    </p>
+  </div>
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} ${tenant.company_name}</p>
+    <p>This is an automated email. Please do not reply.</p>
+  </div>
+</body>
+</html>
+    `;
+
+    const text = `
+Password Reset Request
+
+Hello ${recipientName},
+
+We received a request to reset your password for your ${tenant.company_name} account.
+
+Click the link below to reset your password:
+${resetUrl}
+
+Important:
+- This link will expire in 1 hour
+- If you didn't request this, please ignore this email
+- Your password won't change until you create a new one
+
+© ${new Date().getFullYear()} ${tenant.company_name}
+    `;
+
+    // Send email
+    const info = await transporter.sendMail({
+      from: `${tenant.company_name} <${tenant.email}>`,
+      to: recipientEmail,
+      subject,
+      text,
+      html
+    });
+
+    logger.info('Password reset email sent successfully', {
+      recipientEmail,
+      tenantId,
+      messageId: info.messageId
+    });
+
+    return {
+      success: true
+    };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    logger.error('Failed to send password reset email', {
+      recipientEmail,
+      tenantId,
+      error: errorMessage
+    });
+
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}
+
+/**
+ * Send welcome email to new tenant admin
+ */
+export async function sendWelcomeEmail(
+  recipientEmail: string,
+  recipientName: string,
+  companyName: string,
+  tenantId: number,
+  subdomain: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Create transporter
+    const transporter = createTransporter();
+    if (!transporter) {
+      logger.warn('Welcome email not sent - SMTP not configured', {
+        recipientEmail,
+        tenantId
+      });
+      return {
+        success: false,
+        error: 'SMTP not configured'
+      };
+    }
+
+    const loginUrl = `https://${subdomain}.travelapp.co.uk`;
+
+    // Generate email content
+    const subject = `Welcome to ${companyName} - Your Account is Ready!`;
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white; padding: 40px; border-radius: 8px 8px 0 0; text-align: center; }
+    .header h1 { margin: 0; font-size: 32px; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; padding: 15px 30px; background: #1976D2; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+    .info-box { background: white; border-left: 4px solid #1976D2; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎉 Welcome!</h1>
+    <p style="font-size: 18px; margin: 10px 0 0 0;">Your account is ready</p>
+  </div>
+  <div class="content">
+    <p>Hello ${recipientName},</p>
+    <p>Welcome to <strong>${companyName}</strong>! Your travel support management system is now set up and ready to use.</p>
+
+    <div class="info-box">
+      <h3 style="margin-top: 0;">🔗 Your Login Details</h3>
+      <p><strong>Your unique URL:</strong><br>
+      <a href="${loginUrl}">${loginUrl}</a></p>
+      <p><strong>Email:</strong> ${recipientEmail}</p>
+    </div>
+
+    <p style="text-align: center;">
+      <a href="${loginUrl}" class="button">Access Your Dashboard</a>
+    </p>
+
+    <h3>🚀 Getting Started</h3>
+    <ol>
+      <li>Log in using your email and the password you created</li>
+      <li>Complete your company profile</li>
+      <li>Add your team members</li>
+      <li>Start managing your transportation services</li>
+    </ol>
+
+    <p style="margin-top: 30px; color: #666; font-size: 14px;">
+      Need help? Check out our documentation or contact support.
+    </p>
+  </div>
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} Travel Support Platform</p>
+    <p>This is an automated email. Please do not reply.</p>
+  </div>
+</body>
+</html>
+    `;
+
+    const text = `
+Welcome to ${companyName}!
+
+Hello ${recipientName},
+
+Your travel support management system is now set up and ready to use.
+
+Your Login Details:
+- Your unique URL: ${loginUrl}
+- Email: ${recipientEmail}
+
+Getting Started:
+1. Log in using your email and the password you created
+2. Complete your company profile
+3. Add your team members
+4. Start managing your transportation services
+
+© ${new Date().getFullYear()} Travel Support Platform
+    `;
+
+    // Send email
+    const info = await transporter.sendMail({
+      from: `Travel Support Platform <${process.env.SMTP_USER}>`,
+      to: recipientEmail,
+      subject,
+      text,
+      html
+    });
+
+    logger.info('Welcome email sent successfully', {
+      recipientEmail,
+      tenantId,
+      companyName,
+      messageId: info.messageId
+    });
+
+    return {
+      success: true
+    };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    logger.error('Failed to send welcome email', {
+      recipientEmail,
+      tenantId,
+      companyName,
+      error: errorMessage
+    });
+
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}
+
+/**
  * Process pending reminders and send emails
  * Should be called by a scheduled job
  */

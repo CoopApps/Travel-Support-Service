@@ -27,6 +27,7 @@ import { startInvoiceAutomationScheduler } from './services/invoiceAutomation';
 import { detectSubdomain } from './middleware/subdomainDetection';
 import { apiRateLimiter, authRateLimiter as _authRateLimiter } from './middleware/rateLimiting';
 import { httpLogger, requestIdMiddleware, slowRequestLogger } from './middleware/requestLogger';
+import { auditMiddleware } from './middleware/auditLogger';
 
 // Import Swagger documentation
 import { setupSwagger } from './config/swagger';
@@ -34,6 +35,7 @@ import { setupSwagger } from './config/swagger';
 // Import routes
 import healthRoutes from './routes/health.routes';
 import authRoutes from './routes/auth.routes';
+import tenantRegistrationRoutes from './routes/tenant-registration.routes';
 import customerRoutes from './routes/customer.routes';
 import customerReminderRoutes from './routes/customer-reminder.routes';
 import driverRoutes from './routes/driver.routes';
@@ -79,6 +81,10 @@ import adminAnalyticsRoutes from './routes/admin-analytics.routes';
 import cooperativeRoutes from './routes/cooperative.routes';
 import votingRoutes from './routes/voting.routes';
 import profitDistributionRoutes from './routes/profit-distribution.routes';
+import serviceRegistrationsRoutes from './routes/service-registrations.routes';
+import financialSurplusRoutes from './routes/financial-surplus.routes';
+import passengerClassRoutes from './routes/passenger-class.routes';
+import complianceAlertsRoutes from './routes/compliance-alerts.routes';
 
 /**
  * Main Server File - Stage 4
@@ -183,6 +189,9 @@ app.use(requestIdMiddleware);
 // HTTP request logging
 app.use(httpLogger);
 
+// Audit logging for compliance
+app.use(auditMiddleware);
+
 // Slow request detection (warn if >1000ms)
 app.use(slowRequestLogger(1000));
 
@@ -222,6 +231,7 @@ app.use('/api', tenantUsersRoutes);
 
 // Tenant-specific API Routes
 app.use('/api', authRoutes);
+app.use('/api', tenantRegistrationRoutes); // Public tenant registration
 app.use('/api', customerRoutes);
 app.use('/api', customerReminderRoutes);
 app.use('/api', driverRoutes);
@@ -264,6 +274,10 @@ app.use('/api', adminAnalyticsRoutes);
 app.use('/api', cooperativeRoutes);
 app.use('/api', votingRoutes);
 app.use('/api', profitDistributionRoutes);
+app.use('/api', serviceRegistrationsRoutes);
+app.use('/api', financialSurplusRoutes);
+app.use('/api', passengerClassRoutes);
+app.use('/api', complianceAlertsRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

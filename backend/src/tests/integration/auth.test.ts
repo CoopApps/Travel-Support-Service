@@ -212,6 +212,324 @@ describe('JWT Token Validation', () => {
   });
 });
 
+describe('POST /api/tenants/:tenantId/refresh - Token Refresh', () => {
+  let authToken: string;
+
+  beforeAll(async () => {
+    // Get a valid token
+    const response = await request(app)
+      .post(`/api/tenants/${tenantId}/login`)
+      .send({
+        username: testUser.username,
+        password: testUser.password,
+      });
+
+    authToken = response.body.token;
+  });
+
+  it('should refresh a valid token and return a new one', async () => {
+    const response = await request(app)
+      .post(`/api/tenants/${tenantId}/refresh`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect('Content-Type', /json/);
+
+    // Should return 200 OK
+    expect(response.status).toBe(200);
+
+    // Should return a new token
+    expect(response.body).toHaveProperty('token');
+    expect(typeof response.body.token).toBe('string');
+    expect(response.body.token).not.toBe(authToken); // Should be a new token
+
+    // Should return user information
+    expect(response.body).toHaveProperty('user');
+    expect(response.body.user.email).toBe(testUser.email);
+    expect(response.body.user.tenantId).toBe(tenantId);
+  });
+
+  it('should reject token refresh without token', async () => {
+    const response = await request(app)
+      .post(`/api/tenants/${tenantId}/refresh`)
+      .expect('Content-Type', /json/);
+
+    // Should return 401 Unauthorized
+    expect(response.status).toBe(401);
+  });
+
+  it('should reject token refresh with invalid token', async () => {
+    const response = await request(app)
+      .post(`/api/tenants/${tenantId}/refresh`)
+      .set('Authorization', 'Bearer invalid_token')
+      .expect('Content-Type', /json/);
+
+    // Should return 401 Unauthorized
+    expect(response.status).toBe(401);
+  });
+});
+
+describe('Password Reset Flow', () => {
+  describe('POST /api/tenants/:tenantId/forgot-password', () => {
+    it('should accept forgot password request for valid email', async () => {
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/forgot-password`)
+        .send({
+          email: testUser.email,
+        })
+        .expect('Content-Type', /json/);
+
+      // Should return 200 OK (always, to prevent email enumeration)
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('password reset link');
+    });
+
+    it('should return success even for non-existent email (prevent enumeration)', async () => {
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/forgot-password`)
+        .send({
+          email: 'nonexistent@example.com',
+        })
+        .expect('Content-Type', /json/);
+
+      // Should still return 200 OK (to prevent email enumeration attacks)
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+    });
+
+    it('should reject forgot password without email', async () => {
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/forgot-password`)
+        .send({})
+        .expect('Content-Type', /json/);
+
+      // Should return 400 Bad Request
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('POST /api/tenants/:tenantId/reset-password', () => {
+    let resetToken: string;
+
+    beforeAll(async () => {
+      // Create a password reset token
+      const { query } = require('../../config/database');
+      const crypto = require('crypto');
+
+      const token = crypto.randomBytes(32).toString('hex');
+      resetToken = token;
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+      await query(
+        `INSERT INTO password_reset_tokens (user_id, tenant_id, token, expires_at)
+         VALUES ($1, $2, $3, $4)`,
+        [testUser.userId, tenantId, hashedToken, expiresAt]
+      );
+    });
+
+    it('should reset password with valid token', async () => {
+      const newPassword = 'NewSecurePassword123!';
+
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/reset-password`)
+        .send({
+          token: resetToken,
+          newPassword,
+        })
+        .expect('Content-Type', /json/);
+
+      // Should return 200 OK
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('successful');
+
+      // Verify we can login with new password
+      const loginResponse = await request(app)
+        .post(`/api/tenants/${tenantId}/login`)
+        .send({
+          username: testUser.username,
+          password: newPassword,
+        });
+
+      expect(loginResponse.status).toBe(200);
+      expect(loginResponse.body).toHaveProperty('token');
+
+      // Reset password back to original for other tests
+      const { query } = require('../../config/database');
+      const bcrypt = require('bcrypt');
+      const originalHash = await bcrypt.hash(testUser.password, 10);
+      await query(
+        'UPDATE tenant_users SET password_hash = $1 WHERE user_id = $2',
+        [originalHash, testUser.userId]
+      );
+    });
+
+    it('should reject reset with invalid token', async () => {
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/reset-password`)
+        .send({
+          token: 'invalid_token_here',
+          newPassword: 'NewPassword123!',
+        })
+        .expect('Content-Type', /json/);
+
+      // Should return 401 Unauthorized
+      expect(response.status).toBe(401);
+    });
+
+    it('should reject reset with weak password', async () => {
+      const response = await request(app)
+        .post(`/api/tenants/${tenantId}/reset-password`)
+        .send({
+          token: resetToken,
+          newPassword: '123', // Too short
+        })
+        .expect('Content-Type', /json/);
+
+      // Should return 400 Bad Request
+      expect(response.status).toBe(400);
+    });
+  });
+});
+
+describe('POST /api/register - Tenant Registration', () => {
+  it('should register a new tenant with valid data', async () => {
+    const uniqueSubdomain = `testcompany${Date.now()}`;
+    const uniqueEmail = `admin${Date.now()}@testcompany.com`;
+
+    const response = await request(app)
+      .post('/api/register')
+      .send({
+        companyName: 'Test Company Ltd',
+        subdomain: uniqueSubdomain,
+        adminFirstName: 'John',
+        adminLastName: 'Doe',
+        adminEmail: uniqueEmail,
+        adminPassword: 'SecurePassword123!',
+      })
+      .expect('Content-Type', /json/);
+
+    // Should return 201 Created
+    expect(response.status).toBe(201);
+
+    // Should return tenant info
+    expect(response.body).toHaveProperty('tenantId');
+    expect(response.body).toHaveProperty('subdomain', uniqueSubdomain);
+
+    // Should return auth token and user
+    expect(response.body).toHaveProperty('token');
+    expect(response.body).toHaveProperty('user');
+    expect(response.body.user.email).toBe(uniqueEmail);
+
+    // Clean up: Delete the test tenant
+    const { query } = require('../../config/database');
+    await query('DELETE FROM tenant_users WHERE tenant_id = $1', [response.body.tenantId]);
+    await query('DELETE FROM tenants WHERE tenant_id = $1', [response.body.tenantId]);
+  });
+
+  it('should reject registration with duplicate subdomain', async () => {
+    const uniqueSubdomain = `duplicate${Date.now()}`;
+    const uniqueEmail1 = `admin1${Date.now()}@test.com`;
+    const uniqueEmail2 = `admin2${Date.now()}@test.com`;
+
+    // First registration
+    const response1 = await request(app)
+      .post('/api/register')
+      .send({
+        companyName: 'First Company',
+        subdomain: uniqueSubdomain,
+        adminFirstName: 'First',
+        adminLastName: 'Admin',
+        adminEmail: uniqueEmail1,
+        adminPassword: 'Password123!',
+      });
+
+    expect(response1.status).toBe(201);
+    const tenantId = response1.body.tenantId;
+
+    // Second registration with same subdomain
+    const response2 = await request(app)
+      .post('/api/register')
+      .send({
+        companyName: 'Second Company',
+        subdomain: uniqueSubdomain, // Duplicate!
+        adminFirstName: 'Second',
+        adminLastName: 'Admin',
+        adminEmail: uniqueEmail2,
+        adminPassword: 'Password123!',
+      })
+      .expect('Content-Type', /json/);
+
+    // Should return 400 Bad Request
+    expect(response2.status).toBe(400);
+    expect(response2.body).toHaveProperty('error');
+
+    // Clean up
+    const { query } = require('../../config/database');
+    await query('DELETE FROM tenant_users WHERE tenant_id = $1', [tenantId]);
+    await query('DELETE FROM tenants WHERE tenant_id = $1', [tenantId]);
+  });
+
+  it('should reject registration with missing required fields', async () => {
+    const response = await request(app)
+      .post('/api/register')
+      .send({
+        companyName: 'Incomplete Company',
+        // Missing subdomain, adminEmail, adminPassword, etc.
+      })
+      .expect('Content-Type', /json/);
+
+    // Should return 400 Bad Request
+    expect(response.status).toBe(400);
+  });
+
+  it('should reject registration with invalid email format', async () => {
+    const response = await request(app)
+      .post('/api/register')
+      .send({
+        companyName: 'Invalid Email Company',
+        subdomain: `test${Date.now()}`,
+        adminFirstName: 'Test',
+        adminLastName: 'User',
+        adminEmail: 'not-an-email', // Invalid email
+        adminPassword: 'Password123!',
+      })
+      .expect('Content-Type', /json/);
+
+    // Should return 400 Bad Request
+    expect(response.status).toBe(400);
+  });
+});
+
+describe('GET /api/check-subdomain/:subdomain - Subdomain Availability', () => {
+  it('should return available for unused subdomain', async () => {
+    const uniqueSubdomain = `available${Date.now()}`;
+
+    const response = await request(app)
+      .get(`/api/check-subdomain/${uniqueSubdomain}`)
+      .expect('Content-Type', /json/);
+
+    // Should return 200 OK
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('available', true);
+  });
+
+  it('should return unavailable for existing subdomain', async () => {
+    // Use the existing test tenant's subdomain (which we know exists)
+    const { query } = require('../../config/database');
+    const result = await query('SELECT subdomain FROM tenants WHERE tenant_id = $1', [tenantId]);
+    const existingSubdomain = result[0].subdomain;
+
+    const response = await request(app)
+      .get(`/api/check-subdomain/${existingSubdomain}`)
+      .expect('Content-Type', /json/);
+
+    // Should return 200 OK
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('available', false);
+  });
+});
+
 // Rate limiting test runs LAST to avoid interfering with other tests
 describe('Rate Limiting', () => {
   it('should rate limit excessive login attempts', async () => {

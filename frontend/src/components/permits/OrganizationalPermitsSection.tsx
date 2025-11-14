@@ -94,6 +94,16 @@ function OrganizationalPermitsSection({ permits, onRefresh }: OrganizationalPerm
                     <div className="permit-details">
                       <div><strong>Permit #:</strong> {permit.permit_number}</div>
                       <div><strong>Expiry:</strong> {formatDate(permit.expiry_date)}</div>
+                      {permit.permit_size_type && (
+                        <div><strong>Size:</strong> {permit.permit_size_type === 'standard' ? 'Standard (≤16 passengers)' : 'Large Bus (17+ passengers)'}</div>
+                      )}
+                      {permit.permitted_passenger_classes && permit.permitted_passenger_classes.length > 0 && (
+                        <div><strong>Passenger Classes:</strong> {permit.permitted_passenger_classes.join(', ')}</div>
+                      )}
+                      {permit.disc_number && <div><strong>Disc #:</strong> {permit.disc_number}</div>}
+                      {permit.issued_by_type && (
+                        <div><strong>Issued By:</strong> {permit.issued_by_type === 'traffic_commissioner' ? 'Traffic Commissioner' : 'Designated Body'}</div>
+                      )}
                       {permit.notes && <div><strong>Notes:</strong> {permit.notes}</div>}
                     </div>
                     <div className="permit-actions">
@@ -139,6 +149,16 @@ function OrganizationalPermitsSection({ permits, onRefresh }: OrganizationalPerm
                     <div className="permit-details">
                       <div><strong>Permit #:</strong> {permit.permit_number}</div>
                       <div><strong>Expiry:</strong> {formatDate(permit.expiry_date)}</div>
+                      {permit.permit_size_type && (
+                        <div><strong>Size:</strong> {permit.permit_size_type === 'standard' ? 'Standard (≤16 passengers)' : 'Large Bus (17+ passengers)'}</div>
+                      )}
+                      {permit.permitted_passenger_classes && permit.permitted_passenger_classes.length > 0 && (
+                        <div><strong>Passenger Classes:</strong> {permit.permitted_passenger_classes.join(', ')}</div>
+                      )}
+                      {permit.disc_number && <div><strong>Disc #:</strong> {permit.disc_number}</div>}
+                      {permit.issued_by_type && (
+                        <div><strong>Issued By:</strong> {permit.issued_by_type === 'traffic_commissioner' ? 'Traffic Commissioner' : 'Designated Body'}</div>
+                      )}
                       {permit.notes && <div><strong>Notes:</strong> {permit.notes}</div>}
                     </div>
                     <div className="permit-actions">
