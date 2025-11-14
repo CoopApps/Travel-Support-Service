@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
-import { query, getDbClient } from '../config/database';
+import { query } from '../config/database';
 import { ValidationError, NotFoundError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
 

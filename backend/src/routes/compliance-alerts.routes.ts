@@ -273,7 +273,7 @@ router.post(
       alertType: result[0].alert_type,
     });
 
-    res.status(201).json(result[0]);
+    return res.status(201).json(result[0]);
   })
 );
 

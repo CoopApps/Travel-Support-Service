@@ -5,7 +5,7 @@ import { query, queryOne } from '../config/database';
 import { ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
 import { authRateLimiter } from '../middleware/rateLimiting';
-import { sanitizeInput, sanitizeInteger } from '../utils/sanitize';
+import { sanitizeInput } from '../utils/sanitize';
 
 const router: Router = express.Router();
 
@@ -126,6 +126,10 @@ router.post(
         RETURNING tenant_id`,
         [sanitizedCompanyName, sanitizedSubdomain, domain, appId]
       );
+
+      if (!tenantResult) {
+        throw new Error('Failed to create tenant');
+      }
 
       const tenantId = tenantResult.tenant_id;
 
