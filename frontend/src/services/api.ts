@@ -381,6 +381,17 @@ export const driverApi = {
     const response = await apiClient.get(`/tenants/${tenantId}/drivers/${driverId}/login-history`);
     return response.data;
   },
+
+  /**
+   * Export drivers to CSV
+   */
+  exportDrivers: async (tenantId: number, query?: any): Promise<string> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/drivers/export`, {
+      params: query,
+      responseType: 'text',
+    });
+    return response.data;
+  },
 };
 
 /**

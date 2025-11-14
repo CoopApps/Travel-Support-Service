@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { driverApi } from '../../services/api';
-import { Driver } from '../../types';
+import { Driver, DriverListQuery } from '../../types';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
 import DriverFormModal from './DriverFormModal';
 import DriverLoginManagementModal from './DriverLoginManagementModal';
 import VehicleAssignmentModal from './VehicleAssignmentModal';
@@ -22,6 +23,7 @@ import { DriverDocumentsModal } from './DriverDocumentsModal';
 
 function DriverListPage() {
   const { tenantId, tenant } = useTenant();
+  const toast = useToast();
 
   if (!tenantId) {
     return (
@@ -74,25 +76,21 @@ function DriverListPage() {
       setLoading(true);
       setError('');
 
-      const query = {
+      const query: DriverListQuery = {
         page,
         limit,
         search,
         employmentType: employmentTypeFilter,
+        archived: activeTab === 'archive', // Backend filtering
         sortBy: 'name',
         sortOrder: 'asc',
       };
 
       const response = await driverApi.getDrivers(tenantId, query);
 
-      // Filter by active/archive tab
-      const filteredDrivers = response.drivers.filter(driver =>
-        activeTab === 'active' ? driver.is_active : !driver.is_active
-      );
-
-      setDrivers(filteredDrivers);
-      setTotal(filteredDrivers.length);
-      setTotalPages(Math.ceil(filteredDrivers.length / limit));
+      setDrivers(response.drivers || []);
+      setTotal(response.total || 0);
+      setTotalPages(response.totalPages || 0);
     } catch (err: any) {
       console.error('Error fetching drivers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load drivers');
@@ -121,15 +119,16 @@ function DriverListPage() {
    * Handle delete driver
    */
   const handleDelete = async (driver: Driver) => {
-    if (!confirm(`Are you sure you want to delete ${driver.name}?`)) {
+    if (!window.confirm(`Are you sure you want to delete ${driver.name}?`)) {
       return;
     }
 
     try {
       await driverApi.deleteDriver(tenantId, driver.driver_id);
+      toast.success(`${driver.name} deleted successfully`);
       fetchDrivers();
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to delete driver');
+      toast.error(err.response?.data?.error?.message || 'Failed to delete driver');
     }
   };
 
@@ -146,10 +145,11 @@ function DriverListPage() {
     if (!confirmed) return;
 
     try {
-      await driverApi.updateDriver(tenantId, driver.driver_id, { is_active: false });
+      await driverApi.updateDriver(tenantId, driver.driver_id, { archived: true } as any);
+      toast.success(`${driver.name} archived successfully`);
       fetchDrivers();
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to archive driver');
+      toast.error(err.response?.data?.error?.message || 'Failed to archive driver');
     }
   };
 
@@ -165,10 +165,11 @@ function DriverListPage() {
     if (!confirmed) return;
 
     try {
-      await driverApi.updateDriver(tenantId, driver.driver_id, { is_active: true });
+      await driverApi.updateDriver(tenantId, driver.driver_id, { archived: false } as any);
+      toast.success(`${driver.name} reactivated successfully`);
       fetchDrivers();
     } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to reactivate driver');
+      toast.error(err.response?.data?.error?.message || 'Failed to reactivate driver');
     }
   };
 
@@ -186,6 +187,34 @@ function DriverListPage() {
   const handleCreate = () => {
     setEditingDriver(null);
     setShowModal(true);
+  };
+
+  /**
+   * Handle export drivers to CSV
+   */
+  const handleExportCSV = async () => {
+    try {
+      const response = await driverApi.exportDrivers(tenantId, {
+        search,
+        employmentType: employmentTypeFilter,
+        archived: activeTab === 'archive',
+      });
+
+      // Create blob and download
+      const blob = new Blob([response], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `drivers-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Driver data exported successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || 'Failed to export drivers');
+    }
   };
 
   /**
@@ -263,9 +292,26 @@ function DriverListPage() {
             </p>
           )}
         </div>
-        <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
-          + Add Driver
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+            </svg>
+            Export CSV
+          </button>
+          <button className="btn btn-secondary" onClick={fetchDrivers}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Refresh
+          </button>
+          <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Add Driver
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

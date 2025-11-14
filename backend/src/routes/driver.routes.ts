@@ -181,30 +181,41 @@ router.get(
       limit = '20',
       search = '',
       employmentType = '',
+      archived,
       sortBy = 'name',
       sortOrder = 'asc',
     } = req.query;
 
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-    logger.info('Fetching drivers', { tenantId, page, limit, search, employmentType });
+    logger.info('Fetching drivers', { tenantId, page, limit, search, employmentType, archived });
 
     // Build WHERE clause
-    let whereConditions = 'WHERE d.tenant_id = $1 AND d.is_active = true';
+    const conditions: string[] = ['d.tenant_id = $1', 'd.is_active = true'];
     const params: any[] = [tenantId];
     let paramCount = 2;
 
     if (search) {
-      whereConditions += ` AND (d.name ILIKE $${paramCount} OR d.email ILIKE $${paramCount} OR d.phone ILIKE $${paramCount})`;
+      conditions.push(`(d.name ILIKE $${paramCount} OR d.email ILIKE $${paramCount} OR d.phone ILIKE $${paramCount})`);
       params.push(`%${search}%`);
       paramCount++;
     }
 
     if (employmentType) {
-      whereConditions += ` AND d.employment_type = $${paramCount}`;
+      conditions.push(`d.employment_type = $${paramCount}`);
       params.push(employmentType);
       paramCount++;
     }
+
+    // Archived filter (default: show only non-archived)
+    if (archived === 'true') {
+      conditions.push('d.archived = true');
+    } else if (archived === 'false' || archived === undefined) {
+      conditions.push('d.archived = false');
+    }
+    // If archived === 'all', don't add any filter (show both)
+
+    const whereConditions = 'WHERE ' + conditions.join(' AND ');
 
     // Get total count
     const countResult = await query<{ count: string }>(
@@ -261,6 +272,7 @@ router.get(
         d.is_login_enabled,
         d.user_id,
         d.is_active,
+        d.archived,
         d.created_at,
         d.updated_at,
         u.username,
@@ -282,6 +294,154 @@ router.get(
       page: parseInt(page as string),
       limit: parseInt(limit as string),
       totalPages,
+    });
+  })
+);
+
+/**
+ * @route GET /api/tenants/:tenantId/drivers/export
+ * @desc Export drivers to CSV format
+ * @access Protected
+ */
+router.get(
+  '/tenants/:tenantId/drivers/export',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { search, employmentType, archived } = req.query;
+
+    logger.info('Exporting drivers to CSV', { tenantId });
+
+    // Build WHERE clause (same as list endpoint)
+    const conditions: string[] = ['d.tenant_id = $1', 'd.is_active = true'];
+    const params: any[] = [tenantId];
+    let paramCount = 2;
+
+    if (search && typeof search === 'string' && search.trim()) {
+      conditions.push(`(d.name ILIKE $${paramCount} OR d.email ILIKE $${paramCount} OR d.phone ILIKE $${paramCount})`);
+      params.push(`%${search}%`);
+      paramCount++;
+    }
+
+    if (employmentType) {
+      conditions.push(`d.employment_type = $${paramCount}`);
+      params.push(employmentType);
+      paramCount++;
+    }
+
+    // Archived filter
+    if (archived === 'true') {
+      conditions.push('d.archived = true');
+    } else if (archived === 'false' || archived === undefined) {
+      conditions.push('d.archived = false');
+    }
+
+    const whereClause = conditions.join(' AND ');
+
+    // Get all drivers (no pagination for export)
+    const drivers = await query<any>(
+      `SELECT
+        d.driver_id,
+        d.name,
+        d.phone,
+        d.email,
+        d.license_number,
+        d.license_expiry,
+        d.employment_type,
+        d.employment_status,
+        d.start_date,
+        d.contract_end_date,
+        d.weekly_wage,
+        d.weekly_lease,
+        d.monthly_salary,
+        d.hourly_rate,
+        d.vehicle_type,
+        d.assigned_vehicle,
+        d.emergency_contact,
+        d.emergency_phone,
+        d.is_login_enabled,
+        d.archived,
+        d.created_at,
+        d.updated_at
+       FROM tenant_drivers d
+       WHERE ${whereClause}
+       ORDER BY d.name ASC`,
+      params
+    );
+
+    // Generate CSV
+    const csvHeaders = [
+      'ID',
+      'Name',
+      'Phone',
+      'Email',
+      'License Number',
+      'License Expiry',
+      'Employment Type',
+      'Employment Status',
+      'Start Date',
+      'Contract End Date',
+      'Weekly Wage',
+      'Weekly Lease',
+      'Monthly Salary',
+      'Hourly Rate',
+      'Vehicle Type',
+      'Assigned Vehicle',
+      'Emergency Contact',
+      'Emergency Phone',
+      'Portal Login Enabled',
+      'Archived',
+      'Created At',
+      'Updated At',
+    ];
+
+    // Escape CSV values
+    const escapeCsvValue = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      const str = String(value);
+      // If contains comma, newline, or quotes, wrap in quotes and escape quotes
+      if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csvRows = drivers.map((d) => [
+      escapeCsvValue(d.driver_id),
+      escapeCsvValue(d.name),
+      escapeCsvValue(d.phone),
+      escapeCsvValue(d.email),
+      escapeCsvValue(d.license_number),
+      escapeCsvValue(d.license_expiry?.toISOString().split('T')[0]),
+      escapeCsvValue(d.employment_type),
+      escapeCsvValue(d.employment_status),
+      escapeCsvValue(d.start_date?.toISOString().split('T')[0]),
+      escapeCsvValue(d.contract_end_date?.toISOString().split('T')[0]),
+      escapeCsvValue(d.weekly_wage),
+      escapeCsvValue(d.weekly_lease),
+      escapeCsvValue(d.monthly_salary),
+      escapeCsvValue(d.hourly_rate),
+      escapeCsvValue(d.vehicle_type),
+      escapeCsvValue(d.assigned_vehicle),
+      escapeCsvValue(d.emergency_contact),
+      escapeCsvValue(d.emergency_phone),
+      escapeCsvValue(d.is_login_enabled ? 'Yes' : 'No'),
+      escapeCsvValue(d.archived ? 'Yes' : 'No'),
+      escapeCsvValue(d.created_at?.toISOString()),
+      escapeCsvValue(d.updated_at?.toISOString()),
+    ]);
+
+    const csv = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
+
+    // Set headers for file download
+    const filename = `drivers-${new Date().toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+
+    logger.info('Drivers exported successfully', {
+      tenantId,
+      count: drivers.length,
     });
   })
 );

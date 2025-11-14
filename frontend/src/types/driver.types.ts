@@ -53,6 +53,7 @@ export interface Driver {
   user_id: number | null;
   is_login_enabled: boolean;
   is_active: boolean;
+  archived: boolean;
   created_at: string;
   updated_at: string;
   username?: string;
@@ -128,6 +129,7 @@ export interface DriverListQuery {
   limit?: number;
   search?: string;
   employmentType?: string;
+  archived?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
