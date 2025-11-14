@@ -30,24 +30,48 @@ router.get('/tenants/:tenantId/training', verifyTenantAccess, asyncHandler(async
             SELECT
                 COUNT(*) as total_records,
                 COUNT(CASE WHEN expiry_date > CURRENT_DATE THEN 1 END) as valid_records,
-                COUNT(CASE WHEN expiry_date <= CURRENT_DATE THEN 1 END) as expired_records
+                COUNT(CASE WHEN expiry_date <= CURRENT_DATE THEN 1 END) as expired_records,
+                COUNT(CASE WHEN expiry_date > CURRENT_DATE AND expiry_date <= CURRENT_DATE + INTERVAL '30 days' THEN 1 END) as expiring_soon
             FROM tenant_training_records
-            WHERE tenant_id = $1
+            WHERE tenant_id = $1 AND archived = false
         `, [tenantId]);
 
         // Get driver count
         const driversResult = await client.query(`
             SELECT COUNT(*) as total_drivers
             FROM tenant_drivers
-            WHERE tenant_id = $1 AND is_active = true
+            WHERE tenant_id = $1 AND is_active = true AND archived = false
+        `, [tenantId]);
+
+        // Get driver compliance
+        const complianceResult = await client.query(`
+            SELECT
+                COUNT(DISTINCT d.driver_id) as compliant_drivers
+            FROM tenant_drivers d
+            WHERE d.tenant_id = $1 AND d.is_active = true AND d.archived = false
+            AND NOT EXISTS (
+                SELECT 1 FROM tenant_training_types tt
+                WHERE tt.tenant_id = $1 AND tt.is_mandatory = true AND tt.is_active = true
+                AND NOT EXISTS (
+                    SELECT 1 FROM tenant_training_records tr
+                    WHERE tr.driver_id = d.driver_id
+                    AND tr.training_type_id = tt.training_type_id
+                    AND tr.tenant_id = $1
+                    AND tr.expiry_date > CURRENT_DATE
+                    AND tr.archived = false
+                )
+            )
         `, [tenantId]);
 
         const types = typesResult.rows[0] || {};
         const records = recordsResult.rows[0] || {};
         const drivers = driversResult.rows[0] || {};
+        const compliance = complianceResult.rows[0] || {};
 
         const totalDrivers = parseInt(drivers.total_drivers || '0');
         const expiredCount = parseInt(records.expired_records || '0');
+        const expiringSoonCount = parseInt(records.expiring_soon || '0');
+        const compliantDrivers = parseInt(compliance.compliant_drivers || '0');
 
         const overview = {
             trainingTypes: {
@@ -62,13 +86,13 @@ router.get('/tenants/:tenantId/training', verifyTenantAccess, asyncHandler(async
             },
             driverCompliance: {
                 totalDrivers: totalDrivers,
-                fullyCompliant: 0, // Will be calculated with proper compliance logic
-                complianceRate: 0
+                fullyCompliant: compliantDrivers,
+                complianceRate: totalDrivers > 0 ? Math.round((compliantDrivers / totalDrivers) * 100) : 0
             },
             alerts: {
-                total: expiredCount,
+                total: expiredCount + expiringSoonCount,
                 expired: expiredCount,
-                expiringSoon: 0 // Will need additional query for expiring soon
+                expiringSoon: expiringSoonCount
             }
         };
 
@@ -111,10 +135,35 @@ router.get('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHandl
     const page = parseInt(req.query.page as string || '1');
     const limit = parseInt(req.query.limit as string || '50');
     const offset = (page - 1) * limit;
+    const { archived, search } = req.query;
 
     const client = await getDbClient();
 
     try {
+        // Build WHERE clause
+        const conditions: string[] = ['tr.tenant_id = $1'];
+        const params: any[] = [tenantId];
+        let paramCount = 2;
+
+        // Archived filter (default: show only non-archived)
+        if (archived === 'true') {
+            conditions.push('tr.archived = true');
+        } else if (archived === 'false' || archived === undefined) {
+            conditions.push('tr.archived = false');
+        }
+
+        // Search filter
+        if (search && typeof search === 'string' && search.trim()) {
+            conditions.push(`(d.name ILIKE $${paramCount} OR tt.name ILIKE $${paramCount})`);
+            params.push(`%${search}%`);
+            paramCount++;
+        }
+
+        const whereClause = conditions.join(' AND ');
+
+        // Add pagination params
+        params.push(limit, offset);
+
         const result = await client.query(`
             SELECT
                 tr.training_record_id as id,
@@ -124,27 +173,30 @@ router.get('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHandl
                 tr.expiry_date as "expiryDate",
                 tr.provider,
                 tr.certificate_number as "certificateNumber",
+                tr.archived,
                 d.name as "driverName",
                 tt.name as "trainingTypeName",
                 tt.category as "trainingCategory",
                 CASE
                     WHEN tr.expiry_date <= CURRENT_DATE THEN 'expired'
-                    WHEN tr.expiry_date <= CURRENT_DATE + INTERVAL '60 days' THEN 'expiring'
+                    WHEN tr.expiry_date <= CURRENT_DATE + INTERVAL '30 days' THEN 'expiring'
                     ELSE 'valid'
                 END as status
             FROM tenant_training_records tr
             LEFT JOIN tenant_drivers d ON tr.driver_id = d.driver_id AND tr.tenant_id = d.tenant_id
             LEFT JOIN tenant_training_types tt ON tr.training_type_id = tt.training_type_id AND tr.tenant_id = tt.tenant_id
-            WHERE tr.tenant_id = $1
+            WHERE ${whereClause}
             ORDER BY tr.completed_date DESC
-            LIMIT $2 OFFSET $3
-        `, [tenantId, limit, offset]);
+            LIMIT $${paramCount} OFFSET $${paramCount + 1}
+        `, params);
 
         const countResult = await client.query(`
             SELECT COUNT(*) as total
-            FROM tenant_training_records
-            WHERE tenant_id = $1
-        `, [tenantId]);
+            FROM tenant_training_records tr
+            LEFT JOIN tenant_drivers d ON tr.driver_id = d.driver_id AND tr.tenant_id = d.tenant_id
+            LEFT JOIN tenant_training_types tt ON tr.training_type_id = tt.training_type_id AND tr.tenant_id = tt.tenant_id
+            WHERE ${whereClause}
+        `, params.slice(0, -2));
 
         const total = parseInt(countResult.rows[0].total);
 
@@ -241,6 +293,73 @@ router.post('/tenants/:tenantId/training-types', verifyTenantAccess, asyncHandle
     }
 }));
 
+// PUT /api/tenants/:tenantId/training-types/:typeId - Update a training type
+router.put('/tenants/:tenantId/training-types/:typeId', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, typeId } = req.params;
+    const { name, description, category, validityPeriod, mandatory, isActive } = req.body;
+
+    const client = await getDbClient();
+
+    try {
+        const result = await client.query(`
+            UPDATE tenant_training_types
+            SET
+                name = COALESCE($1, name),
+                description = COALESCE($2, description),
+                category = COALESCE($3, category),
+                validity_period_months = COALESCE($4, validity_period_months),
+                is_mandatory = COALESCE($5, is_mandatory),
+                is_active = COALESCE($6, is_active),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE training_type_id = $7 AND tenant_id = $8
+            RETURNING
+                training_type_id as id,
+                name,
+                description,
+                category,
+                validity_period_months as "validityPeriod",
+                is_mandatory as mandatory,
+                is_active as "isActive",
+                created_at,
+                updated_at
+        `, [name, description, category, validityPeriod, mandatory, isActive, typeId, tenantId]);
+
+        if (result.rows.length === 0) {
+            res.status(404).json({ error: 'Training type not found' });
+            return;
+        }
+
+        res.json(result.rows[0]);
+    } finally {
+        client.release();
+    }
+}));
+
+// DELETE /api/tenants/:tenantId/training-types/:typeId - Delete a training type (soft delete)
+router.delete('/tenants/:tenantId/training-types/:typeId', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, typeId } = req.params;
+
+    const client = await getDbClient();
+
+    try {
+        const result = await client.query(`
+            UPDATE tenant_training_types
+            SET is_active = false, updated_at = CURRENT_TIMESTAMP
+            WHERE training_type_id = $1 AND tenant_id = $2
+            RETURNING training_type_id as id
+        `, [typeId, tenantId]);
+
+        if (result.rows.length === 0) {
+            res.status(404).json({ error: 'Training type not found' });
+            return;
+        }
+
+        res.json({ message: 'Training type deleted successfully', id: result.rows[0].id });
+    } finally {
+        client.release();
+    }
+}));
+
 // POST /api/tenants/:tenantId/training-records - Create a new training record
 router.post('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
@@ -320,6 +439,198 @@ router.post('/tenants/:tenantId/training-records', verifyTenantAccess, asyncHand
         ]);
 
         res.status(201).json(result.rows[0]);
+    } finally {
+        client.release();
+    }
+}));
+
+// PUT /api/tenants/:tenantId/training-records/:recordId - Update a training record
+router.put('/tenants/:tenantId/training-records/:recordId', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, recordId } = req.params;
+    const {
+        completedDate,
+        expiryDate,
+        provider,
+        certificateNumber,
+        notes,
+        archived
+    } = req.body;
+
+    const client = await getDbClient();
+
+    try {
+        const result = await client.query(`
+            UPDATE tenant_training_records
+            SET
+                completed_date = COALESCE($1, completed_date),
+                expiry_date = COALESCE($2, expiry_date),
+                provider = COALESCE($3, provider),
+                certificate_number = COALESCE($4, certificate_number),
+                notes = COALESCE($5, notes),
+                archived = COALESCE($6, archived),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE training_record_id = $7 AND tenant_id = $8
+            RETURNING
+                training_record_id as id,
+                driver_id as "driverId",
+                training_type_id as "trainingTypeId",
+                completed_date as "completedDate",
+                expiry_date as "expiryDate",
+                provider,
+                certificate_number as "certificateNumber",
+                notes,
+                archived,
+                created_at,
+                updated_at
+        `, [completedDate, expiryDate, provider, certificateNumber, notes, archived, recordId, tenantId]);
+
+        if (result.rows.length === 0) {
+            res.status(404).json({ error: 'Training record not found' });
+            return;
+        }
+
+        res.json(result.rows[0]);
+    } finally {
+        client.release();
+    }
+}));
+
+// DELETE /api/tenants/:tenantId/training-records/:recordId - Delete a training record (soft delete via archived)
+router.delete('/tenants/:tenantId/training-records/:recordId', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId, recordId } = req.params;
+
+    const client = await getDbClient();
+
+    try {
+        const result = await client.query(`
+            UPDATE tenant_training_records
+            SET archived = true, updated_at = CURRENT_TIMESTAMP
+            WHERE training_record_id = $1 AND tenant_id = $2
+            RETURNING training_record_id as id
+        `, [recordId, tenantId]);
+
+        if (result.rows.length === 0) {
+            res.status(404).json({ error: 'Training record not found' });
+            return;
+        }
+
+        res.json({ message: 'Training record deleted successfully', id: result.rows[0].id });
+    } finally {
+        client.release();
+    }
+}));
+
+// GET /api/tenants/:tenantId/training-records/export - Export training records to CSV
+router.get('/tenants/:tenantId/training-records/export', verifyTenantAccess, asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { search, driverId, archived } = req.query;
+
+    const client = await getDbClient();
+
+    try {
+        // Build WHERE clause
+        const conditions: string[] = ['tr.tenant_id = $1'];
+        const params: any[] = [tenantId];
+        let paramCount = 2;
+
+        if (search && typeof search === 'string' && search.trim()) {
+            conditions.push(`(d.name ILIKE $${paramCount} OR tt.name ILIKE $${paramCount})`);
+            params.push(`%${search}%`);
+            paramCount++;
+        }
+
+        if (driverId) {
+            conditions.push(`tr.driver_id = $${paramCount}`);
+            params.push(driverId);
+            paramCount++;
+        }
+
+        // Archived filter
+        if (archived === 'true') {
+            conditions.push('tr.archived = true');
+        } else if (archived === 'false' || archived === undefined) {
+            conditions.push('tr.archived = false');
+        }
+
+        const whereClause = conditions.join(' AND ');
+
+        // Get all training records (no pagination for export)
+        const result = await client.query(`
+            SELECT
+                tr.training_record_id as id,
+                d.name as driver_name,
+                tt.name as training_type,
+                tt.category,
+                tr.completed_date,
+                tr.expiry_date,
+                tr.provider,
+                tr.certificate_number,
+                tr.notes,
+                tr.archived,
+                CASE
+                    WHEN tr.expiry_date <= CURRENT_DATE THEN 'Expired'
+                    WHEN tr.expiry_date <= CURRENT_DATE + INTERVAL '30 days' THEN 'Expiring Soon'
+                    ELSE 'Valid'
+                END as status,
+                tr.created_at,
+                tr.updated_at
+            FROM tenant_training_records tr
+            LEFT JOIN tenant_drivers d ON tr.driver_id = d.driver_id AND tr.tenant_id = d.tenant_id
+            LEFT JOIN tenant_training_types tt ON tr.training_type_id = tt.training_type_id AND tr.tenant_id = tt.tenant_id
+            WHERE ${whereClause}
+            ORDER BY tr.completed_date DESC
+        `, params);
+
+        // Generate CSV
+        const csvHeaders = [
+            'ID',
+            'Driver Name',
+            'Training Type',
+            'Category',
+            'Completed Date',
+            'Expiry Date',
+            'Provider',
+            'Certificate Number',
+            'Notes',
+            'Status',
+            'Archived',
+            'Created At',
+            'Updated At',
+        ];
+
+        // Escape CSV values
+        const escapeCsvValue = (value: any): string => {
+            if (value === null || value === undefined) return '';
+            const str = String(value);
+            if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const csvRows = result.rows.map((record) => [
+            escapeCsvValue(record.id),
+            escapeCsvValue(record.driver_name),
+            escapeCsvValue(record.training_type),
+            escapeCsvValue(record.category),
+            escapeCsvValue(record.completed_date?.toISOString().split('T')[0]),
+            escapeCsvValue(record.expiry_date?.toISOString().split('T')[0]),
+            escapeCsvValue(record.provider),
+            escapeCsvValue(record.certificate_number),
+            escapeCsvValue(record.notes),
+            escapeCsvValue(record.status),
+            escapeCsvValue(record.archived ? 'Yes' : 'No'),
+            escapeCsvValue(record.created_at?.toISOString()),
+            escapeCsvValue(record.updated_at?.toISOString()),
+        ]);
+
+        const csv = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
+
+        // Set headers for file download
+        const filename = `training-records-${new Date().toISOString().split('T')[0]}.csv`;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
     } finally {
         client.release();
     }
