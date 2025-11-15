@@ -42,6 +42,7 @@ import BusBookingsPage from './components/bus/BusBookingsPage';
 import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import BusCommunicationsPage from './components/bus/BusCommunicationsPage';
+import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -187,6 +188,7 @@ function App() {
         <Route path="bus/bookings" element={<BusBookingsPage />} />
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
         <Route path="bus/communications" element={<BusCommunicationsPage />} />
+        <Route path="bus/analytics" element={<BusAnalyticsPage />} />
         <Route path="bus/compliance" element={<Section22CompliancePage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}

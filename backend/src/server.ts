@@ -91,6 +91,7 @@ import busBookingsRoutes from './routes/bus-bookings.routes';
 import fareCalculationRoutes from './routes/fare-calculation.routes';
 import section22ComplianceRoutes from './routes/section22-compliance.routes';
 import busCommunicationsRoutes from './routes/bus-communications.routes';
+import busAnalyticsRoutes from './routes/bus-analytics.routes';
 
 /**
  * Main Server File - Stage 4
@@ -292,6 +293,7 @@ app.use('/api', busBookingsRoutes);
 app.use('/api', fareCalculationRoutes);
 app.use('/api', section22ComplianceRoutes);
 app.use('/api', busCommunicationsRoutes);
+app.use('/api', busAnalyticsRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
