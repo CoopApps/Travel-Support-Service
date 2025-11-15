@@ -3,6 +3,7 @@ import { driverApi } from '../../services/api';
 import { Driver, DriverListQuery } from '../../types';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import { useServiceContext } from '../../contexts/ServiceContext';
 import DriverFormModal from './DriverFormModal';
 import DriverLoginManagementModal from './DriverLoginManagementModal';
 import VehicleAssignmentModal from './VehicleAssignmentModal';
@@ -16,14 +17,19 @@ import LoginHistoryModal from './LoginHistoryModal';
 import { DriverDocumentsModal } from './DriverDocumentsModal';
 
 /**
- * Driver List Page
+ * Service-Aware Driver List Page
  *
- * Complete driver management matching customer module design
+ * Features:
+ * - License compliance filtering for bus service (Section 22)
+ * - Shows PCV license status for bus drivers
+ * - Filters drivers by qualification when bus service is active
+ * - Highlights drivers eligible for Section 22 operations
  */
 
 function DriverListPage() {
   const { tenantId, tenant } = useTenant();
   const toast = useToast();
+  const { activeService } = useServiceContext();
 
   if (!tenantId) {
     return (
@@ -55,6 +61,7 @@ function DriverListPage() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
+  const [licenseFilter, setLicenseFilter] = useState<'all' | 'section22_qualified' | 'pcv_only' | 'car_only'>('all');
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -67,6 +74,60 @@ function DriverListPage() {
   const [loginHistoryDriver, setLoginHistoryDriver] = useState<Driver | null>(null);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [documentsDriver, setDocumentsDriver] = useState<Driver | null>(null);
+
+  /**
+   * Check if driver is qualified for Section 22 bus operations
+   */
+  const isSection22Qualified = (driver: Driver): boolean => {
+    // Must be 21 or older
+    if (!driver.age_verified || driver.date_of_birth) {
+      const age = driver.date_of_birth ?
+        Math.floor((new Date().getTime() - new Date(driver.date_of_birth).getTime()) / 3.15576e+10) : 0;
+      if (age < 21) return false;
+    }
+
+    // Must have PCV license (D1, D1+E, D, or D+E) OR pre-1997 car license with D1 entitlement
+    const hasPCVLicense = driver.pcv_license_number && driver.pcv_license_expiry_date &&
+      new Date(driver.pcv_license_expiry_date) > new Date();
+
+    const hasD1Entitlement = driver.license_pre_1997 && driver.d1_entitlement_granted;
+
+    if (!hasPCVLicense && !hasD1Entitlement) return false;
+
+    // Driver CPC: Must either have valid CPC or be exempt
+    if (driver.driver_cpc_required && !driver.driver_cpc_exempt) {
+      if (!driver.driver_cpc_card_number || !driver.driver_cpc_expiry_date ||
+          new Date(driver.driver_cpc_expiry_date) <= new Date()) {
+        return false;
+      }
+    }
+
+    // DBS check should be valid
+    if (driver.dbs_check_required && (!driver.dbs_check_date ||
+        new Date(driver.dbs_check_date) < new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000))) {
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
+   * Filter drivers based on license requirements
+   */
+  const getFilteredDrivers = () => {
+    let filtered = drivers;
+
+    if (activeService === 'bus' && licenseFilter === 'section22_qualified') {
+      filtered = filtered.filter(isSection22Qualified);
+    } else if (licenseFilter === 'pcv_only') {
+      filtered = filtered.filter(d => d.pcv_license_number &&
+        new Date(d.pcv_license_expiry_date || '') > new Date());
+    } else if (licenseFilter === 'car_only') {
+      filtered = filtered.filter(d => !d.pcv_license_number);
+    }
+
+    return filtered;
+  };
 
   /**
    * Fetch drivers from API
@@ -403,10 +464,26 @@ function DriverListPage() {
               <option value="freelance">Freelance</option>
               <option value="employed">Employed</option>
             </select>
+            <select
+              value={licenseFilter}
+              onChange={(e) => {
+                setLicenseFilter(e.target.value as any);
+                setPage(1);
+              }}
+              style={{ minWidth: '180px' }}
+              title="Filter drivers by license qualification"
+            >
+              <option value="all">All Licenses</option>
+              {activeService === 'bus' && (
+                <option value="section22_qualified">✓ Section 22 Qualified</option>
+              )}
+              <option value="pcv_only">PCV License Only</option>
+              <option value="car_only">Car License Only</option>
+            </select>
             <button type="submit" className="btn btn-secondary">
               Search
             </button>
-            {(search || employmentTypeFilter) && (
+            {(search || employmentTypeFilter || licenseFilter !== 'all') && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -414,6 +491,7 @@ function DriverListPage() {
                   setSearchInput('');
                   setSearch('');
                   setEmploymentTypeFilter('');
+                  setLicenseFilter('all');
                   setPage(1);
                 }}
               >
@@ -473,8 +551,9 @@ function DriverListPage() {
                 </tr>
               </thead>
               <tbody>
-                {drivers.map((driver) => {
+                {getFilteredDrivers().map((driver) => {
                   const badge = getEmploymentBadge(driver.employment_type || '');
+                  const section22Qualified = isSection22Qualified(driver);
 
                   return (
                     <tr key={driver.driver_id}>
@@ -487,18 +566,48 @@ function DriverListPage() {
                           <div style={{ fontSize: '11px', color: 'var(--gray-500)' }}>
                             Driver ID: {driver.driver_id}
                           </div>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '2px 8px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            borderRadius: '4px',
-                            backgroundColor: badge.color + '20',
-                            color: badge.color,
-                            width: 'fit-content'
-                          }}>
-                            {badge.label}
-                          </span>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '2px 8px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              borderRadius: '4px',
+                              backgroundColor: badge.color + '20',
+                              color: badge.color,
+                              width: 'fit-content'
+                            }}>
+                              {badge.label}
+                            </span>
+                            {activeService === 'bus' && section22Qualified && (
+                              <span style={{
+                                display: 'inline-block',
+                                padding: '2px 8px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                borderRadius: '4px',
+                                backgroundColor: '#10b98120',
+                                color: '#10b981',
+                                width: 'fit-content'
+                              }} title="Qualified for Section 22 bus operations">
+                                ✓ S22 Qualified
+                              </span>
+                            )}
+                            {driver.pcv_license_number && (
+                              <span style={{
+                                display: 'inline-block',
+                                padding: '2px 8px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                borderRadius: '4px',
+                                backgroundColor: '#3b82f620',
+                                color: '#3b82f6',
+                                width: 'fit-content'
+                              }} title="PCV License Holder">
+                                PCV
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
