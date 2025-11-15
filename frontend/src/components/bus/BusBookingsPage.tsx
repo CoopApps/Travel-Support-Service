@@ -1,10 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { busBookingsApi, busTimetablesApi, BusBooking, BusTimetable } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
+import { useToast } from '../../context/ToastContext';
+import FareTransparencyCard from './FareTransparencyCard';
+import { DynamicFareStructure } from '../../types/fare.types';
 import './BusBookingsPage.css';
+
+interface BookingFormData {
+  timetable_id: string;
+  passenger_name: string;
+  passenger_email: string;
+  passenger_phone: string;
+  passenger_tier: 'adult' | 'child' | 'concessionary' | 'wheelchair' | 'companion';
+  boarding_stop_id: string;
+  alighting_stop_id: string;
+  seat_number?: string;
+  special_requirements?: string;
+}
 
 export default function BusBookingsPage() {
   const { tenant } = useTenant();
+  const toast = useToast();
   const [bookings, setBookings] = useState<BusBooking[]>([]);
   const [timetables, setTimetables] = useState<BusTimetable[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +28,22 @@ export default function BusBookingsPage() {
   const [filter, setFilter] = useState<'today' | 'upcoming' | 'all'>('today');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Booking form state
+  const [formData, setFormData] = useState<BookingFormData>({
+    timetable_id: '',
+    passenger_name: '',
+    passenger_email: '',
+    passenger_phone: '',
+    passenger_tier: 'adult',
+    boarding_stop_id: '',
+    alighting_stop_id: '',
+    seat_number: '',
+    special_requirements: '',
+  });
+  const [fareQuote, setFareQuote] = useState<any>(null);
+  const [calculatingFare, setCalculatingFare] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!tenant?.tenant_id) return;
@@ -96,6 +128,126 @@ export default function BusBookingsPage() {
         return 'payment-refunded';
       default:
         return '';
+    }
+  };
+
+  // Calculate fare when timetable or passenger tier changes
+  const calculateFare = async () => {
+    if (!formData.timetable_id || !tenant?.tenant_id) {
+      setFareQuote(null);
+      return;
+    }
+
+    try {
+      setCalculatingFare(true);
+      const token = localStorage.getItem('token');
+
+      // Get selected timetable details
+      const selectedTimetable = timetables.find(t => t.timetable_id === parseInt(formData.timetable_id));
+      if (!selectedTimetable) return;
+
+      // Mock data for now - in production, get from route API
+      const tripDistanceMiles = 15;
+      const tripDurationHours = 1;
+      const vehicleCapacity = selectedTimetable.vehicle_capacity || 16;
+      const currentPassengers = selectedTimetable.current_bookings || 0;
+
+      const response = await fetch(`/api/tenants/${tenant.tenant_id}/calculate-fare`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          routeId: selectedTimetable.route_id,
+          tripDistanceMiles,
+          tripDurationHours,
+          vehicleCapacity,
+          currentPassengers: currentPassengers + 1, // Include this new passenger
+          passengerTier: formData.passenger_tier,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to calculate fare');
+
+      const data = await response.json();
+      setFareQuote(data.fareQuote);
+    } catch (err: any) {
+      console.error('Error calculating fare:', err);
+      toast.error('Failed to calculate fare');
+    } finally {
+      setCalculatingFare(false);
+    }
+  };
+
+  // Recalculate fare when timetable or passenger tier changes
+  useEffect(() => {
+    if (formData.timetable_id && formData.passenger_tier) {
+      calculateFare();
+    }
+  }, [formData.timetable_id, formData.passenger_tier]);
+
+  const handleCreateBooking = async () => {
+    if (!tenant?.tenant_id || !fareQuote) return;
+
+    // Validation
+    if (!formData.passenger_name || !formData.passenger_email) {
+      toast.error('Please fill in passenger name and email');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`/api/tenants/${tenant.tenant_id}/bus-bookings`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          timetable_id: parseInt(formData.timetable_id),
+          passenger_name: formData.passenger_name,
+          passenger_email: formData.passenger_email,
+          passenger_phone: formData.passenger_phone,
+          passenger_tier: formData.passenger_tier,
+          boarding_stop_id: formData.boarding_stop_id ? parseInt(formData.boarding_stop_id) : null,
+          alighting_stop_id: formData.alighting_stop_id ? parseInt(formData.alighting_stop_id) : null,
+          seat_number: formData.seat_number || null,
+          special_requirements: formData.special_requirements || null,
+          fare_amount: fareQuote.quotedFare,
+          booking_status: 'pending',
+          payment_status: 'unpaid',
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create booking');
+
+      const newBooking = await response.json();
+      setBookings([newBooking, ...bookings]);
+      setShowCreateModal(false);
+
+      // Reset form
+      setFormData({
+        timetable_id: '',
+        passenger_name: '',
+        passenger_email: '',
+        passenger_phone: '',
+        passenger_tier: 'adult',
+        boarding_stop_id: '',
+        alighting_stop_id: '',
+        seat_number: '',
+        special_requirements: '',
+      });
+      setFareQuote(null);
+
+      toast.success('Booking created successfully');
+    } catch (err: any) {
+      console.error('Error creating booking:', err);
+      toast.error(err.message || 'Failed to create booking');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -312,23 +464,172 @@ export default function BusBookingsPage() {
         </div>
       )}
 
-      {/* Create Modal Placeholder */}
+      {/* Create Booking Modal */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content booking-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', maxHeight: '90vh', overflow: 'auto' }}>
             <div className="modal-header">
-              <h2>Create New Booking</h2>
+              <h2>🎫 Create New Booking</h2>
               <button className="modal-close" onClick={() => setShowCreateModal(false)}>×</button>
             </div>
-            <div className="modal-body">
-              <p>Booking creation form will be implemented here.</p>
-              <p>You can select service, passenger details, boarding/alighting stops, and seat assignment.</p>
+            <div className="modal-body" style={{ padding: '1.5rem' }}>
+
+              {/* Service Selection */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                  Select Service
+                </label>
+                <select
+                  className="form-control"
+                  value={formData.timetable_id}
+                  onChange={(e) => setFormData({ ...formData, timetable_id: e.target.value })}
+                  style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                >
+                  <option value="">Choose a service...</option>
+                  {timetables.map((tt) => (
+                    <option key={tt.timetable_id} value={tt.timetable_id}>
+                      {tt.route_name} - {tt.departure_time} ({tt.current_bookings || 0}/{tt.vehicle_capacity} seats)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                {/* Passenger Name */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    Passenger Name *
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.passenger_name}
+                    onChange={(e) => setFormData({ ...formData, passenger_name: e.target.value })}
+                    placeholder="Full name"
+                    style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                  />
+                </div>
+
+                {/* Passenger Tier */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    Passenger Type
+                  </label>
+                  <select
+                    className="form-control"
+                    value={formData.passenger_tier}
+                    onChange={(e) => setFormData({ ...formData, passenger_tier: e.target.value as any })}
+                    style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                  >
+                    <option value="adult">Adult (100%)</option>
+                    <option value="child">Child (50%)</option>
+                    <option value="concessionary">Concessionary (50%)</option>
+                    <option value="wheelchair">Wheelchair User (100%)</option>
+                    <option value="companion">Companion (Free)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                {/* Email */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={formData.passenger_email}
+                    onChange={(e) => setFormData({ ...formData, passenger_email: e.target.value })}
+                    placeholder="passenger@example.com"
+                    style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    value={formData.passenger_phone}
+                    onChange={(e) => setFormData({ ...formData, passenger_phone: e.target.value })}
+                    placeholder="07XXX XXXXXX"
+                    style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Special Requirements */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                  Special Requirements
+                </label>
+                <textarea
+                  className="form-control"
+                  value={formData.special_requirements}
+                  onChange={(e) => setFormData({ ...formData, special_requirements: e.target.value })}
+                  placeholder="Wheelchair access, assistance required, etc."
+                  rows={3}
+                  style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* Fare Transparency Card */}
+              {calculatingFare && (
+                <div style={{ padding: '2rem', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', marginBottom: '1rem' }}>
+                  <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
+                  <p>Calculating transparent fare...</p>
+                </div>
+              )}
+
+              {fareQuote && !calculatingFare && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <FareTransparencyCard
+                    dynamicFare={fareQuote.dynamicFare}
+                    quotedFare={fareQuote.quotedFare}
+                    passengerTier={formData.passenger_tier}
+                    fareReductionMessage={fareQuote.fareReductionMessage}
+                    communityImpactMessage={fareQuote.communityImpactMessage}
+                  />
+                </div>
+              )}
+
+              {formData.timetable_id && !fareQuote && !calculatingFare && (
+                <div style={{ padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px', marginBottom: '1rem' }}>
+                  <p style={{ margin: 0, color: '#92400e' }}>
+                    ⚠️ Select passenger type to see transparent fare breakdown
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowCreateModal(false)}>
+
+            <div className="modal-footer" style={{ padding: '1rem 1.5rem', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                className="btn-secondary"
+                onClick={() => setShowCreateModal(false)}
+                style={{ padding: '0.625rem 1.25rem', border: '1px solid #d1d5db', borderRadius: '6px', background: '#fff', cursor: 'pointer' }}
+              >
                 Cancel
               </button>
-              <button className="btn-primary">Create Booking</button>
+              <button
+                className="btn-primary"
+                onClick={handleCreateBooking}
+                disabled={!fareQuote || submitting || !formData.passenger_name || !formData.passenger_email}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: (!fareQuote || submitting) ? '#9ca3af' : '#3b82f6',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: (!fareQuote || submitting) ? 'not-allowed' : 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                {submitting ? 'Creating...' : `Confirm Booking ${fareQuote ? `- ${formatCurrency(fareQuote.quotedFare)}` : ''}`}
+              </button>
             </div>
           </div>
         </div>

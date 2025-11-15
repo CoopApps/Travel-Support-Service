@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { busRoutesApi, busTimetablesApi, busBookingsApi } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
+import CooperativeCommonwealthTracker from './CooperativeCommonwealthTracker';
 import './BusDashboard.css';
 
 interface DashboardStats {
@@ -176,6 +177,11 @@ export default function BusDashboard() {
             <span className="action-description">Traffic Commissioner compliance</span>
           </Link>
         </div>
+      </div>
+
+      {/* Cooperative Commonwealth Impact Tracker */}
+      <div style={{ marginTop: '2rem' }}>
+        <CooperativeCommonwealthTracker />
       </div>
 
       {stats.activeRoutes === 0 && (
