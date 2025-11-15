@@ -2,6 +2,8 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import NotificationBell from './NotificationBell';
 import UserDropdown from './UserDropdown';
+import { ServiceToggle } from './ServiceToggle';
+import { useServiceContext } from '../../contexts/ServiceContext';
 import './Layout.css';
 
 /**
@@ -14,6 +16,7 @@ import './Layout.css';
 function Layout() {
   const { tenant } = useTenant();
   const location = useLocation();
+  const { activeService } = useServiceContext();
 
   // Get subscription tier display name
   const getTierDisplayName = (tier: string | undefined) => {
@@ -40,16 +43,32 @@ function Layout() {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-section">
-            <div className="nav-section-label">Core Operations</div>
-            <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
-            <NavItem to="/schedules" label="Schedules" icon="calendar" active={location.pathname === '/schedules'} />
-            <NavItem to="/customers" label="Customers" icon="users" active={location.pathname === '/customers'} />
-            <NavItem to="/drivers" label="Drivers" icon="user" active={location.pathname === '/drivers'} />
-          </div>
+          {activeService === 'bus' ? (
+            /* Bus Service Navigation */
+            <>
+              <div className="nav-section">
+                <div className="nav-section-label">Bus Operations</div>
+                <NavItem to="/bus/dashboard" label="Dashboard" icon="home" active={location.pathname === '/bus/dashboard'} />
+                <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
+                <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
+                <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
+              </div>
+            </>
+          ) : (
+            /* Community Transport Navigation */
+            <>
+              <div className="nav-section">
+                <div className="nav-section-label">Core Operations</div>
+                <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+                <NavItem to="/schedules" label="Schedules" icon="calendar" active={location.pathname === '/schedules'} />
+                <NavItem to="/customers" label="Customers" icon="users" active={location.pathname === '/customers'} />
+              </div>
+            </>
+          )}
 
           <div className="nav-section">
-            <div className="nav-section-label">Fleet Management</div>
+            <div className="nav-section-label">Resources</div>
+            <NavItem to="/drivers" label="Drivers" icon="user" active={location.pathname === '/drivers'} />
             <NavItem to="/vehicles" label="Vehicles" icon="truck" active={location.pathname === '/vehicles'} />
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
           </div>
@@ -124,6 +143,9 @@ function Layout() {
             <UserDropdown />
           </div>
         </header>
+
+        {/* Service Toggle - Shows when both transport and bus services are enabled */}
+        <ServiceToggle />
 
         {/* Page Content */}
         <main className="page-content">

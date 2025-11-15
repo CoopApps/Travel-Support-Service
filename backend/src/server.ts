@@ -85,6 +85,9 @@ import serviceRegistrationsRoutes from './routes/service-registrations.routes';
 import financialSurplusRoutes from './routes/financial-surplus.routes';
 import passengerClassRoutes from './routes/passenger-class.routes';
 import complianceAlertsRoutes from './routes/compliance-alerts.routes';
+import busRoutesRoutes from './routes/bus-routes.routes';
+import busTimetablesRoutes from './routes/bus-timetables.routes';
+import busBookingsRoutes from './routes/bus-bookings.routes';
 
 /**
  * Main Server File - Stage 4
@@ -280,6 +283,9 @@ app.use('/api', serviceRegistrationsRoutes);
 app.use('/api', financialSurplusRoutes);
 app.use('/api', passengerClassRoutes);
 app.use('/api', complianceAlertsRoutes);
+app.use('/api', busRoutesRoutes);
+app.use('/api', busTimetablesRoutes);
+app.use('/api', busBookingsRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

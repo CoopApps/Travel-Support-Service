@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 22 Community Bus Services</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f5f5; 
+            color: #333;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        
+        .header { 
+            background: white; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #007bff;
+            font-size: 1.8rem;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .nav { 
+            background: white; 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .nav button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border: none; 
+            background: #007bff; 
+            color: white; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        
+        .nav button:hover { 
+            background: #0056b3; 
+        }
+        
+        .nav button.active { 
+            background: #28a745; 
+        }
+        
+        .content { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            min-height: 400px; 
+        }
+        
+        .service-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .service-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .service-card:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        .service-card.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .service-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .service-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .service-features {
+            text-align: left;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        
+        .service-features li {
+            margin-bottom: 5px;
+            list-style: none;
+            position: relative;
+            padding-left: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .service-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .main-panel {
+            display: none;
+        }
+        
+        .main-panel.active {
+            display: block;
+        }
+        
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn { 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            margin: 2px;
+        }
+        
+        .btn-primary { 
+            background: #007bff; 
+            color: white; 
+        }
+        
+        .btn-success { 
+            background: #28a745; 
+            color: white; 
+        }
+        
+        .btn-danger { 
+            background: #dc3545; 
+            color: white; 
+        }
+        
+        .btn-secondary { 
+            background: #6c757d; 
+            color: white; 
+        }
+        
+        .btn-warning { 
+            background: #ffc107; 
+            color: #212529; 
+        }
+        
+        .btn:hover { 
+            opacity: 0.8; 
+        }
+        
+        .bus-layout {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .bus-body {
+            background: linear-gradient(135deg, #ffd54f 0%, #ffb74d 100%);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .bus-header {
+            background: #37474f;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .seat {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #ccc;
+            margin: 0 auto;
+            font-size: 0.8rem;
+        }
+        
+        .seat.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #4caf50;
+        }
+        
+        .seat.occupied {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #f44336;
+        }
+        
+        .seat:hover {
+            transform: scale(1.1);
+        }
+        
+        .passenger-list {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .passenger-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: move;
+        }
+        
+        .passenger-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .passenger-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .cost-analysis {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .cost-row.total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #007bff;
+            color: #2c3e50;
+        }
+        
+        .cost-row.profit {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .cost-row.loss {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .progressive-breakdown {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .cost-step {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .cost-step.current {
+            background: #007bff;
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        .cost-step.achieved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .cost-step.target {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .current-cost-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #007bff;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #007bff;
+        }
+        
+        .route-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .route-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+        }
+        
+        th, td { 
+            padding: 10px; 
+            text-align: left; 
+            border-bottom: 1px solid #ddd; 
+        }
+        
+        th { 
+            background: #f8f9fa; 
+            font-weight: bold; 
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000; 
+        }
+        
+        .modal-content { 
+            background: white; 
+            margin: 50px auto; 
+            padding: 20px; 
+            width: 90%; 
+            max-width: 500px; 
+            border-radius: 8px; 
+            position: relative; 
+        }
+        
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        
+        .modal-close { 
+            font-size: 24px; 
+            cursor: pointer; 
+            color: #999; 
+        }
+        
+        .compliance-panel {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .compliance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .compliance-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-compliant {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-non-compliant {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .overhead-bus-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .overhead-bus {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .bus-outline {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 3px solid #1976d2;
+            border-radius: 20px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .bus-front {
+            background: #37474f;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            border-radius: 15px 15px 5px 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .bus-back {
+            background: #37474f;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            border-radius: 5px 5px 15px 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .bus-seats-area {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr; /* Left seats, aisle, right seats */
+            gap: 8px;
+            padding: 10px 5px;
+        }
+        
+        .seat-row-left, .seat-row-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .aisle {
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #999;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+        }
+        
+        .overhead-seat {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #ccc;
+            font-size: 0.8rem;
+            position: relative;
+        }
+        
+        .overhead-seat.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #4caf50;
+        }
+        
+        .overhead-seat.occupied {
+            background: #fff3e0;
+            color: #f57c00;
+            border-color: #ff9800;
+        }
+        
+        .overhead-seat:hover {
+            transform: scale(1.05);
+        }
+        
+        .bookings-passenger-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .booking-passenger-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .booking-passenger-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .booking-passenger-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+            cursor: grabbing;
+        }
+        
+        .booking-passenger-card.assigned {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .passenger-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .passenger-details {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .passenger-seat-info {
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: #007bff;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .modal-large {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-large-content {
+            background: white;
+            margin: 20px auto;
+            padding: 30px;
+            width: 95%;
+            max-width: 1000px;
+            max-height: 90vh;
+            border-radius: 8px;
+            position: relative;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header matching Travel Support System style -->
+        <div class="header">
+            <div>
+                <h1>🚌 Section 22 Community Bus Services</h1>
+                <p class="subtitle">Professional transport management for community bus operations</p>
+            </div>
+            <div style="text-align: right; color: #666;">
+                <div>Sheffield Transport Services</div>
+                <small>Section 22 Permit #S22-2024-001</small>
+            </div>
+        </div>
+
+        <!-- Navigation matching Travel Support System style -->
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('selector')">🏠 Home</button>
+            <button class="nav-btn" onclick="showSection('scheduled')" id="scheduled-btn" style="display: none;">📋 Scheduled Services</button>
+            <button class="nav-btn" onclick="showSection('ondemand')" id="ondemand-btn" style="display: none;">🗺️ On-Demand Routes</button>
+            <button class="nav-btn" onclick="showSection('compliance')">✅ Compliance</button>
+            <button class="nav-btn" onclick="showSection('reports')">📊 Reports</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content">
+            <!-- Service Type Selector -->
+            <div id="selector-section" class="main-panel active">
+                <h2>Select Service Type</h2>
+                <p style="margin-bottom: 20px; color: #666;">Choose the type of Section 22 community bus service you want to manage:</p>
+                
+                <div class="service-selector">
+                    <div class="service-card" onclick="selectService('scheduled')">
+                        <span class="service-icon">🚌</span>
+                        <div class="service-title">Scheduled Services</div>
+                        <div class="service-description">
+                            Regular bus services with fixed routes and timetables. Perfect for daily commuter services and regular community transport needs.
+                        </div>
+                        <ul class="service-features">
+                            <li>Fixed route and schedule</li>
+                            <li>Regular passenger bookings</li>
+                            <li>Predictable revenue streams</li>
+                            <li>Automated compliance checking</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="selectService('ondemand')">
+                        <span class="service-icon">🗺️</span>
+                        <div class="service-title">On-Demand Routes</div>
+                        <div class="service-description">
+                            Flexible routes organized based on passenger locations. Dynamic pricing ensures cost recovery before departure.
+                        </div>
+                        <ul class="service-features">
+                            <li>Custom route planning</li>
+                            <li>Passenger location mapping</li>
+                            <li>Progressive cost breakdown</li>
+                            <li>Real-time viability analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduled Services Panel -->
+            <div id="scheduled-section" class="main-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Scheduled Routes Management</h2>
+                    <button class="btn btn-primary" onclick="createScheduledRoute()">
+                        ➕ Create New Route
+                    </button>
+                </div>
+
+                <div id="scheduled-routes-list">
+                    <!-- Routes will be populated here -->
+                </div>
+
+                <!-- Weekly Schedule View -->
+                <div style="margin-top: 30px;">
+                    <h3>This Week's Schedule</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Monday</div>
+                            <div style="font-size: 0.9rem; color: #666;">7:30 Commuter<br>9:00 Shopping</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Tuesday</div>
+                            <div style="font-size: 0.9rem; color: #666;">7:30 Commuter<br>9:00 Shopping</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Wednesday</div>
+                            <div style="font-size: 0.9rem; color: #666;">7:30 Commuter<br>2:00 Medical</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Thursday</div>
+                            <div style="font-size: 0.9rem; color: #666;">7:30 Commuter<br>9:00 Shopping</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Friday</div>
+                            <div style="font-size: 0.9rem; color: #666;">7:30 Commuter<br>2:00 Medical</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #007bff;">Saturday</div>
+                            <div style="font-size: 0.9rem; color: #666;">9:00 Shopping<br>11:00 Leisure</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #666;">Sunday</div>
+                            <div style="font-size: 0.9rem; color: #666;">No services</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- On-Demand Routes Panel -->
+            <div id="ondemand-section" class="main-panel">
+                <h2>Create On-Demand Route</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Route Name</label>
+                        <input type="text" id="route-name" placeholder="e.g., Community Shopping Service">
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" id="route-datetime">
+                    </div>
+                    <div class="form-group">
+                        <label>Final Destination</label>
+                        <input type="text" id="final-destination" placeholder="e.g., Meadowhall Shopping Centre" list="destinations">
+                        <datalist id="destinations">
+                            <option value="Meadowhall Shopping Centre">
+                            <option value="Sheffield City Centre">
+                            <option value="Crystal Peaks Shopping">
+                            <option value="Northern General Hospital">
+                            <option value="Royal Hallamshire Hospital">
+                            <option value="Sheffield Train Station">
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Bus Capacity (Section 22: 9+ passengers)</label>
+                        <select id="bus-capacity">
+                            <option value="16">16 Seater Minibus (Most Common)</option>
+                            <option value="24">24 Seater Bus</option>
+                            <option value="32">32 Seater Bus</option>
+                            <option value="49">49 Seater Coach</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Type</label>
+                        <select id="service-type">
+                            <option value="community">Community Service (Social Welfare)</option>
+                            <option value="shopping">Shopping Service</option>
+                            <option value="medical">Medical Appointments</option>
+                            <option value="social">Social Activities</option>
+                            <option value="employment">Employment Support</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Distance Exemption</label>
+                        <select id="distance-exemption">
+                            <option value="auto">Automatic (≤10 miles)</option>
+                            <option value="rural">Rural Extension (>10 miles)</option>
+                        </select>
+                        <small style="color: #666;">Routes over 10 miles require rural area justification</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>🚌 Section 22 Requirements:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>Service must be for community social/welfare needs</li>
+                        <li>Operated without a view to profit</li>
+                        <li>Must be registered as a local bus service (28 days notice)</li>
+                        <li>Separate fares must be charged to each passenger</li>
+                        <li>General public may be carried (unlike Section 19)</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="initializeRoute()">
+                    🚀 Initialize Route Planning
+                </button>
+
+                <!-- Progressive Cost Breakdown (Initially Hidden) -->
+                <div id="cost-breakdown-panel" style="display: none;">
+                    <div class="progressive-breakdown">
+                        <h3>Progressive Cost Breakdown</h3>
+                        <p style="color: #666; margin-bottom: 15px;">
+                            Watch how the cost per passenger decreases as more people book onto the service:
+                        </p>
+                        
+                        <div id="cost-steps">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                        
+                        <div class="current-cost-display" id="current-cost">
+                            Current cost per passenger: £0.00
+                        </div>
+                    </div>
+
+                    <!-- Passenger Management -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+                        <h3>Passenger Management</h3>
+                        <button class="btn btn-success" onclick="addPassenger()">
+                            ➕ Add Passenger
+                        </button>
+                    </div>
+
+                    <div id="passenger-list" class="passenger-list">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            <p>No passengers added yet.</p>
+                            <button class="btn btn-primary" onclick="addPassenger()" style="margin-top: 10px;">Add First Passenger</button>
+                        </div>
+                    </div>
+
+                    <!-- Bus Layout -->
+                    <div class="bus-layout">
+                        <h3 style="margin-bottom: 15px;">Bus Seat Assignment</h3>
+                        
+                        <div class="bus-body">
+                            <div class="bus-header">
+                                <span id="bus-title">16 Seater Community Bus</span>
+                                <div>
+                                    <span id="occupied-count">0</span> / <span id="total-seats">16</span> seats
+                                </div>
+                            </div>
+                            
+                            <div id="seats-grid" class="seats-grid">
+                                <!-- Seats will be generated here -->
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning" style="margin-top: 15px;">
+                            💡 <strong>Tip:</strong> Drag passengers from the list above to seats, or click seats to assign passengers.
+                        </div>
+                    </div>
+
+                    <!-- Final Cost Analysis -->
+                    <div class="cost-analysis">
+                        <h3>Final Cost Analysis</h3>
+                        <div class="cost-row">
+                            <span>Driver Cost (8 hours)</span>
+                            <span>£<span id="driver-cost">120.00</span></span>
+                        </div>
+                        <div class="cost-row">
+                            <span>Fuel Cost (<span id="total-miles">0</span> miles)</span>
+                            <span>£<span id="fuel-cost">0.00</span></span>
+                        </div>
+                        <div class="cost-row">
+                            <span>Vehicle Operating Costs</span>
+                            <span>£<span id="operating-cost">45.00</span></span>
+                        </div>
+                        <div class="cost-row">
+                            <span>Insurance & Admin</span>
+                            <span>£<span id="admin-cost">25.00</span></span>
+                        </div>
+                        <div class="cost-row total">
+                            <span>Total Costs</span>
+                            <span>£<span id="total-cost">190.00</span></span>
+                        </div>
+                        <div class="cost-row">
+                            <span>Total Revenue (<span id="passenger-count">0</span> passengers)</span>
+                            <span>£<span id="total-revenue">0.00</span></span>
+                        </div>
+                        <div class="cost-row" id="profit-loss">
+                            <span>Net Result</span>
+                            <span>£<span id="net-result">-190.00</span></span>
+                        </div>
+                    </div>
+
+                    <div id="cost-alert" class="alert alert-danger">
+                        ⚠️ Route is currently running at a loss. Add more passengers or adjust fares to break even.
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-warning" onclick="calculateOptimalFares()">
+                            🎯 Calculate Optimal Fares
+                        </button>
+                        <button class="btn btn-success" onclick="confirmRoute()" id="confirm-route-btn" disabled>
+                            ❌ Route Not Viable
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Panel -->
+            <div id="compliance-section" class="main-panel">
+                <h2>Section 22 Compliance Status</h2>
+                
+                <!-- UK Government Compliance Requirements -->
+                <div class="alert alert-warning" style="margin-bottom: 20px;">
+                    <h4>⚖️ UK Transport Act 1985 Requirements</h4>
+                    <p><strong>Important:</strong> Section 22 community bus services must comply with UK legislation. This system helps ensure compliance with the Transport Act 1985 and EU Regulation 1071/2009.</p>
+                </div>
+                
+                <!-- Organizational Permit Status -->
+                <div class="compliance-panel">
+                    <h3>🏢 Organizational Section 22 Permit</h3>
+                    <div class="alert alert-success">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>✅ Valid Section 22 Permit</strong><br>
+                                <small>Permit #S22-2024-001 - Sheffield Transport Services</small><br>
+                                <small>Expires: 31 December 2025</small>
+                            </div>
+                            <button class="btn btn-warning" onclick="viewPermitDetails()">View Details</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px; color: #856404;">
+                        <strong>Section 22 Requirements:</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>Organization operates without a view to profit</li>
+                            <li>Concerned for social and welfare needs of communities</li>
+                            <li>Provides community bus services (can carry general public)</li>
+                            <li>Services must be registered as local bus services</li>
+                            <li>Vehicles adapted to carry 9+ passengers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- EU Regulation Exemptions -->
+                <div class="compliance-panel">
+                    <h3>🇪🇺 EU Regulation 1071/2009 Exemptions</h3>
+                    <div class="compliance-item">
+                        <span><strong>Non-Commercial Purposes Exemption</strong></span>
+                        <span class="compliance-status status-compliant">✅ Qualified</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span><strong>Short Distance Exemption (10 mile radius)</strong></span>
+                        <span class="compliance-status status-compliant">✅ Applied</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span><strong>Main Occupation Exemption</strong></span>
+                        <span class="compliance-status status-compliant">✅ Community Services</span>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px; color: #1565c0;">
+                        <strong>Exemption Details:</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li><strong>Non-Commercial:</strong> All services provided for social welfare purposes</li>
+                            <li><strong>Short Distance:</strong> Routes within 10 miles (straight line or radius)</li>
+                            <li><strong>Minor Impact:</strong> Services have minimal impact on commercial transport market</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Driver Compliance -->
+                <div class="compliance-panel">
+                    <h3>👨‍💼 Driver Compliance Status</h3>
+                    <div class="compliance-item">
+                        <span>Section 22 Individual Driver Permits</span>
+                        <span class="compliance-status status-compliant">✅ 3 Qualified</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>DBS Checks (Vulnerable Passengers)</span>
+                        <span class="compliance-status status-compliant">✅ All Current</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>PCV/D1 Licensing Requirements</span>
+                        <span class="compliance-status status-warning">⚠️ 1 Renewal Due</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Driver CPC Training</span>
+                        <span class="compliance-status status-compliant">✅ Up to Date</span>
+                    </div>
+                </div>
+
+                <!-- Vehicle Compliance -->
+                <div class="compliance-panel">
+                    <h3>🚐 Vehicle Compliance</h3>
+                    <div class="compliance-item">
+                        <span>MOT Certificates (Class IV/V/VI)</span>
+                        <span class="compliance-status status-warning">⚠️ 1 Expiring</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Certificate of Initial Fitness (Large Buses)</span>
+                        <span class="compliance-status status-compliant">✅ Valid</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Insurance (Hire or Reward)</span>
+                        <span class="compliance-status status-compliant">✅ Current</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Accessibility Requirements (22+ passengers)</span>
+                        <span class="compliance-status status-compliant">✅ Compliant</span>
+                    </div>
+                </div>
+
+                <!-- Service Registration -->
+                <div class="compliance-panel">
+                    <h3>📋 Service Registration Compliance</h3>
+                    <div class="compliance-item">
+                        <span>Local Bus Service Registration</span>
+                        <span class="compliance-status status-compliant">✅ Registered</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>28-Day Notice Requirement</span>
+                        <span class="compliance-status status-compliant">✅ Met</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Separate Fares System</span>
+                        <span class="compliance-status status-compliant">✅ Implemented</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Timetable Publication</span>
+                        <span class="compliance-status status-compliant">✅ Published</span>
+                    </div>
+                </div>
+
+                <!-- Financial Compliance -->
+                <div class="compliance-panel">
+                    <h3>💰 Financial Compliance</h3>
+                    <div class="compliance-item">
+                        <span>Not-for-Profit Operation</span>
+                        <span class="compliance-status status-compliant">✅ Verified</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Cost Recovery Pricing</span>
+                        <span class="compliance-status status-compliant">✅ Within Limits</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Bus Service Operator Grant Eligibility</span>
+                        <span class="compliance-status status-compliant">✅ Eligible</span>
+                    </div>
+                    <div class="compliance-item">
+                        <span>Cross-Subsidy Documentation</span>
+                        <span class="compliance-status status-compliant">✅ Documented</span>
+                    </div>
+                </div>
+
+                <!-- Action Items -->
+                <div class="alert alert-warning">
+                    <strong>⚠️ Action Items Required:</strong>
+                    <ul style="margin-top: 10px; margin-bottom: 0; line-height: 1.6;">
+                        <li><strong>Urgent:</strong> Vehicle MOT for VAN-123 expires in 23 days - Book test immediately</li>
+                        <li><strong>30 Days:</strong> Driver permit renewal for John Smith - Submit application</li>
+                        <li><strong>Review:</strong> Insurance policy renewal due in 90 days</li>
+                    </ul>
+                </div>
+
+                <!-- Compliance Actions -->
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="generateComplianceReport()">
+                        📊 Generate Compliance Report
+                    </button>
+                    <button class="btn btn-success" onclick="viewPermitDetails()">
+                        📄 View Permit Documents
+                    </button>
+                    <button class="btn btn-warning" onclick="scheduleRenewals()">
+                        📅 Schedule Renewals
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reports Panel -->
+            <div id="reports-section" class="main-panel">
+                <h2>Reports & Analytics</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">47</div>
+                        <div>Total Passengers This Month</div>
+                    </div>
+                    <div style="background: #28a745; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">£1,247</div>
+                        <div>Revenue This Month</div>
+                    </div>
+                    <div style="background: #ffc107; color: #212529; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">73%</div>
+                        <div>Average Occupancy</div>
+                    </div>
+                    <div style="background: #dc3545; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">2</div>
+                        <div>Cancelled Routes</div>
+                    </div>
+                </div>
+
+                <div class="compliance-panel">
+                    <h3>Recent Activity</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Route</th>
+                                    <th>Passengers</th>
+                                    <th>Revenue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Today</td>
+                                    <td>Morning Commuter</td>
+                                    <td>12/16</td>
+                                    <td>£42.00</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Yesterday</td>
+                                    <td>Shopping Service</td>
+                                    <td>8/24</td>
+                                    <td>£40.00</td>
+                                    <td><span class="status-badge status-active">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 12</td>
+                                    <td>Medical Appointments</td>
+                                    <td>4/16</td>
+                                    <td>£18.00</td>
+                                    <td><span class="status-badge status-draft">Cancelled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal</h3>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modal-body">
+                <!-- Modal content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Large Modal for Bookings -->
+    <div id="modal-large" class="modal-large">
+        <div class="modal-large-content">
+            <div class="modal-header">
+                <h3 id="modal-large-title">Modal</h3>
+                <span class="modal-close" onclick="closeLargeModal()">&times;</span>
+            </div>
+            <div id="modal-large-body">
+                <!-- Large modal content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentSection = 'selector';
+        let routeData = {
+            passengers: [],
+            seats: {},
+            costs: {
+                driver: 120,
+                fuel: 0,
+                operating: 45,
+                admin: 25
+            },
+            capacity: 16,
+            fuelRate: 0.15
+        };
+        
+        let scheduledRoutes = [
+            {
+                id: 1,
+                name: "Morning Commuter Service",
+                route: "Hillsborough → City Centre → Northern General",
+                schedule: "Monday-Friday, 7:30 AM & 8:30 AM",
+                status: "active",
+                passengers: 12,
+                capacity: 16
+            },
+            {
+                id: 2,
+                name: "Shopping Service",
+                route: "Various Pickup Points → Meadowhall",
+                schedule: "Wednesday & Saturday, 9:00 AM",
+                status: "active", 
+                passengers: 8,
+                capacity: 24
+            },
+            {
+                id: 3,
+                name: "Medical Appointments",
+                route: "Community → Hospitals & Medical Centres",
+                schedule: "Daily, On-Demand",
+                status: "draft",
+                passengers: 4,
+                capacity: 16
+            }
+        ];
+
+        // Navigation Functions
+        function showSection(sectionName) {
+            currentSection = sectionName;
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Hide all panels
+            document.querySelectorAll('.main-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show selected panel
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Load panel-specific content
+            if (sectionName === 'scheduled') {
+                loadScheduledRoutes();
+            }
+        }
+
+        function selectService(serviceType) {
+            // Update service cards
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Show relevant nav buttons
+            if (serviceType === 'scheduled') {
+                document.getElementById('scheduled-btn').style.display = 'inline-block';
+                document.getElementById('ondemand-btn').style.display = 'none';
+                showSection('scheduled');
+            } else {
+                document.getElementById('ondemand-btn').style.display = 'inline-block';
+                document.getElementById('scheduled-btn').style.display = 'none';
+                showSection('ondemand');
+            }
+        }
+
+        // Scheduled Routes Functions
+        function loadScheduledRoutes() {
+            const container = document.getElementById('scheduled-routes-list');
+            container.innerHTML = scheduledRoutes.map(route => `
+                <div class="route-card">
+                    <div class="route-header">
+                        <div class="route-title">${route.name}</div>
+                        <div class="status-badge status-${route.status}">${route.status}</div>
+                    </div>
+                    <div style="margin-bottom: 15px; color: #666;">
+                        <strong>Route:</strong> ${route.route}<br>
+                        <strong>Schedule:</strong> ${route.schedule}<br>
+                        <strong>Occupancy:</strong> ${route.passengers}/${route.capacity} passengers (${Math.round((route.passengers/route.capacity)*100)}%)
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="editRoute(${route.id})">✏️ Edit</button>
+                        <button class="btn btn-success" onclick="viewBookings(${route.id})">👥 Bookings</button>
+                        <button class="btn btn-warning" onclick="duplicateRoute(${route.id})">📋 Duplicate</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function createScheduledRoute() {
+            showModal('Create New Scheduled Route', `
+                <form onsubmit="saveScheduledRoute(event); return false;">
+                    <div class="form-group">
+                        <label>Route Name</label>
+                        <input type="text" id="sched-route-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Route Description</label>
+                        <input type="text" id="sched-route-desc" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Schedule</label>
+                        <input type="text" id="sched-schedule" placeholder="e.g., Monday-Friday, 8:00 AM" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bus Capacity</label>
+                        <select id="sched-capacity">
+                            <option value="16">16 Seater</option>
+                            <option value="24">24 Seater</option>
+                            <option value="32">32 Seater</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Create Route</button>
+                </form>
+            `);
+        }
+
+        function saveScheduledRoute(event) {
+            event.preventDefault();
+            
+            const newRoute = {
+                id: scheduledRoutes.length + 1,
+                name: document.getElementById('sched-route-name').value,
+                route: document.getElementById('sched-route-desc').value,
+                schedule: document.getElementById('sched-schedule').value,
+                status: 'draft',
+                passengers: 0,
+                capacity: parseInt(document.getElementById('sched-capacity').value)
+            };
+            
+            scheduledRoutes.push(newRoute);
+            closeModal();
+            loadScheduledRoutes();
+            
+            alert('New scheduled route created successfully!');
+        }
+
+        // On-Demand Route Functions
+        function initializeRoute() {
+            const routeName = document.getElementById('route-name').value;
+            const datetime = document.getElementById('route-datetime').value;
+            const destination = document.getElementById('final-destination').value;
+            const capacity = parseInt(document.getElementById('bus-capacity').value);
+            
+            if (!routeName || !datetime || !destination) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            routeData.name = routeName;
+            routeData.datetime = datetime;
+            routeData.destination = destination;
+            routeData.capacity = capacity;
+            
+            // Update displays
+            document.getElementById('bus-title').textContent = `${capacity} Seater Community Bus`;
+            document.getElementById('total-seats').textContent = capacity;
+            
+            // Show the cost breakdown panel
+            document.getElementById('cost-breakdown-panel').style.display = 'block';
+            
+            generateSeats();
+            updateProgressiveCostDisplay();
+            updateCostDisplay();
+            
+            alert('Route initialized! You can now add passengers and watch the cost per passenger decrease.');
+        }
+
+        function updateProgressiveCostDisplay() {
+            const totalCosts = calculateTotalCosts();
+            const passengerCount = routeData.passengers.length;
+            const stepsContainer = document.getElementById('cost-steps');
+            const currentCostElement = document.getElementById('current-cost');
+            
+            let stepsHTML = '';
+            const maxSteps = Math.max(passengerCount + 3, 8); // Show at least 8 steps
+            
+            for (let i = 1; i <= maxSteps; i++) {
+                const costPerPerson = totalCosts / i;
+                let className = 'cost-step';
+                let label = `${i} passenger${i > 1 ? 's' : ''}`;
+                
+                if (i === passengerCount && passengerCount > 0) {
+                    className += ' current';
+                    label += ' (CURRENT)';
+                } else if (i < passengerCount) {
+                    className += ' achieved';
+                } else if (i > passengerCount) {
+                    className += ' target';
+                    label += ' (target)';
+                }
+                
+                stepsHTML += `
+                    <div class="${className}">
+                        <span>${label}</span>
+                        <span style="font-weight: bold;">£${costPerPerson.toFixed(2)} each</span>
+                    </div>
+                `;
+            }
+            
+            stepsContainer.innerHTML = stepsHTML;
+            
+            const currentCost = passengerCount > 0 ? (totalCosts / passengerCount).toFixed(2) : totalCosts.toFixed(2);
+            currentCostElement.textContent = `Current cost per passenger: £${currentCost}`;
+        }
+
+        function addPassenger() {
+            showModal('Add New Passenger', `
+                <form onsubmit="savePassenger(event); return false;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="passenger-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Address</label>
+                        <input type="text" id="passenger-address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="passenger-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fare Amount (£)</label>
+                        <input type="number" id="passenger-fare" step="0.50" value="6.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Requirements</label>
+                        <select id="passenger-requirements">
+                            <option value="">None</option>
+                            <option value="wheelchair">Wheelchair Access</option>
+                            <option value="mobility">Mobility Aid</option>
+                            <option value="assistance">Assistance Required</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Passenger</button>
+                </form>
+            `);
+        }
+
+        function savePassenger(event) {
+            event.preventDefault();
+            
+            const passenger = {
+                id: Date.now(),
+                name: document.getElementById('passenger-name').value,
+                address: document.getElementById('passenger-address').value,
+                phone: document.getElementById('passenger-phone').value,
+                fare: parseFloat(document.getElementById('passenger-fare').value),
+                requirements: document.getElementById('passenger-requirements').value
+            };
+            
+            routeData.passengers.push(passenger);
+            closeModal();
+            renderPassengerList();
+            updateProgressiveCostDisplay();
+            updateCostDisplay();
+        }
+
+        function renderPassengerList() {
+            const container = document.getElementById('passenger-list');
+            
+            if (routeData.passengers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <p>No passengers added yet.</p>
+                        <button class="btn btn-primary" onclick="addPassenger()" style="margin-top: 10px;">Add First Passenger</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = routeData.passengers.map(passenger => {
+                const isSeated = Object.values(routeData.seats).some(p => p.id === passenger.id);
+                const seatNumber = Object.keys(routeData.seats).find(seat => routeData.seats[seat].id === passenger.id);
+                
+                return `
+                    <div class="passenger-item" draggable="true" ondragstart="dragPassenger(event, ${passenger.id})">
+                        <div>
+                            <strong>${passenger.name}</strong><br>
+                            <small style="color: #666;">📍 ${passenger.address}</small><br>
+                            <small style="color: #666;">📞 ${passenger.phone}</small>
+                            ${passenger.requirements ? `<br><small style="color: #e67e22;">⚠️ ${passenger.requirements}</small>` : ''}
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; color: #28a745;">£${passenger.fare.toFixed(2)}</div>
+                            ${isSeated ? `<small style="color: #007bff;">Seat ${seatNumber}</small>` : '<small style="color: #dc3545;">Not seated</small>'}
+                            <div style="margin-top: 5px;">
+                                <button class="btn btn-danger" style="padding: 3px 6px; font-size: 0.8rem;" onclick="removePassenger(${passenger.id})">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateSeats() {
+            const seatsGrid = document.getElementById('seats-grid');
+            const capacity = routeData.capacity;
+            
+            // Adjust grid based on capacity
+            if (capacity <= 16) {
+                seatsGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            } else if (capacity <= 32) {
+                seatsGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            } else {
+                seatsGrid.style.gridTemplateColumns = 'repeat(8, 1fr)';
+            }
+            
+            seatsGrid.innerHTML = '';
+            
+            for (let i = 1; i <= capacity; i++) {
+                const seat = document.createElement('div');
+                seat.className = 'seat available';
+                seat.textContent = i;
+                seat.setAttribute('data-seat', i);
+                seat.onclick = () => toggleSeat(i);
+                
+                // Make seats droppable
+                seat.ondragover = (e) => e.preventDefault();
+                seat.ondrop = (e) => dropPassengerOnSeat(e, i);
+                
+                seatsGrid.appendChild(seat);
+            }
+            
+            updateSeatDisplay();
+        }
+
+        function toggleSeat(seatNumber) {
+            if (routeData.seats[seatNumber]) {
+                // Remove passenger from seat
+                delete routeData.seats[seatNumber];
+            } else if (routeData.passengers.length > 0) {
+                // Find first unassigned passenger
+                const unassignedPassenger = routeData.passengers.find(p => 
+                    !Object.values(routeData.seats).some(seated => seated.id === p.id)
+                );
+                if (unassignedPassenger) {
+                    routeData.seats[seatNumber] = unassignedPassenger;
+                }
+            }
+            
+            updateSeatDisplay();
+            renderPassengerList();
+        }
+
+        function updateSeatDisplay() {
+            const occupiedCount = Object.keys(routeData.seats).length;
+            document.getElementById('occupied-count').textContent = occupiedCount;
+            
+            // Update all seats
+            for (let i = 1; i <= routeData.capacity; i++) {
+                const seat = document.querySelector(`[data-seat="${i}"]`);
+                if (seat) {
+                    if (routeData.seats[i]) {
+                        seat.className = 'seat occupied';
+                        seat.textContent = routeData.seats[i].name.split(' ')[0];
+                        seat.title = `${routeData.seats[i].name} - £${routeData.seats[i].fare}`;
+                    } else {
+                        seat.className = 'seat available';
+                        seat.textContent = i;
+                        seat.title = '';
+                    }
+                }
+            }
+        }
+
+        function dragPassenger(event, passengerId) {
+            event.dataTransfer.setData('text/plain', passengerId);
+            event.target.classList.add('dragging');
+        }
+
+        function dropPassengerOnSeat(event, seatNumber) {
+            event.preventDefault();
+            const passengerId = parseInt(event.dataTransfer.getData('text/plain'));
+            const passenger = routeData.passengers.find(p => p.id === passengerId);
+            
+            if (passenger) {
+                // Remove passenger from any existing seat
+                Object.keys(routeData.seats).forEach(seat => {
+                    if (routeData.seats[seat].id === passengerId) {
+                        delete routeData.seats[seat];
+                    }
+                });
+                
+                // Assign to new seat
+                routeData.seats[seatNumber] = passenger;
+                
+                updateSeatDisplay();
+                renderPassengerList();
+            }
+            
+            // Remove dragging class
+            document.querySelector('.dragging').classList.remove('dragging');
+        }
+
+        function removePassenger(passengerId) {
+            if (confirm('Are you sure you want to remove this passenger?')) {
+                routeData.passengers = routeData.passengers.filter(p => p.id !== passengerId);
+                
+                // Remove from seat if assigned
+                Object.keys(routeData.seats).forEach(seat => {
+                    if (routeData.seats[seat].id === passengerId) {
+                        delete routeData.seats[seat];
+                    }
+                });
+                
+                renderPassengerList();
+                updateSeatDisplay();
+                updateProgressiveCostDisplay();
+                updateCostDisplay();
+            }
+        }
+
+        function calculateTotalCosts() {
+            const totalMiles = estimateRouteMiles();
+            const fuelCost = totalMiles * routeData.fuelRate;
+            return routeData.costs.driver + fuelCost + routeData.costs.operating + routeData.costs.admin;
+        }
+
+        function estimateRouteMiles() {
+            const baseRoute = 25;
+            const pickupMiles = routeData.passengers.length * 3;
+            return baseRoute + pickupMiles;
+        }
+
+        function updateCostDisplay() {
+            const totalMiles = estimateRouteMiles();
+            const fuelCost = totalMiles * routeData.fuelRate;
+            const totalCosts = routeData.costs.driver + fuelCost + routeData.costs.operating + routeData.costs.admin;
+            const totalRevenue = routeData.passengers.reduce((sum, p) => sum + p.fare, 0);
+            const netResult = totalRevenue - totalCosts;
+            
+            // Update displays
+            document.getElementById('total-miles').textContent = totalMiles;
+            document.getElementById('fuel-cost').textContent = fuelCost.toFixed(2);
+            document.getElementById('total-cost').textContent = totalCosts.toFixed(2);
+            document.getElementById('passenger-count').textContent = routeData.passengers.length;
+            document.getElementById('total-revenue').textContent = totalRevenue.toFixed(2);
+            document.getElementById('net-result').textContent = netResult.toFixed(2);
+            
+            // Update profit/loss styling
+            const profitLossElement = document.getElementById('profit-loss');
+            const costAlert = document.getElementById('cost-alert');
+            const confirmBtn = document.getElementById('confirm-route-btn');
+            
+            if (netResult >= 0) {
+                profitLossElement.className = 'cost-row profit';
+                costAlert.style.display = 'none';
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '✅ Confirm Route';
+                confirmBtn.className = 'btn btn-success';
+            } else {
+                profitLossElement.className = 'cost-row loss';
+                costAlert.style.display = 'block';
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '❌ Route Not Viable';
+                confirmBtn.className = 'btn btn-danger';
+            }
+        }
+
+        function calculateOptimalFares() {
+            const totalCosts = calculateTotalCosts();
+            const passengerCount = routeData.passengers.length;
+            
+            if (passengerCount === 0) {
+                alert('Add passengers first before calculating optimal fares.');
+                return;
+            }
+            
+            const breakEvenFare = Math.ceil((totalCosts / passengerCount) * 100) / 100;
+            const recommendedFare = Math.ceil((totalCosts * 1.1 / passengerCount) * 100) / 100;
+            
+            showModal('Fare Calculation Results', `
+                <div class="cost-analysis">
+                    <div class="cost-row">
+                        <span>Total Journey Costs</span>
+                        <span>£${totalCosts.toFixed(2)}</span>
+                    </div>
+                    <div class="cost-row">
+                        <span>Number of Passengers</span>
+                        <span>${passengerCount}</span>
+                    </div>
+                    <div class="cost-row">
+                        <span>Break-even Fare per Person</span>
+                        <span>£${breakEvenFare.toFixed(2)}</span>
+                    </div>
+                    <div class="cost-row profit">
+                        <span>Recommended Fare (10% margin)</span>
+                        <span>£${recommendedFare.toFixed(2)}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="applyOptimalFares(${recommendedFare})">
+                        Apply Recommended Fare
+                    </button>
+                    <button class="btn btn-warning" onclick="applyOptimalFares(${breakEvenFare})">
+                        Apply Break-even Fare
+                    </button>
+                </div>
+            `);
+        }
+
+        function applyOptimalFares(fareAmount) {
+            routeData.passengers.forEach(passenger => {
+                passenger.fare = fareAmount;
+            });
+            
+            closeModal();
+            renderPassengerList();
+            updateProgressiveCostDisplay();
+            updateCostDisplay();
+            
+            alert(`All passenger fares updated to £${fareAmount.toFixed(2)}`);
+        }
+
+        function confirmRoute() {
+            const routeName = routeData.name || 'Unnamed Route';
+            const passengerCount = routeData.passengers.length;
+            const totalRevenue = routeData.passengers.reduce((sum, p) => sum + p.fare, 0);
+            const totalCosts = calculateTotalCosts();
+            
+            // UK Compliance Checks
+            const complianceChecks = performComplianceChecks(routeData);
+            
+            if (!complianceChecks.compliant) {
+                alert(`❌ Route Cannot Be Confirmed - Compliance Issues:\n\n${complianceChecks.issues.join('\n')}\n\nPlease resolve these issues before confirming the route.`);
+                return;
+            }
+            
+            // Additional UK-specific validations
+            if (totalRevenue > totalCosts * 1.15) {
+                alert(`⚠️ Warning: Route may exceed not-for-profit requirements.\n\nRevenue: £${totalRevenue.toFixed(2)}\nCosts: £${totalCosts.toFixed(2)}\nSurplus: £${(totalRevenue - totalCosts).toFixed(2)}\n\nExcessive profits may violate Section 22 permit conditions.`);
+                return;
+            }
+            
+            // Check distance compliance (10-mile limit for automatic exemption)
+            const estimatedDistance = estimateRouteMiles();
+            if (estimatedDistance > 10) {
+                alert(`⚠️ Distance Compliance Warning:\n\nEstimated route distance: ${estimatedDistance} miles\n\nRoutes exceeding 10 miles may require additional justification under EU Regulation 1071/2009 short distance exemption for rural areas.`);
+            }
+            
+            alert(`✅ Route "${routeName}" confirmed successfully!\n\n` +
+                  `📊 Service Summary:\n` +
+                  `• ${passengerCount} passengers booked\n` +
+                  `• Total revenue: £${totalRevenue.toFixed(2)}\n` +
+                  `• Operating costs: £${totalCosts.toFixed(2)}\n` +
+                  `• Net result: £${(totalRevenue - totalCosts).toFixed(2)}\n\n` +
+                  `✅ Compliance Status:\n` +
+                  `• Section 22 permit: Valid\n` +
+                  `• Distance exemption: ${estimatedDistance <= 10 ? 'Automatic' : 'Rural extension'}\n` +
+                  `• Not-for-profit: Compliant\n` +
+                  `• Registration: Required within 28 days\n\n` +
+                  `The route is ready for operation and local bus service registration.`);
+        }
+        
+        function performComplianceChecks(routeData) {
+            const issues = [];
+            
+            // Check organizational permit
+            if (!hasValidSection22Permit()) {
+                issues.push("❌ No valid Section 22 organizational permit");
+            }
+            
+            // Check driver qualification
+            if (!hasQualifiedDrivers()) {
+                issues.push("❌ No qualified Section 22 drivers available");
+            }
+            
+            // Check minimum passengers for viability
+            if (routeData.passengers.length === 0) {
+                issues.push("❌ No passengers booked");
+            }
+            
+            // Check vehicle compliance
+            if (!hasValidVehicles()) {
+                issues.push("❌ No Section 22 compliant vehicles available");
+            }
+            
+            // Check separate fares requirement
+            if (!hasSeparateFares(routeData)) {
+                issues.push("❌ Separate fares system not implemented");
+            }
+            
+            return {
+                compliant: issues.length === 0,
+                issues: issues
+            };
+        }
+        
+        function hasValidSection22Permit() {
+            // Simulate organizational permit check
+            return true; // Would check actual permit status
+        }
+        
+        function hasQualifiedDrivers() {
+            // Simulate driver qualification check
+            return true; // Would check driver permits and licenses
+        }
+        
+        function hasValidVehicles() {
+            // Simulate vehicle compliance check
+            return true; // Would check MOT, insurance, etc.
+        }
+        
+        function hasSeparateFares(routeData) {
+            // Check that individual fares are set
+            return routeData.passengers.every(p => p.fare > 0);
+        }
+        
+        function generateComplianceReport() {
+            showModal('Section 22 Compliance Report', `
+                <div style="max-height: 60vh; overflow-y: auto;">
+                    <h4>📊 Compliance Status Report</h4>
+                    <p><strong>Generated:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
+                    
+                    <h5 style="margin-top: 20px; color: #28a745;">✅ Compliant Areas:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Section 22 organizational permit valid until 31/12/2025</li>
+                        <li>3 drivers with valid Section 22 individual permits</li>
+                        <li>All current DBS checks for vulnerable passenger transport</li>
+                        <li>Community bus services registered as local bus services</li>
+                        <li>Not-for-profit operation verified</li>
+                        <li>EU Regulation exemptions properly applied</li>
+                        <li>Insurance covers hire or reward operations</li>
+                    </ul>
+                    
+                    <h5 style="margin-top: 20px; color: #ffc107;">⚠️ Action Required:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Vehicle MOT renewal due within 30 days</li>
+                        <li>Driver permit renewal required for 1 driver</li>
+                        <li>Insurance policy review scheduled</li>
+                    </ul>
+                    
+                    <h5 style="margin-top: 20px; color: #17a2b8;">📋 Regulatory Requirements:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Transport Act 1985 compliance: ✅ Met</li>
+                        <li>EU Regulation 1071/2009 exemptions: ✅ Applied</li>
+                        <li>Short distance exemption (10 miles): ✅ Qualified</li>
+                        <li>Non-commercial purposes: ✅ Verified</li>
+                    </ul>
+                </div>
+            `);
+        }
+        
+        function viewPermitDetails() {
+            showModal('Section 22 Permit Details', `
+                <div style="max-height: 60vh; overflow-y: auto;">
+                    <h4>📄 Section 22 Community Bus Permit</h4>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Organization:</strong> Sheffield Transport Services<br>
+                        <strong>Permit Number:</strong> S22-2024-001<br>
+                        <strong>Issue Date:</strong> 1 January 2024<br>
+                        <strong>Expiry Date:</strong> 31 December 2025<br>
+                        <strong>Issuing Authority:</strong> North East Traffic Commissioner
+                    </div>
+                    
+                    <h5>Authorized Activities:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Operation of community bus services for social and welfare needs</li>
+                        <li>Carriage of general public on registered local bus services</li>
+                        <li>Use of vehicles adapted to carry 9 or more passengers</li>
+                        <li>Additional services to support community bus operations</li>
+                    </ul>
+                    
+                    <h5 style="margin-top: 15px;">Conditions:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Services must be operated without a view to profit</li>
+                        <li>All services must be registered as local bus services</li>
+                        <li>Vehicles must display valid Section 22 permit disc</li>
+                        <li>Adequate maintenance arrangements must be maintained</li>
+                        <li>Separate fares must be charged to all passengers</li>
+                    </ul>
+                    
+                    <h5 style="margin-top: 15px;">EU Regulation Exemptions:</h5>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Non-commercial purposes:</strong> All services for social welfare</li>
+                        <li><strong>Short distance:</strong> Routes within 10-mile radius/straight line</li>
+                        <li><strong>Minor market impact:</strong> Limited effect on commercial operators</li>
+                    </ul>
+                </div>
+            `);
+        }
+        
+        function scheduleRenewals() {
+            showModal('Schedule Renewals', `
+                <h4>📅 Renewal Schedule</h4>
+                <form onsubmit="saveRenewalSchedule(event); return false;">
+                    <div class="form-group">
+                        <label>Vehicle MOT (VAN-123)</label>
+                        <input type="date" id="mot-renewal" required>
+                        <small>Current expiry: 23 days</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Driver Permit (John Smith)</label>
+                        <input type="date" id="driver-renewal" required>
+                        <small>Current expiry: 45 days</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Insurance Policy Review</label>
+                        <input type="date" id="insurance-renewal" required>
+                        <small>Current expiry: 90 days</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Schedule Renewals</button>
+                </form>
+            `);
+        }
+        
+        function saveRenewalSchedule(event) {
+            event.preventDefault();
+            closeModal();
+            alert('Renewal schedule saved! Reminder notifications will be sent before expiry dates.');
+        }
+
+        // Utility Functions
+        function showModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        
+        function showLargeModal(title, content) {
+            document.getElementById('modal-large-title').textContent = title;
+            document.getElementById('modal-large-body').innerHTML = content;
+            document.getElementById('modal-large').style.display = 'block';
+        }
+
+        function closeLargeModal() {
+            document.getElementById('modal-large').style.display = 'none';
+        }
+        
+        function generateSampleBookings(route) {
+            const samplePassengers = [
+                { id: 1, name: "Sarah Johnson", pickup: "Hillsborough", phone: "0114 123 4567", fare: 4.50, requirements: "", seat: 1 },
+                { id: 2, name: "Robert Chen", pickup: "Crookes", phone: "0114 234 5678", fare: 4.50, requirements: "", seat: 3 },
+                { id: 3, name: "Mary Williams", pickup: "Ecclesall", phone: "0114 345 6789", fare: 4.50, requirements: "Wheelchair", seat: null },
+                { id: 4, name: "James Wilson", pickup: "Manor", phone: "0114 456 7890", fare: 4.50, requirements: "", seat: 7 },
+                { id: 5, name: "Emma Brown", pickup: "Darnall", phone: "0114 567 8901", fare: 4.50, requirements: "", seat: null },
+                { id: 6, name: "David Taylor", pickup: "Burngreave", phone: "0114 678 9012", fare: 4.50, requirements: "Assistance", seat: 12 },
+                { id: 7, name: "Lisa Anderson", pickup: "Heeley", phone: "0114 789 0123", fare: 4.50, requirements: "", seat: null },
+                { id: 8, name: "Michael Davis", pickup: "Firth Park", phone: "0114 890 1234", fare: 4.50, requirements: "", seat: null }
+            ];
+            
+            return samplePassengers.slice(0, route.passengers + 3); // Show current + 3 more available
+        }
+        
+        function initializeOverheadBus(routeId, route, passengers) {
+            const seatsContainer = document.getElementById(`bus-seats-${routeId}`);
+            const passengersContainer = document.getElementById(`bookings-passengers-${routeId}`);
+            
+            if (!seatsContainer || !passengersContainer) return;
+            
+            // Create bus layout based on current capacity
+            let seatsHTML = '';
+            const capacity = route.capacity;
+            const seatsPerRow = 4; // 2 on each side
+            const rows = Math.ceil(capacity / seatsPerRow);
+            
+            // Update bus header to show current capacity
+            const busTitle = document.querySelector(`#overhead-bus-${routeId} .bus-front`);
+            if (busTitle) {
+                busTitle.textContent = `${capacity} SEATER BUS - FRONT`;
+            }
+            
+            for (let row = 0; row < rows; row++) {
+                seatsHTML += '<div class="seat-row-left">';
+                
+                // Left side seats (positions 1 and 2 of each row)
+                for (let side = 0; side < 2; side++) {
+                    const seatNumber = (row * seatsPerRow) + side + 1;
+                    if (seatNumber <= capacity) {
+                        const passenger = passengers.find(p => p.seat === seatNumber);
+                        const isOccupied = passenger ? true : false;
+                        
+                        seatsHTML += `
+                            <div class="overhead-seat ${isOccupied ? 'occupied' : 'available'}" 
+                                 data-seat="${seatNumber}" 
+                                 ondragover="allowDrop(event)" 
+                                 ondrop="dropPassengerOnOverheadSeat(event, ${routeId}, ${seatNumber})"
+                                 onclick="toggleOverheadSeat(${routeId}, ${seatNumber})"
+                                 title="${isOccupied ? `${passenger.name} - £${passenger.fare}` : `Seat ${seatNumber} - Available`}">
+                                ${isOccupied ? passenger.name.split(' ')[0] : seatNumber}
+                            </div>
+                        `;
+                    }
+                }
+                seatsHTML += '</div>';
+                
+                // Aisle (show in middle rows)
+                if (row === Math.floor(rows/2)) {
+                    seatsHTML += '<div class="aisle">AISLE</div>';
+                } else {
+                    seatsHTML += '<div style="width: 40px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 0.7rem;"></div>';
+                }
+                
+                seatsHTML += '<div class="seat-row-right">';
+                
+                // Right side seats (positions 3 and 4 of each row)
+                for (let side = 2; side < 4; side++) {
+                    const seatNumber = (row * seatsPerRow) + side + 1;
+                    if (seatNumber <= capacity) {
+                        const passenger = passengers.find(p => p.seat === seatNumber);
+                        const isOccupied = passenger ? true : false;
+                        
+                        seatsHTML += `
+                            <div class="overhead-seat ${isOccupied ? 'occupied' : 'available'}" 
+                                 data-seat="${seatNumber}" 
+                                 ondragover="allowDrop(event)" 
+                                 ondrop="dropPassengerOnOverheadSeat(event, ${routeId}, ${seatNumber})"
+                                 onclick="toggleOverheadSeat(${routeId}, ${seatNumber})"
+                                 title="${isOccupied ? `${passenger.name} - £${passenger.fare}` : `Seat ${seatNumber} - Available`}">
+                                ${isOccupied ? passenger.name.split(' ')[0] : seatNumber}
+                            </div>
+                        `;
+                    }
+                }
+                seatsHTML += '</div>';
+            }
+            
+            seatsContainer.innerHTML = seatsHTML;
+            
+            // Update route details display
+            const routeDetailsContainer = seatsContainer.closest('.modal-large-content').querySelector('.route-details');
+            if (routeDetailsContainer) {
+                routeDetailsContainer.innerHTML = `
+                    <strong>Route Details:</strong><br>
+                    <span style="color: #666;">📍 ${route.route}</span><br>
+                    <span style="color: #666;">🕐 ${route.schedule}</span><br>
+                    <span style="color: #666;">🚌 ${route.capacity} seater bus</span><br>
+                    <span style="color: #666;">📊 Status: ${route.status.toUpperCase()}</span>
+                `;
+            }
+            
+            // Create passenger cards
+            let passengersHTML = '';
+            passengers.forEach(passenger => {
+                const isAssigned = passenger.seat !== null && passenger.seat <= capacity;
+                
+                // If passenger was assigned to a seat that no longer exists, unassign them
+                if (passenger.seat > capacity) {
+                    passenger.seat = null;
+                }
+                
+                passengersHTML += `
+                    <div class="booking-passenger-card ${isAssigned ? 'assigned' : ''}" 
+                         draggable="true" 
+                         ondragstart="dragBookingPassenger(event, ${passenger.id})"
+                         data-passenger-id="${passenger.id}">
+                        <div class="passenger-name">${passenger.name}</div>
+                        <div class="passenger-details">
+                            📍 ${passenger.pickup}<br>
+                            📞 ${passenger.phone}<br>
+                            💰 £${passenger.fare.toFixed(2)}
+                            ${passenger.requirements ? `<br>⚠️ ${passenger.requirements}` : ''}
+                        </div>
+                        ${isAssigned ? `<div class="passenger-seat-info">Seat ${passenger.seat}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            passengersContainer.innerHTML = passengersHTML;
+            
+            // Update booking summary with current stats
+            const assignedCount = passengers.filter(p => p.seat !== null && p.seat <= capacity).length;
+            const availableCount = capacity - assignedCount;
+            const revenue = assignedCount * 4.50;
+            const occupancyRate = Math.round((assignedCount / capacity) * 100);
+            
+            const summaryContainer = seatsContainer.closest('.modal-large-content').querySelector('.booking-summary');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = `
+                    <h4>Booking Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #007bff;">${assignedCount}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Booked</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${availableCount}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Available</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">£${revenue.toFixed(2)}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Revenue</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">${occupancyRate}%</div>
+                            <div style="font-size: 0.9rem; color: #666;">Occupancy</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update the route object with current assigned passengers
+            route.passengers = assignedCount;
+            
+            // Store passengers data for this route
+            window[`routePassengers_${routeId}`] = passengers;
+        }
+        
+        function dragBookingPassenger(event, passengerId) {
+            event.dataTransfer.setData('text/plain', passengerId);
+            event.target.classList.add('dragging');
+        }
+        
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+        
+        function dropPassengerOnOverheadSeat(event, routeId, seatNumber) {
+            event.preventDefault();
+            const passengerId = parseInt(event.dataTransfer.getData('text/plain'));
+            
+            // Get passengers data for this route
+            const passengers = window[`routePassengers_${routeId}`];
+            const passenger = passengers.find(p => p.id === passengerId);
+            
+            if (passenger) {
+                // Remove passenger from any existing seat
+                passengers.forEach(p => {
+                    if (p.seat === seatNumber) p.seat = null;
+                });
+                
+                // Clear passenger's current seat
+                passenger.seat = null;
+                
+                // Assign to new seat if available
+                const seatElement = event.target;
+                if (seatElement.classList.contains('available')) {
+                    passenger.seat = seatNumber;
+                }
+                
+                // Refresh the display
+                const route = scheduledRoutes.find(r => r.id === routeId);
+                initializeOverheadBus(routeId, route, passengers);
+            }
+            
+            // Remove dragging class
+            document.querySelector('.dragging').classList.remove('dragging');
+        }
+        
+        function toggleOverheadSeat(routeId, seatNumber) {
+            const passengers = window[`routePassengers_${routeId}`];
+            const passenger = passengers.find(p => p.seat === seatNumber);
+            
+            if (passenger) {
+                // Remove passenger from seat
+                passenger.seat = null;
+                
+                // Refresh the display
+                const route = scheduledRoutes.find(r => r.id === routeId);
+                initializeOverheadBus(routeId, route, passengers);
+            }
+        }
+        
+        function addRoutePassenger(routeId) {
+            showModal('Add Passenger to Route', `
+                <form onsubmit="saveRoutePassenger(event, ${routeId}); return false;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="route-passenger-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <input type="text" id="route-passenger-pickup" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="route-passenger-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fare Amount (£)</label>
+                        <input type="number" id="route-passenger-fare" step="0.50" value="4.50" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Requirements</label>
+                        <select id="route-passenger-requirements">
+                            <option value="">None</option>
+                            <option value="Wheelchair">Wheelchair Access</option>
+                            <option value="Mobility Aid">Mobility Aid</option>
+                            <option value="Assistance">Assistance Required</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Passenger</button>
+                </form>
+            `);
+        }
+        
+        function saveRoutePassenger(event, routeId) {
+            event.preventDefault();
+            
+            const passengers = window[`routePassengers_${routeId}`];
+            const newPassenger = {
+                id: Date.now(),
+                name: document.getElementById('route-passenger-name').value,
+                pickup: document.getElementById('route-passenger-pickup').value,
+                phone: document.getElementById('route-passenger-phone').value,
+                fare: parseFloat(document.getElementById('route-passenger-fare').value),
+                requirements: document.getElementById('route-passenger-requirements').value,
+                seat: null
+            };
+            
+            passengers.push(newPassenger);
+            
+            // Update route passenger count
+            const route = scheduledRoutes.find(r => r.id === routeId);
+            if (route) {
+                route.passengers++;
+            }
+            
+            closeModal();
+            
+            // Refresh the display
+            initializeOverheadBus(routeId, route, passengers);
+            
+            alert('Passenger added successfully!');
+        }
+
+        function editRoute(routeId) {
+            const route = scheduledRoutes.find(r => r.id === routeId);
+            if (!route) return;
+            
+            showModal('Edit Route', `
+                <form onsubmit="updateRoute(event, ${routeId}); return false;">
+                    <div class="form-group">
+                        <label>Route Name</label>
+                        <input type="text" id="edit-route-name" value="${route.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Route Description</label>
+                        <input type="text" id="edit-route-desc" value="${route.route}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Schedule</label>
+                        <input type="text" id="edit-schedule" value="${route.schedule}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bus Capacity</label>
+                        <select id="edit-capacity">
+                            <option value="16" ${route.capacity === 16 ? 'selected' : ''}>16 Seater</option>
+                            <option value="24" ${route.capacity === 24 ? 'selected' : ''}>24 Seater</option>
+                            <option value="32" ${route.capacity === 32 ? 'selected' : ''}>32 Seater</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="edit-status">
+                            <option value="draft" ${route.status === 'draft' ? 'selected' : ''}>Draft</option>
+                            <option value="active" ${route.status === 'active' ? 'selected' : ''}>Active</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Update Route</button>
+                </form>
+            `);
+        }
+
+        function updateRoute(event, routeId) {
+            event.preventDefault();
+            
+            const route = scheduledRoutes.find(r => r.id === routeId);
+            if (route) {
+                const oldCapacity = route.capacity;
+                const newCapacity = parseInt(document.getElementById('edit-capacity').value);
+                
+                // Update route details
+                route.name = document.getElementById('edit-route-name').value;
+                route.route = document.getElementById('edit-route-desc').value;
+                route.schedule = document.getElementById('edit-schedule').value;
+                route.capacity = newCapacity;
+                route.status = document.getElementById('edit-status').value;
+                
+                // Handle capacity changes if passengers exist for this route
+                if (window[`routePassengers_${routeId}`]) {
+                    const passengers = window[`routePassengers_${routeId}`];
+                    
+                    // If capacity decreased, handle seat reassignment
+                    if (newCapacity < oldCapacity) {
+                        let displacedPassengers = [];
+                        
+                        passengers.forEach(passenger => {
+                            if (passenger.seat && passenger.seat > newCapacity) {
+                                displacedPassengers.push(passenger.name);
+                                passenger.seat = null; // Remove seat assignment
+                            }
+                        });
+                        
+                        if (displacedPassengers.length > 0) {
+                            alert(`Capacity reduced! The following passengers were unassigned from seats: ${displacedPassengers.join(', ')}. Please reassign them to available seats.`);
+                        }
+                    }
+                    
+                    // Update passenger count if it exceeds new capacity
+                    const assignedPassengers = passengers.filter(p => p.seat !== null).length;
+                    if (assignedPassengers > newCapacity) {
+                        route.passengers = newCapacity;
+                    }
+                }
+                
+                closeModal();
+                loadScheduledRoutes();
+                
+                // If bookings modal is open for this route, refresh it
+                const largeModal = document.getElementById('modal-large');
+                if (largeModal.style.display === 'block' && 
+                    document.getElementById('modal-large-title').textContent.includes(route.name)) {
+                    
+                    // Refresh the bookings view with updated route
+                    setTimeout(() => {
+                        viewBookings(routeId);
+                    }, 100);
+                }
+                
+                alert('Route updated successfully! Bus layout and capacity have been refreshed.');
+            }
+        }
+
+        function viewBookings(routeId) {
+            const route = scheduledRoutes.find(r => r.id === routeId);
+            if (!route) return;
+            
+            // Generate sample bookings for the route
+            const sampleBookings = generateSampleBookings(route);
+            
+            showLargeModal(`Bookings: ${route.name}`, `
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>Passenger Management</h4>
+                        <button class="btn btn-success" onclick="addRoutePassenger(${routeId})">
+                            ➕ Add Passenger
+                        </button>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;" class="route-details">
+                        <strong>Route Details:</strong><br>
+                        <span style="color: #666;">📍 ${route.route}</span><br>
+                        <span style="color: #666;">🕐 ${route.schedule}</span><br>
+                        <span style="color: #666;">🚌 ${route.capacity} seater bus</span><br>
+                        <span style="color: #666;">📊 Status: ${route.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                
+                <!-- Overhead Bus View -->
+                <div class="overhead-bus-container">
+                    <h4 style="text-align: center; margin-bottom: 15px;">Bus Layout - Overhead View</h4>
+                    
+                    <div class="overhead-bus" id="overhead-bus-${routeId}">
+                        <!-- Bus body with seats -->
+                        <div class="bus-outline">
+                            <div class="bus-front">FRONT</div>
+                            <div class="bus-seats-area" id="bus-seats-${routeId}">
+                                <!-- Seats will be generated here -->
+                            </div>
+                            <div class="bus-back">REAR DOOR</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 10px; color: #666; font-size: 0.9rem;">
+                        💡 Drag passengers from the list below to assign seats
+                    </div>
+                </div>
+                
+                <!-- Passenger List -->
+                <div style="margin-top: 30px;">
+                    <h4>Available Passengers</h4>
+                    <div class="bookings-passenger-list" id="bookings-passengers-${routeId}">
+                        <!-- Passengers will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Booking Summary -->
+                <div style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;" class="booking-summary">
+                    <h4>Booking Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #007bff;">${route.passengers}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Booked</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${route.capacity - route.passengers}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Available</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">£${(route.passengers * 4.50).toFixed(2)}</div>
+                            <div style="font-size: 0.9rem; color: #666;">Revenue</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">${Math.round((route.passengers/route.capacity)*100)}%</div>
+                            <div style="font-size: 0.9rem; color: #666;">Occupancy</div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            // Initialize the overhead bus view
+            initializeOverheadBus(routeId, route, sampleBookings);
+        }
+
+        function duplicateRoute(routeId) {
+            const route = scheduledRoutes.find(r => r.id === routeId);
+            if (route) {
+                const newRoute = {
+                    ...route,
+                    id: scheduledRoutes.length + 1,
+                    name: route.name + ' (Copy)',
+                    status: 'draft',
+                    passengers: 0
+                };
+                scheduledRoutes.push(newRoute);
+                loadScheduledRoutes();
+                alert('Route duplicated successfully!');
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default datetime to tomorrow 9 AM
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+            document.getElementById('route-datetime').value = tomorrow.toISOString().slice(0, 16);
+        });
+
+        // Handle modal clicks
+        document.getElementById('modal').onclick = function(event) {
+            if (event.target === this) {
+                closeModal();
+            }
+        };
+        
+        document.getElementById('modal-large').onclick = function(event) {
+            if (event.target === this) {
+                closeLargeModal();
+            }
+        };
+    </script>
+</body>
+</html>

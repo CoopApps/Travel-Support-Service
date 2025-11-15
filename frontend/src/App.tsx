@@ -34,6 +34,11 @@ import ComplianceAlertsPage from './components/compliance/ComplianceAlertsPage';
 import ServiceRegistrationsPage from './components/compliance/ServiceRegistrationsPage';
 import FinancialSurplusPage from './components/compliance/FinancialSurplusPage';
 import PassengerClassPage from './components/compliance/PassengerClassPage';
+import { ServiceProvider } from './contexts/ServiceContext';
+import BusDashboard from './components/bus/BusDashboard';
+import BusRoutesPage from './components/bus/BusRoutesPage';
+import BusTimetablesPage from './components/bus/BusTimetablesPage';
+import BusBookingsPage from './components/bus/BusBookingsPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -131,7 +136,8 @@ function App() {
 
   // Tenant Application Routes
   return (
-    <Routes>
+    <ServiceProvider>
+      <Routes>
       {/* Unified Login - Routes to appropriate dashboard based on role */}
       <Route
         path="/login"
@@ -171,6 +177,13 @@ function App() {
         <Route path="compliance/service-registrations" element={<ServiceRegistrationsPage />} />
         <Route path="compliance/financial-surplus" element={<FinancialSurplusPage />} />
         <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
+
+        {/* Bus Service Routes */}
+        <Route path="bus/dashboard" element={<BusDashboard />} />
+        <Route path="bus/routes" element={<BusRoutesPage />} />
+        <Route path="bus/timetables" element={<BusTimetablesPage />} />
+        <Route path="bus/bookings" element={<BusBookingsPage />} />
+
         <Route path="driver-messages" element={<DriverMessagesPage />} />
         <Route path="customer-messages" element={<CustomerMessagesPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
@@ -183,7 +196,8 @@ function App() {
 
       {/* 404 */}
       <Route path="*" element={<div className="card" style={{ margin: '2rem' }}>404 - Page Not Found</div>} />
-    </Routes>
+      </Routes>
+    </ServiceProvider>
   );
 }
 

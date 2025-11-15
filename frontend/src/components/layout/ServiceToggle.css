@@ -1,0 +1,127 @@
+.service-toggle-container {
+  position: sticky;
+  top: 64px; /* Below main header */
+  z-index: 100;
+  background: var(--background-primary, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  padding: 16px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.service-toggle {
+  display: flex;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.toggle-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--background-secondary, #f9fafb);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: left;
+}
+
+.toggle-option:hover:not(:disabled) {
+  border-color: var(--primary-color, #3b82f6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.toggle-option.active {
+  background: var(--primary-color, #3b82f6);
+  border-color: var(--primary-color, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.toggle-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-option .icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+.toggle-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggle-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.toggle-description {
+  font-size: 13px;
+  opacity: 0.8;
+  line-height: 1.2;
+}
+
+.toggle-option.active .toggle-description {
+  opacity: 0.95;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .service-toggle {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toggle-option {
+    padding: 14px 20px;
+  }
+
+  .toggle-option .icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .toggle-title {
+    font-size: 15px;
+  }
+
+  .toggle-description {
+    font-size: 12px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .service-toggle-container {
+    background: var(--background-primary, #1f2937);
+    border-bottom-color: var(--border-color, #374151);
+  }
+
+  .toggle-option {
+    background: var(--background-secondary, #111827);
+    border-color: var(--border-color, #374151);
+    color: var(--text-primary, #f9fafb);
+  }
+
+  .toggle-option:hover:not(:disabled) {
+    border-color: var(--primary-color, #3b82f6);
+  }
+
+  .toggle-option.active {
+    background: var(--primary-color, #3b82f6);
+    border-color: var(--primary-color, #3b82f6);
+    color: white;
+  }
+}
