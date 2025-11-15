@@ -22,9 +22,8 @@ export function ServiceToggle() {
       // Update active service
       setActiveService(newService);
 
-      // Navigate to appropriate dashboard
-      const targetPath = newService === 'transport' ? '/dashboard' : '/bus/dashboard';
-      navigate(targetPath);
+      // Navigate to dashboard (now service-aware)
+      navigate('/dashboard');
     } catch (error) {
       console.error('Failed to switch service:', error);
     } finally {

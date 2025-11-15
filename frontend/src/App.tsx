@@ -178,11 +178,12 @@ function App() {
         <Route path="compliance/financial-surplus" element={<FinancialSurplusPage />} />
         <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
 
-        {/* Bus Service Routes */}
-        <Route path="bus/dashboard" element={<BusDashboard />} />
+        {/* Bus Service Routes - bus-specific modules only */}
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
         <Route path="bus/bookings" element={<BusBookingsPage />} />
+
+        {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
 
         <Route path="driver-messages" element={<DriverMessagesPage />} />
         <Route path="customer-messages" element={<CustomerMessagesPage />} />

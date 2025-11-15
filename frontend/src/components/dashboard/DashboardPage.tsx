@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTenant } from '../../context/TenantContext';
+import { useServiceContext } from '../../contexts/ServiceContext';
 import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
 import { vehicleApi, customerApi, driverApi } from '../../services/api';
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
+import BusDashboard from '../bus/BusDashboard';
 import '../../pages/AdminDashboard.css';
 
 /**
- * Dashboard Page Component
+ * Service-Aware Dashboard Page Component
  *
- * Main operational dashboard showing dismissible alerts with instructions
+ * Displays different dashboards based on active service:
+ * - Transport: Shows trips, ad-hoc bookings, driver assignments
+ * - Bus: Shows scheduled routes, timetables, seat availability
  */
 
 interface Alert {
@@ -25,7 +29,15 @@ interface Alert {
 function DashboardPage() {
   const user = useAuthStore((state) => state.user);
   const { tenant, tenantId } = useTenant();
+  const { activeService } = useServiceContext();
   const navigate = useNavigate();
+
+  // If bus service is active, show bus dashboard
+  if (activeService === 'bus') {
+    return <BusDashboard />;
+  }
+
+  // Otherwise show transport dashboard
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

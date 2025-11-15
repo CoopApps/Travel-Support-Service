@@ -3,6 +3,7 @@ import { customerApi } from '../../services/api';
 import { Customer, CustomerListQuery } from '../../types';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import { useServiceContext } from '../../contexts/ServiceContext';
 import CustomerFormModal from './CustomerFormModal';
 import CustomerStats from './CustomerStats';
 import LoginStatusDisplay from './LoginStatusDisplay';
@@ -14,20 +15,26 @@ import TimesManagementModal from './TimesManagementModal';
 import AssessmentModal from './AssessmentModal';
 
 /**
- * Customer List Page - Stage 4
+ * Service-Aware Customer/Passenger List Page
  *
- * Complete customer management with:
- * - Pagination
- * - Search
- * - Filtering
+ * Shows different terminology based on active service:
+ * - Transport: "Customers" (people booking trips)
+ * - Bus: "Passengers" (people booking seats on scheduled routes)
+ *
+ * Features:
+ * - Pagination, Search, Filtering
  * - Create/Edit/Delete operations
- *
- * This serves as the template for all other feature pages.
+ * - Service-aware labels and actions
  */
 
 function CustomerListPage() {
   const { tenantId, tenant } = useTenant();
   const toast = useToast();
+  const { activeService } = useServiceContext();
+
+  // Service-aware terminology
+  const entityName = activeService === 'bus' ? 'Passenger' : 'Customer';
+  const entityNamePlural = activeService === 'bus' ? 'Passengers' : 'Customers';
 
   // Safety check: should never happen if tenant context loaded
   if (!tenantId) {
@@ -295,7 +302,7 @@ function CustomerListPage() {
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Customer Management</h2>
+          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>{entityNamePlural} Management</h2>
           {tenant && (
             <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
               {tenant.company_name}
@@ -319,7 +326,7 @@ function CustomerListPage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
-            Add Customer
+            Add {entityName}
           </button>
         </div>
       </div>
@@ -349,7 +356,7 @@ function CustomerListPage() {
             transition: 'all 0.2s'
           }}
         >
-          Active Customers
+          Active {entityNamePlural}
         </button>
         <button
           onClick={() => {
@@ -369,7 +376,7 @@ function CustomerListPage() {
             transition: 'all 0.2s'
           }}
         >
-          Archive
+          Archived {entityNamePlural}
         </button>
       </div>
 

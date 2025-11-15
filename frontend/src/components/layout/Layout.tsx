@@ -43,28 +43,26 @@ function Layout() {
         </div>
 
         <nav className="sidebar-nav">
-          {activeService === 'bus' ? (
-            /* Bus Service Navigation */
-            <>
-              <div className="nav-section">
-                <div className="nav-section-label">Bus Operations</div>
-                <NavItem to="/bus/dashboard" label="Dashboard" icon="home" active={location.pathname === '/bus/dashboard'} />
+          <div className="nav-section">
+            <div className="nav-section-label">{activeService === 'bus' ? 'Bus Operations' : 'Core Operations'}</div>
+            {/* Dashboard is service-aware - same route for both */}
+            <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+
+            {activeService === 'bus' ? (
+              /* Bus-specific modules */
+              <>
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
-              </div>
-            </>
-          ) : (
-            /* Community Transport Navigation */
-            <>
-              <div className="nav-section">
-                <div className="nav-section-label">Core Operations</div>
-                <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+              </>
+            ) : (
+              /* Transport-specific modules */
+              <>
                 <NavItem to="/schedules" label="Schedules" icon="calendar" active={location.pathname === '/schedules'} />
                 <NavItem to="/customers" label="Customers" icon="users" active={location.pathname === '/customers'} />
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
 
           <div className="nav-section">
             <div className="nav-section-label">Resources</div>
