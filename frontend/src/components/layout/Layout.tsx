@@ -55,6 +55,7 @@ function Layout() {
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
                 <NavItem to="/bus/seats" label="Seat Assignment" icon="grid" active={location.pathname === '/bus/seats'} />
+                <NavItem to="/bus/communications" label="Communications" icon="mail" active={location.pathname === '/bus/communications'} />
                 <NavItem to="/bus/compliance" label="Section 22 Compliance" icon="shield" active={location.pathname === '/bus/compliance'} />
               </>
             ) : (
