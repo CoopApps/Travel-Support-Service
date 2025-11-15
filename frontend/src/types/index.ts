@@ -291,3 +291,6 @@ export * from './safeguarding.types';
 
 // Re-export payroll types
 export * from './payroll.types';
+
+// Re-export fare types
+export * from './fare.types';
