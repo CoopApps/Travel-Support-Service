@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { useServiceContext } from '../../contexts/ServiceContext';
 import { vehicleApi, driverApi } from '../../services/api';
 import { Vehicle, Driver, VehicleStats as VehicleStatsType } from '../../types';
 import VehicleStats from './VehicleStats';
@@ -14,12 +15,17 @@ import FleetAnalyticsDashboard from './FleetAnalyticsDashboard';
 import IdleVehiclesReport from './IdleVehiclesReport';
 
 /**
- * Vehicle List Page
+ * Service-Aware Vehicle List Page
  *
- * Main page for fleet management with Overview and Maintenance tabs
+ * Features:
+ * - Filters vehicles by type based on active service
+ * - Bus mode: Shows only buses/minibuses (9+ seats)
+ * - Transport mode: Shows all vehicles
+ * - Section 22 compliance indicators
  */
 function VehicleListPage() {
   const { tenantId, tenant } = useTenant();
+  const { activeService } = useServiceContext();
   const [loading, setLoading] = useState(true);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -29,6 +35,7 @@ function VehicleListPage() {
   const [showOwned, setShowOwned] = useState(true);
   const [showLeased, setShowLeased] = useState(true);
   const [showPersonal, setShowPersonal] = useState(true);
+  const [vehicleTypeFilter, setVehicleTypeFilter] = useState<'all' | 'bus' | 'minibus' | 'car'>('all');
 
   // Modal state
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -63,26 +70,64 @@ function VehicleListPage() {
     }
   };
 
-  // Calculate stats
+  /**
+   * Get vehicle type based on seating capacity
+   */
+  const getVehicleType = (vehicle: Vehicle): 'bus' | 'minibus' | 'car' => {
+    const capacity = vehicle.seating_capacity || 0;
+    if (capacity >= 17) return 'bus';
+    if (capacity >= 9) return 'minibus';
+    return 'car';
+  };
+
+  /**
+   * Check if vehicle is suitable for Section 22 bus operations
+   */
+  const isSection22Suitable = (vehicle: Vehicle): boolean => {
+    const capacity = vehicle.seating_capacity || 0;
+    // Section 22 typically requires 9+ seats (minibus or bus)
+    return capacity >= 9;
+  };
+
+  // Filter vehicles based on service and type
+  const getFilteredVehicles = () => {
+    let filtered = vehicles;
+
+    // When bus service is active, only show buses/minibuses (9+ seats)
+    if (activeService === 'bus') {
+      filtered = filtered.filter(v => isSection22Suitable(v));
+    }
+
+    // Apply vehicle type filter
+    if (vehicleTypeFilter !== 'all') {
+      filtered = filtered.filter(v => getVehicleType(v) === vehicleTypeFilter);
+    }
+
+    // Apply ownership filters
+    if (!showOwned) filtered = filtered.filter(v => v.ownership !== 'owned');
+    if (!showLeased) filtered = filtered.filter(v => v.ownership !== 'leased');
+    if (!showPersonal) filtered = filtered.filter(v => v.ownership !== 'personal');
+
+    return filtered;
+  };
+
+  const filteredVehicles = getFilteredVehicles();
+
+  // Calculate stats (from ALL vehicles, then from filtered for comparison)
+  const allVehicles = vehicles;
+  const busVehicles = vehicles.filter(v => isSection22Suitable(v));
+
   const stats: VehicleStatsType = {
-    total: vehicles.length,
-    owned: vehicles.filter(v => v.ownership === 'owned').length,
-    leased: vehicles.filter(v => v.ownership === 'leased').length,
-    personal: vehicles.filter(v => v.ownership === 'personal').length,
-    wheelchair_accessible: vehicles.filter(v => v.wheelchair_accessible).length,
-    needs_details: vehicles.filter(v => v.is_basic_record).length,
-    total_monthly_costs: vehicles.reduce((sum, v) => {
+    total: activeService === 'bus' ? busVehicles.length : allVehicles.length,
+    owned: filteredVehicles.filter(v => v.ownership === 'owned').length,
+    leased: filteredVehicles.filter(v => v.ownership === 'leased').length,
+    personal: filteredVehicles.filter(v => v.ownership === 'personal').length,
+    wheelchair_accessible: filteredVehicles.filter(v => v.wheelchair_accessible).length,
+    needs_details: filteredVehicles.filter(v => v.is_basic_record).length,
+    total_monthly_costs: filteredVehicles.reduce((sum, v) => {
       return sum + (v.lease_monthly_cost || 0) + (v.insurance_monthly_cost || 0);
     }, 0)
   };
-
-  // Filter vehicles
-  const filteredVehicles = vehicles.filter(v => {
-    if (!showOwned && v.ownership === 'owned') return false;
-    if (!showLeased && v.ownership === 'leased') return false;
-    if (!showPersonal && v.ownership === 'personal') return false;
-    return true;
-  });
 
   // Handlers
   const handleAddVehicle = () => {
@@ -298,6 +343,35 @@ function VehicleListPage() {
               </label>
             </div>
 
+            {/* Vehicle Type Filter */}
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <select
+                value={vehicleTypeFilter}
+                onChange={(e) => setVehicleTypeFilter(e.target.value as any)}
+                style={{ minWidth: '150px', fontSize: '0.875rem' }}
+                title="Filter by vehicle type"
+              >
+                <option value="all">All Types</option>
+                <option value="bus">🚌 Bus (17+ seats)</option>
+                <option value="minibus">🚐 Minibus (9-16 seats)</option>
+                <option value="car">🚗 Car (1-8 seats)</option>
+              </select>
+
+              {activeService === 'bus' && (
+                <span style={{
+                  fontSize: '0.75rem',
+                  color: '#10b981',
+                  fontWeight: 500,
+                  backgroundColor: '#10b98110',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  ✓ Bus mode: Showing vehicles 9+ seats only
+                </span>
+              )}
+            </div>
+
             {/* Action Buttons */}
             <button
               onClick={() => fetchData()}
@@ -342,15 +416,23 @@ function VehicleListPage() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
               gap: '1.25rem'
             }}>
-              {filteredVehicles.map(vehicle => (
-                <VehicleCard
-                  key={vehicle.vehicle_id}
-                  vehicle={vehicle}
-                  onEdit={handleEditVehicle}
-                  onAssignDriver={handleAssignDriver}
-                  onDelete={handleDeleteVehicle}
-                />
-              ))}
+              {filteredVehicles.map(vehicle => {
+                const vehicleType = getVehicleType(vehicle);
+                const section22Suitable = isSection22Suitable(vehicle);
+
+                return (
+                  <VehicleCard
+                    key={vehicle.vehicle_id}
+                    vehicle={vehicle}
+                    onEdit={handleEditVehicle}
+                    onAssignDriver={handleAssignDriver}
+                    onDelete={handleDeleteVehicle}
+                    vehicleType={vehicleType}
+                    section22Suitable={section22Suitable}
+                    showBusInfo={activeService === 'bus'}
+                  />
+                );
+              })}
             </div>
           )}
         </>

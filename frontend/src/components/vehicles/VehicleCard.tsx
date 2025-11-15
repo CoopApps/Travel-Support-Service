@@ -5,14 +5,28 @@ interface VehicleCardProps {
   onEdit: (vehicle: Vehicle) => void;
   onAssignDriver: (vehicle: Vehicle) => void;
   onDelete: (vehicle: Vehicle) => void;
+  vehicleType?: 'bus' | 'minibus' | 'car';
+  section22Suitable?: boolean;
+  showBusInfo?: boolean;
 }
 
 /**
- * Vehicle Card Component
+ * Service-Aware Vehicle Card Component
  *
- * Displays vehicle details with ownership badges and status indicators
+ * Displays vehicle details with:
+ * - Ownership badges and status indicators
+ * - Vehicle type badges (Bus/Minibus/Car)
+ * - Section 22 suitability indicator
  */
-function VehicleCard({ vehicle, onEdit, onAssignDriver, onDelete }: VehicleCardProps) {
+function VehicleCard({
+  vehicle,
+  onEdit,
+  onAssignDriver,
+  onDelete,
+  vehicleType,
+  section22Suitable,
+  showBusInfo
+}: VehicleCardProps) {
   // Calculate status indicators for MOT, Insurance, Service
   const getStatusIndicator = (dateStr: string | undefined, label: string) => {
     if (!dateStr) {
@@ -126,18 +140,44 @@ function VehicleCard({ vehicle, onEdit, onAssignDriver, onDelete }: VehicleCardP
             {ownershipStyle.label}
           </div>
         </div>
-        {vehicle.wheelchair_accessible && (
-          <div style={{
-            marginTop: '8px',
-            background: 'rgba(255,255,255,0.15)',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
-            display: 'inline-block'
-          }}>
-            ♿ Wheelchair Accessible
-          </div>
-        )}
+        <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {vehicle.wheelchair_accessible && (
+            <div style={{
+              background: 'rgba(255,255,255,0.15)',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '0.75rem',
+              display: 'inline-block'
+            }}>
+              ♿ Wheelchair Accessible
+            </div>
+          )}
+          {vehicleType && (
+            <div style={{
+              background: 'rgba(255,255,255,0.15)',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '0.75rem',
+              display: 'inline-block'
+            }}>
+              {vehicleType === 'bus' && '🚌 Bus'}
+              {vehicleType === 'minibus' && '🚐 Minibus'}
+              {vehicleType === 'car' && '🚗 Car'}
+            </div>
+          )}
+          {section22Suitable && showBusInfo && (
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.3)',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '0.75rem',
+              display: 'inline-block',
+              fontWeight: 600
+            }}>
+              ✓ Section 22
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Card Body */}
