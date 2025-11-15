@@ -343,6 +343,13 @@ function CustomerDashboard() {
             </svg>
             Request Journey
           </button>
+          <button className="quick-action-btn" onClick={() => navigate('/customer/route-proposals')}>
+            <svg viewBox="0 0 24 24" style={{ width: '18px', height: '18px', stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Route Proposals
+          </button>
           <button className="quick-action-btn" onClick={() => setShowSocialOutingsModal(true)}>
             <svg viewBox="0 0 24 24" style={{ width: '18px', height: '18px', stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

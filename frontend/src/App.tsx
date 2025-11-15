@@ -43,6 +43,8 @@ import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import BusCommunicationsPage from './components/bus/BusCommunicationsPage';
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
+import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
+import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -153,6 +155,7 @@ function App() {
 
       {/* Customer Dashboard */}
       <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+      <Route path="/customer/route-proposals" element={<CustomerRouteProposalsPage />} />
 
       {/* Protected Tenant Routes */}
       <Route
@@ -192,6 +195,9 @@ function App() {
         <Route path="bus/compliance" element={<Section22CompliancePage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
+
+        {/* Route Proposals (Admin) */}
+        <Route path="admin/route-proposals" element={<RouteProposalsAdmin />} />
 
         <Route path="driver-messages" element={<DriverMessagesPage />} />
         <Route path="customer-messages" element={<CustomerMessagesPage />} />
