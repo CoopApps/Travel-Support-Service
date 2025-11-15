@@ -41,6 +41,8 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
     mobility_requirements: '',
     reminder_opt_in: true,
     reminder_preference: 'sms',
+    section_19_eligible: true,  // Default: eligible for car transport
+    section_22_eligible: false, // Default: not eligible for bus
   });
 
   // Split payment providers state
@@ -97,6 +99,8 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
         mobility_requirements: customer.mobility_requirements || '',
         reminder_opt_in: customer.reminder_opt_in !== undefined ? customer.reminder_opt_in : true,
         reminder_preference: customer.reminder_preference || 'sms',
+        section_19_eligible: customer.section_19_eligible !== undefined ? customer.section_19_eligible : true,
+        section_22_eligible: customer.section_22_eligible !== undefined ? customer.section_22_eligible : false,
       });
 
       // Initialize providers array from provider_split
@@ -651,6 +655,116 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
                     </select>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Service Eligibility */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--gray-800)' }}>
+                Service Eligibility
+              </h3>
+
+              <div style={{
+                border: '1px solid var(--gray-200)',
+                borderRadius: '8px',
+                padding: '1rem',
+                background: '#f8fafc',
+              }}>
+                <p style={{ fontSize: '13px', color: 'var(--gray-600)', marginBottom: '1rem', marginTop: 0 }}>
+                  Select which transport services this customer is eligible to use. At least one service must be selected.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.75rem',
+                    cursor: 'pointer',
+                    padding: '0.75rem',
+                    background: formData.section_19_eligible ? '#e0f2fe' : 'white',
+                    border: formData.section_19_eligible ? '2px solid #0284c7' : '1px solid var(--gray-200)',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s',
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.section_19_eligible || false}
+                      onChange={(e) => {
+                        const newValue = e.target.checked;
+                        // Ensure at least one service is selected
+                        if (!newValue && !formData.section_22_eligible) {
+                          setError('At least one service must be selected');
+                          return;
+                        }
+                        setError('');
+                        handleChange('section_19_eligible', newValue);
+                      }}
+                      disabled={loading}
+                      style={{ width: 'auto', margin: '4px 0 0 0', cursor: 'pointer' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px', color: 'var(--gray-900)' }}>
+                        🚗 Section 19 - Community Transport (Car Services)
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
+                        Door-to-door transport using cars and small vehicles. Ideal for individual trips, medical appointments, and personal errands.
+                      </div>
+                    </div>
+                  </label>
+
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.75rem',
+                    cursor: 'pointer',
+                    padding: '0.75rem',
+                    background: formData.section_22_eligible ? '#dfe' : 'white',
+                    border: formData.section_22_eligible ? '2px solid #10b981' : '1px solid var(--gray-200)',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s',
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.section_22_eligible || false}
+                      onChange={(e) => {
+                        const newValue = e.target.checked;
+                        // Ensure at least one service is selected
+                        if (!newValue && !formData.section_19_eligible) {
+                          setError('At least one service must be selected');
+                          return;
+                        }
+                        setError('');
+                        handleChange('section_22_eligible', newValue);
+                      }}
+                      disabled={loading}
+                      style={{ width: 'auto', margin: '4px 0 0 0', cursor: 'pointer' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px', color: 'var(--gray-900)' }}>
+                        🚌 Section 22 - Community Bus Services
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
+                        Scheduled bus routes with fixed timetables. Requires vehicles with 9+ seats. Suitable for regular group trips and route-based travel.
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Visual indicator of selection */}
+                <div style={{
+                  marginTop: '0.75rem',
+                  padding: '0.5rem',
+                  background: '#f1f5f9',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  color: 'var(--gray-700)',
+                }}>
+                  <strong>Selected services:</strong>{' '}
+                  {formData.section_19_eligible && formData.section_22_eligible && 'Both Section 19 and Section 22'}
+                  {formData.section_19_eligible && !formData.section_22_eligible && 'Section 19 only (Car services)'}
+                  {!formData.section_19_eligible && formData.section_22_eligible && 'Section 22 only (Bus services)'}
+                  {!formData.section_19_eligible && !formData.section_22_eligible && '⚠️ None (invalid)'}
+                </div>
               </div>
             </div>
 

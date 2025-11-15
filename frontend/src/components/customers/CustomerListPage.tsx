@@ -63,6 +63,7 @@ function CustomerListPage() {
   // Filter/search state
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [eligibilityFilter, setEligibilityFilter] = useState<'all' | 'section_19_only' | 'section_22_only' | 'both'>('all');
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -297,6 +298,34 @@ function CustomerListPage() {
     return total;
   };
 
+  /**
+   * Filter customers based on service eligibility
+   */
+  const getFilteredCustomers = (): Customer[] => {
+    let filtered = customers;
+
+    // Filter by service eligibility based on active service and filter selection
+    if (activeService === 'bus' && eligibilityFilter === 'all') {
+      // In bus mode: by default show only Section 22 eligible customers
+      filtered = filtered.filter(c => c.section_22_eligible);
+    } else if (activeService === 'transport' && eligibilityFilter === 'all') {
+      // In transport mode: by default show only Section 19 eligible customers
+      filtered = filtered.filter(c => c.section_19_eligible);
+    } else if (eligibilityFilter === 'section_19_only') {
+      // Show only Section 19 eligible (not Section 22)
+      filtered = filtered.filter(c => c.section_19_eligible && !c.section_22_eligible);
+    } else if (eligibilityFilter === 'section_22_only') {
+      // Show only Section 22 eligible (not Section 19)
+      filtered = filtered.filter(c => !c.section_19_eligible && c.section_22_eligible);
+    } else if (eligibilityFilter === 'both') {
+      // Show only customers eligible for both services
+      filtered = filtered.filter(c => c.section_19_eligible && c.section_22_eligible);
+    }
+    // If 'all' and no active service filter, show all customers
+
+    return filtered;
+  };
+
   return (
     <div>
       {/* Page Header */}
@@ -420,7 +449,49 @@ function CustomerListPage() {
             )}
           </div>
         </form>
+
+        {/* Service Eligibility Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <label htmlFor="eligibilityFilter" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--gray-700)', whiteSpace: 'nowrap' }}>
+            Service Filter:
+          </label>
+          <select
+            id="eligibilityFilter"
+            value={eligibilityFilter}
+            onChange={(e) => setEligibilityFilter(e.target.value as any)}
+            style={{ padding: '0.5rem', fontSize: '14px', minWidth: '200px' }}
+          >
+            <option value="all">
+              {activeService === 'bus' ? '🚌 Section 22 Eligible' : activeService === 'transport' ? '🚗 Section 19 Eligible' : 'All Customers'}
+            </option>
+            <option value="section_19_only">🚗 Section 19 Only</option>
+            <option value="section_22_only">🚌 Section 22 Only</option>
+            <option value="both">✓ Both Services</option>
+          </select>
+        </div>
       </div>
+
+      {/* Active Service Indicator */}
+      {activeService && eligibilityFilter === 'all' && (
+        <div style={{
+          marginBottom: '1rem',
+          padding: '0.75rem 1rem',
+          background: activeService === 'bus' ? '#d1fae510' : '#dbeafe10',
+          border: `1px solid ${activeService === 'bus' ? '#10b981' : '#3b82f6'}`,
+          borderRadius: '6px',
+          fontSize: '13px',
+          color: 'var(--gray-700)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span style={{ fontSize: '16px' }}>{activeService === 'bus' ? '🚌' : '🚗'}</span>
+          <span>
+            <strong>{activeService === 'bus' ? 'Bus Service Mode:' : 'Transport Service Mode:'}</strong>
+            {' '}Showing {activeService === 'bus' ? 'Section 22' : 'Section 19'} eligible {entityNamePlural.toLowerCase()} only
+          </span>
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -435,7 +506,7 @@ function CustomerListPage() {
           <div className="spinner" style={{ width: '2rem', height: '2rem', margin: '0 auto' }}></div>
           <p style={{ marginTop: '1rem', color: 'var(--gray-600)' }}>Loading customers...</p>
         </div>
-      ) : customers.length === 0 ? (
+      ) : getFilteredCustomers().length === 0 ? (
         /* Empty State */
         <div className="empty-state">
           <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
@@ -472,12 +543,49 @@ function CustomerListPage() {
                 </tr>
               </thead>
               <tbody>
-                  {customers.map((customer) => (
+                  {getFilteredCustomers().map((customer) => (
                     <tr key={customer.id}>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <div style={{ fontWeight: 600, color: 'var(--gray-900)', fontSize: '14px' }}>
                             {customer.name}
+                          </div>
+                          {/* Service Eligibility Badges */}
+                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                            {customer.section_19_eligible && (
+                              <span style={{
+                                fontSize: '10px',
+                                color: '#0284c7',
+                                background: '#e0f2fe',
+                                padding: '2px 6px',
+                                borderRadius: '3px',
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.3px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '3px'
+                              }}>
+                                🚗 Section 19
+                              </span>
+                            )}
+                            {customer.section_22_eligible && (
+                              <span style={{
+                                fontSize: '10px',
+                                color: '#10b981',
+                                background: '#d1fae5',
+                                padding: '2px 6px',
+                                borderRadius: '3px',
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.3px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '3px'
+                              }}>
+                                🚌 Section 22
+                              </span>
+                            )}
                           </div>
                           {customer.is_login_enabled && (
                             <span style={{

@@ -65,6 +65,8 @@ export interface Customer {
   user_id?: number;
   username?: string;
   last_login?: string;
+  section_19_eligible?: boolean; // Eligible for Section 19 community transport (cars)
+  section_22_eligible?: boolean; // Eligible for Section 22 community bus services
   created_at: string;
   updated_at: string;
 }
@@ -89,6 +91,8 @@ export interface CreateCustomerDto {
   medication_notes?: string;
   driver_notes?: string;
   mobility_requirements?: string;
+  section_19_eligible?: boolean;
+  section_22_eligible?: boolean;
 }
 
 export interface UpdateCustomerDto extends Partial<CreateCustomerDto> {}
