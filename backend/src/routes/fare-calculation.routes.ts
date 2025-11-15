@@ -7,10 +7,41 @@
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { FareCalculationService } from '../services/fareCalculation.service';
+import { OrganizationalConfigService } from '../services/organizationalConfig.service';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 
 const router = express.Router();
 const fareService = new FareCalculationService(pool);
+const orgConfigService = new OrganizationalConfigService(pool);
+
+  /**
+   * GET /api/tenants/:tenantId/organizational-config
+   * Get organizational configuration (type, cooperative model, surplus rules)
+   */
+  router.get('/tenants/:tenantId/organizational-config', async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.params;
+
+      const config = await orgConfigService.getOrganizationalConfig(Number(tenantId));
+      const description = orgConfigService.getOrganizationDescription(config);
+      const serviceConfig = orgConfigService.getServiceConfig(config);
+
+      res.json({
+        config,
+        description,
+        serviceConfig,
+      });
+    } catch (error: any) {
+      console.error('Error fetching organizational config:', error);
+      res.status(500).json({
+        error: {
+          message: error.message || 'Failed to fetch organizational configuration',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+  });
 
   /**
    * GET /api/tenants/:tenantId/fare-settings

@@ -8,6 +8,7 @@
  */
 
 import { Pool } from 'pg';
+import { OrganizationalConfigService } from './organizationalConfig.service';
 
 interface FareCalculationSettings {
   tenantId: number;
@@ -63,13 +64,16 @@ interface SurplusAllocation {
 
 export class FareCalculationService {
   private pool: Pool;
+  private orgConfigService: OrganizationalConfigService;
 
   constructor(pool: Pool) {
     this.pool = pool;
+    this.orgConfigService = new OrganizationalConfigService(pool);
   }
 
   /**
    * Get fare calculation settings for tenant
+   * Auto-initializes based on organizational type if not configured
    */
   async getFareSettings(tenantId: number): Promise<FareCalculationSettings> {
     const client = await this.pool.connect();
@@ -80,7 +84,20 @@ export class FareCalculationService {
       );
 
       if (result.rows.length === 0) {
-        // Return default settings if none configured
+        // Initialize settings based on organizational config
+        await this.orgConfigService.initializeFareSettings(tenantId);
+
+        // Fetch the newly initialized settings
+        const newResult = await client.query(
+          `SELECT * FROM fare_calculation_settings WHERE tenant_id = $1`,
+          [tenantId]
+        );
+
+        if (newResult.rows.length > 0) {
+          return newResult.rows[0];
+        }
+
+        // Fallback to default settings if initialization failed
         return this.getDefaultSettings(tenantId);
       }
 
