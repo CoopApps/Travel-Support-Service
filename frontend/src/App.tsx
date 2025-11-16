@@ -47,6 +47,7 @@ import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
 import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
 import CooperativeMembersPage from './components/bus/CooperativeMembersPage';
 import QuickBookPage from './components/bus/QuickBookPage';
+import DividendManagementPage from './components/bus/DividendManagementPage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 
@@ -200,6 +201,7 @@ function App() {
         <Route path="bus/analytics" element={<BusAnalyticsPage />} />
         <Route path="bus/surplus-pool" element={<SurplusPoolDashboard />} />
         <Route path="bus/members" element={<CooperativeMembersPage />} />
+        <Route path="bus/dividends" element={<DividendManagementPage />} />
         <Route path="bus/compliance" element={<Section22CompliancePage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
