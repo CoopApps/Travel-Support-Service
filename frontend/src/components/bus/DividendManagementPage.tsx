@@ -522,8 +522,11 @@ const DividendManagementPage: React.FC = () => {
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '12px', borderBottom: '2px solid #dee2e6' }}>
                       Member
                     </th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '12px', borderBottom: '2px solid #dee2e6' }}>
+                      Type
+                    </th>
                     <th style={{ padding: '0.75rem', textAlign: 'right', fontSize: '12px', borderBottom: '2px solid #dee2e6' }}>
-                      Trips
+                      Patronage
                     </th>
                     <th style={{ padding: '0.75rem', textAlign: 'right', fontSize: '12px', borderBottom: '2px solid #dee2e6' }}>
                       % of Total
@@ -534,15 +537,34 @@ const DividendManagementPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {member_dividends.map((dividend) => (
-                    <tr key={dividend.member_id} style={{ borderBottom: '1px solid #dee2e6' }}>
+                  {member_dividends.map((dividend, idx) => (
+                    <tr key={`${dividend.member_id}-${dividend.member_type || 'customer'}-${idx}`} style={{ borderBottom: '1px solid #dee2e6' }}>
                       <td style={{ padding: '0.75rem' }}>
                         <div style={{ fontWeight: 500 }}>{dividend.member_name}</div>
                         <div style={{ fontSize: '12px', color: '#6c757d' }}>{dividend.membership_number}</div>
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right' }}>{dividend.trips_count}</td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 500,
+                            background: dividend.member_type === 'driver' ? '#e7f3ff' : '#f0fdf4',
+                            color: dividend.member_type === 'driver' ? '#0066cc' : '#16a34a',
+                          }}
+                        >
+                          {dividend.member_type === 'driver' ? '👥 Driver' : '🚗 Customer'}
+                        </span>
+                      </td>
                       <td style={{ padding: '0.75rem', textAlign: 'right' }}>
-                        {dividend.trip_percentage.toFixed(1)}%
+                        {dividend.patronage_value || dividend.trips_count}
+                        <div style={{ fontSize: '11px', color: '#6c757d' }}>
+                          {dividend.member_type === 'driver' ? 'trips driven' : 'trips taken'}
+                        </div>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'right' }}>
+                        {(dividend.patronage_percentage || dividend.trip_percentage).toFixed(1)}%
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'right', fontWeight: 500, color: '#28a745' }}>
                         £{dividend.dividend_amount.toFixed(2)}
