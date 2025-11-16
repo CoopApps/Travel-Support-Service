@@ -32,12 +32,7 @@ function DashboardPage() {
   const { activeService } = useServiceContext();
   const navigate = useNavigate();
 
-  // If bus service is active, show bus dashboard
-  if (activeService === 'bus') {
-    return <BusDashboard />;
-  }
-
-  // Otherwise show transport dashboard
+  // Transport dashboard state - must be called before any conditional returns
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,6 +43,13 @@ function DashboardPage() {
   const [showSafeguardingModal, setShowSafeguardingModal] = useState(false);
   const [showLateArrivalModal, setShowLateArrivalModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  // If bus service is active, show bus dashboard (after all hooks are called)
+  if (activeService === 'bus') {
+    return <BusDashboard />;
+  }
+
+  // Otherwise show transport dashboard
   const [scheduleModalDate, setScheduleModalDate] = useState<string>('');
   const [scheduleModalTitle, setScheduleModalTitle] = useState<string>('');
   const [scheduleData, setScheduleData] = useState<any>(null);
