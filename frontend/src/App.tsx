@@ -142,7 +142,7 @@ function App() {
 
   // Tenant Application Routes
   return (
-    <ServiceProvider>
+    <ServiceProvider transportEnabled={true} busEnabled={true}>
       <Routes>
       {/* Unified Login - Routes to appropriate dashboard based on role */}
       <Route
