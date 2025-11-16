@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import NotificationBell from './NotificationBell';
 import UserDropdown from './UserDropdown';
-import { ServiceToggle } from './ServiceToggle';
+import { ServiceToggleCompact } from './ServiceToggleCompact';
 import { useServiceContext } from '../../contexts/ServiceContext';
 import './Layout.css';
 
@@ -142,7 +142,7 @@ function Layout() {
           </div>
 
           <div className="header-actions" id="headerActions">
-            <ServiceToggle />
+            <ServiceToggleCompact />
             <NotificationBell />
             <UserDropdown />
           </div>
