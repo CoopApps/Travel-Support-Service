@@ -17,7 +17,7 @@ import express, { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { query, queryOne } from '../config/database';
-import { NotFoundError, ValidationError, ForbiddenError } from '../utils/errorTypes';
+import { NotFoundError, ValidationError, AuthorizationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
 import {
   generateFareQuote,
@@ -39,22 +39,23 @@ interface CustomerTravelPrivacy {
   privacy_consent_given: boolean;
 }
 
-interface RouteProposal {
-  proposal_id: number;
-  tenant_id: number;
-  route_name: string;
-  origin_area: string;
-  destination_name: string;
-  total_pledges: number;
-  total_votes: number;
-  status: string;
-}
+// Interfaces for future type safety (currently unused but kept for documentation)
+// interface RouteProposal {
+//   proposal_id: number;
+//   tenant_id: number;
+//   route_name: string;
+//   origin_area: string;
+//   destination_name: string;
+//   total_pledges: number;
+//   total_votes: number;
+//   status: string;
+// }
 
-interface MatchScore {
-  customer_id: number;
-  score: number;
-  match_reason: string;
-}
+// interface MatchScore {
+//   customer_id: number;
+//   score: number;
+//   match_reason: string;
+// }
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -404,7 +405,7 @@ router.post(
     const customerId = (req as any).user?.customerId;
 
     if (!customerId) {
-      throw new ForbiddenError('Only customers can create route proposals');
+      throw new AuthorizationError('Only customers can create route proposals');
     }
 
     const {
@@ -440,7 +441,7 @@ router.post(
     `, [tenantId, customerId]);
 
     if (!privacy?.privacy_consent_given) {
-      throw new ForbiddenError('You must accept the privacy policy before creating proposals');
+      throw new AuthorizationError('You must accept the privacy policy before creating proposals');
     }
 
     // Get customer name
@@ -531,7 +532,7 @@ router.post(
     const customerId = (req as any).user?.customerId;
 
     if (!customerId) {
-      throw new ForbiddenError('Only customers can vote on proposals');
+      throw new AuthorizationError('Only customers can vote on proposals');
     }
 
     const {
@@ -726,7 +727,7 @@ router.get(
       ORDER BY i.match_score DESC, i.created_at DESC
     `, [tenantId, customerId]);
 
-    res.json(invitations);
+    return res.json(invitations);
   })
 );
 
@@ -742,7 +743,7 @@ router.get(
     const customerId = (req as any).user?.customerId;
 
     if (!customerId) {
-      throw new ForbiddenError('Only customers can access privacy settings');
+      throw new AuthorizationError('Only customers can access privacy settings');
     }
 
     const privacy = await queryOne(`
@@ -759,7 +760,7 @@ router.get(
       });
     }
 
-    res.json(privacy);
+    return res.json(privacy);
   })
 );
 
@@ -775,7 +776,7 @@ router.post(
     const customerId = (req as any).user?.customerId;
 
     if (!customerId) {
-      throw new ForbiddenError('Only customers can update privacy settings');
+      throw new AuthorizationError('Only customers can update privacy settings');
     }
 
     const {
@@ -854,7 +855,7 @@ router.get(
     const userRole = (req as any).user?.role;
 
     if (userRole !== 'admin') {
-      throw new ForbiddenError('Only admins can access this endpoint');
+      throw new AuthorizationError('Only admins can access this endpoint');
     }
 
     logger.info('Admin fetching all route proposals', { tenantId });
@@ -912,8 +913,15 @@ router.get(
         servicesPerMonth = Math.round(servicesPerMonth / pledges.length);
 
         // Get viability analysis
+        // Use default distance/duration if not set (can be enhanced with Google Maps API)
+        const distanceMiles = 10; // Default estimate
+        const durationMinutes = proposal.estimated_journey_duration_minutes || 30;
+
         viabilityAnalysis = analyzeRouteProposalViability(
           proposal.proposal_id,
+          proposal.route_name,
+          distanceMiles,
+          durationMinutes,
           pledges.length,
           averageWillingToPay,
           servicesPerMonth
@@ -942,7 +950,7 @@ router.get(
     const userRole = (req as any).user?.role;
 
     if (userRole !== 'admin') {
-      throw new ForbiddenError('Only admins can access this endpoint');
+      throw new AuthorizationError('Only admins can access this endpoint');
     }
 
     const pledges = await query(`
@@ -957,11 +965,12 @@ router.get(
         v.created_at
       FROM tenant_route_proposal_votes v
       WHERE v.proposal_id = $1
+        AND v.tenant_id = $2
         AND v.vote_type = 'pledge'
       ORDER BY v.created_at ASC
-    `, [proposalId]);
+    `, [proposalId, tenantId]);
 
-    res.json(pledges);
+    return res.json(pledges);
   })
 );
 
@@ -978,7 +987,7 @@ router.post(
     const userId = (req as any).user?.userId;
 
     if (userRole !== 'admin') {
-      throw new ForbiddenError('Only admins can approve proposals');
+      throw new AuthorizationError('Only admins can approve proposals');
     }
 
     logger.info('Admin approving route proposal', { tenantId, proposalId, userId });
@@ -1030,7 +1039,7 @@ router.post(
     const userId = (req as any).user?.userId;
 
     if (userRole !== 'admin') {
-      throw new ForbiddenError('Only admins can reject proposals');
+      throw new AuthorizationError('Only admins can reject proposals');
     }
 
     if (!rejection_reason) {

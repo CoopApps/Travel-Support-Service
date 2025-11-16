@@ -12,26 +12,27 @@
 
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
-import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
+import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 
 const router = express.Router();
 
-interface CommunicationMessage {
-  message_id?: number;
-  tenant_id: number;
-  message_type: 'booking_confirmation' | 'cancellation' | 'delay' | 'service_alert' | 'announcement';
-  delivery_method: 'sms' | 'email' | 'both';
-  recipient_type: 'individual' | 'route' | 'service' | 'all_passengers';
-  recipient_id?: number; // booking_id or route_id or timetable_id
-  subject?: string;
-  message_body: string;
-  scheduled_send?: string;
-  sent_at?: string;
-  status: 'draft' | 'scheduled' | 'sent' | 'failed';
-  recipients_count?: number;
-  sent_count?: number;
-  failed_count?: number;
-}
+// Interface for future type safety (currently unused)
+// interface CommunicationMessage {
+//   message_id?: number;
+//   tenant_id: number;
+//   message_type: 'booking_confirmation' | 'cancellation' | 'delay' | 'service_alert' | 'announcement';
+//   delivery_method: 'sms' | 'email' | 'both';
+//   recipient_type: 'individual' | 'route' | 'service' | 'all_passengers';
+//   recipient_id?: number; // booking_id or route_id or timetable_id
+//   subject?: string;
+//   message_body: string;
+//   scheduled_send?: string;
+//   sent_at?: string;
+//   status: 'draft' | 'scheduled' | 'sent' | 'failed';
+//   recipients_count?: number;
+//   sent_count?: number;
+//   failed_count?: number;
+// }
 
 /**
  * GET /api/tenants/:tenantId/bus-communications
@@ -358,7 +359,7 @@ Thank you for choosing our community bus service!
         [message.message_id, booking.booking_id, booking.passenger_name, booking.passenger_email, booking.passenger_phone]
       );
 
-      res.json({
+      return res.json({
         message: 'Booking confirmation sent successfully',
         communication: message
       });
@@ -367,7 +368,7 @@ Thank you for choosing our community bus service!
     }
   } catch (error: any) {
     console.error('Error sending booking confirmation:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: {
         message: error.message || 'Failed to send booking confirmation',
         statusCode: 500,
@@ -381,7 +382,7 @@ Thank you for choosing our community bus service!
  * GET /api/tenants/:tenantId/bus-communications/templates
  * Get message templates
  */
-router.get('/tenants/:tenantId/bus-communications/templates', verifyTenantAccess, async (req: Request, res: Response) => {
+router.get('/tenants/:tenantId/bus-communications/templates', verifyTenantAccess, async (_req: Request, res: Response) => {
   try {
     const templates = {
       booking_confirmation: {
@@ -438,10 +439,10 @@ We apologize for any inconvenience caused.`
       }
     };
 
-    res.json({ templates });
+    return res.json({ templates });
   } catch (error: any) {
     console.error('Error fetching templates:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch templates',
         statusCode: 500,

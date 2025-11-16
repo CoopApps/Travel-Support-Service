@@ -13,7 +13,7 @@
 
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
-import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
+import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 
 const router = express.Router();
 

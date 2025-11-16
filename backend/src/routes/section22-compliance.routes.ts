@@ -12,7 +12,7 @@
 
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
-import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
+import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 
 const router = express.Router();
 
@@ -437,7 +437,7 @@ router.post('/tenants/:tenantId/section22-compliance/export', verifyTenantAccess
     const exportData = {
       generatedAt: new Date().toISOString(),
       tenantId: parseInt(tenantId),
-      compliance: complianceData.compliance,
+      compliance: (complianceData as any).compliance,
       drivers: driversData,
       vehicles: vehiclesData,
       format

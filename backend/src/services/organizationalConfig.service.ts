@@ -210,7 +210,7 @@ export class OrganizationalConfigService {
    */
   private getEnabledModules(
     organizationType: OrganizationType,
-    cooperativeModel: CooperativeModel
+    _cooperativeModel: CooperativeModel
   ) {
     const isCooperative = this.isCooperative(organizationType);
 

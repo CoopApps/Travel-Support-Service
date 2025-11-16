@@ -237,7 +237,7 @@ export class FareCalculationService {
    */
   async calculateFareQuote(
     tenantId: number,
-    routeId: number,
+    _routeId: number,
     tripDistanceMiles: number,
     tripDurationHours: number,
     vehicleCapacity: number,
