@@ -142,13 +142,11 @@ function Layout() {
           </div>
 
           <div className="header-actions" id="headerActions">
+            <ServiceToggle />
             <NotificationBell />
             <UserDropdown />
           </div>
         </header>
-
-        {/* Service Toggle - Shows when both transport and bus services are enabled */}
-        <ServiceToggle />
 
         {/* Page Content */}
         <main className="page-content">
