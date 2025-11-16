@@ -209,7 +209,7 @@ function ServiceRegistrationsPage() {
                       <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)' }}>
                         {reg.service_name || reg.route_description}
                       </h3>
-                      <span className="registration-status" className={`registration-status ${reg.status}`}>
+                      <span className={`registration-status ${reg.status}`}>
                         {reg.status}
                       </span>
                       {reg.status === 'pending' && (
