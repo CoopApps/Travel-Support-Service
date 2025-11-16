@@ -94,6 +94,7 @@ import busCommunicationsRoutes from './routes/bus-communications.routes';
 import busAnalyticsRoutes from './routes/bus-analytics.routes';
 import customerRouteProposalsRoutes from './routes/customer-route-proposals.routes';
 import surplusManagementRoutes from './routes/surplus-management.routes';
+import cooperativeMembersRoutes from './routes/cooperative-members.routes';
 
 /**
  * Main Server File - Stage 4
@@ -298,6 +299,7 @@ app.use('/api', busCommunicationsRoutes);
 app.use('/api', busAnalyticsRoutes);
 app.use('/api', customerRouteProposalsRoutes);
 app.use('/api', surplusManagementRoutes);
+app.use('/api', cooperativeMembersRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
