@@ -44,6 +44,7 @@ import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import BusCommunicationsPage from './components/bus/BusCommunicationsPage';
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
+import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 
@@ -194,6 +195,7 @@ function App() {
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
         <Route path="bus/communications" element={<BusCommunicationsPage />} />
         <Route path="bus/analytics" element={<BusAnalyticsPage />} />
+        <Route path="bus/surplus-pool" element={<SurplusPoolDashboard />} />
         <Route path="bus/compliance" element={<Section22CompliancePage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
