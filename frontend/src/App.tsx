@@ -43,6 +43,7 @@ import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import BusCommunicationsPage from './components/bus/BusCommunicationsPage';
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
+import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 
@@ -188,6 +189,7 @@ function App() {
         {/* Bus Service Routes - bus-specific modules only */}
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
+        <Route path="bus/roster" element={<BusDriverRosterPage />} />
         <Route path="bus/bookings" element={<BusBookingsPage />} />
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
         <Route path="bus/communications" element={<BusCommunicationsPage />} />
