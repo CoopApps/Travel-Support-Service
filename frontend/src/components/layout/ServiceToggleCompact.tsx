@@ -26,11 +26,19 @@ export function ServiceToggleCompact() {
   }, []);
 
   const handleToggle = (newService: ServiceType) => {
+    console.log('🔄 Service toggle clicked:', {
+      newService,
+      currentService: activeService,
+      willSwitch: newService !== activeService
+    });
+
     if (newService === activeService) {
+      console.log('⚠️ Same service clicked, just closing dropdown');
       setIsOpen(false);
       return;
     }
 
+    console.log('✅ Switching service to:', newService);
     setActiveService(newService);
     navigate('/dashboard');
     setIsOpen(false);
