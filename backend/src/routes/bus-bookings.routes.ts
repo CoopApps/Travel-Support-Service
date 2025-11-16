@@ -3,6 +3,7 @@ import { query, queryOne } from '../config/database';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 import { logger } from '../utils/logger';
 import crypto from 'crypto';
+import { calculateCurrentPrice, getPriceForBooking } from '../services/dynamicPricing.service';
 
 const router = express.Router();
 
@@ -20,6 +21,58 @@ const router = express.Router();
 function generateBookingReference(): string {
   return `BUS-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 }
+
+// ==================================================================================
+// GET /tenants/:tenantId/bus/services/:timetableId/current-price
+// Calculate current dynamic price for a service
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/services/:timetableId/current-price',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, timetableId } = req.params;
+    const { service_date, customer_id } = req.query;
+
+    if (!service_date) {
+      return res.status(400).json({ error: 'service_date is required' });
+    }
+
+    try {
+      if (customer_id) {
+        // Get price for specific customer (determines member vs non-member)
+        const result = await getPriceForBooking(
+          parseInt(tenantId),
+          parseInt(timetableId),
+          service_date as string,
+          parseInt(customer_id as string)
+        );
+
+        return res.json({
+          ...result.pricing_details,
+          customer_price: result.price,
+          is_member: result.is_member
+        });
+      } else {
+        // Get general pricing information
+        const pricing = await calculateCurrentPrice(
+          parseInt(tenantId),
+          parseInt(timetableId),
+          service_date as string
+        );
+
+        return res.json(pricing);
+      }
+    } catch (error: any) {
+      logger.error('Error calculating current price', {
+        error: error.message,
+        tenantId,
+        timetableId,
+        service_date
+      });
+      res.status(500).json({ error: 'Failed to calculate price', details: error.message });
+    }
+  }
+);
 
 // ==================================================================================
 // GET /tenants/:tenantId/bus/bookings
@@ -204,7 +257,6 @@ router.post(
       service_date,
       seat_number,
       requires_wheelchair_space,
-      fare_amount,
       payment_method,
       special_requirements
     } = req.body;
@@ -289,6 +341,26 @@ router.post(
       // Generate booking reference
       const bookingReference = generateBookingReference();
 
+      // Calculate dynamic fare for this booking
+      const fareCalculation = await getPriceForBooking(
+        parseInt(tenantId),
+        timetable_id,
+        service_date,
+        customer_id
+      );
+
+      const calculatedFare = fareCalculation.price;
+      const isMemberBooking = fareCalculation.is_member;
+
+      logger.info('Dynamic fare calculated for booking', {
+        timetableId: timetable_id,
+        serviceDate: service_date,
+        customerId: customer_id,
+        isMember: isMemberBooking,
+        calculatedFare,
+        currentBookings: fareCalculation.pricing_details.booking_info.current_bookings
+      });
+
       // Create booking
       const result = await queryOne(
         `INSERT INTO section22_bus_bookings (
@@ -306,10 +378,14 @@ router.post(
           booking_reference,
           booking_status,
           fare_amount,
+          locked_fare_amount,
+          is_member_booking,
+          member_surcharge_applied,
+          price_locked_at,
           payment_method,
           special_requirements,
           created_by
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
          RETURNING *`,
         [
           tenantId,
@@ -325,7 +401,11 @@ router.post(
           requires_wheelchair_space || false,
           bookingReference,
           'confirmed',
-          fare_amount,
+          calculatedFare,
+          calculatedFare, // Locked fare (price at time of booking)
+          isMemberBooking,
+          !isMemberBooking, // Non-members have surcharge applied
+          new Date().toISOString(), // Price locked at booking time
           payment_method,
           special_requirements,
           req.user?.userId
@@ -340,10 +420,16 @@ router.post(
         bookingReference,
         timetableId: timetable_id,
         serviceDate: service_date,
+        fareAmount: calculatedFare,
+        isMember: isMemberBooking,
         userId: req.user?.userId
       });
 
-      return res.status(201).json(result);
+      return res.status(201).json({
+        ...result,
+        pricing_details: fareCalculation.pricing_details,
+        is_member: isMemberBooking
+      });
     } catch (error) {
       logger.error('Failed to create booking', { tenantId, error });
       return res.status(500).json({ error: 'Internal server error' });
