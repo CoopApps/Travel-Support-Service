@@ -86,6 +86,11 @@ export default function BusAnalyticsPage() {
         }),
       ]);
 
+      // Check if all requests succeeded
+      if (!overviewRes.ok || !profitRes.ok || !demandRes.ok || !demoRes.ok || !effRes.ok) {
+        throw new Error('Failed to fetch analytics data. Please check your permissions.');
+      }
+
       const [overviewData, profitData, demandData, demoData, effData] = await Promise.all([
         overviewRes.json(),
         profitRes.json(),
@@ -184,7 +189,7 @@ export default function BusAnalyticsPage() {
       </div>
 
       {/* Overview Tab */}
-      {activeTab === 'overview' && overview && (
+      {activeTab === 'overview' && overview && overview.revenue && (
         <div>
           {/* Revenue Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
