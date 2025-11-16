@@ -46,6 +46,7 @@ import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
 import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
 import CooperativeMembersPage from './components/bus/CooperativeMembersPage';
+import QuickBookPage from './components/bus/QuickBookPage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 
@@ -192,6 +193,7 @@ function App() {
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
         <Route path="bus/roster" element={<BusDriverRosterPage />} />
+        <Route path="bus/book" element={<QuickBookPage />} />
         <Route path="bus/bookings" element={<BusBookingsPage />} />
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
         <Route path="bus/communications" element={<BusCommunicationsPage />} />
