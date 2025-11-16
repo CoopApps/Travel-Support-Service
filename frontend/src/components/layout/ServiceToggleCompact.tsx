@@ -13,11 +13,6 @@ export function ServiceToggleCompact() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Don't render if only one service is enabled
-  if (!bothEnabled) {
-    return null;
-  }
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,6 +35,11 @@ export function ServiceToggleCompact() {
     navigate('/dashboard');
     setIsOpen(false);
   };
+
+  // Don't render if only one service is enabled
+  if (!bothEnabled) {
+    return null;
+  }
 
   return (
     <div className="notification-bell-container" ref={dropdownRef}>
