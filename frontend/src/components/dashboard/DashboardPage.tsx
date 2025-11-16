@@ -43,13 +43,6 @@ function DashboardPage() {
   const [showSafeguardingModal, setShowSafeguardingModal] = useState(false);
   const [showLateArrivalModal, setShowLateArrivalModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-
-  // If bus service is active, show bus dashboard (after all hooks are called)
-  if (activeService === 'bus') {
-    return <BusDashboard />;
-  }
-
-  // Otherwise show transport dashboard
   const [scheduleModalDate, setScheduleModalDate] = useState<string>('');
   const [scheduleModalTitle, setScheduleModalTitle] = useState<string>('');
   const [scheduleData, setScheduleData] = useState<any>(null);
@@ -59,13 +52,20 @@ function DashboardPage() {
   const [customers, setCustomers] = useState<any[]>([]);
 
   useEffect(() => {
-    if (user?.tenantId) {
+    if (user?.tenantId && activeService !== 'bus') {
       loadDashboard();
       // Auto-refresh every 5 minutes
       const interval = setInterval(loadDashboard, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
-  }, [user?.tenantId]);
+  }, [user?.tenantId, activeService]);
+
+  // If bus service is active, show bus dashboard (after ALL hooks are called)
+  if (activeService === 'bus') {
+    return <BusDashboard />;
+  }
+
+  // Otherwise show transport dashboard
 
   const loadDashboard = async () => {
     if (!user?.tenantId) return;
