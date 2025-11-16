@@ -85,7 +85,8 @@ function TrainingPage() {
     } finally {
       setLoading(false);
     }
-  }, [tenantId, page, limit, search, activeTab, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenantId, page, limit, search, activeTab]); // Remove toast from dependencies to prevent infinite loop
 
   useEffect(() => {
     fetchData();
