@@ -16,6 +16,7 @@
 
 import { calculateDistance } from './routeOptimization.service';
 import { logger } from '../utils/logger';
+import { calculateAvailableSubsidy, SubsidyCalculation } from './surplusManagement.service';
 
 // ============================================================================
 // INTERFACES
@@ -48,11 +49,19 @@ export interface ServiceCostCalculation {
     minimum_fare_floor: number;
     maximum_acceptable_fare: number;
     minimum_passengers_needed: number;
+    minimum_passengers_with_subsidy?: number;
   };
 
   current_bookings: number;
   calculated_price_per_passenger: number;
   is_viable: boolean;
+
+  surplus_smoothing?: {
+    subsidy_available: number;
+    effective_cost: number;
+    passengers_saved: number;
+    break_even_fare_with_subsidy: number;
+  };
 
   ai_insights?: {
     predicted_demand: number;
@@ -423,6 +432,70 @@ export async function calculateServiceCost(
 }
 
 /**
+ * Calculate service cost WITH surplus smoothing applied
+ * This is the preferred method when route has surplus smoothing enabled
+ */
+export async function calculateServiceCostWithSurplus(
+  params: CostCalculationParams & { apply_surplus_smoothing?: boolean },
+  config?: {
+    driver_hourly_rate?: number;
+    fuel_price_per_liter?: number;
+    vehicle_mpg?: number;
+    vehicle_type?: 'minibus' | 'bus';
+    overhead_percent?: number;
+    max_surplus_percent?: number;
+    max_service_percent?: number;
+  }
+): Promise<ServiceCostCalculation> {
+  const { route_id, apply_surplus_smoothing = true } = params;
+
+  // Step 1: Calculate base cost (without surplus)
+  const baseCostCalc = await calculateServiceCost(params, config);
+
+  // Step 2: If surplus smoothing not enabled or no route_id, return base calculation
+  if (!apply_surplus_smoothing || !route_id) {
+    return baseCostCalc;
+  }
+
+  try {
+    // Step 3: Calculate available subsidy from surplus pool
+    const subsidyCalc = await calculateAvailableSubsidy(
+      route_id,
+      baseCostCalc.cost_breakdown.total_cost,
+      config?.max_surplus_percent || 50,
+      config?.max_service_percent || 30
+    );
+
+    // Step 4: Calculate effective cost after subsidy
+    const effectiveCost = subsidyCalc.effective_cost;
+    const minimumPassengersWithSubsidy = subsidyCalc.minimum_passengers_needed;
+    const passengersSaved = baseCostCalc.pricing_info.minimum_passengers_needed - minimumPassengersWithSubsidy;
+
+    // Step 5: Return enhanced calculation with surplus smoothing data
+    return {
+      ...baseCostCalc,
+      pricing_info: {
+        ...baseCostCalc.pricing_info,
+        minimum_passengers_with_subsidy: minimumPassengersWithSubsidy
+      },
+      surplus_smoothing: {
+        subsidy_available: subsidyCalc.subsidy_applied,
+        effective_cost: effectiveCost,
+        passengers_saved: passengersSaved,
+        break_even_fare_with_subsidy: subsidyCalc.break_even_fare
+      }
+    };
+  } catch (error: any) {
+    logger.warn('Surplus smoothing calculation failed, returning base cost', {
+      error: error.message,
+      route_id
+    });
+    // If surplus calculation fails, return base calculation
+    return baseCostCalc;
+  }
+}
+
+/**
  * Calculate dynamic price as bookings accumulate
  */
 export function calculateDynamicPrice(
@@ -457,9 +530,59 @@ export function calculateDynamicPrice(
   };
 }
 
+/**
+ * Calculate dynamic price with surplus smoothing applied
+ * Shows both regular price and subsidized price
+ */
+export function calculateDynamicPriceWithSubsidy(
+  rawCost: number,
+  subsidyApplied: number,
+  currentBookings: number,
+  minimumFloor: number = 1.00
+): {
+  without_subsidy: {
+    price_per_passenger: number;
+    floor_applied: boolean;
+  };
+  with_subsidy: {
+    price_per_passenger: number;
+    floor_applied: boolean;
+    subsidy_per_passenger: number;
+    savings_per_passenger: number;
+  };
+  subsidy_total: number;
+} {
+  const effectiveCost = rawCost - subsidyApplied;
+
+  // Calculate price without subsidy
+  const withoutSubsidy = calculateDynamicPrice(rawCost, currentBookings, minimumFloor);
+
+  // Calculate price with subsidy
+  const withSubsidy = calculateDynamicPrice(effectiveCost, currentBookings, minimumFloor);
+
+  const subsidyPerPassenger = currentBookings > 0 ? subsidyApplied / currentBookings : 0;
+  const savingsPerPassenger = withoutSubsidy.price_per_passenger - withSubsidy.price_per_passenger;
+
+  return {
+    without_subsidy: {
+      price_per_passenger: withoutSubsidy.price_per_passenger,
+      floor_applied: withoutSubsidy.floor_applied
+    },
+    with_subsidy: {
+      price_per_passenger: withSubsidy.price_per_passenger,
+      floor_applied: withSubsidy.floor_applied,
+      subsidy_per_passenger: Math.round(subsidyPerPassenger * 100) / 100,
+      savings_per_passenger: Math.round(savingsPerPassenger * 100) / 100
+    },
+    subsidy_total: subsidyApplied
+  };
+}
+
 export default {
   calculateServiceCost,
+  calculateServiceCostWithSurplus,
   calculateDynamicPrice,
+  calculateDynamicPriceWithSubsidy,
   calculateDriverWages,
   calculateFuelCost,
   calculateVehicleOperatingCosts,
