@@ -57,6 +57,17 @@ interface DividendCalculation {
   };
 }
 
+interface SchedulerSettings {
+  tenant_id: number;
+  enabled: boolean;
+  frequency: 'monthly' | 'quarterly';
+  reserves_percent: number;
+  business_percent: number;
+  dividend_percent: number;
+  auto_distribute: boolean;
+  notification_email: string | null;
+}
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -73,6 +84,11 @@ const DividendManagementPage: React.FC = () => {
   const [calculating, setCalculating] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Scheduler settings
+  const [schedulerSettings, setSchedulerSettings] = useState<SchedulerSettings | null>(null);
+  const [showSchedulerSettings, setShowSchedulerSettings] = useState(false);
+  const [savingSchedulerSettings, setSavingSchedulerSettings] = useState(false);
+
   // Period selection
   const [periodStart, setPeriodStart] = useState('');
   const [periodEnd, setPeriodEnd] = useState('');
@@ -88,6 +104,7 @@ const DividendManagementPage: React.FC = () => {
 
   useEffect(() => {
     fetchDistributions();
+    fetchSchedulerSettings();
   }, [tenantId]);
 
   const fetchDistributions = async () => {
@@ -111,6 +128,59 @@ const DividendManagementPage: React.FC = () => {
       alert('Failed to load distribution history');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSchedulerSettings = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/tenants/${tenantId}/dividends/scheduler/settings`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to fetch scheduler settings');
+
+      const data = await response.json();
+      setSchedulerSettings(data);
+    } catch (error) {
+      console.error('Error fetching scheduler settings:', error);
+    }
+  };
+
+  const updateSchedulerSettings = async (updates: Partial<SchedulerSettings>) => {
+    try {
+      setSavingSchedulerSettings(true);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/tenants/${tenantId}/dividends/scheduler/settings`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updates),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update settings');
+      }
+
+      const data = await response.json();
+      setSchedulerSettings(data.settings);
+      alert('Automation settings updated successfully!');
+      setShowSchedulerSettings(false);
+    } catch (error: any) {
+      console.error('Error updating scheduler settings:', error);
+      alert(error.message || 'Failed to update settings');
+    } finally {
+      setSavingSchedulerSettings(false);
     }
   };
 
@@ -519,6 +589,220 @@ const DividendManagementPage: React.FC = () => {
   };
 
   // ============================================================================
+  // RENDER: SCHEDULER SETTINGS DIALOG
+  // ============================================================================
+
+  const renderSchedulerSettingsDialog = () => {
+    if (!showSchedulerSettings || !schedulerSettings) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowSchedulerSettings(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+          <h2>Automation Settings</h2>
+          <p style={{ color: '#6c757d', marginBottom: '1.5rem' }}>
+            Configure automated dividend calculation and distribution
+          </p>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={schedulerSettings.enabled}
+                onChange={(e) =>
+                  setSchedulerSettings({ ...schedulerSettings, enabled: e.target.checked })
+                }
+                style={{ width: '20px', height: '20px' }}
+              />
+              <span style={{ fontWeight: 500 }}>Enable Automated Dividend Calculation</span>
+            </label>
+          </div>
+
+          {schedulerSettings.enabled && (
+            <>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  Frequency
+                </label>
+                <select
+                  value={schedulerSettings.frequency}
+                  onChange={(e) =>
+                    setSchedulerSettings({
+                      ...schedulerSettings,
+                      frequency: e.target.value as 'monthly' | 'quarterly',
+                    })
+                  }
+                  style={{ width: '100%', padding: '0.5rem', fontSize: '14px' }}
+                >
+                  <option value="monthly">Monthly (1st of each month)</option>
+                  <option value="quarterly">Quarterly (1st of Jan, Apr, Jul, Oct)</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '16px' }}>Allocation Percentages</h3>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '14px' }}>
+                    Reserves: {schedulerSettings.reserves_percent}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={schedulerSettings.reserves_percent}
+                    onChange={(e) =>
+                      setSchedulerSettings({
+                        ...schedulerSettings,
+                        reserves_percent: parseInt(e.target.value),
+                      })
+                    }
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '14px' }}>
+                    Business Costs: {schedulerSettings.business_percent}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={schedulerSettings.business_percent}
+                    onChange={(e) =>
+                      setSchedulerSettings({
+                        ...schedulerSettings,
+                        business_percent: parseInt(e.target.value),
+                      })
+                    }
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '14px' }}>
+                    Dividend Pool: {schedulerSettings.dividend_percent}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={schedulerSettings.dividend_percent}
+                    onChange={(e) =>
+                      setSchedulerSettings({
+                        ...schedulerSettings,
+                        dividend_percent: parseInt(e.target.value),
+                      })
+                    }
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    padding: '0.5rem',
+                    background:
+                      schedulerSettings.reserves_percent +
+                        schedulerSettings.business_percent +
+                        schedulerSettings.dividend_percent ===
+                      100
+                        ? '#d4edda'
+                        : '#f8d7da',
+                    borderRadius: '4px',
+                    textAlign: 'center',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                  }}
+                >
+                  Total:{' '}
+                  {schedulerSettings.reserves_percent +
+                    schedulerSettings.business_percent +
+                    schedulerSettings.dividend_percent}
+                  %
+                  {schedulerSettings.reserves_percent +
+                    schedulerSettings.business_percent +
+                    schedulerSettings.dividend_percent !==
+                    100 && ' (must equal 100%)'}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={schedulerSettings.auto_distribute}
+                    onChange={(e) =>
+                      setSchedulerSettings({
+                        ...schedulerSettings,
+                        auto_distribute: e.target.checked,
+                      })
+                    }
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  <span style={{ fontWeight: 500 }}>
+                    Auto-distribute (automatically mark as paid)
+                  </span>
+                </label>
+                <p style={{ fontSize: '12px', color: '#6c757d', marginLeft: '28px', marginTop: '0.25rem' }}>
+                  If disabled, dividends will be calculated but require manual approval
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  Notification Email (optional)
+                </label>
+                <input
+                  type="email"
+                  value={schedulerSettings.notification_email || ''}
+                  onChange={(e) =>
+                    setSchedulerSettings({
+                      ...schedulerSettings,
+                      notification_email: e.target.value || null,
+                    })
+                  }
+                  placeholder="admin@example.com"
+                  style={{ width: '100%', padding: '0.5rem', fontSize: '14px' }}
+                />
+              </div>
+            </>
+          )}
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setShowSchedulerSettings(false)}
+              disabled={savingSchedulerSettings}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#e9ecef',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => updateSchedulerSettings(schedulerSettings)}
+              disabled={savingSchedulerSettings}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              {savingSchedulerSettings ? 'Saving...' : 'Save Settings'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ============================================================================
   // RENDER: MAIN PAGE
   // ============================================================================
 
@@ -545,6 +829,64 @@ const DividendManagementPage: React.FC = () => {
           Calculate Dividends
         </button>
       </div>
+
+      {/* Automation Settings Banner */}
+      {schedulerSettings && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem 1.5rem',
+            background: schedulerSettings.enabled ? '#d4edda' : '#f8f9fa',
+            border: `1px solid ${schedulerSettings.enabled ? '#c3e6cb' : '#dee2e6'}`,
+            borderRadius: '8px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <span style={{ fontSize: '20px' }}>{schedulerSettings.enabled ? '🤖' : '⏸️'}</span>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>
+                Automated Dividend Calculation{' '}
+                <span
+                  style={{
+                    fontSize: '12px',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '12px',
+                    background: schedulerSettings.enabled ? '#28a745' : '#6c757d',
+                    color: 'white',
+                    marginLeft: '0.5rem',
+                  }}
+                >
+                  {schedulerSettings.enabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </h3>
+            </div>
+            {schedulerSettings.enabled && (
+              <p style={{ fontSize: '14px', color: '#6c757d', margin: 0 }}>
+                Runs {schedulerSettings.frequency} on the 1st at 1:00 AM •
+                Allocations: {schedulerSettings.reserves_percent}% reserves, {schedulerSettings.business_percent}% business, {schedulerSettings.dividend_percent}% dividends
+                {schedulerSettings.auto_distribute && ' • Auto-distribute enabled'}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => setShowSchedulerSettings(true)}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'white',
+              border: '1px solid #dee2e6',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 500,
+            }}
+          >
+            ⚙️ Configure
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '3rem' }}>
@@ -658,6 +1000,7 @@ const DividendManagementPage: React.FC = () => {
 
       {renderCalculateDialog()}
       {renderPreviewDialog()}
+      {renderSchedulerSettingsDialog()}
     </div>
   );
 };

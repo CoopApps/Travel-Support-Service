@@ -22,6 +22,7 @@ import { logger } from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { testConnection, closePool } from './config/database';
 import { startInvoiceAutomationScheduler } from './services/invoiceAutomation';
+import { startDividendScheduler } from './services/dividendScheduler.service';
 
 // Import middleware
 import { detectSubdomain } from './middleware/subdomainDetection';
@@ -96,6 +97,7 @@ import customerRouteProposalsRoutes from './routes/customer-route-proposals.rout
 import surplusManagementRoutes from './routes/surplus-management.routes';
 import cooperativeMembersRoutes from './routes/cooperative-members.routes';
 import dividendRoutes from './routes/dividend.routes';
+import dividendSchedulerRoutes from './routes/dividend-scheduler.routes';
 
 /**
  * Main Server File - Stage 4
@@ -302,6 +304,7 @@ app.use('/api', customerRouteProposalsRoutes);
 app.use('/api', surplusManagementRoutes);
 app.use('/api', cooperativeMembersRoutes);
 app.use('/api', dividendRoutes);
+app.use('/api', dividendSchedulerRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
@@ -347,6 +350,11 @@ async function startServer() {
       // Start automated invoice generation scheduler
       startInvoiceAutomationScheduler();
       logger.info('✅ Invoice automation scheduler initialized');
+
+      // Start automated dividend calculation scheduler
+      // Runs on 1st of each month at 1:00 AM by default
+      startDividendScheduler();
+      logger.info('✅ Dividend automation scheduler initialized');
     });
   } catch (error) {
     logger.error('Failed to start server', { error });

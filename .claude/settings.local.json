@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" node:*)",
+      "Bash(cmd /c \"npm install node-cron\")"
     ],
     "deny": [],
     "ask": []
