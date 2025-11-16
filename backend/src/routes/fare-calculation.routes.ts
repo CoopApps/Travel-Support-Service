@@ -8,7 +8,6 @@ import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { FareCalculationService } from '../services/fareCalculation.service';
 import { OrganizationalConfigService } from '../services/organizationalConfig.service';
-import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 
 const router = express.Router();
 const fareService = new FareCalculationService(pool);
