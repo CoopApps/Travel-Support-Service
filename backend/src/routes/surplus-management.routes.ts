@@ -43,10 +43,10 @@ router.get('/tenants/:tenantId/routes/:routeId/surplus-pool', async (req: Reques
       });
     }
 
-    res.json(pool);
+    return res.json(pool);
   } catch (error: any) {
     logger.error('Error fetching surplus pool', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to fetch surplus pool', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch surplus pool', details: error.message });
   }
 });
 
@@ -60,14 +60,14 @@ router.post('/tenants/:tenantId/routes/:routeId/surplus-pool/initialize', async 
 
     const pool = await initializeSurplusPool(parseInt(routeId), parseInt(tenantId));
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Surplus pool initialized successfully',
       pool
     });
   } catch (error: any) {
     logger.error('Error initializing surplus pool', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to initialize surplus pool', details: error.message });
+    return res.status(500).json({ error: 'Failed to initialize surplus pool', details: error.message });
   }
 });
 
@@ -101,10 +101,10 @@ router.post('/tenants/:tenantId/routes/:routeId/calculate-subsidy', async (req: 
       max_service_percent
     );
 
-    res.json(subsidyCalc);
+    return res.json(subsidyCalc);
   } catch (error: any) {
     logger.error('Error calculating subsidy', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to calculate subsidy', details: error.message });
+    return res.status(500).json({ error: 'Failed to calculate subsidy', details: error.message });
   }
 });
 
@@ -152,14 +152,14 @@ router.post('/tenants/:tenantId/routes/:routeId/apply-subsidy', async (req: Requ
       parseFloat(service_cost)
     );
 
-    res.json({
+    return res.json({
       success: result.success,
       message: 'Subsidy applied successfully',
       transaction_id: result.transaction_id
     });
   } catch (error: any) {
     logger.error('Error applying subsidy', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to apply subsidy', details: error.message });
+    return res.status(500).json({ error: 'Failed to apply subsidy', details: error.message });
   }
 });
 
@@ -219,14 +219,14 @@ router.post('/tenants/:tenantId/routes/:routeId/allocate-surplus', async (req: R
       dividend_percent
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Surplus allocated successfully',
       allocation: result
     });
   } catch (error: any) {
     logger.error('Error allocating surplus', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to allocate surplus', details: error.message });
+    return res.status(500).json({ error: 'Failed to allocate surplus', details: error.message });
   }
 });
 
@@ -250,7 +250,7 @@ router.get('/tenants/:tenantId/routes/:routeId/surplus-transactions', async (req
 
     const transactions = await getSurplusTransactions(parseInt(routeId), limit, offset);
 
-    res.json({
+    return res.json({
       transactions,
       pagination: {
         limit,
@@ -260,7 +260,7 @@ router.get('/tenants/:tenantId/routes/:routeId/surplus-transactions', async (req
     });
   } catch (error: any) {
     logger.error('Error fetching surplus transactions', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to fetch transactions', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch transactions', details: error.message });
   }
 });
 
@@ -281,10 +281,10 @@ router.get('/tenants/:tenantId/routes/:routeId/surplus-statistics', async (req: 
       });
     }
 
-    res.json(stats);
+    return res.json(stats);
   } catch (error: any) {
     logger.error('Error fetching surplus statistics', { error: error.message, routeId: req.params.routeId });
-    res.status(500).json({ error: 'Failed to fetch statistics', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch statistics', details: error.message });
   }
 });
 
@@ -303,13 +303,13 @@ router.get('/tenants/:tenantId/surplus-summary', async (req: Request, res: Respo
     // This would require a new service function - placeholder for now
     // const summary = await getSurplusSummaryForTenant(parseInt(tenantId));
 
-    res.json({
+    return res.json({
       message: 'Summary endpoint - to be implemented',
       tenant_id: tenantId
     });
   } catch (error: any) {
     logger.error('Error fetching surplus summary', { error: error.message, tenantId: req.params.tenantId });
-    res.status(500).json({ error: 'Failed to fetch summary', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch summary', details: error.message });
   }
 });
 

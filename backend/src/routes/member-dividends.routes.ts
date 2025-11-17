@@ -7,7 +7,7 @@
  * - Track patronage over time
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 import { logger } from '../utils/logger';
 import { query, queryOne } from '../config/database';
@@ -83,7 +83,7 @@ router.get(
         0
       );
 
-      res.json({
+      return res.json({
         dividends,
         summary: {
           total_distributions: dividends.length,
@@ -101,7 +101,7 @@ router.get(
         memberId,
         member_type,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to fetch dividend history',
         details: error.message,
       });
@@ -158,7 +158,7 @@ router.get(
         tenantId,
         customerId,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to fetch dividend history',
         details: error.message,
       });
@@ -232,7 +232,7 @@ router.get(
         0
       );
 
-      res.json({
+      return res.json({
         dividends,
         summary: {
           total_distributions: dividends.length,
@@ -249,7 +249,7 @@ router.get(
         tenantId,
         driverId,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to fetch dividend history',
         details: error.message,
       });

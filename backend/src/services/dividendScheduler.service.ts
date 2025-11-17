@@ -11,7 +11,7 @@
  * - Can auto-distribute or require manual approval
  */
 
-import cron from 'node-cron';
+import * as cron from 'node-cron';
 import { query, queryOne } from '../config/database';
 import { logger } from '../utils/logger';
 import {

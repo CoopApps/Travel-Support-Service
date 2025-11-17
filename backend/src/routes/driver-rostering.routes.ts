@@ -4,7 +4,7 @@
  * API endpoints for advanced driver roster management
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 import { driverRosteringService } from '../services/driverRostering.service';
@@ -35,7 +35,7 @@ router.get(
       parseInt(durationMinutes as string)
     );
 
-    res.json(result);
+    return res.json(result);
   })
 );
 
@@ -60,7 +60,7 @@ router.get(
       endDate as string
     );
 
-    res.json({
+    return res.json({
       conflicts,
       summary: {
         total: conflicts.length,
@@ -105,7 +105,7 @@ router.post(
       }
     }
 
-    res.json({
+    return res.json({
       success: true,
       assigned: result.assignments.length,
       unassigned: result.unassigned.length,
@@ -143,7 +143,7 @@ router.get(
     const underutilized = metrics.filter(m => m.utilization_percentage < 50).length;
     const overutilized = metrics.filter(m => m.utilization_percentage > 90).length;
 
-    res.json({
+    return res.json({
       metrics,
       summary: {
         totalDrivers: metrics.length,
@@ -200,7 +200,7 @@ router.get(
 
     const unassignedCount = parseInt(unassignedResult[0]?.count || '0');
 
-    res.json({
+    return res.json({
       workload: {
         metrics: workloadMetrics,
         summary: {

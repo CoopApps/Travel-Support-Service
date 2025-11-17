@@ -8,7 +8,7 @@
  * - Mark distributions as paid
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 import { logger } from '../utils/logger';
 import {

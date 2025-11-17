@@ -8,7 +8,7 @@
  * - Membership types (founding, standard, associate)
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { query, queryOne } from '../config/database';
 import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
 import { logger } from '../utils/logger';
