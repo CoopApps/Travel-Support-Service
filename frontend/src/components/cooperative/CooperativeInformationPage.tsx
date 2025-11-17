@@ -12,6 +12,22 @@
 
 import React from 'react';
 import { useTenant } from '../../context/TenantContext';
+import {
+  BusIcon,
+  UserGroupIcon,
+  HandshakeIcon,
+  BuildingIcon,
+  MoneyBagIcon,
+  SproutIcon,
+  BriefcaseIcon,
+  TargetIcon,
+  DiamondIcon,
+  RefreshIcon,
+  GiftIcon,
+  CheckMarkIcon,
+  MailIcon,
+  BookIcon,
+} from '../icons/BusIcons';
 
 export const CooperativeInformationPage: React.FC = () => {
   const { tenant } = useTenant();
@@ -19,7 +35,7 @@ export const CooperativeInformationPage: React.FC = () => {
   const cooperativeModels = [
     {
       type: 'Passenger Co-operative',
-      icon: '🚗',
+      icon: BusIcon,
       description: 'Owned and controlled by the customers who use the service',
       benefits: [
         'Customers become members and co-owners',
@@ -31,7 +47,7 @@ export const CooperativeInformationPage: React.FC = () => {
     },
     {
       type: 'Worker Co-operative',
-      icon: '👥',
+      icon: UserGroupIcon,
       description: 'Owned and controlled by the drivers and staff',
       benefits: [
         'Drivers become member-owners of the business',
@@ -43,7 +59,7 @@ export const CooperativeInformationPage: React.FC = () => {
     },
     {
       type: 'Hybrid Co-operative',
-      icon: '🤝',
+      icon: HandshakeIcon,
       description: 'Multi-stakeholder model with both customers and workers as members',
       benefits: [
         'Both drivers and customers are member-owners',
@@ -86,21 +102,27 @@ export const CooperativeInformationPage: React.FC = () => {
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1.5rem', borderRadius: '8px' }}>
-            <div style={{ fontSize: '32px', marginBottom: '0.75rem' }}>🏛️</div>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <BuildingIcon size={32} color="white" />
+            </div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>Democratic Control</h3>
             <p style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
               One member, one vote - regardless of investment size
             </p>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1.5rem', borderRadius: '8px' }}>
-            <div style={{ fontSize: '32px', marginBottom: '0.75rem' }}>💰</div>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <MoneyBagIcon size={32} color="white" />
+            </div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>Shared Prosperity</h3>
             <p style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
               Surplus revenue distributed to members as dividends
             </p>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1.5rem', borderRadius: '8px' }}>
-            <div style={{ fontSize: '32px', marginBottom: '0.75rem' }}>🌱</div>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <SproutIcon size={32} color="white" />
+            </div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>Sustainable Growth</h3>
             <p style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
               Focused on long-term community benefit, not short-term profit
@@ -135,8 +157,8 @@ export const CooperativeInformationPage: React.FC = () => {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
-                <div style={{ fontSize: '48px', flexShrink: 0 }}>
-                  {model.icon}
+                <div style={{ flexShrink: 0 }}>
+                  <model.icon size={48} color="#667eea" />
                 </div>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '0.75rem', color: '#212529' }}>
@@ -191,48 +213,54 @@ export const CooperativeInformationPage: React.FC = () => {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              💼 Better Business Resilience
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <BriefcaseIcon size={18} color="#495057" />
+              Better Business Resilience
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Cooperatives have higher survival rates and are more resistant to economic downturns
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              👨‍👩‍👧‍👦 Stronger Community Ties
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <UserGroupIcon size={18} color="#495057" />
+              Stronger Community Ties
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Build trust and loyalty with customers and staff who become invested stakeholders
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              💎 Attract Better Talent
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <DiamondIcon size={18} color="#495057" />
+              Attract Better Talent
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Worker ownership attracts committed employees who care about the business
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              🎯 Mission-Driven Focus
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TargetIcon size={18} color="#495057" />
+              Mission-Driven Focus
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Prioritize social impact and community service over pure profit maximization
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              💸 Tax Benefits
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MoneyBagIcon size={18} color="#495057" />
+              Tax Benefits
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Potential tax advantages and access to cooperative-specific funding
             </p>
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
-              🔄 Succession Planning
+            <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <RefreshIcon size={18} color="#495057" />
+              Succession Planning
             </h4>
             <p style={{ fontSize: '14px', color: '#6c757d', lineHeight: '1.6' }}>
               Ensure business continuity by transitioning ownership to members
@@ -249,40 +277,45 @@ export const CooperativeInformationPage: React.FC = () => {
         padding: '2.5rem',
         marginBottom: '3rem'
       }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '1.5rem', color: '#212529' }}>
-          🎁 Special Features for Cooperative Tenants
+        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '1.5rem', color: '#212529', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <GiftIcon size={24} color="#28a745" />
+          Special Features for Cooperative Tenants
         </h2>
         <p style={{ fontSize: '16px', color: '#6c757d', marginBottom: '1.5rem', lineHeight: '1.7' }}>
           When you convert to a cooperative structure, you'll unlock additional features in this platform:
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div style={{ padding: '1rem', background: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem' }}>
-              ✅ Dividend Distribution
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <CheckMarkIcon size={16} color="#155724" />
+              Dividend Distribution
             </div>
             <div style={{ fontSize: '13px', color: '#155724' }}>
               Automated surplus calculation and patronage-based dividends
             </div>
           </div>
           <div style={{ padding: '1rem', background: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem' }}>
-              ✅ Member Voting
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <CheckMarkIcon size={16} color="#155724" />
+              Member Voting
             </div>
             <div style={{ fontSize: '13px', color: '#155724' }}>
               Democratic voting on proposals and governance decisions
             </div>
           </div>
           <div style={{ padding: '1rem', background: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem' }}>
-              ✅ Member Portal
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <CheckMarkIcon size={16} color="#155724" />
+              Member Portal
             </div>
             <div style={{ fontSize: '13px', color: '#155724' }}>
               Track contributions, view dividend history, and engagement
             </div>
           </div>
           <div style={{ padding: '1rem', background: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem' }}>
-              ✅ Discounted Pricing
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#155724', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <CheckMarkIcon size={16} color="#155724" />
+              Discounted Pricing
             </div>
             <div style={{ fontSize: '13px', color: '#155724' }}>
               Cooperatives receive a discount on subscription fees
@@ -318,7 +351,9 @@ export const CooperativeInformationPage: React.FC = () => {
               fontWeight: 600,
               fontSize: '16px',
               transition: 'all 0.3s ease',
-              display: 'inline-block'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -329,7 +364,8 @@ export const CooperativeInformationPage: React.FC = () => {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            📧 Contact Us About Cooperatives
+            <MailIcon size={20} color="#f5576c" />
+            Contact Us About Cooperatives
           </a>
           <a
             href="https://www.uk.coop/start-new-co-op"
@@ -345,7 +381,9 @@ export const CooperativeInformationPage: React.FC = () => {
               fontSize: '16px',
               border: '2px solid white',
               transition: 'all 0.3s ease',
-              display: 'inline-block'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'white';
@@ -356,7 +394,8 @@ export const CooperativeInformationPage: React.FC = () => {
               e.currentTarget.style.color = 'white';
             }}
           >
-            📚 Learn More About Co-ops
+            <BookIcon size={20} color="currentColor" />
+            Learn More About Co-ops
           </a>
         </div>
       </div>
