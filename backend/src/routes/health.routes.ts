@@ -26,6 +26,8 @@ router.get('/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
+    buildTime: '2025-11-17T21:45:00Z',
+    version: '2.1.0-sms-integration',
   });
 });
 
