@@ -4,7 +4,7 @@ import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
 import FareTransparencyCard from './FareTransparencyCard';
 import { DynamicFareStructure } from '../../types/fare.types';
-import { WarningIcon } from '../icons/BusIcons';
+import { WarningIcon, WheelchairIcon, EyeIcon, EditIcon, BanIcon, ArrowDownIcon } from '../icons/BusIcons';
 import './BusBookingsPage.css';
 
 interface BookingFormData {
@@ -405,7 +405,10 @@ export default function BusBookingsPage() {
                         <div className="passenger-contact">{booking.passenger_phone}</div>
                       )}
                       {booking.requires_wheelchair_space && (
-                        <span className="wheelchair-badge">♿ Wheelchair</span>
+                        <span className="wheelchair-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <WheelchairIcon size={14} />
+                          Wheelchair
+                        </span>
                       )}
                     </div>
                   </td>
@@ -427,7 +430,9 @@ export default function BusBookingsPage() {
                   <td>
                     <div className="journey-info">
                       <div className="stop-name">{booking.boarding_stop_name || 'N/A'}</div>
-                      <div className="journey-arrow">↓</div>
+                      <div className="journey-arrow">
+                        <ArrowDownIcon size={16} color="#6b7280" />
+                      </div>
                       <div className="stop-name">{booking.alighting_stop_name || 'N/A'}</div>
                     </div>
                   </td>
@@ -451,10 +456,16 @@ export default function BusBookingsPage() {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button className="btn-icon" title="View Details">👁️</button>
-                      <button className="btn-icon" title="Edit">✏️</button>
+                      <button className="btn-icon" title="View Details">
+                        <EyeIcon size={16} />
+                      </button>
+                      <button className="btn-icon" title="Edit">
+                        <EditIcon size={16} />
+                      </button>
                       {booking.booking_status === 'confirmed' && (
-                        <button className="btn-icon danger" title="Cancel">🚫</button>
+                        <button className="btn-icon danger" title="Cancel">
+                          <BanIcon size={16} />
+                        </button>
                       )}
                     </div>
                   </td>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { busRoutesApi, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
+import { MapIcon, PinIcon, TargetIcon, CalendarIcon, RulerIcon, StopwatchIcon, ArrowRightIcon } from '../icons/BusIcons';
 import './BusRoutesPage.css';
 
 export default function BusRoutesPage() {
@@ -133,7 +134,9 @@ export default function BusRoutesPage() {
 
       {routes.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">🗺️</div>
+          <div className="empty-icon">
+            <MapIcon size={48} color="#9ca3af" />
+          </div>
           <h2>No Routes Found</h2>
           <p>
             {filter === 'all'
@@ -161,30 +164,42 @@ export default function BusRoutesPage() {
 
               <div className="route-journey">
                 <div className="journey-point">
-                  <div className="journey-icon start">📍</div>
+                  <div className="journey-icon start">
+                    <PinIcon size={20} color="#10b981" />
+                  </div>
                   <div className="journey-label">{route.origin_point}</div>
                 </div>
-                <div className="journey-arrow">→</div>
+                <div className="journey-arrow">
+                  <ArrowRightIcon size={20} color="#6b7280" />
+                </div>
                 <div className="journey-point">
-                  <div className="journey-icon end">🎯</div>
+                  <div className="journey-icon end">
+                    <TargetIcon size={20} color="#ef4444" />
+                  </div>
                   <div className="journey-label">{route.destination_point}</div>
                 </div>
               </div>
 
               <div className="route-meta">
                 <div className="meta-item">
-                  <span className="meta-icon">📅</span>
+                  <span className="meta-icon">
+                    <CalendarIcon size={16} />
+                  </span>
                   <span className="meta-value">{getOperatingDaysDisplay(route)}</span>
                 </div>
                 {route.total_distance_miles && (
                   <div className="meta-item">
-                    <span className="meta-icon">📏</span>
+                    <span className="meta-icon">
+                      <RulerIcon size={16} />
+                    </span>
                     <span className="meta-value">{route.total_distance_miles} miles</span>
                   </div>
                 )}
                 {route.estimated_duration_minutes && (
                   <div className="meta-item">
-                    <span className="meta-icon">⏱️</span>
+                    <span className="meta-icon">
+                      <StopwatchIcon size={16} />
+                    </span>
                     <span className="meta-value">{route.estimated_duration_minutes} mins</span>
                   </div>
                 )}

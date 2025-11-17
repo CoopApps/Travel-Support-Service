@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
-import { AlarmClockIcon } from '../icons/BusIcons';
+import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon } from '../icons/BusIcons';
 import './BusTimetablesPage.css';
 
 export default function BusTimetablesPage() {
@@ -91,13 +91,13 @@ export default function BusTimetablesPage() {
   const getDirectionIcon = (direction: string) => {
     switch (direction) {
       case 'outbound':
-        return '→';
+        return <ArrowRightIcon size={20} />;
       case 'inbound':
-        return '←';
+        return <ArrowLeftIcon size={20} />;
       case 'circular':
-        return '↻';
+        return <RefreshIcon size={20} />;
       default:
-        return '→';
+        return <ArrowRightIcon size={20} />;
     }
   };
 
@@ -259,7 +259,9 @@ export default function BusTimetablesPage() {
 
                   <div className="capacity-info">
                     <div className="capacity-item">
-                      <div className="capacity-icon">💺</div>
+                      <div className="capacity-icon">
+                        <SeatIcon size={24} color="#6b7280" />
+                      </div>
                       <div className="capacity-details">
                         <div className="capacity-value">{timetable.total_seats}</div>
                         <div className="capacity-label">Total Seats</div>
@@ -267,7 +269,9 @@ export default function BusTimetablesPage() {
                     </div>
                     {timetable.wheelchair_spaces > 0 && (
                       <div className="capacity-item">
-                        <div className="capacity-icon">♿</div>
+                        <div className="capacity-icon">
+                          <WheelchairIcon size={24} color="#6b7280" />
+                        </div>
                         <div className="capacity-details">
                           <div className="capacity-value">{timetable.wheelchair_spaces}</div>
                           <div className="capacity-label">Wheelchair</div>
