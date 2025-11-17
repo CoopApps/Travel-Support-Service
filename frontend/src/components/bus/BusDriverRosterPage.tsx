@@ -3,7 +3,7 @@ import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
 import { busTimetablesApi } from '../../services/busApi';
 import { driverApi } from '../../services/api';
-import { BusIcon } from '../icons/BusIcons';
+import { BusIcon, ArrowLeftIcon, ArrowRightIcon, RefreshIcon } from '../icons/BusIcons';
 
 interface DriverAssignment {
   driver_id: number;
@@ -246,7 +246,10 @@ export default function BusDriverRosterPage() {
               fontWeight: 500
             }}
           >
-            ← Previous
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ArrowLeftIcon size={16} />
+              Previous
+            </span>
           </button>
 
           <input
@@ -291,7 +294,10 @@ export default function BusDriverRosterPage() {
               fontWeight: 500
             }}
           >
-            Next →
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Next
+              <ArrowRightIcon size={16} />
+            </span>
           </button>
         </div>
 
@@ -345,7 +351,14 @@ export default function BusDriverRosterPage() {
               opacity: loading ? 0.6 : 1
             }}
           >
-            {loading ? 'Refreshing...' : '🔄 Refresh'}
+            {loading ? (
+              'Refreshing...'
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <RefreshIcon size={16} />
+                Refresh
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -440,8 +453,10 @@ export default function BusDriverRosterPage() {
                           {assignments.map(a => (
                             <div key={a.timetable_id}>
                               <span style={{ fontWeight: 600, color: '#1f2937' }}>Route {a.route_number}</span>
-                              <span style={{ color: '#6b7280', fontSize: '12px', marginLeft: '0.5rem' }}>
-                                {a.origin} → {a.destination}
+                              <span style={{ color: '#6b7280', fontSize: '12px', marginLeft: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                {a.origin}
+                                <ArrowRightIcon size={12} color="#6b7280" />
+                                {a.destination}
                               </span>
                             </div>
                           ))}

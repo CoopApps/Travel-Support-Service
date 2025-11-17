@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
-import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon } from '../icons/BusIcons';
+import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon, UserIcon, BusIcon, CalendarIcon } from '../icons/BusIcons';
 import './BusTimetablesPage.css';
 
 export default function BusTimetablesPage() {
@@ -257,7 +257,9 @@ export default function BusTimetablesPage() {
 
                     {timetable.driver_name && (
                       <div className="detail-row">
-                        <span className="detail-icon">👤</span>
+                        <span className="detail-icon">
+                          <UserIcon size={16} />
+                        </span>
                         <span className="detail-text">{timetable.driver_name}</span>
                       </div>
                     )}
