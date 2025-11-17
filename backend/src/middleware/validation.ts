@@ -97,7 +97,7 @@ export function validateMultiple(schemas: {
   query?: Joi.ObjectSchema;
   params?: Joi.ObjectSchema;
 }) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const errors: any[] = [];
 
     // Validate each part of the request

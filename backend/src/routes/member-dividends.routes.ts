@@ -135,17 +135,23 @@ router.get(
         });
       }
 
-      // Forward to member dividends endpoint
-      req.params.memberId = member.member_id.toString();
-      req.query.member_type = 'customer';
-      req.query.limit = limit;
-
-      // Re-route to member dividends handler
-      return router.handle(
-        Object.assign(req, { url: `/tenants/${tenantId}/members/${member.member_id}/dividends` }),
-        res,
-        () => {}
+      // Forward to member dividends endpoint by manually calling the handler
+      // Instead of re-routing, just fetch and return the data directly
+      const dividendResult = await query(
+        `SELECT * FROM member_dividends
+         WHERE tenant_id = $1 AND member_id = $2
+         ORDER BY created_at DESC
+         LIMIT $3`,
+        [tenantId, member.member_id, limit]
       );
+
+      return res.json({
+        customer_id: parseInt(customerId, 10),
+        member_id: member.member_id,
+        member_type: 'customer',
+        dividends: dividendResult,
+        total: dividendResult.length,
+      });
     } catch (error: any) {
       logger.error('Error fetching customer dividend history', {
         error: error.message,

@@ -9,7 +9,7 @@
  * - Configured pricing model
  */
 
-import { query, queryOne } from '../config/database';
+import { queryOne } from '../config/database';
 import { logger } from '../utils/logger';
 import { calculateServiceCostWithSurplus } from './intelligentCostCalculator.service';
 import { getSurplusPool } from './surplusManagement.service';
@@ -185,7 +185,9 @@ export async function calculateCurrentPrice(
       const pool = await getSurplusPool(timetable.route_id);
       if (pool) {
         surplusInfo = {
-          pool_balance: parseFloat(pool.available_for_subsidy),
+          pool_balance: typeof pool.available_for_subsidy === 'string'
+            ? parseFloat(pool.available_for_subsidy)
+            : pool.available_for_subsidy,
           subsidy_available: subsidyApplied,
           passengers_saved: minimumPassengersNeeded - minimumWithSubsidy
         };

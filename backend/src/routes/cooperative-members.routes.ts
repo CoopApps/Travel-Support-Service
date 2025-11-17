@@ -43,10 +43,10 @@ router.get(
         [tenantId]
       );
 
-      res.json(members);
+      return res.json(members);
     } catch (error: any) {
       logger.error('Error fetching members', { error: error.message, tenantId });
-      res.status(500).json({ error: 'Failed to fetch members', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch members', details: error.message });
     }
   }
 );
@@ -78,10 +78,10 @@ router.get(
         return res.status(404).json({ error: 'Member not found' });
       }
 
-      res.json(member);
+      return res.json(member);
     } catch (error: any) {
       logger.error('Error fetching member', { error: error.message, tenantId, memberId });
-      res.status(500).json({ error: 'Failed to fetch member', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch member', details: error.message });
     }
   }
 );
@@ -186,10 +186,10 @@ router.post(
         [newMember.member_id]
       );
 
-      res.status(201).json(memberWithDetails);
+      return res.status(201).json(memberWithDetails);
     } catch (error: any) {
       logger.error('Error adding member', { error: error.message, tenantId });
-      res.status(500).json({ error: 'Failed to add member', details: error.message });
+      return res.status(500).json({ error: 'Failed to add member', details: error.message });
     }
   }
 );
@@ -281,10 +281,10 @@ router.put(
         [memberId]
       );
 
-      res.json(memberWithDetails);
+      return res.json(memberWithDetails);
     } catch (error: any) {
       logger.error('Error updating member', { error: error.message, tenantId, memberId });
-      res.status(500).json({ error: 'Failed to update member', details: error.message });
+      return res.status(500).json({ error: 'Failed to update member', details: error.message });
     }
   }
 );
@@ -314,10 +314,10 @@ router.delete(
 
       logger.info('Member deactivated', { tenantId, memberId });
 
-      res.json({ success: true, message: 'Member deactivated successfully' });
+      return res.json({ success: true, message: 'Member deactivated successfully' });
     } catch (error: any) {
       logger.error('Error deactivating member', { error: error.message, tenantId, memberId });
-      res.status(500).json({ error: 'Failed to deactivate member', details: error.message });
+      return res.status(500).json({ error: 'Failed to deactivate member', details: error.message });
     }
   }
 );
@@ -352,10 +352,10 @@ router.get(
         [tenantId]
       );
 
-      res.json(stats);
+      return res.json(stats);
     } catch (error: any) {
       logger.error('Error fetching member stats', { error: error.message, tenantId });
-      res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
     }
   }
 );

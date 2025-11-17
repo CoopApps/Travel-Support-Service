@@ -6,7 +6,7 @@ import {
   createCustomerSchema,
   updateCustomerSchema,
   customerIdParamSchema,
-  listCustomersQuerySchema
+  listCustomersQuerySchema,
 } from '../schemas/customer.schemas';
 import { query, queryOne } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errorTypes';
@@ -405,7 +405,7 @@ router.get(
 router.get(
   '/tenants/:tenantId/customers',
   verifyTenantAccess,
-  validateQuery(customerListQuerySchema),
+  validate(listCustomersQuerySchema, 'query'),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
     const {

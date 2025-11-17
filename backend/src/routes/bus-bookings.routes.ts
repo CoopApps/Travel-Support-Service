@@ -69,7 +69,7 @@ router.get(
         timetableId,
         service_date
       });
-      res.status(500).json({ error: 'Failed to calculate price', details: error.message });
+      return res.status(500).json({ error: 'Failed to calculate price', details: error.message });
     }
   }
 );

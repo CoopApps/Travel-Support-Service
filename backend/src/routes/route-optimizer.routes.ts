@@ -511,7 +511,8 @@ router.post(
   verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
-    const { startDate, endDate, includeCapacity = false } = req.body;
+    const { startDate, endDate } = req.body;
+    // const { includeCapacity = false } = req.body; // TODO: Use for capacity-aware optimization
 
     if (!startDate || !endDate) {
       return res.status(400).json({ error: 'startDate and endDate are required' });
@@ -675,8 +676,8 @@ router.post(
       });
 
       // Calculate statistics
-      const totalPassengers = trips.reduce((sum: number, t: any) => sum + t.passengers, 0);
-      const averageCapacityUsed = routes.reduce((sum, r) => sum + r.capacity_used, 0) / routes.length;
+      const totalPassengers = trips.reduce((sum: number, t: any) => sum + (t.passengers || 0), 0);
+      const averageCapacityUsed = routes.reduce((sum: number, r: any) => sum + (r.capacity_used || 0), 0) / routes.length;
       const vehiclesNeeded = routes.length;
       const vehiclesSaved = Math.max(0, trips.length - vehiclesNeeded);
 

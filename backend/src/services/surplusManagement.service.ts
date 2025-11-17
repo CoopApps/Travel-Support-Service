@@ -114,8 +114,8 @@ export async function getSurplusPool(routeId: number): Promise<RouteSurplusPool 
 export async function calculateAvailableSubsidy(
   routeId: number,
   serviceCost: number,
-  maxSurplusPercent: number = 50,
-  maxServicePercent: number = 30
+  _maxSurplusPercent: number = 50, // TODO: Use for configurable thresholds
+  _maxServicePercent: number = 30 // TODO: Use for configurable thresholds
 ): Promise<SubsidyCalculation> {
   try {
     // Use database function to calculate threshold with smoothing

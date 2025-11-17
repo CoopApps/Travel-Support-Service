@@ -372,7 +372,7 @@ export async function batchOptimizeRoutes(params: {
     efficiency_score: number;
   };
 }> {
-  const { trips, drivers } = params;
+  const { trips, drivers: _drivers } = params; // TODO: Use drivers for advanced optimization
   const optimizedAssignments: any[] = [];
   let totalDistanceSaved = 0;
   let totalTimeSaved = 0;

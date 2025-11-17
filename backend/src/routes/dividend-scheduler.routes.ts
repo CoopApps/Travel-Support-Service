@@ -50,13 +50,13 @@ router.get(
         });
       }
 
-      res.json(settings);
+      return res.json(settings);
     } catch (error: any) {
       logger.error('Error fetching dividend scheduler settings', {
         error: error.message,
         tenantId,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to fetch scheduler settings',
         details: error.message,
       });
@@ -120,7 +120,7 @@ router.put(
       // Fetch updated settings
       const updatedSettings = await getDividendScheduleSettings(parseInt(tenantId));
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Scheduler settings updated',
         settings: updatedSettings,
@@ -130,7 +130,7 @@ router.put(
         error: error.message,
         tenantId,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to update scheduler settings',
         details: error.message,
       });
@@ -166,7 +166,7 @@ router.post(
         });
       });
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Dividend calculation triggered',
         note: 'Processing in background. Check logs for results.',
@@ -176,7 +176,7 @@ router.post(
         error: error.message,
         tenantId,
       });
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Failed to trigger calculation',
         details: error.message,
       });

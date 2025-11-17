@@ -70,10 +70,10 @@ router.post(
         });
       }
 
-      res.json(calculation);
+      return res.json(calculation);
     } catch (error: any) {
       logger.error('Error calculating dividends', { error: error.message, tenantId });
-      res.status(500).json({ error: 'Failed to calculate dividends', details: error.message });
+      return res.status(500).json({ error: 'Failed to calculate dividends', details: error.message });
     }
   }
 );
@@ -92,7 +92,7 @@ router.post(
     try {
       await markDistributionPaid(parseInt(distributionId), payment_method);
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Distribution marked as paid',
         distribution_id: distributionId,
@@ -102,7 +102,7 @@ router.post(
         error: error.message,
         distributionId,
       });
-      res.status(500).json({ error: 'Failed to mark as paid', details: error.message });
+      return res.status(500).json({ error: 'Failed to mark as paid', details: error.message });
     }
   }
 );
@@ -125,10 +125,10 @@ router.get(
     try {
       const distributions = await getDistributionHistory(parseInt(tenantId), limit);
 
-      res.json(distributions);
+      return res.json(distributions);
     } catch (error: any) {
       logger.error('Error fetching distributions', { error: error.message, tenantId });
-      res.status(500).json({ error: 'Failed to fetch distributions', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch distributions', details: error.message });
     }
   }
 );
@@ -147,10 +147,10 @@ router.get(
     try {
       const dividends = await getMemberDividendHistory(parseInt(memberId), limit);
 
-      res.json(dividends);
+      return res.json(dividends);
     } catch (error: any) {
       logger.error('Error fetching member dividends', { error: error.message, memberId });
-      res.status(500).json({ error: 'Failed to fetch dividends', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch dividends', details: error.message });
     }
   }
 );

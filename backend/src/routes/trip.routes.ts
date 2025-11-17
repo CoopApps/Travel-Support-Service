@@ -9,8 +9,8 @@ import {
   createTripSchema,
   updateTripSchema,
   tripIdParamSchema,
-  assignDriverSchema,
-  updateTripStatusSchema
+  // assignDriverSchema, // TODO: Use when assign driver endpoint is created
+  // updateTripStatusSchema // TODO: Use when update status endpoint is created
 } from '../schemas/trip.schemas';
 
 const router: Router = express.Router();
@@ -1554,12 +1554,13 @@ router.get(
   verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
-    const { date, maxDistanceKm = '2', maxTimeDiffMinutes = '30' } = req.query;
+    const { date } = req.query;
+    // const { maxDistanceKm = '2', maxTimeDiffMinutes = '30' } = req.query; // TODO: Use for filtering
 
     logger.info('Finding trip combination opportunities', { tenantId, date });
 
     // If no date specified, use today and tomorrow
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const targetDate = (typeof date === 'string' ? date : null) || new Date().toISOString().split('T')[0];
     const tomorrow = new Date(targetDate);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const endDate = tomorrow.toISOString().split('T')[0];
