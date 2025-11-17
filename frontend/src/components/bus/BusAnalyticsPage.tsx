@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import {
+  BarChartIcon,
+  ChartIncreasingIcon,
+  MoneyBagIcon,
+  CalendarIcon,
+  PeopleIcon,
+  LightningIcon,
+  TrophyIcon,
+  ClockIcon,
+  TicketIcon,
+  AlarmClockIcon,
+} from '../icons/BusIcons';
 
 /**
  * Advanced Bus Analytics Dashboard
@@ -139,8 +151,9 @@ export default function BusAnalyticsPage() {
       {/* Header */}
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            📊 Bus Analytics Dashboard
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <BarChartIcon size={32} color="#3b82f6" />
+            Bus Analytics Dashboard
           </h1>
           <p style={{ color: '#6b7280' }}>
             Insights, trends, and performance metrics for your bus services
@@ -163,29 +176,36 @@ export default function BusAnalyticsPage() {
       {/* Tabs */}
       <div style={{ marginBottom: '2rem', borderBottom: '2px solid #e5e7eb', display: 'flex', gap: '1rem' }}>
         {[
-          { id: 'overview', label: '📈 Overview', icon: '📈' },
-          { id: 'profitability', label: '💰 Route Profitability', icon: '💰' },
-          { id: 'demand', label: '📅 Demand Patterns', icon: '📅' },
-          { id: 'demographics', label: '👥 Demographics', icon: '👥' },
-          { id: 'efficiency', label: '⚡ Efficiency', icon: '⚡' },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === tab.id ? '3px solid #3b82f6' : '3px solid transparent',
-              fontWeight: 600,
-              color: activeTab === tab.id ? '#3b82f6' : '#6b7280',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+          { id: 'overview', label: 'Overview', icon: ChartIncreasingIcon },
+          { id: 'profitability', label: 'Route Profitability', icon: MoneyBagIcon },
+          { id: 'demand', label: 'Demand Patterns', icon: CalendarIcon },
+          { id: 'demographics', label: 'Demographics', icon: PeopleIcon },
+          { id: 'efficiency', label: 'Efficiency', icon: LightningIcon },
+        ].map(tab => {
+          const IconComponent = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === tab.id ? '3px solid #3b82f6' : '3px solid transparent',
+                fontWeight: 600,
+                color: activeTab === tab.id ? '#3b82f6' : '#6b7280',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <IconComponent size={18} />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Overview Tab */}
@@ -221,7 +241,10 @@ export default function BusAnalyticsPage() {
 
           {/* Top Routes */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>🏆 Top Performing Routes</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TrophyIcon size={20} color="#f59e0b" />
+              Top Performing Routes
+            </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {overview.top_routes.map((route, idx) => (
                 <div key={idx} style={{
@@ -325,7 +348,10 @@ export default function BusAnalyticsPage() {
         <div style={{ display: 'grid', gap: '1.5rem' }}>
           {/* Daily Pattern */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>📅 Daily Demand Pattern</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <CalendarIcon size={20} color="#3b82f6" />
+              Daily Demand Pattern
+            </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
               {demandForecast.daily_pattern.map((day: any, idx: number) => {
                 const maxBookings = Math.max(...demandForecast.daily_pattern.map((d: any) => d.bookings));
@@ -351,7 +377,10 @@ export default function BusAnalyticsPage() {
 
           {/* Hourly Pattern */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>🕐 Hourly Demand Pattern</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ClockIcon size={20} color="#8b5cf6" />
+              Hourly Demand Pattern
+            </h3>
             <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'flex-end', height: '200px' }}>
               {demandForecast.hourly_pattern.map((hour: any, idx: number) => {
                 const maxBookings = Math.max(...demandForecast.hourly_pattern.map((h: any) => h.bookings));
@@ -384,7 +413,10 @@ export default function BusAnalyticsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           {/* Passenger Tiers */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>🎫 Passenger Types</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TicketIcon size={20} color="#10b981" />
+              Passenger Types
+            </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {demographics.tier_distribution.map((tier: any, idx: number) => {
                 const total = demographics.tier_distribution.reduce((sum: number, t: any) => sum + parseInt(t.count), 0);
@@ -414,7 +446,10 @@ export default function BusAnalyticsPage() {
 
           {/* Booking Lead Time */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>⏰ Booking Lead Time</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlarmClockIcon size={20} color="#f59e0b" />
+              Booking Lead Time
+            </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {demographics.booking_lead_time.map((lead: any, idx: number) => (
                 <div key={idx} style={{

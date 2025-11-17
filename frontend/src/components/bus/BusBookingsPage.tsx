@@ -4,6 +4,7 @@ import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
 import FareTransparencyCard from './FareTransparencyCard';
 import { DynamicFareStructure } from '../../types/fare.types';
+import { WarningIcon } from '../icons/BusIcons';
 import './BusBookingsPage.css';
 
 interface BookingFormData {
@@ -598,9 +599,10 @@ export default function BusBookingsPage() {
               )}
 
               {formData.timetable_id && !fareQuote && !calculatingFare && (
-                <div style={{ padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px', marginBottom: '1rem' }}>
+                <div style={{ padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <WarningIcon size={18} color="#f59e0b" />
                   <p style={{ margin: 0, color: '#92400e' }}>
-                    ⚠️ Select passenger type to see transparent fare breakdown
+                    Select passenger type to see transparent fare breakdown
                   </p>
                 </div>
               )}
