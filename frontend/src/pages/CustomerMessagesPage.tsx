@@ -16,6 +16,16 @@ interface TenantMessage {
   expires_at: string | null;
   read_count: number;
   total_recipients: number;
+  // New fields for universal messaging
+  delivery_method: 'in-app' | 'email' | 'sms' | 'both';
+  email_subject?: string;
+  sms_body?: string;
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'delivered' | 'failed';
+  is_draft: boolean;
+  scheduled_at?: string;
+  sent_at?: string;
+  delivered_at?: string;
+  failed_reason?: string;
 }
 
 interface CustomerMessage {
@@ -61,8 +71,8 @@ function CustomerMessagesPage() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // View mode: 'sent' or 'inbox'
-  const [viewMode, setViewMode] = useState<'sent' | 'inbox'>('inbox');
+  // View mode: enhanced with drafts, scheduled, and all messages
+  const [viewMode, setViewMode] = useState<'all' | 'inbox' | 'sent' | 'drafts' | 'scheduled'>('inbox');
 
   // New message form
   const [showMessageForm, setShowMessageForm] = useState(false);
@@ -73,6 +83,13 @@ function CustomerMessagesPage() {
   const [priority, setPriority] = useState('normal');
   const [expiresAt, setExpiresAt] = useState('');
   const [sending, setSending] = useState(false);
+
+  // New delivery options for universal messaging
+  const [deliveryMethod, setDeliveryMethod] = useState<'in-app' | 'email' | 'sms' | 'both'>('in-app');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [smsBody, setSmsBody] = useState('');
+  const [isDraft, setIsDraft] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState('');
 
   // Reply form
   const [replyingToMessage, setReplyingToMessage] = useState<CustomerMessage | null>(null);
@@ -110,18 +127,35 @@ function CustomerMessagesPage() {
   const loadMessagesForCustomer = async (customerId: number) => {
     setLoadingMessages(true);
     try {
-      if (viewMode === 'sent') {
-        const response = await apiClient.get(`/tenants/${tenantId}/messages`, {
-          params: { customerId }
-        });
-        setSentMessages(response.data.messages || []);
-      } else {
+      if (viewMode === 'inbox') {
+        // Load messages FROM customers (inbox)
         const response = await apiClient.get(`/tenants/${tenantId}/messages/from-customers`);
         const allMessages = response.data.messages || [];
         const customerMessages = allMessages.filter((msg: CustomerMessage) =>
           msg.customer_id === customerId
         );
         setInboxMessages(customerMessages);
+      } else if (viewMode === 'sent' || viewMode === 'all' || viewMode === 'drafts' || viewMode === 'scheduled') {
+        // Load messages TO customers (sent, drafts, scheduled, or all)
+        const response = await apiClient.get(`/tenants/${tenantId}/messages`, {
+          params: {
+            customerId,
+            status: viewMode === 'drafts' ? 'draft' : viewMode === 'scheduled' ? 'scheduled' : undefined
+          }
+        });
+        let messages = response.data.messages || [];
+
+        // Filter based on view mode
+        if (viewMode === 'drafts') {
+          messages = messages.filter((msg: TenantMessage) => msg.is_draft);
+        } else if (viewMode === 'scheduled') {
+          messages = messages.filter((msg: TenantMessage) => msg.status === 'scheduled');
+        } else if (viewMode === 'sent') {
+          messages = messages.filter((msg: TenantMessage) => !msg.is_draft && msg.status !== 'scheduled');
+        }
+        // 'all' shows everything
+
+        setSentMessages(messages);
       }
     } catch (err: any) {
       console.error('Error loading messages:', err);
@@ -130,7 +164,7 @@ function CustomerMessagesPage() {
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent, saveAsDraft = false) => {
     e.preventDefault();
 
     if (recipientType === 'single' && !selectedCustomer) {
@@ -146,38 +180,46 @@ function CustomerMessagesPage() {
     setError('');
 
     try {
+      const messageData = {
+        title,
+        message: messageContent,
+        priority,
+        expiresAt: expiresAt || null,
+        deliveryMethod,
+        emailSubject: deliveryMethod === 'email' || deliveryMethod === 'both' ? emailSubject : undefined,
+        smsBody: deliveryMethod === 'sms' || deliveryMethod === 'both' ? smsBody : undefined,
+        isDraft: saveAsDraft,
+        scheduledAt: scheduledAt || null,
+      };
+
       if (recipientType === 'all') {
         await apiClient.post(`/tenants/${tenantId}/messages`, {
           targetCustomerId: null,
-          title,
-          message: messageContent,
-          priority,
-          expiresAt: expiresAt || null,
+          ...messageData,
         });
       } else if (recipientType === 'multiple') {
         for (const customerId of selectedCustomerIds) {
           await apiClient.post(`/tenants/${tenantId}/messages`, {
             targetCustomerId: customerId,
-            title,
-            message: messageContent,
-            priority,
-            expiresAt: expiresAt || null,
+            ...messageData,
           });
         }
       } else {
         await apiClient.post(`/tenants/${tenantId}/messages`, {
           targetCustomerId: selectedCustomer!.customer_id,
-          title,
-          message: messageContent,
-          priority,
-          expiresAt: expiresAt || null,
+          ...messageData,
         });
       }
 
+      // Reset form
       setTitle('');
       setMessageContent('');
       setPriority('normal');
       setExpiresAt('');
+      setDeliveryMethod('in-app');
+      setEmailSubject('');
+      setSmsBody('');
+      setScheduledAt('');
       setShowMessageForm(false);
       setRecipientType('single');
       setSelectedCustomerIds([]);
@@ -288,6 +330,40 @@ function CustomerMessagesPage() {
       case 'read': return 'Read';
       case 'replied': return 'Replied';
       default: return status;
+    }
+  };
+
+  const getDeliveryStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return '#6c757d';
+      case 'scheduled': return '#0dcaf0';
+      case 'sending': return '#ffc107';
+      case 'sent': return '#0d6efd';
+      case 'delivered': return '#198754';
+      case 'failed': return '#dc3545';
+      default: return '#6c757d';
+    }
+  };
+
+  const getDeliveryStatusLabel = (status: string) => {
+    switch (status) {
+      case 'draft': return 'Draft';
+      case 'scheduled': return 'Scheduled';
+      case 'sending': return 'Sending';
+      case 'sent': return 'Sent';
+      case 'delivered': return 'Delivered';
+      case 'failed': return 'Failed';
+      default: return status;
+    }
+  };
+
+  const getDeliveryMethodLabel = (method: string) => {
+    switch (method) {
+      case 'in-app': return 'In-App';
+      case 'email': return 'Email';
+      case 'sms': return 'SMS';
+      case 'both': return 'Email + SMS';
+      default: return method;
     }
   };
 
@@ -570,6 +646,105 @@ function CustomerMessagesPage() {
                 />
               </div>
 
+              {/* Delivery Method Selection */}
+              <div className="form-group" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid var(--gray-200)' }}>
+                <label style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.75rem', display: 'block' }}>
+                  Delivery Method <span style={{ color: '#dc3545' }}>*</span>
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.75rem', borderRadius: '6px', border: deliveryMethod === 'in-app' ? '2px solid var(--primary)' : '1px solid var(--gray-300)', background: deliveryMethod === 'in-app' ? '#e3f2fd' : 'white' }}>
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="in-app"
+                      checked={deliveryMethod === 'in-app'}
+                      onChange={() => setDeliveryMethod('in-app')}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      disabled={sending}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: deliveryMethod === 'in-app' ? 600 : 400 }}>In-App Only</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.75rem', borderRadius: '6px', border: deliveryMethod === 'email' ? '2px solid var(--primary)' : '1px solid var(--gray-300)', background: deliveryMethod === 'email' ? '#e3f2fd' : 'white' }}>
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="email"
+                      checked={deliveryMethod === 'email'}
+                      onChange={() => setDeliveryMethod('email')}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      disabled={sending}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: deliveryMethod === 'email' ? 600 : 400 }}>Email</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.75rem', borderRadius: '6px', border: deliveryMethod === 'sms' ? '2px solid var(--primary)' : '1px solid var(--gray-300)', background: deliveryMethod === 'sms' ? '#e3f2fd' : 'white' }}>
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="sms"
+                      checked={deliveryMethod === 'sms'}
+                      onChange={() => setDeliveryMethod('sms')}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      disabled={sending}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: deliveryMethod === 'sms' ? 600 : 400 }}>SMS</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.75rem', borderRadius: '6px', border: deliveryMethod === 'both' ? '2px solid var(--primary)' : '1px solid var(--gray-300)', background: deliveryMethod === 'both' ? '#e3f2fd' : 'white' }}>
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="both"
+                      checked={deliveryMethod === 'both'}
+                      onChange={() => setDeliveryMethod('both')}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      disabled={sending}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: deliveryMethod === 'both' ? 600 : 400 }}>Email + SMS</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Email Subject (conditional) */}
+              {(deliveryMethod === 'email' || deliveryMethod === 'both') && (
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="emailSubject" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                    Email Subject <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <input
+                    id="emailSubject"
+                    type="text"
+                    className="form-control"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Enter email subject"
+                    required
+                    disabled={sending}
+                  />
+                </div>
+              )}
+
+              {/* SMS Body (conditional) */}
+              {(deliveryMethod === 'sms' || deliveryMethod === 'both') && (
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="smsBody" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                    SMS Message <span style={{ color: '#dc3545' }}>*</span>
+                  </label>
+                  <textarea
+                    id="smsBody"
+                    className="form-control"
+                    value={smsBody}
+                    onChange={(e) => setSmsBody(e.target.value)}
+                    placeholder="Enter SMS message (max 160 characters)"
+                    rows={3}
+                    maxLength={160}
+                    required
+                    disabled={sending}
+                  />
+                  <div style={{ fontSize: '12px', color: smsBody.length > 140 ? '#dc3545' : 'var(--gray-600)', textAlign: 'right', marginTop: '4px' }}>
+                    {smsBody.length}/160 characters
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div className="form-group">
                   <label htmlFor="priority" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
@@ -604,13 +779,38 @@ function CustomerMessagesPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {/* Scheduled Send */}
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label htmlFor="scheduledAt" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Schedule for Later (Optional)
+                  <span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--gray-600)' }}>Leave empty to send immediately</span>
+                </label>
+                <input
+                  id="scheduledAt"
+                  type="datetime-local"
+                  className="form-control"
+                  value={scheduledAt}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                  disabled={sending}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <button
                   type="submit"
                   className="btn btn-primary"
                   disabled={sending}
                 >
-                  {sending ? 'Sending...' : 'Send Message'}
+                  {sending ? 'Sending...' : scheduledAt ? 'Schedule Message' : 'Send Message'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={(e) => handleSendMessage(e as any, true)}
+                  disabled={sending}
+                >
+                  {sending ? 'Saving...' : 'Save as Draft'}
                 </button>
                 <button
                   type="button"
@@ -621,6 +821,10 @@ function CustomerMessagesPage() {
                     setMessageContent('');
                     setPriority('normal');
                     setExpiresAt('');
+                    setDeliveryMethod('in-app');
+                    setEmailSubject('');
+                    setSmsBody('');
+                    setScheduledAt('');
                   }}
                   disabled={sending}
                 >
@@ -631,9 +835,25 @@ function CustomerMessagesPage() {
           </div>
         )}
 
-        {/* View Mode Tabs - Show when customer selected */}
+        {/* Message Status Tabs - Show when customer selected */}
         {selectedCustomer && (
-          <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', borderBottom: '1px solid var(--gray-200)' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', borderBottom: '1px solid var(--gray-200)', overflowX: 'auto' }}>
+            <button
+              onClick={() => setViewMode('all')}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: viewMode === 'all' ? '2px solid var(--primary)' : '2px solid transparent',
+                color: viewMode === 'all' ? 'var(--primary)' : 'var(--gray-600)',
+                fontWeight: viewMode === 'all' ? 600 : 400,
+                cursor: 'pointer',
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              All Messages
+            </button>
             <button
               onClick={() => setViewMode('inbox')}
               style={{
@@ -644,10 +864,11 @@ function CustomerMessagesPage() {
                 color: viewMode === 'inbox' ? 'var(--primary)' : 'var(--gray-600)',
                 fontWeight: viewMode === 'inbox' ? 600 : 400,
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
               }}
             >
-              From Customer
+              Inbox
             </button>
             <button
               onClick={() => setViewMode('sent')}
@@ -659,10 +880,43 @@ function CustomerMessagesPage() {
                 color: viewMode === 'sent' ? 'var(--primary)' : 'var(--gray-600)',
                 fontWeight: viewMode === 'sent' ? 600 : 400,
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
               }}
             >
-              To Customer
+              Sent
+            </button>
+            <button
+              onClick={() => setViewMode('drafts')}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: viewMode === 'drafts' ? '2px solid var(--primary)' : '2px solid transparent',
+                color: viewMode === 'drafts' ? 'var(--primary)' : 'var(--gray-600)',
+                fontWeight: viewMode === 'drafts' ? 600 : 400,
+                cursor: 'pointer',
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Drafts
+            </button>
+            <button
+              onClick={() => setViewMode('scheduled')}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: viewMode === 'scheduled' ? '2px solid var(--primary)' : '2px solid transparent',
+                color: viewMode === 'scheduled' ? 'var(--primary)' : 'var(--gray-600)',
+                fontWeight: viewMode === 'scheduled' ? 600 : 400,
+                cursor: 'pointer',
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Scheduled
             </button>
           </div>
         )}
@@ -779,38 +1033,112 @@ function CustomerMessagesPage() {
                         position: 'relative'
                       }}
                     >
-                      <div style={{
-                        display: 'inline-flex',
-                        padding: '4px 10px',
-                        background: `${getPriorityColor(msg.priority)}20`,
-                        color: getPriorityColor(msg.priority),
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        marginBottom: '0.75rem'
-                      }}>
-                        {getPriorityLabel(msg.priority)}
+                      {/* Status Badges Row */}
+                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                        <div style={{
+                          display: 'inline-flex',
+                          padding: '4px 10px',
+                          background: `${getPriorityColor(msg.priority)}20`,
+                          color: getPriorityColor(msg.priority),
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: 600
+                        }}>
+                          {getPriorityLabel(msg.priority)}
+                        </div>
+
+                        {/* Delivery Status Badge */}
+                        <div style={{
+                          display: 'inline-flex',
+                          padding: '4px 10px',
+                          background: `${getDeliveryStatusColor(msg.status)}20`,
+                          color: getDeliveryStatusColor(msg.status),
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: 600
+                        }}>
+                          {getDeliveryStatusLabel(msg.status)}
+                        </div>
+
+                        {/* Delivery Method Badge */}
+                        <div style={{
+                          display: 'inline-flex',
+                          padding: '4px 10px',
+                          background: '#e3f2fd',
+                          color: '#0d6efd',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: 600
+                        }}>
+                          {getDeliveryMethodLabel(msg.delivery_method)}
+                        </div>
                       </div>
 
                       <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
                         {msg.title}
                       </h4>
 
+                      {/* Email Subject (if applicable) */}
+                      {msg.email_subject && (
+                        <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginBottom: '0.5rem', fontStyle: 'italic' }}>
+                          Email: {msg.email_subject}
+                        </div>
+                      )}
+
                       <p style={{ margin: '0 0 1rem 0', fontSize: '14px', color: 'var(--gray-700)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
                         {msg.message}
                       </p>
 
+                      {/* SMS Body (if different from main message) */}
+                      {msg.sms_body && msg.sms_body !== msg.message && (
+                        <div style={{ padding: '0.75rem', background: '#fff3cd', borderRadius: '4px', marginBottom: '1rem' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: '#856404', marginBottom: '4px' }}>SMS Version:</div>
+                          <div style={{ fontSize: '13px', color: '#856404' }}>{msg.sms_body}</div>
+                        </div>
+                      )}
+
+                      {/* Scheduled Time */}
+                      {msg.scheduled_at && (
+                        <div style={{ fontSize: '13px', color: '#0dcaf0', marginBottom: '0.5rem', fontWeight: 500 }}>
+                          Scheduled for: {formatDate(msg.scheduled_at)}
+                        </div>
+                      )}
+
+                      {/* Failed Reason */}
+                      {msg.failed_reason && (
+                        <div style={{ padding: '0.75rem', background: '#f8d7da', borderRadius: '4px', marginBottom: '1rem' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: '#842029', marginBottom: '4px' }}>Delivery Failed:</div>
+                          <div style={{ fontSize: '13px', color: '#842029' }}>{msg.failed_reason}</div>
+                        </div>
+                      )}
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--gray-200)' }}>
                         <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>
-                          Sent {formatDate(msg.created_at)} • {msg.read_count || 0} read
+                          {msg.is_draft ? 'Draft saved' : msg.sent_at ? `Sent ${formatDate(msg.sent_at)}` : `Created ${formatDate(msg.created_at)}`}
+                          {!msg.is_draft && ` • ${msg.read_count || 0} read`}
+                          {msg.delivered_at && ` • Delivered ${formatDate(msg.delivered_at)}`}
                         </div>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleDeleteMessage(msg.message_id)}
-                          style={{ padding: '4px 12px', fontSize: '13px' }}
-                        >
-                          Delete
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {msg.is_draft && (
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => {
+                                // TODO: Load draft into form for editing
+                                alert('Edit draft functionality will be implemented');
+                              }}
+                              style={{ padding: '4px 12px', fontSize: '13px' }}
+                            >
+                              Edit Draft
+                            </button>
+                          )}
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleDeleteMessage(msg.message_id)}
+                            style={{ padding: '4px 12px', fontSize: '13px' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
 
                       {msg.expires_at && new Date(msg.expires_at) < new Date() && (

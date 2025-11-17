@@ -41,7 +41,7 @@ import BusTimetablesPage from './components/bus/BusTimetablesPage';
 import BusBookingsPage from './components/bus/BusBookingsPage';
 import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
-import BusCommunicationsPage from './components/bus/BusCommunicationsPage';
+// BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
 import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
@@ -203,7 +203,7 @@ function App() {
         <Route path="bus/book" element={<QuickBookPage />} />
         <Route path="bus/bookings" element={<BusBookingsPage />} />
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
-        <Route path="bus/communications" element={<BusCommunicationsPage />} />
+        <Route path="bus/communications" element={<CustomerMessagesPage />} />
         <Route path="bus/analytics" element={<BusAnalyticsPage />} />
         <Route path="bus/surplus-pool" element={<SurplusPoolDashboard />} />
         <Route path="bus/members" element={<CooperativeMembersPage />} />

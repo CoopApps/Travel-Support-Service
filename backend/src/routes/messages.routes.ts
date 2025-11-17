@@ -33,6 +33,15 @@ interface AuthenticatedRequest extends Request {
           m.created_at,
           m.expires_at,
           m.created_by,
+          m.delivery_method,
+          m.email_subject,
+          m.sms_body,
+          m.status,
+          m.is_draft,
+          m.scheduled_at,
+          m.sent_at,
+          m.delivered_at,
+          m.failed_reason,
           u.username as created_by_name,
           c.name as customer_name,
           COUNT(DISTINCT mr.read_id) as read_count,
@@ -55,7 +64,9 @@ interface AuthenticatedRequest extends Request {
 
       sql += `
         GROUP BY m.message_id, m.target_customer_id, m.title, m.message, m.priority,
-                 m.created_at, m.expires_at, m.created_by, u.username, c.name
+                 m.created_at, m.expires_at, m.created_by, m.delivery_method, m.email_subject,
+                 m.sms_body, m.status, m.is_draft, m.scheduled_at, m.sent_at, m.delivered_at,
+                 m.failed_reason, u.username, c.name
         ORDER BY m.created_at DESC
       `;
 
@@ -123,19 +134,66 @@ interface AuthenticatedRequest extends Request {
     verifyTenantAccess,
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const { tenantId } = req.params;
-      const { targetCustomerId, title, message, priority, expiresAt } = req.body;
+      const {
+        targetCustomerId,
+        title,
+        message,
+        priority,
+        expiresAt,
+        deliveryMethod,
+        emailSubject,
+        smsBody,
+        isDraft,
+        scheduledAt
+      } = req.body;
       const userId = req.user?.userId;
 
       if (!title || !message) {
         return res.status(400).json({ error: 'Title and message are required' });
       }
 
+      // Validate delivery method requirements
+      if ((deliveryMethod === 'email' || deliveryMethod === 'both') && !emailSubject) {
+        return res.status(400).json({ error: 'Email subject is required for email delivery' });
+      }
+      if ((deliveryMethod === 'sms' || deliveryMethod === 'both') && !smsBody) {
+        return res.status(400).json({ error: 'SMS message is required for SMS delivery' });
+      }
+
+      // Determine status based on draft and scheduled flags
+      let status = 'sent';
+      let sentAt = null;
+
+      if (isDraft) {
+        status = 'draft';
+      } else if (scheduledAt) {
+        status = 'scheduled';
+      } else {
+        sentAt = new Date().toISOString();
+      }
+
       const result = await query(
         `INSERT INTO tenant_messages
-          (tenant_id, target_customer_id, title, message, priority, created_by, expires_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+          (tenant_id, target_customer_id, title, message, priority, created_by, expires_at,
+           delivery_method, email_subject, sms_body, status, is_draft, scheduled_at, sent_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         RETURNING *`,
-        [tenantId, targetCustomerId || null, title, message, priority || 'normal', userId, expiresAt || null]
+        [
+          tenantId,
+          targetCustomerId || null,
+          title,
+          message,
+          priority || 'normal',
+          userId,
+          expiresAt || null,
+          deliveryMethod || 'in-app',
+          emailSubject || null,
+          smsBody || null,
+          status,
+          isDraft || false,
+          scheduledAt || null,
+          sentAt
+        ]
       );
 
       return res.json({ message: result[0] });

@@ -10,7 +10,10 @@
       "Bash(gh repo view:*)",
       "Bash(\"/c/Program Files/nodejs/npm.cmd\" install --save-dev @types/node-cron)",
       "Bash(\"/c/Program Files/nodejs/npm.cmd\" run build)",
-      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc --noEmit)"
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" run-universal-messaging-migration.js)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc)",
+      "Bash(del \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\bus\\BusCommunicationsPage.tsx\")"
     ],
     "deny": [],
     "ask": []
