@@ -430,6 +430,15 @@ export const PauseIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColo
   </svg>
 );
 
+export const LightBulbIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M12 2a7 7 0 0 1 0 14 5 5 0 0 0-5-5 7 7 0 0 1 5-9z" />
+    <circle cx="12" cy="9" r="7" />
+  </svg>
+);
+
 // Export all icons as a single object for convenience
 export const BusIcons = {
   BarChart: BarChartIcon,
@@ -484,4 +493,5 @@ export const BusIcons = {
   Info: InfoIcon,
   Robot: RobotIcon,
   Pause: PauseIcon,
+  LightBulb: LightBulbIcon,
 };

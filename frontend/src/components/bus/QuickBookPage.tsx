@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
+import { LightBulbIcon } from '../icons/BusIcons';
 import {
   Select,
   SelectContent,
@@ -486,8 +487,9 @@ const QuickBookPage: React.FC = () => {
                   <span className="font-bold">£{pricingDetails.cost_breakdown.effective_cost.toFixed(2)}</span>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-lg text-sm">
-                  <p className="text-blue-900">
-                    💡 Surplus saved <strong>{pricingDetails.surplus_info.passengers_saved}</strong> passenger{pricingDetails.surplus_info.passengers_saved !== 1 ? 's' : ''} worth of threshold!
+                  <p className="text-blue-900" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <LightBulbIcon size={16} color="#1e3a8a" />
+                    Surplus saved <strong>{pricingDetails.surplus_info.passengers_saved}</strong> passenger{pricingDetails.surplus_info.passengers_saved !== 1 ? 's' : ''} worth of threshold!
                   </p>
                 </div>
               </CardContent>

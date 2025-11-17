@@ -3,6 +3,7 @@ import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
 import { busTimetablesApi } from '../../services/busApi';
 import { driverApi } from '../../services/api';
+import { BusIcon } from '../icons/BusIcons';
 
 interface DriverAssignment {
   driver_id: number;
@@ -171,8 +172,9 @@ export default function BusDriverRosterPage() {
     <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 600, color: '#1f2937' }}>
-          🚌 Bus Driver Roster
+        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <BusIcon size={28} />
+          Bus Driver Roster
         </h1>
         <p style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
           View and manage driver assignments for bus routes and timetables

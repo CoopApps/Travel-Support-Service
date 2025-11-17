@@ -2,6 +2,7 @@ import React from 'react';
 import { TrendingDown, Users, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { LightBulbIcon } from '../icons/BusIcons';
 
 interface PricingIndicatorProps {
   currentPrice: number;
@@ -160,7 +161,10 @@ const PricingIndicator: React.FC<PricingIndicatorProps> = ({
         {/* Member vs Non-Member Comparison */}
         {!isMember && (
           <div className="pt-2 border-t">
-            <p className="text-sm text-gray-600 mb-2">💡 Member Pricing:</p>
+            <p className="text-sm text-gray-600 mb-2" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <LightBulbIcon size={14} color="#4b5563" />
+              Member Pricing:
+            </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-700">Members pay:</span>
               <div className="flex items-center gap-2">

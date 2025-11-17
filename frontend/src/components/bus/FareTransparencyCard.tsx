@@ -1,5 +1,5 @@
 import React from 'react';
-import { SparklesIcon, BriefcaseIcon, CheckMarkIcon } from '../icons/BusIcons';
+import { SparklesIcon, BriefcaseIcon, CheckMarkIcon, LightBulbIcon, HandshakeIcon, GlobeIcon, PeopleIcon } from '../icons/BusIcons';
 
 /**
  * Fare Transparency Card
@@ -138,14 +138,19 @@ export default function FareTransparencyCard({
               fontSize: '0.875rem',
               color: '#047857',
               marginBottom: communityImpactMessage ? '0.5rem' : 0,
-              fontWeight: 500
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
             }}>
-              💡 {fareReductionMessage}
+              <LightBulbIcon size={14} color="#047857" />
+              {fareReductionMessage}
             </div>
           )}
           {communityImpactMessage && (
-            <div style={{ fontSize: '0.875rem', color: '#059669', fontWeight: 500 }}>
-              🤝 {communityImpactMessage}
+            <div style={{ fontSize: '0.875rem', color: '#059669', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <HandshakeIcon size={14} color="#059669" />
+              {communityImpactMessage}
             </div>
           )}
         </div>
@@ -247,9 +252,13 @@ export default function FareTransparencyCard({
                 fontSize: '0.875rem',
                 fontWeight: 600,
                 marginBottom: '0.75rem',
-                color: '#1e40af'
+                color: '#1e40af',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                🤝 Solidarity Pricing (Cost Sharing)
+                <HandshakeIcon size={16} color="#1e40af" />
+                Solidarity Pricing (Cost Sharing)
               </h4>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -279,10 +288,16 @@ export default function FareTransparencyCard({
                 borderRadius: '4px',
                 fontSize: '0.8125rem',
                 color: '#1e3a8a',
-                lineHeight: 1.5
+                lineHeight: 1.5,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.5rem'
               }}>
-                💡 <strong>How it works:</strong> The total trip cost is {formatCurrency(tripCostBreakdown.totalTripCost)}.
-                We share this cost equally among all passengers. More passengers = cheaper for everyone!
+                <LightBulbIcon size={16} color="#1e3a8a" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                <div>
+                  <strong>How it works:</strong> The total trip cost is {formatCurrency(tripCostBreakdown.totalTripCost)}.
+                  We share this cost equally among all passengers. More passengers = cheaper for everyone!
+                </div>
               </div>
             </div>
 
@@ -321,16 +336,18 @@ export default function FareTransparencyCard({
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                    <span style={{ color: '#065f46' }}>
-                      👥 Member Dividends ({surplusAllocation.dividendPercent}%)
+                    <span style={{ color: '#065f46', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                      <PeopleIcon size={14} color="#065f46" />
+                      Member Dividends ({surplusAllocation.dividendPercent}%)
                     </span>
                     <span style={{ fontWeight: 600, color: '#047857' }}>
                       {formatCurrency(surplusAllocation.toDividends)}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                    <span style={{ color: '#065f46' }}>
-                      🌍 Cooperative Commonwealth ({surplusAllocation.cooperativeCommonwealthPercent}%)
+                    <span style={{ color: '#065f46', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                      <GlobeIcon size={14} color="#065f46" />
+                      Cooperative Commonwealth ({surplusAllocation.cooperativeCommonwealthPercent}%)
                     </span>
                     <span style={{ fontWeight: 600, color: '#047857' }}>
                       {formatCurrency(surplusAllocation.toCooperativeCommonwealth)}
@@ -345,10 +362,16 @@ export default function FareTransparencyCard({
                   borderRadius: '4px',
                   fontSize: '0.8125rem',
                   color: '#065f46',
-                  lineHeight: 1.5
+                  lineHeight: 1.5,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.5rem'
                 }}>
-                  🌟 <strong>Building Community Wealth:</strong> Your participation helps build reserves for
-                  the cooperative, returns value to members, and contributes to the broader cooperative movement.
+                  <SparklesIcon size={16} color="#065f46" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                  <div>
+                    <strong>Building Community Wealth:</strong> Your participation helps build reserves for
+                    the cooperative, returns value to members, and contributes to the broader cooperative movement.
+                  </div>
                 </div>
               </div>
             )}
