@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { busRoutesApi, busTimetablesApi, busBookingsApi } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import CooperativeCommonwealthTracker from './CooperativeCommonwealthTracker';
-import { MapIcon, AlarmClockIcon, MemoIcon, BusIcon, UserIcon, ClipboardIcon, CalendarIcon, TicketIcon, SeatIcon } from '../icons/BusIcons';
+import { MapIcon, AlarmClockIcon, MemoIcon, BusIcon, UserIcon, ClipboardIcon, CalendarIcon, TicketIcon, SeatIcon, ArrowRightIcon } from '../icons/BusIcons';
 import './BusDashboard.css';
 
 interface DashboardStats {
@@ -107,7 +107,10 @@ export default function BusDashboard() {
             <div className="stat-value">{stats.activeRoutes}</div>
             <div className="stat-label">Active Routes</div>
           </div>
-          <Link to="/bus/routes" className="stat-action">View Routes →</Link>
+          <Link to="/bus/routes" className="stat-action" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            View Routes
+            <ArrowRightIcon size={16} />
+          </Link>
         </div>
 
         <div className="stat-card services">
@@ -118,7 +121,10 @@ export default function BusDashboard() {
             <div className="stat-value">{stats.todaysServices}</div>
             <div className="stat-label">Today's Services</div>
           </div>
-          <div className="stat-action">View Schedule →</div>
+          <div className="stat-action" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            View Schedule
+            <ArrowRightIcon size={16} />
+          </div>
         </div>
 
         <div className="stat-card bookings">
@@ -143,7 +149,10 @@ export default function BusDashboard() {
             <div className="stat-value">{stats.availableSeats}</div>
             <div className="stat-label">Available Seats</div>
           </div>
-          <div className="stat-action">View Availability →</div>
+          <div className="stat-action" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            View Availability
+            <ArrowRightIcon size={16} />
+          </div>
         </div>
       </div>
 
