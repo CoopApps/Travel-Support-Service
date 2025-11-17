@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import {
+  MailIcon,
+  CheckMarkIcon,
+  AlarmClockIcon,
+  MemoIcon,
+  XMarkIcon,
+  TicketIcon,
+  BanIcon,
+  TimerIcon,
+  WarningIcon,
+  MegaphoneIcon,
+} from '../icons/BusIcons';
 
 /**
  * Bus Communications & Notifications Management
@@ -155,17 +167,21 @@ export default function BusCommunicationsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const badges: Record<string, { bg: string; color: string; label: string }> = {
-      sent: { bg: '#d1fae5', color: '#065f46', label: '✓ Sent' },
-      scheduled: { bg: '#dbeafe', color: '#1e40af', label: '⏰ Scheduled' },
-      draft: { bg: '#f3f4f6', color: '#374151', label: '📝 Draft' },
-      failed: { bg: '#fee2e2', color: '#991b1b', label: '✗ Failed' },
+    const badges: Record<string, { bg: string; color: string; label: string; icon: React.FC<any> }> = {
+      sent: { bg: '#d1fae5', color: '#065f46', label: 'Sent', icon: CheckMarkIcon },
+      scheduled: { bg: '#dbeafe', color: '#1e40af', label: 'Scheduled', icon: AlarmClockIcon },
+      draft: { bg: '#f3f4f6', color: '#374151', label: 'Draft', icon: MemoIcon },
+      failed: { bg: '#fee2e2', color: '#991b1b', label: 'Failed', icon: XMarkIcon },
     };
 
     const badge = badges[status] || badges.draft;
+    const IconComponent = badge.icon;
+
     return (
       <span style={{
-        display: 'inline-block',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
         padding: '0.25rem 0.625rem',
         borderRadius: '9999px',
         background: badge.bg,
@@ -173,20 +189,31 @@ export default function BusCommunicationsPage() {
         fontSize: '0.75rem',
         fontWeight: 600
       }}>
+        <IconComponent size={12} />
         {badge.label}
       </span>
     );
   };
 
   const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      booking_confirmation: '🎫 Booking Confirmation',
-      cancellation: '🚫 Cancellation',
-      delay: '⏱️ Delay Alert',
-      service_alert: '⚠️ Service Alert',
-      announcement: '📢 Announcement',
+    const labels: Record<string, { label: string; icon: React.FC<any> }> = {
+      booking_confirmation: { label: 'Booking Confirmation', icon: TicketIcon },
+      cancellation: { label: 'Cancellation', icon: BanIcon },
+      delay: { label: 'Delay Alert', icon: TimerIcon },
+      service_alert: { label: 'Service Alert', icon: WarningIcon },
+      announcement: { label: 'Announcement', icon: MegaphoneIcon },
     };
-    return labels[type] || type;
+
+    const typeInfo = labels[type];
+    if (!typeInfo) return type;
+
+    const IconComponent = typeInfo.icon;
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+        <IconComponent size={16} />
+        {typeInfo.label}
+      </span>
+    );
   };
 
   return (
@@ -194,8 +221,9 @@ export default function BusCommunicationsPage() {
       {/* Header */}
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            📨 Communications & Notifications
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <MailIcon size={32} color="#3b82f6" />
+            Communications & Notifications
           </h1>
           <p style={{ color: '#6b7280' }}>
             Send messages to bus passengers via email and SMS
@@ -402,11 +430,11 @@ export default function BusCommunicationsPage() {
                     onChange={(e) => setFormData({ ...formData, message_type: e.target.value })}
                     style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
                   >
-                    <option value="announcement">📢 Announcement</option>
-                    <option value="service_alert">⚠️ Service Alert</option>
-                    <option value="delay">⏱️ Delay Notification</option>
-                    <option value="booking_confirmation">🎫 Booking Confirmation</option>
-                    <option value="cancellation">🚫 Cancellation</option>
+                    <option value="announcement">Announcement</option>
+                    <option value="service_alert">Service Alert</option>
+                    <option value="delay">Delay Notification</option>
+                    <option value="booking_confirmation">Booking Confirmation</option>
+                    <option value="cancellation">Cancellation</option>
                   </select>
                 </div>
 

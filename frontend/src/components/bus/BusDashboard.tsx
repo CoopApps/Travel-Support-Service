@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { busRoutesApi, busTimetablesApi, busBookingsApi } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import CooperativeCommonwealthTracker from './CooperativeCommonwealthTracker';
+import { MapIcon, AlarmClockIcon, MemoIcon, BusIcon, UserIcon, ClipboardIcon } from '../icons/BusIcons';
 import './BusDashboard.css';
 
 interface DashboardStats {
@@ -142,37 +143,37 @@ export default function BusDashboard() {
         <h2>Quick Actions</h2>
         <div className="action-grid">
           <Link to="/bus/routes" className="action-button">
-            <span className="action-icon">🗺️</span>
+            <span className="action-icon"><MapIcon size={24} /></span>
             <span className="action-title">Manage Routes</span>
             <span className="action-description">Create and edit bus routes</span>
           </Link>
 
           <button className="action-button">
-            <span className="action-icon">⏰</span>
+            <span className="action-icon"><AlarmClockIcon size={24} /></span>
             <span className="action-title">Create Timetable</span>
             <span className="action-description">Schedule new services</span>
           </button>
 
           <button className="action-button">
-            <span className="action-icon">📝</span>
+            <span className="action-icon"><MemoIcon size={24} /></span>
             <span className="action-title">New Booking</span>
             <span className="action-description">Create passenger booking</span>
           </button>
 
           <Link to="/vehicles" className="action-button">
-            <span className="action-icon">🚐</span>
+            <span className="action-icon"><BusIcon size={24} /></span>
             <span className="action-title">Manage Vehicles</span>
             <span className="action-description">View and assign vehicles</span>
           </Link>
 
           <Link to="/drivers" className="action-button">
-            <span className="action-icon">👤</span>
+            <span className="action-icon"><UserIcon size={24} /></span>
             <span className="action-title">Manage Drivers</span>
             <span className="action-description">View and assign drivers</span>
           </Link>
 
           <Link to="/compliance/service-registrations" className="action-button">
-            <span className="action-icon">📋</span>
+            <span className="action-icon"><ClipboardIcon size={24} /></span>
             <span className="action-title">Service Registrations</span>
             <span className="action-description">Traffic Commissioner compliance</span>
           </Link>

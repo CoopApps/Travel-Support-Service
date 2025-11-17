@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
+import { AlarmClockIcon } from '../icons/BusIcons';
 import './BusTimetablesPage.css';
 
 export default function BusTimetablesPage() {
@@ -190,7 +191,7 @@ export default function BusTimetablesPage() {
 
           {filteredTimetables.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">⏰</div>
+              <div className="empty-icon"><AlarmClockIcon size={48} color="#9ca3af" /></div>
               <h2>No Timetables Found</h2>
               <p>
                 {filter === 'today'
