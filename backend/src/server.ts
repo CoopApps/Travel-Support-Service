@@ -29,6 +29,7 @@ import { detectSubdomain } from './middleware/subdomainDetection';
 import { apiRateLimiter, authRateLimiter as _authRateLimiter } from './middleware/rateLimiting';
 import { httpLogger, requestIdMiddleware, slowRequestLogger } from './middleware/requestLogger';
 import { auditMiddleware } from './middleware/auditLogger';
+import { sanitizeMiddleware } from './utils/sanitize';
 
 // Import Swagger documentation
 import { setupSwagger } from './config/swagger';
@@ -98,6 +99,8 @@ import surplusManagementRoutes from './routes/surplus-management.routes';
 import cooperativeMembersRoutes from './routes/cooperative-members.routes';
 import dividendRoutes from './routes/dividend.routes';
 import dividendSchedulerRoutes from './routes/dividend-scheduler.routes';
+import memberDividendsRoutes from './routes/member-dividends.routes';
+import driverRosteringRoutes from './routes/driver-rostering.routes';
 
 /**
  * Main Server File - Stage 4
@@ -197,6 +200,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Response compression
 app.use(compression());
+
+// SECURITY: Global input sanitization to prevent XSS, HTML injection, etc.
+// This applies to all request bodies, query params, and route params
+app.use(sanitizeMiddleware());
 
 // Request ID for tracing
 app.use(requestIdMiddleware);
@@ -305,6 +312,8 @@ app.use('/api', surplusManagementRoutes);
 app.use('/api', cooperativeMembersRoutes);
 app.use('/api', dividendRoutes);
 app.use('/api', dividendSchedulerRoutes);
+app.use('/api', memberDividendsRoutes);
+app.use('/api', driverRosteringRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

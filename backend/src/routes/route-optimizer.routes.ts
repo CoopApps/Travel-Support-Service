@@ -502,4 +502,309 @@ router.get(
   })
 );
 
+/**
+ * POST /api/tenants/:tenantId/routes/batch-optimize
+ * Batch optimize routes across multiple days with capacity constraints
+ */
+router.post(
+  '/tenants/:tenantId/routes/batch-optimize',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { startDate, endDate, includeCapacity = false } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const client = await getDbClient();
+
+    try {
+      // Fetch trips in date range
+      const tripsQuery = `
+        SELECT
+          t.trip_id,
+          t.driver_id,
+          t.trip_date as date,
+          t.pickup_time,
+          t.pickup_location,
+          t.pickup_address,
+          t.pickup_postcode,
+          t.destination,
+          t.destination_address,
+          t.destination_postcode,
+          COALESCE(t.passenger_count, 1) as passengers
+        FROM tenant_trips t
+        WHERE t.tenant_id = $1
+          AND t.trip_date >= $2
+          AND t.trip_date <= $3
+          AND t.status != 'cancelled'
+        ORDER BY t.trip_date, t.pickup_time
+      `;
+
+      const tripsResult = await client.query(tripsQuery, [tenantId, startDate, endDate]);
+
+      // Fetch drivers with vehicle info
+      const driversQuery = `
+        SELECT
+          d.driver_id,
+          v.capacity as vehicle_capacity,
+          d.home_address,
+          d.home_postcode
+        FROM tenant_drivers d
+        LEFT JOIN tenant_vehicles v ON d.assigned_vehicle_id = v.vehicle_id
+        WHERE d.tenant_id = $1 AND d.is_active = true
+      `;
+
+      const driversResult = await client.query(driversQuery, [tenantId]);
+
+      client.release();
+
+      const { routeOptimizationService } = require('../services/routeOptimization.service');
+
+      // Prepare trip data
+      const trips = tripsResult.rows.map((t: any) => ({
+        trip_id: t.trip_id,
+        driver_id: t.driver_id,
+        date: t.date,
+        pickup_time: t.pickup_time,
+        pickup_location: {
+          address: t.pickup_address || t.pickup_location,
+          postcode: t.pickup_postcode
+        },
+        destination: {
+          address: t.destination_address || t.destination,
+          postcode: t.destination_postcode
+        },
+        passengers: t.passengers
+      }));
+
+      // Prepare driver data
+      const drivers = driversResult.rows.map((d: any) => ({
+        driver_id: d.driver_id,
+        vehicle_capacity: d.vehicle_capacity || 8, // Default to 8-seater
+        start_location: d.home_address ? {
+          address: d.home_address,
+          postcode: d.home_postcode
+        } : undefined
+      }));
+
+      // Run batch optimization
+      const result = await routeOptimizationService.batchOptimizeRoutes({
+        trips,
+        drivers,
+        dateRange: { start: startDate, end: endDate }
+      });
+
+      return res.json({
+        success: true,
+        ...result,
+        tripCount: trips.length,
+        driverCount: drivers.length,
+        dateRange: { startDate, endDate }
+      });
+    } catch (error: any) {
+      console.error('Error in batch optimization:', error);
+      client.release();
+      return res.status(500).json({ error: 'Failed to batch optimize routes', details: error.message });
+    }
+  })
+);
+
+/**
+ * POST /api/tenants/:tenantId/routes/capacity-optimize
+ * Optimize route groupings based on vehicle capacity constraints
+ */
+router.post(
+  '/tenants/:tenantId/routes/capacity-optimize',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { date, vehicleCapacity = 8 } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+
+    const client = await getDbClient();
+
+    try {
+      // Fetch trips for the date
+      const tripsQuery = `
+        SELECT
+          trip_id,
+          pickup_time,
+          pickup_location,
+          pickup_address,
+          pickup_postcode,
+          destination,
+          destination_address,
+          destination_postcode,
+          COALESCE(passenger_count, 1) as passengers
+        FROM tenant_trips
+        WHERE tenant_id = $1
+          AND trip_date = $2
+          AND status != 'cancelled'
+        ORDER BY pickup_time
+      `;
+
+      const tripsResult = await client.query(tripsQuery, [tenantId, date]);
+      client.release();
+
+      const { routeOptimizationService } = require('../services/routeOptimization.service');
+
+      // Prepare trip data
+      const trips = tripsResult.rows.map((t: any) => ({
+        trip_id: t.trip_id,
+        passengers: t.passengers,
+        pickup_location: {
+          address: t.pickup_address || t.pickup_location,
+          postcode: t.pickup_postcode
+        },
+        destination: {
+          address: t.destination_address || t.destination,
+          postcode: t.destination_postcode
+        },
+        pickup_time: t.pickup_time
+      }));
+
+      // Run capacity optimization
+      const routes = routeOptimizationService.optimizeWithCapacity({
+        trips,
+        vehicleCapacity
+      });
+
+      // Calculate statistics
+      const totalPassengers = trips.reduce((sum: number, t: any) => sum + t.passengers, 0);
+      const averageCapacityUsed = routes.reduce((sum, r) => sum + r.capacity_used, 0) / routes.length;
+      const vehiclesNeeded = routes.length;
+      const vehiclesSaved = Math.max(0, trips.length - vehiclesNeeded);
+
+      return res.json({
+        success: true,
+        routes,
+        statistics: {
+          totalTrips: trips.length,
+          totalPassengers,
+          vehiclesNeeded,
+          vehiclesSaved,
+          averageCapacityUsed: Math.round(averageCapacityUsed),
+          efficiency: Math.round((vehiclesSaved / trips.length) * 100)
+        }
+      });
+    } catch (error: any) {
+      console.error('Error in capacity optimization:', error);
+      client.release();
+      return res.status(500).json({ error: 'Failed to optimize capacity', details: error.message });
+    }
+  })
+);
+
+/**
+ * GET /api/tenants/:tenantId/routes/analytics
+ * Get route optimization analytics and KPIs
+ */
+router.get(
+  '/tenants/:tenantId/routes/analytics',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const client = await getDbClient();
+
+    try {
+      // Get route efficiency metrics
+      const metricsQuery = `
+        SELECT
+          COUNT(DISTINCT trip_id) as total_trips,
+          COUNT(DISTINCT driver_id) as drivers_used,
+          COUNT(DISTINCT trip_date) as days_active,
+          AVG(COALESCE(passenger_count, 1)) as avg_passengers_per_trip,
+          SUM(COALESCE(distance_miles, 0)) as total_miles,
+          SUM(COALESCE(duration_minutes, 0)) as total_minutes
+        FROM tenant_trips
+        WHERE tenant_id = $1
+          AND trip_date >= $2
+          AND trip_date <= $3
+          AND status != 'cancelled'
+      `;
+
+      const metricsResult = await client.query(metricsQuery, [tenantId, startDate, endDate]);
+
+      // Get driver utilization
+      const utilizationQuery = `
+        SELECT
+          driver_id,
+          COUNT(*) as trip_count,
+          SUM(COALESCE(distance_miles, 0)) as total_distance,
+          MIN(trip_date) as first_trip,
+          MAX(trip_date) as last_trip
+        FROM tenant_trips
+        WHERE tenant_id = $1
+          AND trip_date >= $2
+          AND trip_date <= $3
+          AND driver_id IS NOT NULL
+          AND status != 'cancelled'
+        GROUP BY driver_id
+        ORDER BY trip_count DESC
+      `;
+
+      const utilizationResult = await client.query(utilizationQuery, [tenantId, startDate, endDate]);
+
+      // Get peak times
+      const peakTimesQuery = `
+        SELECT
+          EXTRACT(HOUR FROM pickup_time::time) as hour,
+          COUNT(*) as trip_count
+        FROM tenant_trips
+        WHERE tenant_id = $1
+          AND trip_date >= $2
+          AND trip_date <= $3
+          AND status != 'cancelled'
+        GROUP BY hour
+        ORDER BY trip_count DESC
+        LIMIT 5
+      `;
+
+      const peakTimesResult = await client.query(peakTimesQuery, [tenantId, startDate, endDate]);
+
+      client.release();
+
+      const metrics = metricsResult.rows[0];
+
+      return res.json({
+        success: true,
+        overview: {
+          totalTrips: parseInt(metrics.total_trips),
+          driversUsed: parseInt(metrics.drivers_used),
+          daysActive: parseInt(metrics.days_active),
+          avgPassengersPerTrip: parseFloat(parseFloat(metrics.avg_passengers_per_trip).toFixed(2)),
+          totalMiles: parseFloat(parseFloat(metrics.total_miles).toFixed(2)),
+          totalHours: parseFloat((parseFloat(metrics.total_minutes) / 60).toFixed(2)),
+          tripsPerDriver: parseFloat((parseFloat(metrics.total_trips) / parseInt(metrics.drivers_used)).toFixed(2))
+        },
+        driverUtilization: utilizationResult.rows.map((r: any) => ({
+          driverId: r.driver_id,
+          tripCount: parseInt(r.trip_count),
+          totalDistance: parseFloat(parseFloat(r.total_distance).toFixed(2)),
+          activeDays: Math.ceil((new Date(r.last_trip).getTime() - new Date(r.first_trip).getTime()) / (1000 * 60 * 60 * 24)) + 1
+        })),
+        peakHours: peakTimesResult.rows.map((r: any) => ({
+          hour: parseInt(r.hour),
+          tripCount: parseInt(r.trip_count)
+        }))
+      });
+    } catch (error: any) {
+      console.error('Error fetching route analytics:', error);
+      client.release();
+      return res.status(500).json({ error: 'Failed to fetch analytics', details: error.message });
+    }
+  })
+);
+
 export default router;

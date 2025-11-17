@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTenant } from '../../context/TenantContext';
 import { useServiceContext } from '../../contexts/ServiceContext';
 import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
-import { vehicleApi, customerApi, driverApi } from '../../services/api';
+import { vehicleApi, customerApi, driverApi, adminAnalyticsApi } from '../../services/api';
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
 import BusDashboard from '../bus/BusDashboard';
@@ -37,6 +37,8 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+  const [profitability, setProfitability] = useState<any>(null);
+  const [loadingProfitability, setLoadingProfitability] = useState(false);
 
   // Quick Actions State
   const [showIncidentModal, setShowIncidentModal] = useState(false);
@@ -54,8 +56,12 @@ function DashboardPage() {
   useEffect(() => {
     if (user?.tenantId && activeService !== 'bus') {
       loadDashboard();
+      loadProfitability();
       // Auto-refresh every 5 minutes
-      const interval = setInterval(loadDashboard, 5 * 60 * 1000);
+      const interval = setInterval(() => {
+        loadDashboard();
+        loadProfitability();
+      }, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
   }, [user?.tenantId, activeService]);
@@ -80,6 +86,28 @@ function DashboardPage() {
       setError(err.response?.data?.error?.message || 'Failed to load dashboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProfitability = async () => {
+    if (!tenantId) return;
+
+    try {
+      setLoadingProfitability(true);
+      // Get last 30 days of profitability data
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const data = await adminAnalyticsApi.getProfitabilityDashboard(tenantId, {
+        startDate,
+        endDate
+      });
+      setProfitability(data);
+    } catch (err: any) {
+      console.error('Error loading profitability:', err);
+      // Don't set error state - profitability is optional
+    } finally {
+      setLoadingProfitability(false);
     }
   };
 
@@ -549,6 +577,122 @@ function DashboardPage() {
           <div className="stat-card stat-card-amber" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
             <div className="stat-label" style={{ fontSize: '12px' }}>Pending Payments</div>
+          </div>
+        </div>
+      )}
+
+      {/* Profitability KPIs - Last 30 Days */}
+      {profitability && profitability.overview && (
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.5rem'
+          }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
+              💰 Financial Performance (Last 30 Days)
+            </h3>
+            <button
+              onClick={() => navigate('/admin')}
+              style={{
+                padding: '4px 10px',
+                fontSize: '11px',
+                background: 'transparent',
+                border: '1px solid #cbd5e1',
+                borderRadius: '4px',
+                color: '#475569',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              View Details →
+            </button>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '0.75rem'
+          }}>
+            {/* Total Revenue */}
+            <div style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '8px',
+              padding: '1rem',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
+                Total Revenue
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+                £{profitability.overview.totalRevenue.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                {profitability.trips.completed} completed trips
+              </div>
+            </div>
+
+            {/* Total Costs */}
+            <div style={{
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              borderRadius: '8px',
+              padding: '1rem',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
+                Total Costs
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+                £{profitability.overview.totalCosts.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                Wages: {profitability.costPercentages.wages}%
+              </div>
+            </div>
+
+            {/* Net Profit */}
+            <div style={{
+              background: profitability.overview.profitable
+                ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
+                : 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
+              borderRadius: '8px',
+              padding: '1rem',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
+                Net Profit
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+                {profitability.overview.profitable ? '£' : '-£'}
+                {Math.abs(profitability.overview.netProfit).toLocaleString()}
+              </div>
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                {profitability.overview.profitable ? 'Profitable' : 'Loss'}
+              </div>
+            </div>
+
+            {/* Profit Margin */}
+            <div style={{
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              borderRadius: '8px',
+              padding: '1rem',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
+                Profit Margin
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+                {profitability.overview.profitMargin.toFixed(1)}%
+              </div>
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                Avg: £{profitability.trips.averageRevenue} per trip
+              </div>
+            </div>
           </div>
         </div>
       )}

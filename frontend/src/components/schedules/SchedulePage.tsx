@@ -8,6 +8,7 @@ import AdHocJourneysView from './AdHocJourneysView';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import RouteOptimizer from './RouteOptimizer';
 import CapacityAlerts from './CapacityAlerts';
+import TripCombinationOpportunities from './TripCombinationOpportunities';
 
 /**
  * Schedule Page - Main Component
@@ -595,6 +596,16 @@ function SchedulePage() {
           </button>
         </div>
       </div>
+
+      {/* Trip Combination Opportunities Widget */}
+      <TripCombinationOpportunities
+        onAddToTrip={(tripId, customerId) => {
+          // Show success message and refresh the view
+          alert(`Customer will be added to trip #${tripId}. Please assign them in the trip details.`);
+          window.location.reload();
+        }}
+        autoRefresh={true}
+      />
 
       {/* View Content */}
       {viewMode === 'scheduled' && (

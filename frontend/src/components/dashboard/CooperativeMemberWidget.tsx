@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as cooperativeApi from '../../services/cooperativeApi';
+import { useTenant } from '../../context/TenantContext';
 
 interface CooperativeMemberWidgetProps {
   tenantId: number;
@@ -14,16 +15,26 @@ interface CooperativeMemberWidgetProps {
  * - Recent profit shares/dividends
  * - Active proposals to vote on
  * - Upcoming distributions
+ *
+ * ONLY displays for cooperative tenants (tenant.cooperative_model is not null)
  */
 const CooperativeMemberWidget: React.FC<CooperativeMemberWidgetProps> = ({ tenantId, memberType }) => {
+  const { tenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [activeProposals, setActiveProposals] = useState<cooperativeApi.CooperativeProposal[]>([]);
   const [myDistributions, setMyDistributions] = useState<cooperativeApi.MemberDistribution[]>([]);
   const [myVotes, setMyVotes] = useState<any[]>([]);
 
+  // Don't show widget for non-cooperative tenants
+  const isCooperative = tenant?.organization_type === 'cooperative' || tenant?.organization_type === 'cooperative_commonwealth';
+
   useEffect(() => {
-    loadData();
-  }, [tenantId]);
+    if (isCooperative) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [tenantId, isCooperative]);
 
   const loadData = async () => {
     try {
@@ -61,6 +72,11 @@ const CooperativeMemberWidget: React.FC<CooperativeMemberWidgetProps> = ({ tenan
     const hasVoted = myVotes.some(v => v.proposal_id === proposal.proposal_id);
     return !hasVoted && proposal.status === 'open';
   });
+
+  // Don't render for non-cooperative tenants
+  if (!isCooperative) {
+    return null;
+  }
 
   if (loading) {
     return (

@@ -3,7 +3,11 @@
     "allow": [
       "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" node:*)",
-      "Bash(cmd /c \"npm install node-cron\")"
+      "Bash(cmd /c \"npm install node-cron\")",
+      "Bash(del \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\cooperative\\CooperativeInformationPage.tsx\")",
+      "Bash(npm run test:coverage:*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" generate-production-secrets.js)",
+      "Bash(gh repo view:*)"
     ],
     "deny": [],
     "ask": []

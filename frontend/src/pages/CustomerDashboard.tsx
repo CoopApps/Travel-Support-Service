@@ -7,6 +7,7 @@ import CustomerMessagesModal from '../components/customer/CustomerMessagesModal'
 import SocialOutingsModal from '../components/customer/SocialOutingsModal';
 import CustomerFeedbackModal from '../components/customer/CustomerFeedbackModal';
 import CooperativeMemberWidget from '../components/dashboard/CooperativeMemberWidget';
+import MemberDividendHistory from '../components/dividends/MemberDividendHistory';
 import './CustomerDashboard.css';
 
 /**
@@ -39,6 +40,7 @@ function CustomerDashboard() {
   const [showJourneyRequestModal, setShowJourneyRequestModal] = useState(false);
   const [showSocialOutingsModal, setShowSocialOutingsModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showDividendHistoryModal, setShowDividendHistoryModal] = useState(false);
 
   // Journey request form
   const [destination, setDestination] = useState('');
@@ -371,6 +373,13 @@ function CustomerDashboard() {
             </svg>
             Feedback & Support
           </button>
+          <button className="quick-action-btn" onClick={() => setShowDividendHistoryModal(true)}>
+            <svg viewBox="0 0 24 24" style={{ width: '18px', height: '18px', stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            My Dividends
+          </button>
         </div>
       </div>
 
@@ -542,6 +551,28 @@ function CustomerDashboard() {
             // Optional: refresh dashboard data if needed
           }}
         />
+      )}
+
+      {/* Dividend History Modal */}
+      {showDividendHistoryModal && (
+        <div className="modal-overlay" onClick={() => setShowDividendHistoryModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1200px' }}>
+            <div className="modal-header">
+              <h2>My Dividend History</h2>
+              <button className="modal-close" onClick={() => setShowDividendHistoryModal(false)}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body" style={{ padding: 0 }}>
+              <MemberDividendHistory
+                memberId={customerId}
+                memberType="customer"
+                tenantId={tenantId!}
+                limit={12}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

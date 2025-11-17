@@ -76,11 +76,17 @@ export async function geocodeAddress(address: string, postcode?: string): Promis
 
 /**
  * Calculate distance and duration between two addresses using Distance Matrix API
+ * Now includes traffic considerations for more accurate ETA
  */
 export async function calculateDistance(
   origin: Location,
-  destination: Location
-): Promise<{ distance: number; duration: number } | null> {
+  destination: Location,
+  options?: {
+    departureTime?: Date; // For traffic-aware routing
+    arrivalTime?: Date;   // For reverse optimization
+    trafficModel?: 'best_guess' | 'pessimistic' | 'optimistic';
+  }
+): Promise<{ distance: number; duration: number; durationInTraffic?: number } | null> {
   if (!GOOGLE_MAPS_API_KEY) {
     logger.warn('Google Maps API key not configured');
     return null;
@@ -90,13 +96,23 @@ export async function calculateDistance(
     const originStr = origin.postcode || origin.address;
     const destStr = destination.postcode || destination.address;
 
+    const params: any = {
+      origins: originStr,
+      destinations: destStr,
+      key: GOOGLE_MAPS_API_KEY,
+      units: 'metric'
+    };
+
+    // Add traffic considerations if departure time is provided
+    if (options?.departureTime) {
+      params.departure_time = Math.floor(options.departureTime.getTime() / 1000);
+      params.traffic_model = options.trafficModel || 'best_guess';
+    } else if (options?.arrivalTime) {
+      params.arrival_time = Math.floor(options.arrivalTime.getTime() / 1000);
+    }
+
     const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
-      params: {
-        origins: originStr,
-        destinations: destStr,
-        key: GOOGLE_MAPS_API_KEY,
-        units: 'metric'
-      }
+      params
     });
 
     if (response.data.status === 'OK' && response.data.rows.length > 0) {
@@ -104,7 +120,8 @@ export async function calculateDistance(
       if (element.status === 'OK') {
         return {
           distance: element.distance.value, // meters
-          duration: element.duration.value  // seconds
+          duration: element.duration.value,  // seconds (without traffic)
+          durationInTraffic: element.duration_in_traffic?.value // seconds (with traffic)
         };
       }
     }
@@ -319,11 +336,261 @@ function calculateTimeDifference(time1: string, time2: string): number {
   return Math.abs(minutes1 - minutes2);
 }
 
+/**
+ * Batch Optimize Routes Across Multiple Days
+ * Optimizes routes for multiple drivers across a date range
+ */
+export async function batchOptimizeRoutes(params: {
+  trips: Array<{
+    trip_id: number;
+    driver_id?: number;
+    date: string;
+    pickup_time: string;
+    pickup_location: Location;
+    destination: Location;
+    passengers?: number;
+  }>;
+  drivers: Array<{
+    driver_id: number;
+    vehicle_capacity?: number;
+    start_location?: Location;
+  }>;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}): Promise<{
+  optimizedAssignments: Array<{
+    trip_id: number;
+    driver_id: number;
+    suggested_time: string;
+    sequence_order: number;
+  }>;
+  savings: {
+    totalDistanceSaved: number;
+    totalTimeSaved: number;
+    efficiency_score: number;
+  };
+}> {
+  const { trips, drivers } = params;
+  const optimizedAssignments: any[] = [];
+  let totalDistanceSaved = 0;
+  let totalTimeSaved = 0;
+
+  // Group trips by date
+  const tripsByDate = trips.reduce((acc, trip) => {
+    if (!acc[trip.date]) acc[trip.date] = [];
+    acc[trip.date].push(trip);
+    return acc;
+  }, {} as Record<string, typeof trips>);
+
+  // Optimize each day
+  for (const [date, dayTrips] of Object.entries(tripsByDate)) {
+    // Group trips by assigned driver
+    const tripsByDriver = dayTrips.reduce((acc, trip) => {
+      const driverId = trip.driver_id || 'unassigned';
+      if (!acc[driverId]) acc[driverId] = [];
+      acc[driverId].push(trip);
+      return acc;
+    }, {} as Record<string | number, typeof dayTrips>);
+
+    // Optimize each driver's route for the day
+    for (const [driverId, driverTrips] of Object.entries(tripsByDriver)) {
+      if (driverId === 'unassigned' || driverTrips.length < 2) continue;
+
+      // Calculate distances between all trip pairs
+      const distances: number[][] = [];
+      for (let i = 0; i < driverTrips.length; i++) {
+        distances[i] = [];
+        for (let j = 0; j < driverTrips.length; j++) {
+          if (i === j) {
+            distances[i][j] = 0;
+          } else {
+            const dist = await calculateDistance(
+              driverTrips[i].destination,
+              driverTrips[j].pickup_location,
+              { departureTime: new Date(`${date} ${driverTrips[j].pickup_time}`) }
+            );
+            distances[i][j] = dist?.distance || 0;
+          }
+        }
+      }
+
+      // Use nearest neighbor to find optimal order
+      const visited = new Set<number>();
+      const optimized: typeof driverTrips = [];
+      let current = 0;
+
+      visited.add(current);
+      optimized.push(driverTrips[current]);
+
+      while (visited.size < driverTrips.length) {
+        let nearest = -1;
+        let nearestDist = Infinity;
+
+        for (let i = 0; i < driverTrips.length; i++) {
+          if (!visited.has(i) && distances[current][i] < nearestDist) {
+            nearestDist = distances[current][i];
+            nearest = i;
+          }
+        }
+
+        if (nearest !== -1) {
+          visited.add(nearest);
+          optimized.push(driverTrips[nearest]);
+          current = nearest;
+        }
+      }
+
+      // Calculate time savings
+      const originalDistance = distances.reduce((sum, row, i) => {
+        if (i < driverTrips.length - 1) {
+          return sum + row[i + 1];
+        }
+        return sum;
+      }, 0);
+
+      let optimizedDistance = 0;
+      for (let i = 0; i < optimized.length - 1; i++) {
+        const origIndex = driverTrips.findIndex(t => t.trip_id === optimized[i].trip_id);
+        const nextIndex = driverTrips.findIndex(t => t.trip_id === optimized[i + 1].trip_id);
+        optimizedDistance += distances[origIndex][nextIndex];
+      }
+
+      const distanceSaved = originalDistance - optimizedDistance;
+      totalDistanceSaved += distanceSaved;
+      totalTimeSaved += Math.round(distanceSaved / 1000 * 2); // 2 mins per km estimate
+
+      // Generate optimized assignments
+      optimized.forEach((trip, index) => {
+        optimizedAssignments.push({
+          trip_id: trip.trip_id,
+          driver_id: parseInt(driverId as string),
+          suggested_time: trip.pickup_time, // Could recalculate based on travel time
+          sequence_order: index + 1
+        });
+      });
+    }
+  }
+
+  const efficiency_score = trips.length > 0
+    ? Math.min(100, Math.round((totalDistanceSaved / trips.length) * 10))
+    : 100;
+
+  return {
+    optimizedAssignments,
+    savings: {
+      totalDistanceSaved,
+      totalTimeSaved,
+      efficiency_score
+    }
+  };
+}
+
+/**
+ * Check if adding a trip would exceed vehicle capacity
+ */
+export function checkCapacityConstraint(
+  currentLoad: number,
+  additionalPassengers: number,
+  vehicleCapacity: number
+): { feasible: boolean; remainingCapacity: number } {
+  const newLoad = currentLoad + additionalPassengers;
+  return {
+    feasible: newLoad <= vehicleCapacity,
+    remainingCapacity: Math.max(0, vehicleCapacity - newLoad)
+  };
+}
+
+/**
+ * Optimize routes with capacity constraints
+ * Groups trips that can share vehicles based on capacity
+ */
+export function optimizeWithCapacity(params: {
+  trips: Array<{
+    trip_id: number;
+    passengers: number;
+    pickup_location: Location;
+    destination: Location;
+    pickup_time: string;
+  }>;
+  vehicleCapacity: number;
+}): Array<{
+  route_id: number;
+  trips: number[];
+  total_passengers: number;
+  capacity_used: number;
+}> {
+  const { trips, vehicleCapacity } = params;
+  const routes: Array<{
+    route_id: number;
+    trips: number[];
+    total_passengers: number;
+    capacity_used: number;
+  }> = [];
+
+  let routeId = 1;
+  const assigned = new Set<number>();
+
+  // Sort trips by time
+  const sortedTrips = [...trips].sort((a, b) => a.pickup_time.localeCompare(b.pickup_time));
+
+  for (const trip of sortedTrips) {
+    if (assigned.has(trip.trip_id)) continue;
+
+    // Start a new route
+    const route = {
+      route_id: routeId++,
+      trips: [trip.trip_id],
+      total_passengers: trip.passengers,
+      capacity_used: (trip.passengers / vehicleCapacity) * 100
+    };
+
+    assigned.add(trip.trip_id);
+
+    // Try to add compatible trips to this route
+    for (const otherTrip of sortedTrips) {
+      if (assigned.has(otherTrip.trip_id)) continue;
+
+      const capacity = checkCapacityConstraint(
+        route.total_passengers,
+        otherTrip.passengers,
+        vehicleCapacity
+      );
+
+      if (capacity.feasible) {
+        // Check time compatibility (within 30 minutes)
+        const timeDiff = calculateTimeDifference(trip.pickup_time, otherTrip.pickup_time);
+        if (timeDiff <= 30) {
+          // Check location proximity
+          const proximity = estimatePostcodeProximity(
+            trip.pickup_location.postcode,
+            otherTrip.pickup_location.postcode
+          );
+          if (proximity > 40) {
+            route.trips.push(otherTrip.trip_id);
+            route.total_passengers += otherTrip.passengers;
+            route.capacity_used = (route.total_passengers / vehicleCapacity) * 100;
+            assigned.add(otherTrip.trip_id);
+          }
+        }
+      }
+    }
+
+    routes.push(route);
+  }
+
+  return routes;
+}
+
 export const routeOptimizationService = {
   geocodeAddress,
   calculateDistance,
   calculateRouteWithWaypoint,
   estimatePostcodeProximity,
   destinationsSimilar,
-  calculateCompatibilityScore
+  calculateCompatibilityScore,
+  batchOptimizeRoutes,
+  checkCapacityConstraint,
+  optimizeWithCapacity
 };

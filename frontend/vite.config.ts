@@ -26,7 +26,22 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: true,
+    // Disable source maps in production to protect source code
+    sourcemap: process.env.NODE_ENV !== 'production',
+    // Use terser for better minification and code protection
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true, // Remove debugger statements
+      },
+      mangle: {
+        safari10: true, // Safari 10 compatibility
+      },
+      format: {
+        comments: false, // Remove all comments
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {

@@ -745,6 +745,71 @@ export const tripApi = {
     const response = await apiClient.post(`/tenants/${tenantId}/check-conflicts`, params);
     return response.data;
   },
+
+  /**
+   * Get trip combination opportunities
+   */
+  getCombinationOpportunities: async (
+    tenantId: number,
+    params?: {
+      date?: string;
+      maxDistanceKm?: number;
+      maxTimeDiffMinutes?: number;
+    }
+  ): Promise<{
+    success: boolean;
+    date: string;
+    opportunities: Array<{
+      trip_id: number;
+      trip_date: string;
+      pickup_time: string;
+      driver: {
+        id: number;
+        name: string;
+        phone: string;
+      };
+      vehicle: {
+        id: number;
+        registration: string;
+        make: string;
+        model: string;
+        capacity: number;
+        occupied_seats: number;
+        available_seats: number;
+      };
+      current_trip: {
+        customer_name: string;
+        pickup_location: string;
+        pickup_address: string;
+        destination: string;
+        destination_address: string;
+        revenue: number;
+      };
+      compatible_customer: {
+        id: number;
+        name: string;
+        address: string;
+        postcode: string;
+        phone: string;
+        email: string;
+        similar_destination_trips: number;
+        avg_trip_price: number;
+      };
+      compatibility_score: number;
+      potential_additional_revenue: number;
+      recommendation: 'highly_recommended' | 'recommended' | 'acceptable';
+    }>;
+    summary: {
+      total_opportunities: number;
+      highly_recommended: number;
+      total_potential_revenue: string;
+    };
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/trips/combination-opportunities`, {
+      params
+    });
+    return response.data;
+  },
 };
 
 /**
@@ -2173,6 +2238,143 @@ export const feedbackApi = {
    */
   getCustomerFeedback: async (tenantId: number, customerId: number): Promise<any> => {
     const response = await apiClient.get(`/tenants/${tenantId}/feedback/customer/${customerId}`);
+    return response.data;
+  },
+};
+
+/**
+ * Admin Analytics API
+ */
+export const adminAnalyticsApi = {
+  /**
+   * Get driver profitability analysis
+   */
+  getDriverProfitability: async (
+    tenantId: number,
+    params?: { startDate?: string; endDate?: string; minTrips?: number }
+  ): Promise<{
+    summary: {
+      totalDrivers: number;
+      profitableDrivers: number;
+      unprofitableDrivers: number;
+      totalRevenue: number;
+      totalCosts: number;
+      totalNetProfit: number;
+      averageProfitMargin: string;
+    };
+    drivers: Array<{
+      driverId: number;
+      driverName: string;
+      employmentType: string;
+      totalTrips: number;
+      completedTrips: number;
+      revenue: { total: number; perTrip: number };
+      costs: { wages: number; fuel: number; vehicle: number; total: number; perTrip: number };
+      profitability: { netProfit: number; profitMargin: number; profitable: boolean };
+      period: { firstTrip: string; lastTrip: string; weeks: number };
+    }>;
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/admin/analytics/driver-profitability`, {
+      params
+    });
+    return response.data;
+  },
+
+  /**
+   * Get trip profitability analysis
+   */
+  getTripProfitability: async (
+    tenantId: number,
+    params?: { limit?: number; tripType?: string; driverId?: number; status?: string }
+  ): Promise<{
+    summary: {
+      totalTrips: number;
+      profitableTrips: number;
+      unprofitableTrips: number;
+      totalRevenue: number;
+      totalCosts: number;
+      totalNetProfit: number;
+      averageProfitPerTrip: string;
+      averageProfitMargin: string;
+    };
+    trips: Array<{
+      tripId: number;
+      tripDate: string;
+      pickupTime: string;
+      tripType: string;
+      status: string;
+      customerName: string;
+      driverName: string;
+      distance: number;
+      duration: number;
+      revenue: number;
+      costs: { driverWage: number; fuel: number; vehicle: number; maintenance: number; total: number };
+      profitability: { netProfit: number; profitMargin: number; profitable: boolean };
+    }>;
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/admin/analytics/trip-profitability`, {
+      params
+    });
+    return response.data;
+  },
+
+  /**
+   * Get profitability dashboard overview
+   */
+  getProfitabilityDashboard: async (
+    tenantId: number,
+    params?: { startDate?: string; endDate?: string }
+  ): Promise<{
+    overview: {
+      totalRevenue: number;
+      totalCosts: number;
+      netProfit: number;
+      profitMargin: number;
+      profitable: boolean;
+    };
+    trips: {
+      total: number;
+      completed: number;
+      cancelled: number;
+      averageRevenue: string;
+    };
+    costBreakdown: {
+      wages: number;
+      fuel: number;
+      vehicleLease: number;
+      vehicleInsurance: number;
+      maintenance: number;
+      incidents: number;
+      total: number;
+    };
+    costPercentages: {
+      wages: string;
+      fuel: string;
+      vehicles: string;
+      maintenance: string;
+      incidents: string;
+    };
+    tripTypeBreakdown: Array<{
+      tripType: string;
+      trips: number;
+      revenue: number;
+    }>;
+    topDrivers: Array<{
+      driverId: number;
+      name: string;
+      trips: number;
+      revenue: number;
+    }>;
+    recommendations: string[];
+    period: {
+      startDate: string;
+      endDate: string;
+      months: number;
+    };
+  }> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/admin/analytics/profitability-dashboard`, {
+      params
+    });
     return response.data;
   },
 };

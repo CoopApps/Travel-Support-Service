@@ -50,6 +50,8 @@ import QuickBookPage from './components/bus/QuickBookPage';
 import DividendManagementPage from './components/bus/DividendManagementPage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
+import RouteOptimizationAnalytics from './components/analytics/RouteOptimizationAnalytics';
+import RosterOptimizationDashboard from './components/roster/RosterOptimizationDashboard';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -183,6 +185,10 @@ function App() {
         <Route path="training" element={<TrainingPage />} />
         <Route path="safeguarding" element={<SafeguardingPage />} />
         <Route path="documents" element={<DocumentsPage />} />
+
+        {/* Operations & Optimization */}
+        <Route path="operations/route-optimization" element={<RouteOptimizationAnalytics />} />
+        <Route path="operations/roster-optimization" element={<RosterOptimizationDashboard />} />
 
         {/* Compliance Routes */}
         <Route path="compliance/alerts" element={<ComplianceAlertsPage />} />

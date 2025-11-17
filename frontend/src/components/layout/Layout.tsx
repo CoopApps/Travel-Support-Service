@@ -81,6 +81,12 @@ function Layout() {
           </div>
 
           <div className="nav-section">
+            <div className="nav-section-label">Operations & Optimization</div>
+            <NavItem to="/operations/route-optimization" label="Route Optimization" icon="map" active={location.pathname === '/operations/route-optimization'} />
+            <NavItem to="/operations/roster-optimization" label="Roster Optimization" icon="user-check" active={location.pathname === '/operations/roster-optimization'} />
+          </div>
+
+          <div className="nav-section">
             <div className="nav-section-label">Compliance & Safety</div>
             <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
             <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
@@ -196,6 +202,9 @@ function NavItem({ to, label, icon, active, disabled }: NavItemProps) {
     vote: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
     grid: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
     chart: 'M18 20V10M12 20V4M6 20v-6',
+    'user-check': 'M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 11l2 2 4-4',
+    ticket: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+    'piggy-bank': 'M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h6v2h4v-4.5c1-.5 1.5-1 1.5-2.5C22.5 6.5 20.5 5 19 5z',
   };
 
   const className = `nav-item${active ? ' active' : ''}${disabled ? ' disabled' : ''}`;

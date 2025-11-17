@@ -1,8 +1,16 @@
 {
   "name": "@travel-support/frontend",
   "version": "2.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "CoopApps <legal@coopapps.com>",
   "description": "Travel Support System - Frontend Application",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoopApps/Travel-Support-Service.git",
+    "private": true
+  },
   "scripts": {
     "dev": "set NODE_OPTIONS=--max-old-space-size=4096 && vite",
     "build": "vite build",

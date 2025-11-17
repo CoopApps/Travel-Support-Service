@@ -6,6 +6,12 @@ import { query, queryOne } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
 import { sanitizeInput, sanitizeEmail, sanitizePhone } from '../utils/sanitize';
+import { validate, validateMultiple } from '../middleware/validation';
+import {
+  createDriverSchema,
+  updateDriverSchema,
+  driverIdParamSchema
+} from '../schemas/driver.schemas';
 
 const router: Router = express.Router();
 
@@ -488,6 +494,7 @@ router.get(
 router.post(
   '/tenants/:tenantId/drivers',
   verifyTenantAccess,
+  validate(createDriverSchema, 'body'),  // ✅ Added Joi validation
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
     const driverData = req.body;
@@ -605,6 +612,10 @@ router.post(
 router.put(
   '/tenants/:tenantId/drivers/:driverId',
   verifyTenantAccess,
+  validateMultiple({  // ✅ Added Joi validation for params and body
+    params: driverIdParamSchema,
+    body: updateDriverSchema
+  }),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, driverId } = req.params;
     const driverData = req.body;

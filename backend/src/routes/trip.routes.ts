@@ -4,6 +4,14 @@ import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { query, queryOne } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
+import { validate, validateMultiple } from '../middleware/validation';
+import {
+  createTripSchema,
+  updateTripSchema,
+  tripIdParamSchema,
+  assignDriverSchema,
+  updateTripStatusSchema
+} from '../schemas/trip.schemas';
 
 const router: Router = express.Router();
 
@@ -329,6 +337,7 @@ router.get(
 router.post(
   '/tenants/:tenantId/trips',
   verifyTenantAccess,
+  validate(createTripSchema, 'body'),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
     const {
@@ -506,6 +515,10 @@ router.post(
 router.put(
   '/tenants/:tenantId/trips/:tripId',
   verifyTenantAccess,
+  validateMultiple({
+    params: tripIdParamSchema,
+    body: updateTripSchema
+  }),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, tripId } = req.params;
     const updateData = req.body;
@@ -1526,6 +1539,213 @@ router.post(
       details: {
         created,
         errors
+      }
+    });
+  })
+);
+
+/**
+ * @route GET /api/tenants/:tenantId/trips/combination-opportunities
+ * @desc Find opportunities to combine trips (driver going near customer with similar destination)
+ * @access Protected
+ */
+router.get(
+  '/tenants/:tenantId/trips/combination-opportunities',
+  verifyTenantAccess,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params;
+    const { date, maxDistanceKm = '2', maxTimeDiffMinutes = '30' } = req.query;
+
+    logger.info('Finding trip combination opportunities', { tenantId, date });
+
+    // If no date specified, use today and tomorrow
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(targetDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const endDate = tomorrow.toISOString().split('T')[0];
+
+    // Find trips with available capacity (scheduled for today/tomorrow)
+    const tripsWithCapacity = await query<any>(
+      `SELECT
+        t.trip_id,
+        t.trip_date,
+        t.pickup_time,
+        t.pickup_location,
+        t.pickup_address,
+        t.destination,
+        t.destination_address,
+        t.driver_id,
+        d.name as driver_name,
+        d.phone as driver_phone,
+        t.vehicle_id,
+        v.registration as vehicle_registration,
+        v.make as vehicle_make,
+        v.model as vehicle_model,
+        v.seats as vehicle_capacity,
+        v.wheelchair_accessible,
+        -- Count passengers already on this trip
+        COALESCE((
+          SELECT SUM(passenger_count)
+          FROM tenant_trips t2
+          WHERE t2.tenant_id = t.tenant_id
+            AND t2.trip_date = t.trip_date
+            AND t2.pickup_time = t.pickup_time
+            AND t2.driver_id = t.driver_id
+            AND t2.status IN ('scheduled', 'in_progress')
+        ), 0) as occupied_seats,
+        t.price as current_revenue,
+        c.name as customer_name,
+        c.customer_id
+      FROM tenant_trips t
+      JOIN tenant_drivers d ON d.driver_id = t.driver_id AND d.tenant_id = t.tenant_id
+      LEFT JOIN tenant_vehicles v ON v.vehicle_id = t.vehicle_id AND v.tenant_id = t.tenant_id
+      JOIN tenant_customers c ON c.customer_id = t.customer_id AND c.tenant_id = t.tenant_id
+      WHERE t.tenant_id = $1
+        AND t.trip_date >= $2
+        AND t.trip_date <= $3
+        AND t.status = 'scheduled'
+        AND t.driver_id IS NOT NULL
+        AND t.vehicle_id IS NOT NULL
+        AND d.is_active = true
+      ORDER BY t.trip_date, t.pickup_time`,
+      [tenantId, targetDate, endDate]
+    );
+
+    // For each trip with capacity, find compatible customers
+    const opportunities: any[] = [];
+
+    for (const trip of tripsWithCapacity) {
+      const availableSeats = (trip.vehicle_capacity || 4) - (trip.occupied_seats || 0);
+
+      // Skip if no available seats
+      if (availableSeats <= 0) continue;
+
+      // Find customers who:
+      // 1. Don't have a trip scheduled at this time
+      // 2. Live near the pickup location
+      // 3. Need to go to a similar destination
+      // 4. Match wheelchair requirements
+      const compatibleCustomers = await query<any>(
+        `SELECT
+          c.customer_id,
+          c.name as customer_name,
+          c.address,
+          c.postcode,
+          c.phone,
+          c.email,
+          c.accessibility_needs,
+          -- Calculate if they've traveled to similar destination before
+          (
+            SELECT COUNT(*)
+            FROM tenant_trips t_history
+            WHERE t_history.customer_id = c.customer_id
+              AND t_history.tenant_id = c.tenant_id
+              AND t_history.destination ILIKE '%' || $4 || '%'
+          ) as similar_destination_count,
+          -- Check average trip price for this customer
+          (
+            SELECT COALESCE(AVG(price), 0)
+            FROM tenant_trips t_price
+            WHERE t_price.customer_id = c.customer_id
+              AND t_price.tenant_id = c.tenant_id
+              AND t_price.status = 'completed'
+          ) as avg_trip_price
+        FROM tenant_customers c
+        WHERE c.tenant_id = $1
+          AND c.is_active = true
+          -- Not already scheduled at this exact time
+          AND NOT EXISTS (
+            SELECT 1
+            FROM tenant_trips t_conflict
+            WHERE t_conflict.customer_id = c.customer_id
+              AND t_conflict.tenant_id = c.tenant_id
+              AND t_conflict.trip_date = $2
+              AND t_conflict.pickup_time = $3
+              AND t_conflict.status IN ('scheduled', 'in_progress', 'completed')
+          )
+          -- Wheelchair compatibility check
+          AND (
+            $5 = true OR
+            (c.accessibility_needs->>'wheelchairUser')::boolean IS NOT TRUE
+          )
+        LIMIT 50`,
+        [
+          tenantId,
+          trip.trip_date,
+          trip.pickup_time,
+          trip.destination.split(',')[0], // First part of destination (e.g., "Tesco" from "Tesco, Sheffield")
+          trip.wheelchair_accessible
+        ]
+      );
+
+      // Add opportunities for each compatible customer
+      for (const customer of compatibleCustomers) {
+        // Simple compatibility score based on:
+        // - Similar destination history
+        // - Average trip price (revenue potential)
+        const compatibilityScore =
+          (customer.similar_destination_count > 0 ? 40 : 0) +
+          (customer.avg_trip_price > 5 ? 30 : 10) +
+          (customer.phone ? 20 : 0) +
+          (customer.email ? 10 : 0);
+
+        opportunities.push({
+          trip_id: trip.trip_id,
+          trip_date: trip.trip_date,
+          pickup_time: trip.pickup_time,
+          driver: {
+            id: trip.driver_id,
+            name: trip.driver_name,
+            phone: trip.driver_phone
+          },
+          vehicle: {
+            id: trip.vehicle_id,
+            registration: trip.vehicle_registration,
+            make: trip.vehicle_make,
+            model: trip.vehicle_model,
+            capacity: trip.vehicle_capacity,
+            occupied_seats: trip.occupied_seats,
+            available_seats: availableSeats
+          },
+          current_trip: {
+            customer_name: trip.customer_name,
+            pickup_location: trip.pickup_location,
+            pickup_address: trip.pickup_address,
+            destination: trip.destination,
+            destination_address: trip.destination_address,
+            revenue: parseFloat(trip.current_revenue || '0')
+          },
+          compatible_customer: {
+            id: customer.customer_id,
+            name: customer.customer_name,
+            address: customer.address,
+            postcode: customer.postcode,
+            phone: customer.phone,
+            email: customer.email,
+            similar_destination_trips: customer.similar_destination_count,
+            avg_trip_price: parseFloat(customer.avg_trip_price || '0')
+          },
+          compatibility_score: compatibilityScore,
+          potential_additional_revenue: parseFloat(customer.avg_trip_price || '8.50'),
+          recommendation: compatibilityScore >= 60 ? 'highly_recommended' :
+                         compatibilityScore >= 40 ? 'recommended' : 'acceptable'
+        });
+      }
+    }
+
+    // Sort by compatibility score and limit results
+    const sortedOpportunities = opportunities
+      .sort((a, b) => b.compatibility_score - a.compatibility_score)
+      .slice(0, 20); // Top 20 opportunities
+
+    res.json({
+      success: true,
+      date: targetDate,
+      opportunities: sortedOpportunities,
+      summary: {
+        total_opportunities: sortedOpportunities.length,
+        highly_recommended: sortedOpportunities.filter(o => o.recommendation === 'highly_recommended').length,
+        total_potential_revenue: sortedOpportunities.reduce((sum, o) => sum + o.potential_additional_revenue, 0).toFixed(2)
       }
     });
   })

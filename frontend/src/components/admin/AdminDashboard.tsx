@@ -4,7 +4,7 @@ import OfficeStaffPage from './OfficeStaffPage';
 import CostCenterPage from './CostCenterPage';
 import TimesheetApprovalPage from './TimesheetApprovalPage';
 import CooperativeStructurePage from './CooperativeStructurePage';
-import ProfitabilityAnalytics from './ProfitabilityAnalytics';
+import ProfitabilityAnalyticsPage from './ProfitabilityAnalyticsPage';
 import './AdminDashboard.css';
 
 type AdminTab = 'staff' | 'cost-centers' | 'timesheets' | 'cooperative' | 'profitability';
@@ -96,22 +96,20 @@ function AdminDashboard() {
           Timesheet Approval
         </button>
 
-        {isCooperative && (
-          <button
-            className={`tab-button ${activeTab === 'cooperative' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cooperative')}
-          >
-            <span className="tab-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-                <path d="M16.24 7.76l-2.12 2.12" />
-                <circle cx="12" cy="12" r="2" />
-              </svg>
-            </span>
-            Co-operative Structure
-          </button>
-        )}
+        <button
+          className={`tab-button ${activeTab === 'cooperative' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cooperative')}
+        >
+          <span className="tab-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+              <path d="M16.24 7.76l-2.12 2.12" />
+              <circle cx="12" cy="12" r="2" />
+            </svg>
+          </span>
+          Co-operative Structure
+        </button>
 
         <button
           className={`tab-button ${activeTab === 'profitability' ? 'active' : ''}`}
@@ -132,8 +130,8 @@ function AdminDashboard() {
         {activeTab === 'staff' && <OfficeStaffPage />}
         {activeTab === 'cost-centers' && <CostCenterPage />}
         {activeTab === 'timesheets' && <TimesheetApprovalPage />}
-        {activeTab === 'cooperative' && isCooperative && <CooperativeStructurePage />}
-        {activeTab === 'profitability' && <ProfitabilityAnalytics />}
+        {activeTab === 'cooperative' && <CooperativeStructurePage />}
+        {activeTab === 'profitability' && <ProfitabilityAnalyticsPage />}
       </div>
     </div>
   );

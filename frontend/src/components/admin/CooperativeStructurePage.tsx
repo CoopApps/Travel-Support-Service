@@ -6,6 +6,7 @@ import MembershipManagement from './cooperative/MembershipManagement';
 import ReportsManagement from './cooperative/ReportsManagement';
 import VotingGovernance from './cooperative/VotingGovernance';
 import ProfitDistribution from './cooperative/ProfitDistribution';
+import CooperativeInformationPage from '../cooperative/CooperativeInformationPage';
 
 type CooperativeTab = 'overview' | 'meetings' | 'membership' | 'voting' | 'profit' | 'reports' | 'benefits';
 
@@ -46,136 +47,8 @@ function CooperativeStructurePage() {
   };
 
   if (!isCooperative) {
-    // Show informational content for non-cooperatives
-    return (
-      <div style={{ padding: '1.5rem' }}>
-        {/* Current Status Card */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ padding: '1.5rem' }}>
-            <h2 style={{ margin: '0 0 1rem 0', fontSize: '18px', color: 'var(--gray-900)' }}>
-              Organization Status
-            </h2>
-            <div style={{
-              display: 'inline-block',
-              background: '#6b7280',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-            }}>
-              Non-Cooperative Organization
-            </div>
-          </div>
-        </div>
-
-        {/* Become a Co-operative Section */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ padding: '1.5rem' }}>
-            <h2 style={{ margin: '0 0 1rem 0', fontSize: '18px', color: 'var(--gray-900)' }}>
-              Become a Co-operative
-            </h2>
-            <p style={{ margin: '0 0 1.5rem 0', fontSize: '14px', color: 'var(--gray-600)', lineHeight: '1.6' }}>
-              Join the Co-operative Commonwealth and benefit from democratic ownership, reduced fees, and a supportive network of like-minded organizations.
-            </p>
-
-            <div style={{ background: '#fffbeb', border: '1px solid #fbbf24', borderRadius: '8px', padding: '1.5rem', marginBottom: '1.5rem' }}>
-              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="16" x2="12" y2="12"/>
-                  <line x1="12" y1="8" x2="12.01" y2="8"/>
-                </svg>
-                Interested in Co-operative Status?
-              </h3>
-              <p style={{ margin: 0, fontSize: '14px', color: '#78350f', lineHeight: '1.6' }}>
-                To convert your organization to co-operative status and receive the associated benefits and discounts, please contact the platform administrators.
-              </p>
-            </div>
-
-            {/* Pricing Comparison */}
-            <h3 style={{ margin: '1.5rem 0 1rem 0', fontSize: '16px', color: 'var(--gray-900)' }}>
-              Co-operative Pricing Benefits
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-              <div style={{
-                padding: '1.25rem',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                borderRadius: '8px',
-                color: 'white',
-              }}>
-                <div style={{ fontSize: '13px', opacity: 0.9, marginBottom: '0.5rem' }}>Co-operative</div>
-                <div style={{ fontSize: '32px', fontWeight: 700, marginBottom: '0.25rem' }}>30% OFF</div>
-                <div style={{ fontSize: '13px', opacity: 0.9 }}>{currencySymbol}{(basePrice * 0.7).toFixed(2)}/month</div>
-                <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '0.5rem' }}>
-                  Save {currencySymbol}{(basePrice * 0.3).toFixed(2)}/month
-                </div>
-              </div>
-
-              <div style={{
-                padding: '1.25rem',
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                borderRadius: '8px',
-                color: 'white',
-                position: 'relative',
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  top: '-8px',
-                  right: '8px',
-                  background: '#dc2626',
-                  color: 'white',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                }}>
-                  BEST VALUE
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.9, marginBottom: '0.5rem' }}>Commonwealth Member</div>
-                <div style={{ fontSize: '32px', fontWeight: 700, marginBottom: '0.25rem' }}>50% OFF</div>
-                <div style={{ fontSize: '13px', opacity: 0.9 }}>{currencySymbol}{(basePrice * 0.5).toFixed(2)}/month</div>
-                <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '0.5rem' }}>
-                  Save {currencySymbol}{(basePrice * 0.5).toFixed(2)}/month
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Co-operative Models */}
-        <div className="card">
-          <div style={{ padding: '1.5rem' }}>
-            <h2 style={{ margin: '0 0 1rem 0', fontSize: '18px', color: 'var(--gray-900)' }}>
-              Co-operative Models Available
-            </h2>
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {Object.entries(cooperativeModels).map(([key, label]) => (
-                <div key={key} style={{
-                  padding: '1rem',
-                  background: '#f9fafb',
-                  borderLeft: '3px solid #10b981',
-                  borderRadius: '6px',
-                }}>
-                  <div style={{ fontWeight: 600, color: 'var(--gray-900)', marginBottom: '0.25rem' }}>
-                    {label}
-                  </div>
-                  <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>
-                    {key === 'worker' && 'Owned and democratically controlled by employees'}
-                    {key === 'consumer' && 'Owned by the people who use its services'}
-                    {key === 'producer' && 'Owned by producers of goods or services'}
-                    {key === 'multi_stakeholder' && 'Combines multiple stakeholder groups'}
-                    {key === 'platform' && 'Democratic platform for service delivery'}
-                    {key === 'housing' && 'Resident-owned housing community'}
-                    {key === 'credit_union' && 'Member-owned financial co-operative'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    // Show informational content for non-cooperatives using the enhanced page
+    return <CooperativeInformationPage />;
   }
 
   // Co-operative interface with tabs

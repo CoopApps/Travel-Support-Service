@@ -1,13 +1,13 @@
 import express, { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { validate, validateMultiple } from '../middleware/validation';
 import {
-  validate,
-  validateQuery,
   createCustomerSchema,
   updateCustomerSchema,
-  customerListQuerySchema
-} from '../utils/validators';
+  customerIdParamSchema,
+  listCustomersQuerySchema
+} from '../schemas/customer.schemas';
 import { query, queryOne } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
@@ -800,7 +800,7 @@ router.get(
 router.post(
   '/tenants/:tenantId/customers',
   verifyTenantAccess,
-  validate(createCustomerSchema),
+  validate(createCustomerSchema, 'body'),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
     const customerData: CreateCustomerDto = req.body;
@@ -884,7 +884,10 @@ router.post(
 router.put(
   '/tenants/:tenantId/customers/:customerId',
   verifyTenantAccess,
-  validate(updateCustomerSchema),
+  validateMultiple({
+    params: customerIdParamSchema,
+    body: updateCustomerSchema
+  }),
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, customerId } = req.params;
     const customerData: UpdateCustomerDto = req.body;
