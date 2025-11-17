@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
-import { CheckMarkIcon, WarningIcon, XMarkIcon } from '../icons/BusIcons';
+import { CheckMarkIcon, WarningIcon, XMarkIcon, MoneyBagIcon } from '../icons/BusIcons';
 
 /**
  * Section 22 Compliance Dashboard
@@ -280,9 +280,16 @@ export default function Section22CompliancePage() {
                 background: compliance.organizationalPermit.daysUntilExpiry < 90 ? '#fef3c7' : '#f0fdf4',
                 borderRadius: '6px',
                 fontSize: '0.8125rem',
-                color: compliance.organizationalPermit.daysUntilExpiry < 90 ? '#92400e' : '#047857'
+                color: compliance.organizationalPermit.daysUntilExpiry < 90 ? '#92400e' : '#047857',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                {compliance.organizationalPermit.daysUntilExpiry < 90 ? '⚠' : '✓'} {compliance.organizationalPermit.daysUntilExpiry} days until renewal
+                {compliance.organizationalPermit.daysUntilExpiry < 90 ?
+                  <WarningIcon size={16} color="#92400e" /> :
+                  <CheckMarkIcon size={16} color="#047857" />
+                }
+                {compliance.organizationalPermit.daysUntilExpiry} days until renewal
               </div>
             )}
           </div>
@@ -303,44 +310,40 @@ export default function Section22CompliancePage() {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '1rem' }}>
-            🇪🇺 EU Regulation 1071/2009
+            EU Regulation 1071/2009
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Not-for-Profit Status</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.euExemptions.notForProfitConfirmed ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.euExemptions.notForProfitConfirmed ? '✓' : '✗'}
+              <span>
+                {compliance.euExemptions.notForProfitConfirmed ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>10-Mile Exemption</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.euExemptions.tenMileExemptionApplicable ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.euExemptions.tenMileExemptionApplicable ? '✓' : '✗'}
+              <span>
+                {compliance.euExemptions.tenMileExemptionApplicable ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Local Service Only</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.euExemptions.localServiceOnly ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.euExemptions.localServiceOnly ? '✓' : '✗'}
+              <span>
+                {compliance.euExemptions.localServiceOnly ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Operator License Exempt</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.euExemptions.exemptFromOperatorLicense ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.euExemptions.exemptFromOperatorLicense ? '✓' : '✗'}
+              <span>
+                {compliance.euExemptions.exemptFromOperatorLicense ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
           </div>
@@ -410,9 +413,13 @@ export default function Section22CompliancePage() {
               borderRadius: '6px',
               fontSize: '0.8125rem',
               color: '#92400e',
-              marginBottom: '0.5rem'
+              marginBottom: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              ⚠ {compliance.driverCompliance.expiringPermits} permit(s) expiring within 30 days
+              <WarningIcon size={16} color="#92400e" />
+              {compliance.driverCompliance.expiringPermits} permit(s) expiring within 30 days
             </div>
           )}
 
@@ -476,9 +483,16 @@ export default function Section22CompliancePage() {
             textAlign: 'center',
             fontSize: '1.125rem',
             fontWeight: 600,
-            color: compliance.vehicleCompliance.complianceRate === 100 ? '#047857' : '#92400e'
+            color: compliance.vehicleCompliance.complianceRate === 100 ? '#047857' : '#92400e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
           }}>
-            {compliance.vehicleCompliance.complianceRate === 100 ? '✓' : '⚠'} {compliance.vehicleCompliance.complianceRate}% Compliant
+            {compliance.vehicleCompliance.complianceRate === 100 ?
+              <CheckMarkIcon size={20} color="#047857" /> :
+              <WarningIcon size={20} color="#92400e" />}
+            {compliance.vehicleCompliance.complianceRate}% Compliant
           </div>
 
           <button
@@ -523,20 +537,18 @@ export default function Section22CompliancePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>28-Day Notice Given</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.serviceRegistration.noticeGiven ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.serviceRegistration.noticeGiven ? '✓' : '✗'}
+              <span>
+                {compliance.serviceRegistration.noticeGiven ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>LTA Approval Current</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.serviceRegistration.ltaApprovalCurrent ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.serviceRegistration.ltaApprovalCurrent ? '✓' : '✗'}
+              <span>
+                {compliance.serviceRegistration.ltaApprovalCurrent ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
           </div>
@@ -561,36 +573,34 @@ export default function Section22CompliancePage() {
           padding: '1.5rem',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '1rem' }}>
-            💰 Financial Compliance
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <MoneyBagIcon size={20} color="#111827" />
+            Financial Compliance
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Not-for-Profit Verified</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.financialCompliance.notForProfitVerified ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.financialCompliance.notForProfitVerified ? '✓' : '✗'}
+              <span>
+                {compliance.financialCompliance.notForProfitVerified ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Separate Fares Configured</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.financialCompliance.separateFaresConfigured ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.financialCompliance.separateFaresConfigured ? '✓' : '✗'}
+              <span>
+                {compliance.financialCompliance.separateFaresConfigured ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '0.875rem', color: '#374151' }}>Community Purpose Documented</span>
-              <span style={{
-                fontSize: '1.25rem',
-                color: compliance.financialCompliance.communityPurposeDocumented ? '#10b981' : '#ef4444'
-              }}>
-                {compliance.financialCompliance.communityPurposeDocumented ? '✓' : '✗'}
+              <span>
+                {compliance.financialCompliance.communityPurposeDocumented ?
+                  <CheckMarkIcon size={20} color="#10b981" /> :
+                  <XMarkIcon size={20} color="#ef4444" />}
               </span>
             </div>
           </div>
@@ -602,9 +612,13 @@ export default function Section22CompliancePage() {
             borderRadius: '6px',
             fontSize: '0.8125rem',
             color: '#047857',
-            lineHeight: 1.5
+            lineHeight: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}>
-            ✓ Section 22 requires not-for-profit operation with community benefit focus
+            <CheckMarkIcon size={16} color="#047857" />
+            Section 22 requires not-for-profit operation with community benefit focus
           </div>
         </div>
       </div>
