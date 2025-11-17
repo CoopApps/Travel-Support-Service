@@ -95,14 +95,14 @@ export const CooperativeInformationPage: React.FC = () => {
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1.5rem', borderRadius: '8px' }}>
             <div style={{ fontSize: '32px', marginBottom: '0.75rem' }}>💰</div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>Shared Prosperity</h3>
-            <p style={{ fontSize: '14px', opacity: 0.9', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
               Surplus revenue distributed to members as dividends
             </p>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1.5rem', borderRadius: '8px' }}>
             <div style={{ fontSize: '32px', marginBottom: '0.75rem' }}>🌱</div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>Sustainable Growth</h3>
-            <p style={{ fontSize: '14px', opacity: 0.9', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
               Focused on long-term community benefit, not short-term profit
             </p>
           </div>
