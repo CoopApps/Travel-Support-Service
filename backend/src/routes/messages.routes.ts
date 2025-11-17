@@ -2,6 +2,8 @@ import express, { Request, Response, Router } from 'express';
 import { query, queryOne } from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { sendSmsMessage, sendBroadcastSms } from '../services/smsService';
+import { logger } from '../utils/logger';
 
 const router: Router = express.Router();
 
@@ -196,7 +198,76 @@ interface AuthenticatedRequest extends Request {
         ]
       );
 
-      return res.json({ message: result[0] });
+      const createdMessage = result[0];
+
+      // Send SMS if delivery method includes SMS and not a draft or scheduled message
+      if (
+        (deliveryMethod === 'sms' || deliveryMethod === 'both') &&
+        !isDraft &&
+        !scheduledAt &&
+        smsBody
+      ) {
+        try {
+          if (targetCustomerId) {
+            // Send to specific customer
+            const customer = await queryOne(
+              `SELECT phone, name FROM tenant_customers WHERE customer_id = $1 AND tenant_id = $2`,
+              [targetCustomerId, tenantId]
+            );
+
+            if (customer && customer.phone) {
+              await sendSmsMessage(
+                parseInt(tenantId as string),
+                createdMessage.message_id,
+                customer.phone,
+                smsBody,
+                targetCustomerId
+              );
+              logger.info('SMS sent to customer', {
+                messageId: createdMessage.message_id,
+                customerId: targetCustomerId
+              });
+            } else {
+              logger.warn('Customer has no phone number', {
+                messageId: createdMessage.message_id,
+                customerId: targetCustomerId
+              });
+            }
+          } else {
+            // Broadcast to all customers
+            const smsResult = await sendBroadcastSms(
+              parseInt(tenantId as string),
+              createdMessage.message_id,
+              smsBody
+            );
+            logger.info('Broadcast SMS sent', {
+              messageId: createdMessage.message_id,
+              sent: smsResult.sent,
+              failed: smsResult.failed,
+              total: smsResult.total
+            });
+          }
+        } catch (error) {
+          // Log error but don't fail the request - message is still saved
+          logger.error('Failed to send SMS', {
+            messageId: createdMessage.message_id,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+
+          // Update message status to indicate SMS failure
+          await query(
+            `UPDATE tenant_messages
+            SET failed_reason = $1
+            WHERE message_id = $2`,
+            [
+              `SMS delivery failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              createdMessage.message_id
+            ]
+          );
+        }
+      }
+
+      return res.json({ message: createdMessage });
     })
   );
 

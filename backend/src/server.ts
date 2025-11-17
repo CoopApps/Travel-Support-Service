@@ -23,6 +23,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { testConnection, closePool } from './config/database';
 import { startInvoiceAutomationScheduler } from './services/invoiceAutomation';
 import { startDividendScheduler } from './services/dividendScheduler.service';
+import { initializeMessageScheduler } from './services/messageScheduler.service';
 
 // Import middleware
 import { detectSubdomain } from './middleware/subdomainDetection';
@@ -364,6 +365,11 @@ async function startServer() {
       // Runs on 1st of each month at 1:00 AM by default
       startDividendScheduler();
       logger.info('✅ Dividend automation scheduler initialized');
+
+      // Start message scheduler for SMS and email delivery
+      // Runs every minute to check for scheduled messages
+      initializeMessageScheduler();
+      logger.info('✅ Message scheduler initialized');
     });
   } catch (error) {
     logger.error('Failed to start server', { error });

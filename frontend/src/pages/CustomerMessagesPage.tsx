@@ -1338,6 +1338,7 @@ function CustomerMessagesPage() {
           </div>
         ) : null}
       </div>
+      </div>
 
       {/* Reply Modal */}
       {replyingToMessage && (

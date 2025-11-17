@@ -1,19 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Bash(\"/c/Program Files/nodejs/npm.cmd\" install twilio)",
       "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" node:*)",
-      "Bash(cmd /c \"npm install node-cron\")",
-      "Bash(del \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\cooperative\\CooperativeInformationPage.tsx\")",
-      "Bash(npm run test:coverage:*)",
-      "Bash(\"/c/Program Files/nodejs/node.exe\" generate-production-secrets.js)",
-      "Bash(gh repo view:*)",
-      "Bash(\"/c/Program Files/nodejs/npm.cmd\" install --save-dev @types/node-cron)",
-      "Bash(\"/c/Program Files/nodejs/npm.cmd\" run build)",
-      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc --noEmit)",
-      "Bash(\"/c/Program Files/nodejs/node.exe\" run-universal-messaging-migration.js)",
-      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc)",
-      "Bash(del \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\bus\\BusCommunicationsPage.tsx\")"
+      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npx tsc:*)"
     ],
     "deny": [],
     "ask": []
