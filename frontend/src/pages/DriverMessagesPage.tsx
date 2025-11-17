@@ -51,6 +51,13 @@ function DriverMessagesPage() {
   const [expiresAt, setExpiresAt] = useState('');
   const [sending, setSending] = useState(false);
 
+  // SMS/Email delivery options
+  const [deliveryMethod, setDeliveryMethod] = useState<'in-app' | 'sms' | 'email' | 'both'>('in-app');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [smsBody, setSmsBody] = useState('');
+  const [isDraft, setIsDraft] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState('');
+
   useEffect(() => {
     if (tenantId) {
       loadDrivers();
@@ -114,34 +121,37 @@ function DriverMessagesPage() {
     setError('');
 
     try {
+      const messageData = {
+        title,
+        message: messageContent,
+        priority,
+        expiresAt: expiresAt || null,
+        deliveryMethod,
+        emailSubject: (deliveryMethod === 'email' || deliveryMethod === 'both') ? emailSubject : null,
+        smsBody: (deliveryMethod === 'sms' || deliveryMethod === 'both') ? smsBody : null,
+        isDraft,
+        scheduledAt: scheduledAt || null,
+      };
+
       if (recipientType === 'all') {
         // Send to all drivers (targetDriverId = null broadcasts to all)
         await apiClient.post(`/tenants/${tenantId}/messages`, {
-          title,
-          message: messageContent,
-          priority,
+          ...messageData,
           targetDriverId: null,
-          expiresAt: expiresAt || null,
         });
       } else if (recipientType === 'multiple') {
         // Send to each selected driver
         for (const driverId of selectedDriverIds) {
           await apiClient.post(`/tenants/${tenantId}/messages`, {
-            title,
-            message: messageContent,
-            priority,
+            ...messageData,
             targetDriverId: driverId,
-            expiresAt: expiresAt || null,
           });
         }
       } else {
         // Send to single selected driver
         await apiClient.post(`/tenants/${tenantId}/messages`, {
-          title,
-          message: messageContent,
-          priority,
+          ...messageData,
           targetDriverId: selectedDriver!.driver_id,
-          expiresAt: expiresAt || null,
         });
       }
 
@@ -150,6 +160,11 @@ function DriverMessagesPage() {
       setMessageContent('');
       setPriority('medium');
       setExpiresAt('');
+      setDeliveryMethod('in-app');
+      setEmailSubject('');
+      setSmsBody('');
+      setIsDraft(false);
+      setScheduledAt('');
       setShowMessageForm(false);
       setRecipientType('single');
       setSelectedDriverIds([]);
@@ -492,6 +507,51 @@ function DriverMessagesPage() {
                     />
                   </div>
 
+                  {/* Delivery Method */}
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                      Delivery Method <span style={{ color: '#dc3545' }}>*</span>
+                    </label>
+                    <select
+                      className="form-control"
+                      value={deliveryMethod}
+                      onChange={(e) => setDeliveryMethod(e.target.value as any)}
+                      disabled={sending}
+                    >
+                      <option value="in-app">In-App Only (Driver Dashboard)</option>
+                      <option value="sms">SMS Only</option>
+                      <option value="both">In-App + SMS</option>
+                    </select>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '0.25rem' }}>
+                      {deliveryMethod === 'in-app' && '📱 Message will appear in driver dashboard'}
+                      {deliveryMethod === 'sms' && '💬 SMS will be sent to driver phone number'}
+                      {deliveryMethod === 'both' && '📱💬 Message in dashboard + SMS to phone'}
+                    </div>
+                  </div>
+
+                  {/* SMS Body - Only show if SMS selected */}
+                  {(deliveryMethod === 'sms' || deliveryMethod === 'both') && (
+                    <div className="form-group" style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="smsBody" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                        SMS Message <span style={{ color: '#dc3545' }}>*</span>
+                      </label>
+                      <textarea
+                        id="smsBody"
+                        className="form-control"
+                        value={smsBody}
+                        onChange={(e) => setSmsBody(e.target.value.substring(0, 160))}
+                        placeholder="Short SMS version (max 160 characters)..."
+                        rows={3}
+                        maxLength={160}
+                        required
+                        disabled={sending}
+                      />
+                      <div style={{ fontSize: '12px', color: smsBody.length > 140 ? '#dc3545' : 'var(--gray-600)', marginTop: '0.25rem', textAlign: 'right' }}>
+                        {smsBody.length}/160 characters
+                      </div>
+                    </div>
+                  )}
+
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                     <div className="form-group">
                       <label htmlFor="priority" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
@@ -526,13 +586,43 @@ function DriverMessagesPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {/* Schedule Message */}
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label htmlFor="scheduledAt" style={{ fontSize: '14px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                      Schedule for Later (Optional)
+                    </label>
+                    <input
+                      id="scheduledAt"
+                      type="datetime-local"
+                      className="form-control"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      disabled={sending}
+                    />
+                    {scheduledAt && (
+                      <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '0.25rem' }}>
+                        ⏰ Message will be sent at {new Date(scheduledAt).toLocaleString('en-GB')}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <button
                       type="submit"
                       className="btn btn-primary"
                       disabled={sending}
+                      onClick={() => setIsDraft(false)}
                     >
-                      {sending ? 'Sending...' : 'Send Message'}
+                      {sending ? 'Sending...' : scheduledAt ? 'Schedule Message' : 'Send Now'}
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-secondary"
+                      disabled={sending}
+                      onClick={() => setIsDraft(true)}
+                    >
+                      Save as Draft
                     </button>
                     <button
                       type="button"
@@ -543,6 +633,11 @@ function DriverMessagesPage() {
                         setMessageContent('');
                         setPriority('medium');
                         setExpiresAt('');
+                        setDeliveryMethod('in-app');
+                        setEmailSubject('');
+                        setSmsBody('');
+                        setIsDraft(false);
+                        setScheduledAt('');
                       }}
                       disabled={sending}
                     >

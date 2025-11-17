@@ -3,7 +3,8 @@
     "allow": [
       "Bash(\"/c/Program Files/nodejs/npm.cmd\" install twilio)",
       "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)",
-      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npx tsc:*)"
+      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npx tsc:*)",
+      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npm run build:*)"
     ],
     "deny": [],
     "ask": []
