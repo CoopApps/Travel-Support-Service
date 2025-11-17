@@ -16,7 +16,7 @@
 
 import { calculateDistance } from './routeOptimization.service';
 import { logger } from '../utils/logger';
-import { calculateAvailableSubsidy, SubsidyCalculation } from './surplusManagement.service';
+import { calculateAvailableSubsidy } from './surplusManagement.service';
 
 // ============================================================================
 // INTERFACES
