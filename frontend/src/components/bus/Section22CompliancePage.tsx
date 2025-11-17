@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
-import { CheckMarkIcon, WarningIcon, XMarkIcon, MoneyBagIcon, InfoIcon } from '../icons/BusIcons';
+import { CheckMarkIcon, WarningIcon, XMarkIcon, MoneyBagIcon, InfoIcon, BusIcon } from '../icons/BusIcons';
 
 /**
  * Section 22 Compliance Dashboard
@@ -460,8 +460,9 @@ export default function Section22CompliancePage() {
           padding: '1.5rem',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '1rem' }}>
-            🚐 Vehicle Compliance
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BusIcon size={20} />
+            Vehicle Compliance
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

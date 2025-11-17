@@ -13,7 +13,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { SettingsIcon, RobotIcon, PauseIcon } from '../icons/BusIcons';
+import { SettingsIcon, RobotIcon, PauseIcon, PeopleIcon, UserIcon } from '../icons/BusIcons';
 
 // ============================================================================
 // INTERFACES
@@ -553,9 +553,22 @@ const DividendManagementPage: React.FC = () => {
                             fontWeight: 500,
                             background: dividend.member_type === 'driver' ? '#e7f3ff' : '#f0fdf4',
                             color: dividend.member_type === 'driver' ? '#0066cc' : '#16a34a',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem'
                           }}
                         >
-                          {dividend.member_type === 'driver' ? '👥 Driver' : '🚗 Customer'}
+                          {dividend.member_type === 'driver' ? (
+                            <>
+                              <PeopleIcon size={12} color="#0066cc" />
+                              Driver
+                            </>
+                          ) : (
+                            <>
+                              <UserIcon size={12} color="#16a34a" />
+                              Customer
+                            </>
+                          )}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'right' }}>
