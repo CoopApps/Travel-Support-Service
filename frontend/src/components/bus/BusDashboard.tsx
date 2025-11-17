@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { busRoutesApi, busTimetablesApi, busBookingsApi } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import CooperativeCommonwealthTracker from './CooperativeCommonwealthTracker';
-import { MapIcon, AlarmClockIcon, MemoIcon, BusIcon, UserIcon, ClipboardIcon } from '../icons/BusIcons';
+import { MapIcon, AlarmClockIcon, MemoIcon, BusIcon, UserIcon, ClipboardIcon, CalendarIcon, TicketIcon, SeatIcon } from '../icons/BusIcons';
 import './BusDashboard.css';
 
 interface DashboardStats {
@@ -100,7 +100,9 @@ export default function BusDashboard() {
 
       <div className="stats-grid">
         <div className="stat-card routes">
-          <div className="stat-icon">🚌</div>
+          <div className="stat-icon">
+            <BusIcon size={32} color="#3b82f6" />
+          </div>
           <div className="stat-details">
             <div className="stat-value">{stats.activeRoutes}</div>
             <div className="stat-label">Active Routes</div>
@@ -109,7 +111,9 @@ export default function BusDashboard() {
         </div>
 
         <div className="stat-card services">
-          <div className="stat-icon">📅</div>
+          <div className="stat-icon">
+            <CalendarIcon size={32} color="#10b981" />
+          </div>
           <div className="stat-details">
             <div className="stat-value">{stats.todaysServices}</div>
             <div className="stat-label">Today's Services</div>
@@ -118,7 +122,9 @@ export default function BusDashboard() {
         </div>
 
         <div className="stat-card bookings">
-          <div className="stat-icon">🎫</div>
+          <div className="stat-icon">
+            <TicketIcon size={32} color="#f59e0b" />
+          </div>
           <div className="stat-details">
             <div className="stat-value">{stats.todaysBookings}</div>
             <div className="stat-label">Today's Bookings</div>
@@ -130,7 +136,9 @@ export default function BusDashboard() {
         </div>
 
         <div className="stat-card seats">
-          <div className="stat-icon">💺</div>
+          <div className="stat-icon">
+            <SeatIcon size={32} color="#8b5cf6" />
+          </div>
           <div className="stat-details">
             <div className="stat-value">{stats.availableSeats}</div>
             <div className="stat-label">Available Seats</div>
