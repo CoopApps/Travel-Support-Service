@@ -66,13 +66,15 @@ function CustomerMessagesPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [sentMessages, setSentMessages] = useState<TenantMessage[]>([]);
   const [inboxMessages, setInboxMessages] = useState<CustomerMessage[]>([]);
+  const [allMessages, setAllMessages] = useState<TenantMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [messageSearchTerm, setMessageSearchTerm] = useState('');
 
   // View mode: enhanced with drafts, scheduled, and all messages
-  const [viewMode, setViewMode] = useState<'all' | 'inbox' | 'sent' | 'drafts' | 'scheduled'>('inbox');
+  const [viewMode, setViewMode] = useState<'all' | 'inbox' | 'sent' | 'drafts' | 'scheduled'>('all');
 
   // New message form
   const [showMessageForm, setShowMessageForm] = useState(false);
@@ -100,8 +102,15 @@ function CustomerMessagesPage() {
   useEffect(() => {
     if (tenantId) {
       loadCustomers();
+      loadAllMessagesGlobal();
     }
   }, [tenantId]);
+
+  useEffect(() => {
+    if (tenantId) {
+      loadAllMessagesGlobal();
+    }
+  }, [tenantId, viewMode]);
 
   useEffect(() => {
     if (selectedCustomer && tenantId) {
@@ -121,6 +130,37 @@ function CustomerMessagesPage() {
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAllMessagesGlobal = async () => {
+    setLoadingMessages(true);
+    try {
+      if (viewMode === 'inbox') {
+        // Load all messages FROM customers
+        const response = await apiClient.get(`/tenants/${tenantId}/messages/from-customers`);
+        setInboxMessages(response.data.messages || []);
+      } else {
+        // Load all messages TO customers
+        const response = await apiClient.get(`/tenants/${tenantId}/messages`);
+        let messages = response.data.messages || [];
+
+        // Filter based on view mode
+        if (viewMode === 'drafts') {
+          messages = messages.filter((msg: TenantMessage) => msg.is_draft);
+        } else if (viewMode === 'scheduled') {
+          messages = messages.filter((msg: TenantMessage) => msg.status === 'scheduled');
+        } else if (viewMode === 'sent') {
+          messages = messages.filter((msg: TenantMessage) => !msg.is_draft && msg.status !== 'scheduled');
+        }
+        // 'all' shows everything
+
+        setAllMessages(messages);
+      }
+    } catch (err: any) {
+      console.error('Error loading messages:', err);
+    } finally {
+      setLoadingMessages(false);
     }
   };
 
@@ -390,102 +430,305 @@ function CustomerMessagesPage() {
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredMessages = allMessages.filter(msg => {
+    const matchesSearch = messageSearchTerm === '' ||
+      msg.title.toLowerCase().includes(messageSearchTerm.toLowerCase()) ||
+      msg.message.toLowerCase().includes(messageSearchTerm.toLowerCase()) ||
+      (msg.customer_name && msg.customer_name.toLowerCase().includes(messageSearchTerm.toLowerCase()));
+    return matchesSearch;
+  });
+
+  const filteredInboxMessages = inboxMessages.filter(msg => {
+    const matchesSearch = messageSearchTerm === '' ||
+      msg.subject.toLowerCase().includes(messageSearchTerm.toLowerCase()) ||
+      msg.message.toLowerCase().includes(messageSearchTerm.toLowerCase()) ||
+      msg.customer_name.toLowerCase().includes(messageSearchTerm.toLowerCase());
+    return matchesSearch;
+  });
+
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
-      {/* Left Sidebar - Customer List */}
-      <div style={{
-        width: '320px',
-        borderRight: '1px solid var(--gray-200)',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--gray-50)'
-      }}>
-        {/* Header */}
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--gray-200)', background: 'white' }}>
-          <h2 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 600 }}>Customer Messages</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
+      {/* Global Header with Tabs and Search */}
+      <div style={{ borderBottom: '2px solid var(--gray-200)', background: 'white' }}>
+        {/* Page Title */}
+        <div style={{ padding: '1.5rem 1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>Messages</h1>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--gray-600)' }}>
+              Universal messaging system - In-App, Email & SMS
+            </p>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowMessageForm(!showMessageForm)}
+          >
+            {showMessageForm ? 'Cancel' : 'New Message'}
+          </button>
+        </div>
+
+        {/* Global Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', overflowX: 'auto' }}>
+          <button
+            onClick={() => { setViewMode('all'); setSelectedCustomer(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'all' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'all' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'all' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            All Messages
+          </button>
+          <button
+            onClick={() => { setViewMode('inbox'); setSelectedCustomer(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'inbox' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'inbox' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'inbox' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Inbox ({inboxMessages.length})
+          </button>
+          <button
+            onClick={() => { setViewMode('drafts'); setSelectedCustomer(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'drafts' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'drafts' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'drafts' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Drafts
+          </button>
+          <button
+            onClick={() => { setViewMode('scheduled'); setSelectedCustomer(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'scheduled' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'scheduled' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'scheduled' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Scheduled
+          </button>
+          <button
+            onClick={() => { setViewMode('sent'); setSelectedCustomer(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'sent' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'sent' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'sent' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Sent
+          </button>
+        </div>
+
+        {/* Global Search */}
+        <div style={{ padding: '1rem 1.5rem' }}>
           <input
             type="text"
             className="form-control"
-            placeholder="Search customers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ fontSize: '14px' }}
+            placeholder="Search messages or customers..."
+            value={messageSearchTerm}
+            onChange={(e) => setMessageSearchTerm(e.target.value)}
+            style={{ fontSize: '14px', width: '100%', maxWidth: '500px' }}
           />
         </div>
+      </div>
 
-        {/* Customer List */}
+      {/* Two-Panel Layout */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* Left Sidebar - Customer List or Message List */}
+        <div style={{
+          width: '320px',
+          borderRight: '1px solid var(--gray-200)',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'var(--gray-50)'
+        }}>
+          {/* Customer List Header - only show when composing */}
+          {showMessageForm && (
+            <div style={{ padding: '1rem', borderBottom: '1px solid var(--gray-200)', background: 'white' }}>
+              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '14px', fontWeight: 600 }}>Select Recipients</h3>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search customers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ fontSize: '13px' }}
+              />
+            </div>
+          )}
+
+        {/* Dynamic Content - Show Customers OR Global Messages */}
         <div style={{ flex: 1, overflow: 'auto', padding: '0.5rem' }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
-              <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading...</p>
-            </div>
-          ) : filteredCustomers.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
-              No customers found
-            </div>
-          ) : (
-            filteredCustomers.map((customer) => {
-              const isSelected = recipientType === 'single'
-                ? selectedCustomer?.customer_id === customer.customer_id
-                : selectedCustomerIds.includes(customer.customer_id);
+          {showMessageForm ? (
+            /* Show Customer List for Composing */
+            loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
+                <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading...</p>
+              </div>
+            ) : filteredCustomers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
+                No customers found
+              </div>
+            ) : (
+              filteredCustomers.map((customer) => {
+                const isSelected = recipientType === 'single'
+                  ? selectedCustomer?.customer_id === customer.customer_id
+                  : selectedCustomerIds.includes(customer.customer_id);
 
-              return (
-                <div
-                  key={customer.customer_id}
-                  onClick={() => {
-                    if (recipientType === 'multiple') {
-                      handleToggleCustomerSelection(customer.customer_id);
-                    } else {
-                      setSelectedCustomer(customer);
-                    }
-                  }}
-                  style={{
-                    padding: '1rem',
-                    marginBottom: '0.5rem',
-                    background: isSelected ? '#e3f2fd' : 'white',
-                    border: isSelected ? '2px solid #2196f3' : '1px solid var(--gray-200)',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = 'var(--gray-100)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = 'white';
-                    }
-                  }}
-                >
-                  {recipientType === 'multiple' && (
-                    <input
-                      type="checkbox"
-                      checked={selectedCustomerIds.includes(customer.customer_id)}
-                      onChange={() => handleToggleCustomerSelection(customer.customer_id)}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--gray-900)', marginBottom: '4px' }}>
-                      {customer.name}
-                    </div>
+                return (
+                  <div
+                    key={customer.customer_id}
+                    onClick={() => {
+                      if (recipientType === 'multiple') {
+                        handleToggleCustomerSelection(customer.customer_id);
+                      } else {
+                        setSelectedCustomer(customer);
+                      }
+                    }}
+                    style={{
+                      padding: '1rem',
+                      marginBottom: '0.5rem',
+                      background: isSelected ? '#e3f2fd' : 'white',
+                      border: isSelected ? '2px solid #2196f3' : '1px solid var(--gray-200)',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {recipientType === 'multiple' && (
+                      <input
+                        type="checkbox"
+                        checked={selectedCustomerIds.includes(customer.customer_id)}
+                        onChange={() => handleToggleCustomerSelection(customer.customer_id)}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', marginRight: '0.75rem' }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                    <div style={{ fontWeight: 600, fontSize: '14px' }}>{customer.name}</div>
                     {(customer.phone || customer.email) && (
-                      <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '4px' }}>
                         {customer.phone || customer.email}
                       </div>
                     )}
                   </div>
+                );
+              })
+            )
+          ) : (
+            /* Show Global Message List */
+            loadingMessages ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
+                <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading messages...</p>
+              </div>
+            ) : viewMode === 'inbox' ? (
+              filteredInboxMessages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
+                  No inbox messages
                 </div>
-              );
-            })
+              ) : (
+                filteredInboxMessages.map((msg) => (
+                  <div
+                    key={msg.message_id}
+                    onClick={() => setSelectedCustomer(customers.find(c => c.customer_id === msg.customer_id) || null)}
+                    style={{
+                      padding: '1rem',
+                      marginBottom: '0.5rem',
+                      background: 'white',
+                      border: '1px solid var(--gray-200)',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{msg.customer_name}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--gray-700)', marginBottom: '4px' }}>{msg.subject}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
+                      {formatDate(msg.created_at)}
+                    </div>
+                  </div>
+                ))
+              )
+            ) : (
+              filteredMessages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
+                  No messages in this view
+                </div>
+              ) : (
+                filteredMessages.map((msg) => (
+                  <div
+                    key={msg.message_id}
+                    style={{
+                      padding: '1rem',
+                      marginBottom: '0.5rem',
+                      background: 'white',
+                      border: '1px solid var(--gray-200)',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '4px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        padding: '2px 8px',
+                        background: `${getPriorityColor(msg.priority)}20`,
+                        color: getPriorityColor(msg.priority),
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600
+                      }}>
+                        {getPriorityLabel(msg.priority)}
+                      </span>
+                      <span style={{
+                        padding: '2px 8px',
+                        background: `${getDeliveryStatusColor(msg.status)}20`,
+                        color: getDeliveryStatusColor(msg.status),
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600
+                      }}>
+                        {getDeliveryStatusLabel(msg.status)}
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{msg.title}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginBottom: '4px' }}>
+                      To: {msg.customer_name || 'All Customers'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
+                      {msg.is_draft ? 'Draft saved' : formatDate(msg.created_at)}
+                    </div>
+                  </div>
+                ))
+              )
+            )
           )}
         </div>
       </div>
@@ -835,91 +1078,7 @@ function CustomerMessagesPage() {
           </div>
         )}
 
-        {/* Message Status Tabs - Show when customer selected */}
-        {selectedCustomer && (
-          <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', borderBottom: '1px solid var(--gray-200)', overflowX: 'auto' }}>
-            <button
-              onClick={() => setViewMode('all')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: viewMode === 'all' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: viewMode === 'all' ? 'var(--primary)' : 'var(--gray-600)',
-                fontWeight: viewMode === 'all' ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              All Messages
-            </button>
-            <button
-              onClick={() => setViewMode('inbox')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: viewMode === 'inbox' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: viewMode === 'inbox' ? 'var(--primary)' : 'var(--gray-600)',
-                fontWeight: viewMode === 'inbox' ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Inbox
-            </button>
-            <button
-              onClick={() => setViewMode('sent')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: viewMode === 'sent' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: viewMode === 'sent' ? 'var(--primary)' : 'var(--gray-600)',
-                fontWeight: viewMode === 'sent' ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Sent
-            </button>
-            <button
-              onClick={() => setViewMode('drafts')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: viewMode === 'drafts' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: viewMode === 'drafts' ? 'var(--primary)' : 'var(--gray-600)',
-                fontWeight: viewMode === 'drafts' ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Drafts
-            </button>
-            <button
-              onClick={() => setViewMode('scheduled')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: viewMode === 'scheduled' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: viewMode === 'scheduled' ? 'var(--primary)' : 'var(--gray-600)',
-                fontWeight: viewMode === 'scheduled' ? 600 : 400,
-                cursor: 'pointer',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Scheduled
-            </button>
-          </div>
-        )}
+        {/* Old per-customer tabs removed - now using global tabs at top */}
 
         {/* Message Display */}
         {selectedCustomer ? (
