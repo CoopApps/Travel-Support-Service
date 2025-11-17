@@ -15,6 +15,11 @@ interface Message {
   expires_at: string | null;
   is_active: boolean;
   read_count: number;
+  status?: 'draft' | 'scheduled' | 'sent' | 'delivered' | 'failed';
+  is_draft?: boolean;
+  scheduled_at?: string;
+  sent_at?: string;
+  delivery_method?: string;
 }
 
 interface Driver {
@@ -36,10 +41,15 @@ function DriverMessagesPage() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [messageSearchTerm, setMessageSearchTerm] = useState('');
+
+  // View mode: all, drafts, scheduled, sent
+  const [viewMode, setViewMode] = useState<'all' | 'drafts' | 'scheduled' | 'sent'>('all');
 
   // New message form
   const [showMessageForm, setShowMessageForm] = useState(false);
@@ -63,6 +73,12 @@ function DriverMessagesPage() {
       loadDrivers();
     }
   }, [tenantId]);
+
+  useEffect(() => {
+    if (tenantId) {
+      loadAllMessagesGlobal();
+    }
+  }, [tenantId, viewMode]);
 
   useEffect(() => {
     if (selectedDriver && tenantId) {
@@ -99,6 +115,32 @@ function DriverMessagesPage() {
       setMessages(driverMessages);
     } catch (err: any) {
       console.error('Error loading messages:', err);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const loadAllMessagesGlobal = async () => {
+    setLoadingMessages(true);
+    setError('');
+    try {
+      const response = await apiClient.get(`/tenants/${tenantId}/messages`);
+      let messages = response.data.messages || [];
+
+      // Filter based on view mode
+      if (viewMode === 'drafts') {
+        messages = messages.filter((msg: Message) => msg.is_draft);
+      } else if (viewMode === 'scheduled') {
+        messages = messages.filter((msg: Message) => msg.status === 'scheduled');
+      } else if (viewMode === 'sent') {
+        messages = messages.filter((msg: Message) => !msg.is_draft && msg.status !== 'scheduled');
+      }
+
+      setAllMessages(messages);
+    } catch (err: any) {
+      console.error('Error loading all messages:', err);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load messages';
+      setError(errorMessage);
     } finally {
       setLoadingMessages(false);
     }
@@ -359,16 +401,9 @@ function DriverMessagesPage() {
           alignItems: 'center'
         }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
-              {selectedDriver ? selectedDriver.name : 'Driver Messages'}
-            </h3>
-            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--gray-600)' }}>
-              {selectedDriver
-                ? 'Message thread'
-                : showMessageForm
-                  ? `Composing message to ${recipientType === 'all' ? 'all drivers' : recipientType === 'multiple' ? 'multiple drivers' : 'driver'}`
-                  : 'Select a driver or compose a new message'
-              }
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>Messages</h1>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--gray-600)' }}>
+              Universal messaging system - In-App, Email & SMS
             </p>
           </div>
           <button
@@ -376,6 +411,74 @@ function DriverMessagesPage() {
             onClick={() => setShowMessageForm(!showMessageForm)}
           >
             {showMessageForm ? 'Cancel' : 'New Message'}
+          </button>
+        </div>
+
+        {/* Global Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', overflowX: 'auto', borderBottom: '1px solid var(--gray-200)' }}>
+          <button
+            onClick={() => { setViewMode('all'); setSelectedDriver(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'all' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'all' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'all' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            All Messages
+          </button>
+          <button
+            onClick={() => { setViewMode('drafts'); setSelectedDriver(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'drafts' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'drafts' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'drafts' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Drafts
+          </button>
+          <button
+            onClick={() => { setViewMode('scheduled'); setSelectedDriver(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'scheduled' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'scheduled' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'scheduled' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Scheduled
+          </button>
+          <button
+            onClick={() => { setViewMode('sent'); setSelectedDriver(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'sent' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'sent' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'sent' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Sent
           </button>
         </div>
 
