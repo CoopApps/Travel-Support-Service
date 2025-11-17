@@ -408,15 +408,290 @@ export async function checkSmsStatus(
 }
 
 /**
- * Process scheduled SMS messages
+ * Send SMS message to a driver
+ */
+export async function sendDriverSmsMessage(
+  tenantId: number,
+  messageId: number,
+  recipientPhone: string,
+  messageBody: string,
+  driverId?: number
+): Promise<{ success: boolean; error?: string; providerResponse?: string }> {
+
+  try {
+    // Validate phone number format
+    if (!recipientPhone || recipientPhone.trim() === '') {
+      logger.warn('SMS not sent - no phone number provided', {
+        messageId,
+        driverId
+      });
+
+      await logDriverSmsDelivery(
+        tenantId,
+        messageId,
+        driverId || null,
+        recipientPhone,
+        'failed',
+        'No phone number provided',
+        null
+      );
+
+      return {
+        success: false,
+        error: 'No phone number provided'
+      };
+    }
+
+    // Format phone number to E.164 format
+    const formattedPhone = formatPhoneNumber(recipientPhone);
+
+    if (!formattedPhone) {
+      logger.warn('SMS not sent - invalid phone number format', {
+        messageId,
+        driverId,
+        recipientPhone
+      });
+
+      await logDriverSmsDelivery(
+        tenantId,
+        messageId,
+        driverId || null,
+        recipientPhone,
+        'failed',
+        'Invalid phone number format',
+        null
+      );
+
+      return {
+        success: false,
+        error: 'Invalid phone number format'
+      };
+    }
+
+    // Check if Twilio is configured
+    const twilioClient = createTwilioClient();
+    const config = getSmsConfig();
+
+    if (!twilioClient || !config) {
+      logger.warn('SMS not sent - Twilio not configured', {
+        messageId,
+        driverId,
+        recipientPhone: formattedPhone
+      });
+
+      await logDriverSmsDelivery(
+        tenantId,
+        messageId,
+        driverId || null,
+        formattedPhone,
+        'failed',
+        'Twilio not configured',
+        null
+      );
+
+      return {
+        success: false,
+        error: 'Twilio not configured'
+      };
+    }
+
+    // Truncate message to 160 characters
+    const truncatedMessage = messageBody.substring(0, 160);
+
+    // Send SMS
+    const message = await twilioClient.messages.create({
+      body: truncatedMessage,
+      from: config.fromNumber,
+      to: formattedPhone
+    });
+
+    logger.info('Driver SMS sent successfully', {
+      messageId,
+      driverId,
+      recipientPhone: formattedPhone,
+      twilioSid: message.sid
+    });
+
+    // Log success
+    await logDriverSmsDelivery(
+      tenantId,
+      messageId,
+      driverId || null,
+      formattedPhone,
+      'sent',
+      null,
+      JSON.stringify({
+        sid: message.sid,
+        status: message.status,
+        dateCreated: message.dateCreated
+      })
+    );
+
+    return {
+      success: true,
+      providerResponse: message.sid
+    };
+
+  } catch (error: any) {
+    const errorMessage = error?.message || 'Unknown error';
+
+    logger.error('Failed to send driver SMS', {
+      messageId,
+      driverId,
+      recipientPhone,
+      error: errorMessage
+    });
+
+    await logDriverSmsDelivery(
+      tenantId,
+      messageId,
+      driverId || null,
+      recipientPhone,
+      'failed',
+      errorMessage,
+      null
+    );
+
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}
+
+/**
+ * Send SMS to multiple drivers (broadcast)
+ */
+export async function sendBroadcastDriverSms(
+  tenantId: number,
+  messageId: number,
+  messageBody: string
+): Promise<{ sent: number; failed: number; total: number }> {
+
+  logger.info('Starting broadcast driver SMS send', {
+    tenantId,
+    messageId
+  });
+
+  try {
+    // Get all active drivers with phone numbers
+    const drivers = await query<{
+      driver_id: number;
+      name: string;
+      phone: string;
+    }>(`
+      SELECT driver_id, name, phone
+      FROM tenant_drivers
+      WHERE tenant_id = $1
+      AND is_active = true
+      AND phone IS NOT NULL
+      AND phone != ''
+    `, [tenantId]);
+
+    logger.info(`Found ${drivers.length} drivers with phone numbers for broadcast`, {
+      tenantId,
+      messageId
+    });
+
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (const driver of drivers) {
+      const result = await sendDriverSmsMessage(
+        tenantId,
+        messageId,
+        driver.phone,
+        messageBody,
+        driver.driver_id
+      );
+
+      if (result.success) {
+        sentCount++;
+      } else {
+        failedCount++;
+      }
+
+      // Small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    logger.info('Broadcast driver SMS completed', {
+      tenantId,
+      messageId,
+      total: drivers.length,
+      sent: sentCount,
+      failed: failedCount
+    });
+
+    return {
+      sent: sentCount,
+      failed: failedCount,
+      total: drivers.length
+    };
+
+  } catch (error) {
+    logger.error('Failed to send broadcast driver SMS', {
+      tenantId,
+      messageId,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+
+    throw error;
+  }
+}
+
+/**
+ * Log driver SMS delivery attempt to database
+ */
+async function logDriverSmsDelivery(
+  tenantId: number,
+  messageId: number,
+  driverId: number | null,
+  recipientPhone: string,
+  status: string,
+  errorMessage: string | null,
+  providerResponse: string | null
+): Promise<void> {
+  try {
+    await query(`
+      INSERT INTO driver_sms_delivery_log (
+        tenant_id,
+        message_id,
+        driver_id,
+        recipient_phone,
+        status,
+        error_message,
+        provider_response,
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+    `, [
+      tenantId,
+      messageId,
+      driverId,
+      recipientPhone,
+      status,
+      errorMessage,
+      providerResponse
+    ]);
+  } catch (error) {
+    logger.error('Failed to log driver SMS delivery', {
+      messageId,
+      driverId,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+}
+
+/**
+ * Process scheduled SMS messages (both customer and driver)
  * Should be called by a scheduled job
  */
 export async function processScheduledSms(): Promise<void> {
   logger.info('Processing scheduled SMS messages');
 
   try {
-    // Get all scheduled messages that are due to be sent
-    const scheduledMessages = await query<{
+    // Process customer messages
+    const scheduledCustomerMessages = await query<{
       message_id: number;
       tenant_id: number;
       target_customer_id: number | null;
@@ -437,9 +712,9 @@ export async function processScheduledSms(): Promise<void> {
       ORDER BY scheduled_at
     `);
 
-    logger.info(`Found ${scheduledMessages.length} scheduled SMS messages to send`);
+    logger.info(`Found ${scheduledCustomerMessages.length} scheduled customer SMS messages`);
 
-    for (const msg of scheduledMessages) {
+    for (const msg of scheduledCustomerMessages) {
       try {
         if (msg.target_customer_id) {
           // Send to specific customer
@@ -479,14 +754,94 @@ export async function processScheduledSms(): Promise<void> {
         `, [msg.message_id]);
 
       } catch (error) {
-        logger.error('Error processing scheduled SMS', {
+        logger.error('Error processing scheduled customer SMS', {
           messageId: msg.message_id,
           error: error instanceof Error ? error.message : 'Unknown error'
         });
 
-        // Update message with error
         await query(`
           UPDATE tenant_messages
+          SET status = 'failed',
+              failed_reason = $2
+          WHERE message_id = $1
+        `, [
+          msg.message_id,
+          error instanceof Error ? error.message : 'Unknown error'
+        ]);
+      }
+    }
+
+    // Process driver messages
+    const scheduledDriverMessages = await query<{
+      message_id: number;
+      tenant_id: number;
+      target_driver_id: number | null;
+      sms_body: string;
+      scheduled_at: Date;
+    }>(`
+      SELECT
+        message_id,
+        tenant_id,
+        target_driver_id,
+        sms_body,
+        scheduled_at
+      FROM driver_messages
+      WHERE status = 'scheduled'
+      AND scheduled_at <= CURRENT_TIMESTAMP
+      AND (delivery_method = 'sms' OR delivery_method = 'both')
+      AND sms_body IS NOT NULL
+      ORDER BY scheduled_at
+    `);
+
+    logger.info(`Found ${scheduledDriverMessages.length} scheduled driver SMS messages`);
+
+    for (const msg of scheduledDriverMessages) {
+      try {
+        if (msg.target_driver_id) {
+          // Send to specific driver
+          const drivers = await query<{
+            phone: string;
+            name: string;
+          }>(`
+            SELECT phone, name
+            FROM tenant_drivers
+            WHERE driver_id = $1
+            AND tenant_id = $2
+          `, [msg.target_driver_id, msg.tenant_id]);
+
+          if (drivers.length > 0 && drivers[0].phone) {
+            await sendDriverSmsMessage(
+              msg.tenant_id,
+              msg.message_id,
+              drivers[0].phone,
+              msg.sms_body,
+              msg.target_driver_id
+            );
+          }
+        } else {
+          // Broadcast to all drivers
+          await sendBroadcastDriverSms(
+            msg.tenant_id,
+            msg.message_id,
+            msg.sms_body
+          );
+        }
+
+        // Update message status to sent
+        await query(`
+          UPDATE driver_messages
+          SET status = 'sent', sent_at = CURRENT_TIMESTAMP
+          WHERE message_id = $1
+        `, [msg.message_id]);
+
+      } catch (error) {
+        logger.error('Error processing scheduled driver SMS', {
+          messageId: msg.message_id,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+
+        await query(`
+          UPDATE driver_messages
           SET status = 'failed',
               failed_reason = $2
           WHERE message_id = $1

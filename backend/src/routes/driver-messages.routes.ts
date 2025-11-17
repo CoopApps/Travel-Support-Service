@@ -2,6 +2,8 @@ import express, { Router, Response } from 'express';
 import { AuthenticatedRequest, verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { query, queryOne } from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
+import { sendDriverSmsMessage, sendBroadcastDriverSms } from '../services/smsService';
+import { logger } from '../utils/logger';
 
 /**
  * Driver Messages Routes
@@ -123,7 +125,18 @@ router.post(
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
-    const { title, message, priority, targetDriverId, expiresAt } = req.body;
+    const {
+      title,
+      message,
+      priority,
+      targetDriverId,
+      expiresAt,
+      deliveryMethod,
+      emailSubject,
+      smsBody,
+      isDraft,
+      scheduledAt
+    } = req.body;
 
     // Verify admin access
     if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
@@ -142,11 +155,32 @@ router.post(
       return res.status(400).json({ error: 'Invalid priority. Must be low, medium, or high' });
     }
 
+    // Validate delivery method requirements
+    if ((deliveryMethod === 'email' || deliveryMethod === 'both') && !emailSubject) {
+      return res.status(400).json({ error: 'Email subject is required for email delivery' });
+    }
+    if ((deliveryMethod === 'sms' || deliveryMethod === 'both') && !smsBody) {
+      return res.status(400).json({ error: 'SMS message is required for SMS delivery' });
+    }
+
+    // Determine status based on draft and scheduled flags
+    let status = 'sent';
+    let sentAt = null;
+
+    if (isDraft) {
+      status = 'draft';
+    } else if (scheduledAt) {
+      status = 'scheduled';
+    } else {
+      sentAt = new Date().toISOString();
+    }
+
     // Create message
     const newMessage = await queryOne(
       `INSERT INTO driver_messages
-        (tenant_id, title, message, priority, created_by, target_driver_id, expires_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+        (tenant_id, title, message, priority, created_by, target_driver_id, expires_at,
+         delivery_method, email_subject, sms_body, status, is_draft, scheduled_at, sent_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         tenantId,
@@ -155,9 +189,83 @@ router.post(
         messagePriority,
         req.user?.userId,
         targetDriverId || null,
-        expiresAt || null
+        expiresAt || null,
+        deliveryMethod || 'in-app',
+        emailSubject || null,
+        smsBody || null,
+        status,
+        isDraft || false,
+        scheduledAt || null,
+        sentAt
       ]
     );
+
+    // Send SMS if delivery method includes SMS and not a draft or scheduled message
+    if (
+      (deliveryMethod === 'sms' || deliveryMethod === 'both') &&
+      !isDraft &&
+      !scheduledAt &&
+      smsBody
+    ) {
+      try {
+        if (targetDriverId) {
+          // Send to specific driver
+          const driver = await queryOne(
+            `SELECT phone, name FROM tenant_drivers WHERE driver_id = $1 AND tenant_id = $2`,
+            [targetDriverId, tenantId]
+          );
+
+          if (driver && driver.phone) {
+            await sendDriverSmsMessage(
+              parseInt(tenantId as string),
+              newMessage.message_id,
+              driver.phone,
+              smsBody,
+              targetDriverId
+            );
+            logger.info('SMS sent to driver', {
+              messageId: newMessage.message_id,
+              driverId: targetDriverId
+            });
+          } else {
+            logger.warn('Driver has no phone number', {
+              messageId: newMessage.message_id,
+              driverId: targetDriverId
+            });
+          }
+        } else {
+          // Broadcast to all drivers
+          const smsResult = await sendBroadcastDriverSms(
+            parseInt(tenantId as string),
+            newMessage.message_id,
+            smsBody
+          );
+          logger.info('Broadcast driver SMS sent', {
+            messageId: newMessage.message_id,
+            sent: smsResult.sent,
+            failed: smsResult.failed,
+            total: smsResult.total
+          });
+        }
+      } catch (error) {
+        // Log error but don't fail the request - message is still saved
+        logger.error('Failed to send driver SMS', {
+          messageId: newMessage.message_id,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+
+        // Update message status to indicate SMS failure
+        await query(
+          `UPDATE driver_messages
+          SET failed_reason = $1
+          WHERE message_id = $2`,
+          [
+            `SMS delivery failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            newMessage.message_id
+          ]
+        );
+      }
+    }
 
     return res.status(201).json({ message: newMessage });
   })
