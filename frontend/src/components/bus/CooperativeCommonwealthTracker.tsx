@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { GlobeIcon, HeartIcon, BarChartIcon, SparklesIcon, SproutIcon } from '../icons/BusIcons';
 
 /**
  * Cooperative Commonwealth Fund Tracker
@@ -112,7 +113,9 @@ export default function CooperativeCommonwealthTracker() {
         padding: '1.5rem',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌍</div>
+        <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
+          <GlobeIcon size={32} color="white" />
+        </div>
         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
           Cooperative Commonwealth Fund
         </h3>
@@ -170,8 +173,9 @@ export default function CooperativeCommonwealthTracker() {
 
       {/* About the Fund */}
       <div style={{ padding: '1.5rem', background: '#faf5ff', borderTop: '1px solid #e9d5ff' }}>
-        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6b21a8', marginBottom: '0.75rem' }}>
-          💜 What is the Cooperative Commonwealth?
+        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6b21a8', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <HeartIcon size={16} color="#a855f7" />
+          What is the Cooperative Commonwealth?
         </h4>
         <p style={{ fontSize: '0.8125rem', color: '#581c87', lineHeight: 1.6, margin: 0 }}>
           When our bus services generate surplus (more passengers than break-even), a portion is contributed
@@ -184,8 +188,9 @@ export default function CooperativeCommonwealthTracker() {
       {/* Recent Contributions */}
       {recentContributions.length > 0 && (
         <div style={{ padding: '1.5rem' }}>
-          <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111827', marginBottom: '1rem' }}>
-            📊 Recent Contributions
+          <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111827', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BarChartIcon size={16} color="#111827" />
+            Recent Contributions
           </h4>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -229,9 +234,14 @@ export default function CooperativeCommonwealthTracker() {
               borderRadius: '6px',
               fontSize: '0.8125rem',
               color: '#047857',
-              textAlign: 'center'
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
             }}>
-              ✨ <strong>{stats.tripsContributed} trips</strong> have contributed to the cooperative commonwealth this month
+              <SparklesIcon size={16} color="#047857" />
+              <span><strong>{stats.tripsContributed} trips</strong> have contributed to the cooperative commonwealth this month</span>
             </div>
           )}
         </div>
@@ -244,7 +254,9 @@ export default function CooperativeCommonwealthTracker() {
           textAlign: 'center',
           color: '#6b7280'
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🌱</div>
+          <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
+            <SproutIcon size={48} color="#9ca3af" />
+          </div>
           <p style={{ fontSize: '0.875rem', margin: 0 }}>
             No contributions yet. Surplus from fully-booked trips will appear here.
           </p>
