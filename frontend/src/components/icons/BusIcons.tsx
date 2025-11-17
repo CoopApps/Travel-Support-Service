@@ -398,6 +398,38 @@ export const SeatIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor
   </svg>
 );
 
+export const PhoneIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+    <line x1="12" y1="18" x2="12.01" y2="18" />
+  </svg>
+);
+
+export const InfoIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+export const RobotIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <circle cx="12" cy="2" r="1" />
+    <path d="M12 3v5" />
+    <circle cx="9" cy="15" r="1" />
+    <circle cx="15" cy="15" r="1" />
+  </svg>
+);
+
+export const PauseIcon: React.FC<IconProps> = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="4" width="4" height="16" />
+    <rect x="14" y="4" width="4" height="16" />
+  </svg>
+);
+
 // Export all icons as a single object for convenience
 export const BusIcons = {
   BarChart: BarChartIcon,
@@ -448,4 +480,8 @@ export const BusIcons = {
   Eye: EyeIcon,
   ArrowDown: ArrowDownIcon,
   Seat: SeatIcon,
+  Phone: PhoneIcon,
+  Info: InfoIcon,
+  Robot: RobotIcon,
+  Pause: PauseIcon,
 };

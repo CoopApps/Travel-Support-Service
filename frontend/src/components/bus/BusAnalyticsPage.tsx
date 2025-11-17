@@ -12,6 +12,8 @@ import {
   ClockIcon,
   TicketIcon,
   AlarmClockIcon,
+  CheckMarkIcon,
+  XMarkIcon,
 } from '../icons/BusIcons';
 
 /**
@@ -330,10 +332,22 @@ export default function BusAnalyticsPage() {
                       color: route.profitability === 'profitable' ? '#065f46' :
                              route.profitability === 'loss' ? '#991b1b' : '#374151',
                       fontSize: '0.75rem',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
                     }}>
-                      {route.profitability === 'profitable' ? '✓ Profitable' :
-                       route.profitability === 'loss' ? '✗ Loss' : '~ Break Even'}
+                      {route.profitability === 'profitable' ? (
+                        <>
+                          <CheckMarkIcon size={12} color="#065f46" />
+                          Profitable
+                        </>
+                      ) : route.profitability === 'loss' ? (
+                        <>
+                          <XMarkIcon size={12} color="#991b1b" />
+                          Loss
+                        </>
+                      ) : '~ Break Even'}
                     </span>
                   </td>
                 </tr>

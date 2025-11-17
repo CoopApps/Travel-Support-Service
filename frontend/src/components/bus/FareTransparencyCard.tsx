@@ -1,5 +1,5 @@
 import React from 'react';
-import { SparklesIcon, BriefcaseIcon } from '../icons/BusIcons';
+import { SparklesIcon, BriefcaseIcon, CheckMarkIcon } from '../icons/BusIcons';
 
 /**
  * Fare Transparency Card
@@ -120,9 +120,12 @@ export default function FareTransparencyCard({
             background: 'rgba(255, 255, 255, 0.2)',
             padding: '0.5rem 1rem',
             borderRadius: '20px',
-            display: 'inline-block'
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem'
           }}>
-            ✓ {formatCurrency(savingsVsBreakEven)} cheaper than break-even!
+            <CheckMarkIcon size={14} color="white" />
+            {formatCurrency(savingsVsBreakEven)} cheaper than break-even!
           </div>
         )}
       </div>

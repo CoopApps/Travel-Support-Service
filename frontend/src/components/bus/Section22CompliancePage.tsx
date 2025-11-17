@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
-import { CheckMarkIcon, WarningIcon, XMarkIcon, MoneyBagIcon } from '../icons/BusIcons';
+import { CheckMarkIcon, WarningIcon, XMarkIcon, MoneyBagIcon, InfoIcon } from '../icons/BusIcons';
 
 /**
  * Section 22 Compliance Dashboard
@@ -355,10 +355,16 @@ export default function Section22CompliancePage() {
             borderRadius: '6px',
             fontSize: '0.8125rem',
             color: '#1e40af',
-            lineHeight: 1.5
+            lineHeight: 1.5,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem'
           }}>
-            ℹ️ <strong>Exemption Basis:</strong> Community transport operations under 10 miles,
-            not-for-profit, serving local communities only.
+            <InfoIcon size={16} color="#1e40af" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+            <div>
+              <strong>Exemption Basis:</strong> Community transport operations under 10 miles,
+              not-for-profit, serving local communities only.
+            </div>
           </div>
         </div>
 
@@ -429,9 +435,13 @@ export default function Section22CompliancePage() {
               background: '#fee2e2',
               borderRadius: '6px',
               fontSize: '0.8125rem',
-              color: '#991b1b'
+              color: '#991b1b',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
             }}>
-              ✗ {compliance.driverCompliance.expiredPermits} expired permit(s) - action required
+              <XMarkIcon size={14} color="#991b1b" />
+              {compliance.driverCompliance.expiredPermits} expired permit(s) - action required
             </div>
           )}
 
@@ -560,9 +570,13 @@ export default function Section22CompliancePage() {
             borderRadius: '6px',
             fontSize: '0.8125rem',
             color: '#1e40af',
-            lineHeight: 1.5
+            lineHeight: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}>
-            ℹ️ New services require 28-day advance notice to Local Transport Authority
+            <InfoIcon size={16} color="#1e40af" />
+            New services require 28-day advance notice to Local Transport Authority
           </div>
         </div>
 

@@ -144,7 +144,9 @@ export default function BusTimetablesPage() {
 
       {routes.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">📅</div>
+          <div className="empty-icon">
+            <CalendarIcon size={48} color="#9ca3af" />
+          </div>
           <h2>No Routes Available</h2>
           <p>You need to create at least one route before you can create timetables.</p>
           <a href="/bus/routes" className="btn-primary">Go to Routes</a>
@@ -235,7 +237,9 @@ export default function BusTimetablesPage() {
 
                   <div className="timetable-details">
                     <div className="detail-row">
-                      <span className="detail-icon">📅</span>
+                      <span className="detail-icon">
+                        <CalendarIcon size={16} />
+                      </span>
                       <span className="detail-text">
                         Valid from {formatDate(timetable.valid_from)}
                         {timetable.valid_until && ` to ${formatDate(timetable.valid_until)}`}
@@ -244,7 +248,9 @@ export default function BusTimetablesPage() {
 
                     {timetable.vehicle_registration && (
                       <div className="detail-row">
-                        <span className="detail-icon">🚐</span>
+                        <span className="detail-icon">
+                          <BusIcon size={16} />
+                        </span>
                         <span className="detail-text">{timetable.vehicle_registration}</span>
                       </div>
                     )}

@@ -360,7 +360,9 @@ export default function BusBookingsPage() {
 
       {filteredBookings.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">🎫</div>
+          <div className="empty-icon">
+            <TicketIcon size={48} color="#9ca3af" />
+          </div>
           <h2>No Bookings Found</h2>
           <p>
             {filter === 'today'
@@ -481,7 +483,10 @@ export default function BusBookingsPage() {
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-content booking-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', maxHeight: '90vh', overflow: 'auto' }}>
             <div className="modal-header">
-              <h2>🎫 Create New Booking</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <TicketIcon size={24} />
+                Create New Booking
+              </h2>
               <button className="modal-close" onClick={() => setShowCreateModal(false)}>×</button>
             </div>
             <div className="modal-body" style={{ padding: '1.5rem' }}>

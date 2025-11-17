@@ -12,6 +12,7 @@ import {
   TimerIcon,
   WarningIcon,
   MegaphoneIcon,
+  PhoneIcon,
 } from '../icons/BusIcons';
 
 /**
@@ -353,19 +354,36 @@ export default function BusCommunicationsPage() {
                   <td style={{ padding: '1rem', fontSize: '0.875rem' }}>
                     <div style={{ fontWeight: 600 }}>{comm.recipients_count} total</div>
                     {comm.sent_count > 0 && (
-                      <div style={{ fontSize: '0.75rem', color: '#10b981' }}>
-                        ✓ {comm.sent_count} delivered
+                      <div style={{ fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <CheckMarkIcon size={12} color="#10b981" />
+                        {comm.sent_count} delivered
                       </div>
                     )}
                     {comm.failed_count > 0 && (
-                      <div style={{ fontSize: '0.75rem', color: '#ef4444' }}>
-                        ✗ {comm.failed_count} failed
+                      <div style={{ fontSize: '0.75rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <XMarkIcon size={12} color="#ef4444" />
+                        {comm.failed_count} failed
                       </div>
                     )}
                   </td>
                   <td style={{ padding: '1rem', fontSize: '0.875rem', textTransform: 'uppercase' }}>
-                    {comm.delivery_method === 'both' ? '📧 📱 Email+SMS' :
-                     comm.delivery_method === 'email' ? '📧 Email' : '📱 SMS'}
+                    {comm.delivery_method === 'both' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <MailIcon size={14} />
+                        <PhoneIcon size={14} />
+                        Email+SMS
+                      </span>
+                    ) : comm.delivery_method === 'email' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <MailIcon size={14} />
+                        Email
+                      </span>
+                    ) : (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <PhoneIcon size={14} />
+                        SMS
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: '1rem' }}>
                     {getStatusBadge(comm.status)}
@@ -448,9 +466,9 @@ export default function BusCommunicationsPage() {
                     onChange={(e) => setFormData({ ...formData, delivery_method: e.target.value })}
                     style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
                   >
-                    <option value="email">📧 Email Only</option>
-                    <option value="sms">📱 SMS Only</option>
-                    <option value="both">📧 📱 Email + SMS</option>
+                    <option value="email">Email Only</option>
+                    <option value="sms">SMS Only</option>
+                    <option value="both">Email + SMS</option>
                   </select>
                 </div>
 
@@ -464,10 +482,10 @@ export default function BusCommunicationsPage() {
                     onChange={(e) => setFormData({ ...formData, recipient_type: e.target.value })}
                     style={{ width: '100%', padding: '0.625rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
                   >
-                    <option value="all_passengers">👥 All Passengers (Broadcast)</option>
-                    <option value="route">🚌 Specific Route</option>
-                    <option value="service">📅 Specific Service/Timetable</option>
-                    <option value="individual">👤 Individual Booking</option>
+                    <option value="all_passengers">All Passengers (Broadcast)</option>
+                    <option value="route">Specific Route</option>
+                    <option value="service">Specific Service/Timetable</option>
+                    <option value="individual">Individual Booking</option>
                   </select>
                 </div>
 

@@ -13,7 +13,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { SettingsIcon } from '../icons/BusIcons';
+import { SettingsIcon, RobotIcon, PauseIcon } from '../icons/BusIcons';
 
 // ============================================================================
 // INTERFACES
@@ -869,7 +869,7 @@ const DividendManagementPage: React.FC = () => {
         >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <span style={{ fontSize: '20px' }}>{schedulerSettings.enabled ? '🤖' : '⏸️'}</span>
+              {schedulerSettings.enabled ? <RobotIcon size={20} /> : <PauseIcon size={20} />}
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>
                 Automated Dividend Calculation{' '}
                 <span

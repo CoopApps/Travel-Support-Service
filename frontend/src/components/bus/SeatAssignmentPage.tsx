@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
-import { WheelchairIcon } from '../icons/BusIcons';
+import { WheelchairIcon, CheckMarkIcon, TicketIcon, SeatIcon, BusIcon } from '../icons/BusIcons';
 
 /**
  * Seat Assignment & Bus Layout Module
@@ -212,8 +212,9 @@ export default function SeatAssignmentPage() {
     <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-          💺 Seat Assignment & Bus Layout
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <SeatIcon size={28} />
+          Seat Assignment & Bus Layout
         </h1>
         <p style={{ color: '#6b7280' }}>
           Visual bus layout for managing seat assignments and passenger placement
@@ -350,9 +351,14 @@ export default function SeatAssignmentPage() {
             textAlign: 'center',
             marginBottom: '1.5rem',
             fontSize: '0.875rem',
-            fontWeight: 600
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
           }}>
-            🚌 FRONT OF BUS (Driver)
+            <BusIcon size={20} color="#fff" />
+            FRONT OF BUS (Driver)
           </div>
 
           {/* Seats Layout */}
@@ -492,7 +498,9 @@ export default function SeatAssignmentPage() {
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Status</div>
                   <div style={{
-                    display: 'inline-block',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
                     padding: '0.375rem 0.75rem',
                     borderRadius: '9999px',
                     background: selectedSeat.is_available ? '#d1fae5' : '#dbeafe',
@@ -500,7 +508,17 @@ export default function SeatAssignmentPage() {
                     fontSize: '0.875rem',
                     fontWeight: 600
                   }}>
-                    {selectedSeat.is_available ? '✓ Available' : '🎫 Occupied'}
+                    {selectedSeat.is_available ? (
+                      <>
+                        <CheckMarkIcon size={14} color="#065f46" />
+                        Available
+                      </>
+                    ) : (
+                      <>
+                        <TicketIcon size={14} color="#1e40af" />
+                        Occupied
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -579,7 +597,9 @@ export default function SeatAssignmentPage() {
               padding: '2rem',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💺</div>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+                <SeatIcon size={48} color="#9ca3af" />
+              </div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>
                 Select a Seat
               </h3>
