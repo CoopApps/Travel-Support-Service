@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import { CheckMarkIcon, WarningIcon, XMarkIcon } from '../icons/BusIcons';
 
 /**
  * Section 22 Compliance Dashboard
@@ -148,10 +149,10 @@ export default function Section22CompliancePage() {
 
   const getStatusBadge = (status: 'active' | 'expiring_soon' | 'expired' | 'not_registered') => {
     const styles = {
-      active: { bg: '#d1fae5', color: '#047857', label: '✓ Active' },
-      expiring_soon: { bg: '#fef3c7', color: '#92400e', label: '⚠ Expiring Soon' },
-      expired: { bg: '#fee2e2', color: '#991b1b', label: '✗ Expired' },
-      not_registered: { bg: '#f3f4f6', color: '#374151', label: '○ Not Registered' },
+      active: { bg: '#d1fae5', color: '#047857', label: 'Active', icon: <CheckMarkIcon size={14} color="#047857" /> },
+      expiring_soon: { bg: '#fef3c7', color: '#92400e', label: 'Expiring Soon', icon: <WarningIcon size={14} color="#92400e" /> },
+      expired: { bg: '#fee2e2', color: '#991b1b', label: 'Expired', icon: <XMarkIcon size={14} color="#991b1b" /> },
+      not_registered: { bg: '#f3f4f6', color: '#374151', label: 'Not Registered', icon: null },
     };
 
     const style = styles[status];
@@ -163,7 +164,11 @@ export default function Section22CompliancePage() {
         borderRadius: '12px',
         fontSize: '0.75rem',
         fontWeight: 600,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem'
       }}>
+        {style.icon}
         {style.label}
       </span>
     );

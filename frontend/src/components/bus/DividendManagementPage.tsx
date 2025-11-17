@@ -13,6 +13,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { SettingsIcon } from '../icons/BusIcons';
 
 // ============================================================================
 // INTERFACES
@@ -905,7 +906,10 @@ const DividendManagementPage: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            ⚙️ Configure
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <SettingsIcon size={16} />
+              Configure
+            </span>
           </button>
         </div>
       )}

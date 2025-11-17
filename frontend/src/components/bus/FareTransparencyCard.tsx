@@ -1,4 +1,5 @@
 import React from 'react';
+import { SparklesIcon, BriefcaseIcon } from '../icons/BusIcons';
 
 /**
  * Fare Transparency Card
@@ -296,7 +297,10 @@ export default function FareTransparencyCard({
                   marginBottom: '0.75rem',
                   color: '#047857'
                 }}>
-                  ✨ Surplus Generated: {formatCurrency(surplusAmount)}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <SparklesIcon size={16} color="#047857" />
+                    Surplus Generated: {formatCurrency(surplusAmount)}
+                  </span>
                 </h4>
 
                 <div style={{ fontSize: '0.8125rem', color: '#065f46', marginBottom: '0.75rem' }}>
@@ -305,8 +309,9 @@ export default function FareTransparencyCard({
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                    <span style={{ color: '#065f46' }}>
-                      💼 Business Reserves ({surplusAllocation.businessReservePercent}%)
+                    <span style={{ color: '#065f46', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <BriefcaseIcon size={14} color="#065f46" />
+                      Business Reserves ({surplusAllocation.businessReservePercent}%)
                     </span>
                     <span style={{ fontWeight: 600, color: '#047857' }}>
                       {formatCurrency(surplusAllocation.toBusinessReserve)}

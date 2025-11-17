@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
+import { WheelchairIcon } from '../icons/BusIcons';
 
 /**
  * Seat Assignment & Bus Layout Module
@@ -390,7 +391,9 @@ export default function SeatAssignmentPage() {
                       >
                         <div style={{ fontSize: '0.875rem' }}>{seat.seat_number}</div>
                         {seat.is_wheelchair_accessible && (
-                          <div style={{ fontSize: '1rem' }}>♿</div>
+                          <div style={{ fontSize: '1rem' }}>
+                            <WheelchairIcon size={16} color="#fff" />
+                          </div>
                         )}
                         {!seat.is_available && (
                           <div style={{ fontSize: '0.625rem', color: '#fff', marginTop: '2px', textAlign: 'center', lineHeight: 1.2 }}>
@@ -516,7 +519,8 @@ export default function SeatAssignmentPage() {
                     borderRadius: '6px'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6d28d9', fontWeight: 600, fontSize: '0.875rem' }}>
-                      ♿ Wheelchair Accessible
+                      <WheelchairIcon size={16} color="#6d28d9" />
+                      Wheelchair Accessible
                     </div>
                   </div>
                 )}
