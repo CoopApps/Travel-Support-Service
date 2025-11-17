@@ -13,6 +13,7 @@ import {
   WarningIcon,
   MegaphoneIcon,
   PhoneIcon,
+  InboxIcon,
 } from '../icons/BusIcons';
 
 /**
@@ -303,7 +304,9 @@ export default function BusCommunicationsPage() {
           </div>
         ) : communications.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+              <InboxIcon size={48} color="#9ca3af" />
+            </div>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem' }}>
               No messages yet
             </h3>
@@ -426,7 +429,10 @@ export default function BusCommunicationsPage() {
             overflow: 'auto'
           }}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>📨 New Message</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MailIcon size={24} />
+                New Message
+              </h2>
               <button onClick={() => setShowCreateModal(false)} style={{
                 background: 'none',
                 border: 'none',
