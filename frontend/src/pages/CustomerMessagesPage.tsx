@@ -666,26 +666,7 @@ function CustomerMessagesPage() {
 
         {/* Message Content */}
         <div style={{ flex: 1, overflow: 'auto' }}>
-          {showMessageForm ? (
-            /* Show message form */
-            <div style={{ padding: '1.5rem', borderBottom: '2px solid var(--gray-200)', background: 'var(--gray-50)' }}>
-              <button
-            className="btn btn-primary"
-            onClick={() => setShowMessageForm(!showMessageForm)}
-          >
-            {showMessageForm ? 'Cancel' : 'New Message'}
-          </button>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="alert alert-error" style={{ margin: '1rem' }}>
-            {error}
-          </div>
-        )}
-
-        {/* New Message Form */}
-        {showMessageForm && (
+          {showMessageForm && (
           <div style={{ padding: '1.5rem', borderBottom: '2px solid var(--gray-200)', background: 'var(--gray-50)' }}>
             <form onSubmit={handleSendMessage}>
               {/* Recipient Selector */}
