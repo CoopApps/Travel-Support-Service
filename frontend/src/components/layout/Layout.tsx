@@ -116,13 +116,11 @@ function Layout() {
           <div className="nav-section">
             <div className="nav-section-label">Finance</div>
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
-            <NavItem to="/providers" label="Providers" icon="briefcase" active={location.pathname === '/providers'} />
           </div>
 
           <div className="nav-section">
             <div className="nav-section-label">Activities & Leave</div>
             <NavItem to="/social-outings" label="Social Outings" icon="activity" active={location.pathname === '/social-outings'} />
-            <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
           </div>
 
           <div className="nav-section">
@@ -290,6 +288,39 @@ function Layout() {
                   <path d="M12 1v6m0 6v6m6-6h6M1 12h6" />
                 </svg>
                 <span>Settings</span>
+              </Link>
+
+              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
+
+              <Link
+                to="/holidays"
+                className={`quick-nav-btn ${location.pathname === '/holidays' ? 'active' : ''}`}
+                title="Holidays"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                <span>Holidays</span>
+              </Link>
+
+              <Link
+                to="/providers"
+                className={`quick-nav-btn ${location.pathname === '/providers' ? 'active' : ''}`}
+                title="Providers"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+                <span>Providers</span>
               </Link>
             </nav>
           </div>
