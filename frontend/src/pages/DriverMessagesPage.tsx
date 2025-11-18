@@ -42,14 +42,15 @@ function DriverMessagesPage() {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
+  const [inboxMessages, setInboxMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
 
-  // View mode: all, drafts, scheduled, sent
-  const [viewMode, setViewMode] = useState<'all' | 'drafts' | 'scheduled' | 'sent'>('all');
+  // View mode: all, inbox, drafts, scheduled, sent
+  const [viewMode, setViewMode] = useState<'all' | 'inbox' | 'drafts' | 'scheduled' | 'sent'>('all');
 
   // New message form
   const [showMessageForm, setShowMessageForm] = useState(false);
@@ -124,19 +125,26 @@ function DriverMessagesPage() {
     setLoadingMessages(true);
     setError('');
     try {
-      const response = await apiClient.get(`/tenants/${tenantId}/messages`);
-      let messages = response.data.messages || [];
+      if (viewMode === 'inbox') {
+        // Load messages FROM drivers TO office (admin view)
+        const response = await apiClient.get(`/tenants/${tenantId}/messages-from-drivers`);
+        setInboxMessages(response.data.messages || []);
+      } else {
+        // Load messages FROM office TO drivers
+        const response = await apiClient.get(`/tenants/${tenantId}/messages`);
+        let messages = response.data.messages || [];
 
-      // Filter based on view mode
-      if (viewMode === 'drafts') {
-        messages = messages.filter((msg: Message) => msg.is_draft);
-      } else if (viewMode === 'scheduled') {
-        messages = messages.filter((msg: Message) => msg.status === 'scheduled');
-      } else if (viewMode === 'sent') {
-        messages = messages.filter((msg: Message) => !msg.is_draft && msg.status !== 'scheduled');
+        // Filter based on view mode
+        if (viewMode === 'drafts') {
+          messages = messages.filter((msg: Message) => msg.is_draft);
+        } else if (viewMode === 'scheduled') {
+          messages = messages.filter((msg: Message) => msg.status === 'scheduled');
+        } else if (viewMode === 'sent') {
+          messages = messages.filter((msg: Message) => !msg.is_draft && msg.status !== 'scheduled');
+        }
+
+        setAllMessages(messages);
       }
-
-      setAllMessages(messages);
     } catch (err: any) {
       console.error('Error loading all messages:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load messages';
@@ -431,6 +439,22 @@ function DriverMessagesPage() {
             }}
           >
             All Messages
+          </button>
+          <button
+            onClick={() => { setViewMode('inbox'); setSelectedDriver(null); }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: viewMode === 'inbox' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: viewMode === 'inbox' ? 'var(--primary)' : 'var(--gray-600)',
+              fontWeight: viewMode === 'inbox' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Inbox ({inboxMessages.length})
           </button>
           <button
             onClick={() => { setViewMode('drafts'); setSelectedDriver(null); }}
