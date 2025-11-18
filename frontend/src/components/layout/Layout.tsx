@@ -82,7 +82,7 @@ function Layout() {
             {/* Dashboard is service-aware - same route for both */}
             <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
 
-            {activeService === 'bus' ? (
+            {activeService === 'bus' && (
               /* Bus-specific modules */
               <>
                 <NavItem to="/bus/book" label="📍 Book Now" icon="ticket" active={location.pathname === '/bus/book'} />
@@ -97,19 +97,11 @@ function Layout() {
                 <NavItem to="/bus/dividends" label="Dividends" icon="money" active={location.pathname === '/bus/dividends'} />
                 <NavItem to="/bus/compliance" label="Section 22 Compliance" icon="shield" active={location.pathname === '/bus/compliance'} />
               </>
-            ) : (
-              /* Transport-specific modules */
-              <>
-                <NavItem to="/schedules" label="Schedules" icon="calendar" active={location.pathname === '/schedules'} />
-                <NavItem to="/customers" label="Customers" icon="users" active={location.pathname === '/customers'} />
-              </>
-            )}
+            )
           </div>
 
           <div className="nav-section">
             <div className="nav-section-label">Resources</div>
-            <NavItem to="/drivers" label="Drivers" icon="user" active={location.pathname === '/drivers'} />
-            <NavItem to="/vehicles" label="Vehicles" icon="truck" active={location.pathname === '/vehicles'} />
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
           </div>
 
@@ -123,7 +115,6 @@ function Layout() {
 
           <div className="nav-section">
             <div className="nav-section-label">Finance</div>
-            <NavItem to="/invoices" label="Invoices" icon="invoice" active={location.pathname === '/invoices'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
             <NavItem to="/providers" label="Providers" icon="briefcase" active={location.pathname === '/providers'} />
           </div>
@@ -143,9 +134,7 @@ function Layout() {
 
           <div className="nav-section">
             <div className="nav-section-label">Company Admin</div>
-            <NavItem to="/admin" label="Administration" icon="settings" active={location.pathname === '/admin'} />
             <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
-            <NavItem to="/admin/settings" label="Settings" icon="cog" active={location.pathname === '/admin/settings'} />
           </div>
 
           <div className="nav-section">
