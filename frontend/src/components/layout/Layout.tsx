@@ -112,18 +112,14 @@ function Layout() {
             <div className="nav-section-label">Operations</div>
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
+            <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
+            <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
+            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
           </div>
 
           <div className="nav-section">
             <div className="nav-section-label">Support</div>
-            <NavItem to="/feedback" label="Feedback & Support" icon="feedback" active={location.pathname === '/feedback'} />
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-label">Back Office</div>
-            <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
-            <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
-            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
+            <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
           </div>
 
           {activeService === 'bus' && (
