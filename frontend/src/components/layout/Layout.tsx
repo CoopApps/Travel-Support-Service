@@ -120,6 +120,13 @@ function Layout() {
             <NavItem to="/feedback" label="Feedback & Support" icon="feedback" active={location.pathname === '/feedback'} />
           </div>
 
+          <div className="nav-section">
+            <div className="nav-section-label">Back Office</div>
+            <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
+            <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
+            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
+          </div>
+
           {activeService === 'bus' && (
             <div className="nav-section">
               <div className="nav-section-label">Bus Admin</div>
@@ -250,51 +257,6 @@ function Layout() {
                   <polyline points="10 9 9 9 8 9" />
                 </svg>
                 <span>Invoices</span>
-              </Link>
-
-              <Link
-                to="/admin"
-                className={`quick-nav-btn ${location.pathname === '/admin' ? 'active' : ''}`}
-                title="Administration"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-                <span>Admin</span>
-              </Link>
-
-              <Link
-                to="/admin/settings"
-                className={`quick-nav-btn ${location.pathname === '/admin/settings' ? 'active' : ''}`}
-                title="Settings"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 1v6m0 6v6m6-6h6M1 12h6" />
-                </svg>
-                <span>Settings</span>
-              </Link>
-
-              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
-
-              <Link
-                to="/holidays"
-                className={`quick-nav-btn ${location.pathname === '/holidays' ? 'active' : ''}`}
-                title="Holidays"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-                <span>Holidays</span>
               </Link>
 
               <Link
