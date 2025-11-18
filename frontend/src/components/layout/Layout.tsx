@@ -101,11 +101,6 @@ function Layout() {
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Resources</div>
-            <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
-          </div>
-
-          <div className="nav-section">
             <div className="nav-section-label">Compliance & Safety</div>
             <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
             <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
@@ -114,24 +109,23 @@ function Layout() {
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Finance</div>
+            <div className="nav-section-label">Operations</div>
+            <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
+            <NavItem to="/social-outings" label="Social Outings" icon="activity" active={location.pathname === '/social-outings'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Activities & Leave</div>
-            <NavItem to="/social-outings" label="Social Outings" icon="activity" active={location.pathname === '/social-outings'} />
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-label">Communications</div>
+            <div className="nav-section-label">Support</div>
             <NavItem to="/feedback" label="Feedback & Support" icon="feedback" active={location.pathname === '/feedback'} />
           </div>
 
-          <div className="nav-section">
-            <div className="nav-section-label">Company Admin</div>
-            <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
-          </div>
+          {activeService === 'bus' && (
+            <div className="nav-section">
+              <div className="nav-section-label">Bus Admin</div>
+              <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
+            </div>
+          )}
         </nav>
 
         <div className="sidebar-footer">
