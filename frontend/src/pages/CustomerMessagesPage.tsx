@@ -447,32 +447,134 @@ function CustomerMessagesPage() {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
-      {/* Page Title */}
+    <div style={{ display: 'flex', height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
+      {/* Left Sidebar - Customer List */}
       <div style={{
-        padding: '1.5rem',
-        borderBottom: '1px solid var(--gray-200)',
-        background: 'white',
+        width: '320px',
+        borderRight: '1px solid var(--gray-200)',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        flexDirection: 'column',
+        background: 'var(--gray-50)'
       }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>Messages</h1>
-          <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--gray-600)' }}>
-            Universal messaging system - In-App, Email & SMS
-          </p>
+        {/* Header */}
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--gray-200)', background: 'white' }}>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 600 }}>Customer Messages</h2>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search customers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ fontSize: '14px' }}
+          />
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowMessageForm(!showMessageForm)}
-        >
-          {showMessageForm ? 'Cancel' : 'New Message'}
-        </button>
+
+        {/* Customer List */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '0.5rem' }}>
+          {showMessageForm ? (
+            /* Show Customer List for Composing */
+            loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
+                <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading...</p>
+              </div>
+            ) : filteredCustomers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
+                No customers found
+              </div>
+            ) : (
+              filteredCustomers.map((customer) => {
+                const isSelected = recipientType === 'single'
+                  ? selectedCustomer?.customer_id === customer.customer_id
+                  : selectedCustomerIds.includes(customer.customer_id);
+
+                return (
+                  <div
+                    key={customer.customer_id}
+                    onClick={() => {
+                      if (recipientType === 'multiple') {
+                        handleToggleCustomerSelection(customer.customer_id);
+                      } else {
+                        setSelectedCustomer(customer);
+                      }
+                    }}
+                    style={{
+                      padding: '1rem',
+                      marginBottom: '0.5rem',
+                      background: isSelected ? '#e3f2fd' : 'white',
+                      border: isSelected ? '2px solid #2196f3' : '1px solid var(--gray-200)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = 'var(--gray-100)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = 'white';
+                      }
+                    }}
+                  >
+                    {recipientType === 'multiple' && (
+                      <input
+                        type="checkbox"
+                        checked={selectedCustomerIds.includes(customer.customer_id)}
+                        onChange={() => handleToggleCustomerSelection(customer.customer_id)}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--gray-900)', marginBottom: '4px' }}>
+                        {customer.name}
+                      </div>
+                      {customer.address && (
+                        <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
+                          {customer.address}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )
+          ) : null}
+        </div>
       </div>
 
-      {/* Global Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', overflowX: 'auto', borderBottom: '1px solid var(--gray-200)', background: 'white' }}>
+      {/* Right Side - Message Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white' }}>
+        {/* Header */}
+        <div style={{
+          padding: '1.5rem',
+          borderBottom: '1px solid var(--gray-200)',
+          background: 'white',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>Messages</h1>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--gray-600)' }}>
+              Universal messaging system - In-App, Email & SMS
+            </p>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowMessageForm(!showMessageForm)}
+          >
+            {showMessageForm ? 'Cancel' : 'New Message'}
+          </button>
+        </div>
+
+        {/* Global Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', padding: '1rem 1.5rem 0', overflowX: 'auto', borderBottom: '1px solid var(--gray-200)' }}>
           <button
             onClick={() => { setViewMode('all'); setSelectedCustomer(null); }}
             style={{
@@ -555,201 +657,19 @@ function CustomerMessagesPage() {
           </button>
         </div>
 
-      {/* Two-Panel Layout */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Left Sidebar - Customer List or Message List */}
-        <div style={{
-          width: '320px',
-          borderRight: '1px solid var(--gray-200)',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'var(--gray-50)'
-        }}>
-          {/* Customer List Header - only show when composing */}
-          {showMessageForm && (
-            <div style={{ padding: '1rem', borderBottom: '1px solid var(--gray-200)', background: 'white' }}>
-              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '14px', fontWeight: 600 }}>Select Recipients</h3>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ fontSize: '13px' }}
-              />
-            </div>
-          )}
-
-        {/* Dynamic Content - Show Customers OR Global Messages */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '0.5rem' }}>
-          {showMessageForm ? (
-            /* Show Customer List for Composing */
-            loading ? (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
-                <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading...</p>
-              </div>
-            ) : filteredCustomers.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
-                No customers found
-              </div>
-            ) : (
-              filteredCustomers.map((customer) => {
-                const isSelected = recipientType === 'single'
-                  ? selectedCustomer?.customer_id === customer.customer_id
-                  : selectedCustomerIds.includes(customer.customer_id);
-
-                return (
-                  <div
-                    key={customer.customer_id}
-                    onClick={() => {
-                      if (recipientType === 'multiple') {
-                        handleToggleCustomerSelection(customer.customer_id);
-                      } else {
-                        setSelectedCustomer(customer);
-                      }
-                    }}
-                    style={{
-                      padding: '1rem',
-                      marginBottom: '0.5rem',
-                      background: isSelected ? '#e3f2fd' : 'white',
-                      border: isSelected ? '2px solid #2196f3' : '1px solid var(--gray-200)',
-                      borderRadius: '8px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {recipientType === 'multiple' && (
-                      <input
-                        type="checkbox"
-                        checked={selectedCustomerIds.includes(customer.customer_id)}
-                        onChange={() => handleToggleCustomerSelection(customer.customer_id)}
-                        style={{ width: '18px', height: '18px', cursor: 'pointer', marginRight: '0.75rem' }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    )}
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>{customer.name}</div>
-                    {(customer.phone || customer.email) && (
-                      <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '4px' }}>
-                        {customer.phone || customer.email}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )
-          ) : (
-            /* Show Global Message List */
-            loadingMessages ? (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <div className="spinner" style={{ width: '1.5rem', height: '1.5rem', margin: '0 auto' }}></div>
-                <p style={{ marginTop: '0.5rem', fontSize: '13px', color: 'var(--gray-600)' }}>Loading messages...</p>
-              </div>
-            ) : viewMode === 'inbox' ? (
-              filteredInboxMessages.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
-                  No inbox messages
-                </div>
-              ) : (
-                filteredInboxMessages.map((msg) => (
-                  <div
-                    key={msg.message_id}
-                    onClick={() => setSelectedCustomer(customers.find(c => c.customer_id === msg.customer_id) || null)}
-                    style={{
-                      padding: '1rem',
-                      marginBottom: '0.5rem',
-                      background: 'white',
-                      border: '1px solid var(--gray-200)',
-                      borderRadius: '8px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{msg.customer_name}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--gray-700)', marginBottom: '4px' }}>{msg.subject}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
-                      {formatDate(msg.created_at)}
-                    </div>
-                  </div>
-                ))
-              )
-            ) : (
-              filteredMessages.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-500)', fontSize: '14px' }}>
-                  No messages in this view
-                </div>
-              ) : (
-                filteredMessages.map((msg) => (
-                  <div
-                    key={msg.message_id}
-                    style={{
-                      padding: '1rem',
-                      marginBottom: '0.5rem',
-                      background: 'white',
-                      border: '1px solid var(--gray-200)',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '4px', flexWrap: 'wrap' }}>
-                      <span style={{
-                        padding: '2px 8px',
-                        background: `${getPriorityColor(msg.priority)}20`,
-                        color: getPriorityColor(msg.priority),
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 600
-                      }}>
-                        {getPriorityLabel(msg.priority)}
-                      </span>
-                      <span style={{
-                        padding: '2px 8px',
-                        background: `${getDeliveryStatusColor(msg.status)}20`,
-                        color: getDeliveryStatusColor(msg.status),
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 600
-                      }}>
-                        {getDeliveryStatusLabel(msg.status)}
-                      </span>
-                    </div>
-                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{msg.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginBottom: '4px' }}>
-                      To: {msg.customer_name || 'All Customers'}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
-                      {msg.is_draft ? 'Draft saved' : formatDate(msg.created_at)}
-                    </div>
-                  </div>
-                ))
-              )
-            )
-          )}
-        </div>
-      </div>
-
-      {/* Right Side - Message Threads */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white' }}>
-        {/* Thread Header */}
-        <div style={{
-          padding: '1.5rem',
-          borderBottom: '1px solid var(--gray-200)',
-          background: 'white',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
-              {selectedCustomer ? selectedCustomer.name : 'Customer Messages'}
-            </h3>
-            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--gray-600)' }}>
-              {selectedCustomer
-                ? 'Message threads'
-                : showMessageForm
-                  ? `Composing message to ${recipientType === 'all' ? 'all customers' : recipientType === 'multiple' ? 'multiple customers' : 'customer'}`
-                  : 'Select a customer or compose a new message'
-              }
-            </p>
+        {/* Error Message */}
+        {error && (
+          <div className="alert alert-error" style={{ margin: '1rem' }}>
+            {error}
           </div>
-          <button
+        )}
+
+        {/* Message Content */}
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          {showMessageForm ? (
+            /* Show message form */
+            <div style={{ padding: '1.5rem', borderBottom: '2px solid var(--gray-200)', background: 'var(--gray-50)' }}>
+              <button
             className="btn btn-primary"
             onClick={() => setShowMessageForm(!showMessageForm)}
           >
