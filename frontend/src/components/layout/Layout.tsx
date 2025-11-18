@@ -97,7 +97,7 @@ function Layout() {
                 <NavItem to="/bus/dividends" label="Dividends" icon="money" active={location.pathname === '/bus/dividends'} />
                 <NavItem to="/bus/compliance" label="Section 22 Compliance" icon="shield" active={location.pathname === '/bus/compliance'} />
               </>
-            )
+            )}
           </div>
 
           <div className="nav-section">
