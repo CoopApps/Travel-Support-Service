@@ -2116,6 +2116,29 @@ export const tenantSettingsApi = {
     const response = await apiClient.patch(`/tenants/${tenantId}/settings/route-optimization`, settings);
     return response.data;
   },
+
+  /**
+   * Get roster optimization settings
+   */
+  getRosterOptimizationSettings: async (tenantId: number): Promise<any> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/settings/roster-optimization`);
+    return response.data;
+  },
+
+  /**
+   * Update roster optimization settings
+   */
+  updateRosterOptimizationSettings: async (tenantId: number, settings: {
+    enabled?: boolean;
+    maxTimeWindowMinutes?: number;
+    maxDistanceRadius?: number;
+    considerDriverHome?: boolean;
+    prioritizeRegularDrivers?: boolean;
+    minimizeDeadMiles?: boolean;
+  }): Promise<any> => {
+    const response = await apiClient.put(`/tenants/${tenantId}/settings/roster-optimization`, settings);
+    return response.data;
+  },
 };
 
 // ============================================================================

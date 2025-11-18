@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import ReminderSettingsPage from './ReminderSettingsPage';
 import RouteOptimizationSettings from './RouteOptimizationSettings';
+import RosterOptimizationSettings from './RosterOptimizationSettings';
 
-type TabType = 'reminders' | 'route-optimization';
+type TabType = 'reminders' | 'route-optimization' | 'roster-optimization';
 
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('reminders');
@@ -87,6 +88,31 @@ const SettingsPage: React.FC = () => {
             </svg>
             Route Optimization
           </button>
+          <button
+            onClick={() => setActiveTab('roster-optimization')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: activeTab === 'roster-optimization' ? '#2563eb' : '#6b7280',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'roster-optimization' ? '2px solid #2563eb' : '2px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              marginBottom: '-2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <polyline points="17 11 19 13 23 9" />
+            </svg>
+            Roster Optimization
+          </button>
         </div>
       </div>
 
@@ -94,6 +120,7 @@ const SettingsPage: React.FC = () => {
       <div>
         {activeTab === 'reminders' && <ReminderSettingsPage />}
         {activeTab === 'route-optimization' && <RouteOptimizationSettings />}
+        {activeTab === 'roster-optimization' && <RosterOptimizationSettings />}
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import NotificationBell from './NotificationBell';
 import UserDropdown from './UserDropdown';
 import { ServiceToggleCompact } from './ServiceToggleCompact';
 import { useServiceContext } from '../../contexts/ServiceContext';
+import apiClient from '../../services/api';
 import './Layout.css';
 
 /**
@@ -17,6 +19,38 @@ function Layout() {
   const { tenant } = useTenant();
   const location = useLocation();
   const { activeService } = useServiceContext();
+
+  // Message counts for badges
+  const [driverMessageCount, setDriverMessageCount] = useState(0);
+  const [customerMessageCount, setCustomerMessageCount] = useState(0);
+
+  // Fetch unread message counts
+  useEffect(() => {
+    const fetchMessageCounts = async () => {
+      if (!tenant?.tenant_id) return;
+
+      try {
+        // Fetch driver messages (inbox - messages from drivers)
+        const driverResponse = await apiClient.get(`/tenants/${tenant.tenant_id}/messages-from-drivers`);
+        const driverMessages = driverResponse.data.messages || [];
+        const unreadDriverCount = driverMessages.filter((m: any) => !m.read_at).length;
+        setDriverMessageCount(unreadDriverCount);
+
+        // Fetch customer messages (inbox - messages from customers)
+        const customerResponse = await apiClient.get(`/tenants/${tenant.tenant_id}/customer-messages-inbox`);
+        const customerMessages = customerResponse.data.messages || [];
+        const unreadCustomerCount = customerMessages.filter((m: any) => !m.read_at).length;
+        setCustomerMessageCount(unreadCustomerCount);
+      } catch (err) {
+        console.error('Failed to fetch message counts:', err);
+      }
+    };
+
+    fetchMessageCounts();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchMessageCounts, 30000);
+    return () => clearInterval(interval);
+  }, [tenant?.tenant_id]);
 
   // Get subscription tier display name
   const getTierDisplayName = (tier: string | undefined) => {
@@ -80,12 +114,6 @@ function Layout() {
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Operations & Optimization</div>
-            <NavItem to="/operations/route-optimization" label="Route Optimization" icon="map" active={location.pathname === '/operations/route-optimization'} />
-            <NavItem to="/operations/roster-optimization" label="Roster Optimization" icon="user-check" active={location.pathname === '/operations/roster-optimization'} />
-          </div>
-
-          <div className="nav-section">
             <div className="nav-section-label">Compliance & Safety</div>
             <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
             <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
@@ -146,9 +174,94 @@ function Layout() {
         {/* Header */}
         <header className="top-header">
           <div className="header-left">
-            <h4 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600, color: 'var(--gray-900)' }}>
-              {tenant?.company_name || 'Travel Support System'}
-            </h4>
+            {/* Quick Access Buttons */}
+            <nav style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+              <Link
+                to="/customers"
+                className={`quick-nav-btn ${location.pathname === '/customers' ? 'active' : ''}`}
+                title="Customers"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>Customers</span>
+              </Link>
+
+              <Link
+                to="/drivers"
+                className={`quick-nav-btn ${location.pathname === '/drivers' ? 'active' : ''}`}
+                title="Drivers"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span>Drivers</span>
+              </Link>
+
+              <Link
+                to="/vehicles"
+                className={`quick-nav-btn ${location.pathname === '/vehicles' ? 'active' : ''}`}
+                title="Vehicles"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="1" y="3" width="15" height="13" rx="2" />
+                  <path d="M16 8h3l3 6v4h-6" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+                <span>Vehicles</span>
+              </Link>
+
+              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
+
+              <Link
+                to="/driver-messages"
+                className={`quick-nav-btn ${location.pathname === '/driver-messages' ? 'active' : ''}`}
+                title="Driver Messages"
+                style={{ position: 'relative' }}
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <span>Drivers</span>
+                {driverMessageCount > 0 && (
+                  <span className="message-badge">{driverMessageCount > 99 ? '99+' : driverMessageCount}</span>
+                )}
+              </Link>
+
+              <Link
+                to="/customer-messages"
+                className={`quick-nav-btn ${location.pathname === '/customer-messages' ? 'active' : ''}`}
+                title="Customer Messages"
+                style={{ position: 'relative' }}
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>Customers</span>
+                {customerMessageCount > 0 && (
+                  <span className="message-badge">{customerMessageCount > 99 ? '99+' : customerMessageCount}</span>
+                )}
+              </Link>
+
+              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
+
+              <Link
+                to="/admin"
+                className={`quick-nav-btn ${location.pathname === '/admin' ? 'active' : ''}`}
+                title="Administration"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>Admin</span>
+              </Link>
+            </nav>
           </div>
 
           <div className="header-actions" id="headerActions">

@@ -536,6 +536,72 @@ router.patch(
 );
 
 // ==================================================================================
+// PATCH /tenants/:tenantId/bus/bookings/:bookingId/seat
+// Update seat assignment for a booking
+// ==================================================================================
+router.patch(
+  '/tenants/:tenantId/bus/bookings/:bookingId/seat',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, bookingId } = req.params;
+    const { seat_number } = req.body;
+
+    try {
+      // Verify booking exists
+      const existing = await queryOne(
+        `SELECT booking_id, timetable_id, service_date, seat_number as old_seat
+         FROM section22_bus_bookings
+         WHERE tenant_id = $1 AND booking_id = $2`,
+        [tenantId, bookingId]
+      );
+
+      if (!existing) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // If assigning a seat, check it's not already taken
+      if (seat_number) {
+        const seatTaken = await queryOne(
+          `SELECT booking_id, passenger_name FROM section22_bus_bookings
+           WHERE timetable_id = $1 AND service_date = $2 AND seat_number = $3
+             AND booking_id != $4 AND booking_status IN ('confirmed', 'pending')`,
+          [existing.timetable_id, existing.service_date, seat_number, bookingId]
+        );
+
+        if (seatTaken) {
+          return res.status(409).json({
+            error: `Seat ${seat_number} is already assigned to ${seatTaken.passenger_name}`
+          });
+        }
+      }
+
+      // Update seat assignment
+      const result = await queryOne(
+        `UPDATE section22_bus_bookings
+         SET seat_number = $3,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE tenant_id = $1 AND booking_id = $2
+         RETURNING *`,
+        [tenantId, bookingId, seat_number || null]
+      );
+
+      logger.info('Seat assignment updated', {
+        tenantId,
+        bookingId,
+        oldSeat: existing.old_seat,
+        newSeat: seat_number,
+        userId: req.user?.userId
+      });
+
+      return res.json(result);
+    } catch (error) {
+      logger.error('Failed to update seat assignment', { tenantId, bookingId, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
 // GET /tenants/:tenantId/bus/bookings/manifest/:timetableId
 // Get passenger manifest for a specific service date
 // ==================================================================================
