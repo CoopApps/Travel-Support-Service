@@ -111,7 +111,6 @@ function Layout() {
           <div className="nav-section">
             <div className="nav-section-label">Operations</div>
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
-            <NavItem to="/social-outings" label="Social Outings" icon="activity" active={location.pathname === '/social-outings'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
           </div>
 
@@ -257,6 +256,20 @@ function Layout() {
                   <polyline points="10 9 9 9 8 9" />
                 </svg>
                 <span>Invoices</span>
+              </Link>
+
+              <Link
+                to="/social-outings"
+                className={`quick-nav-btn ${location.pathname === '/social-outings' ? 'active' : ''}`}
+                title="Outings"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>Outings</span>
               </Link>
 
               <Link
