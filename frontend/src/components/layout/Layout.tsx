@@ -125,20 +125,12 @@ function Layout() {
 
           <div className="nav-section">
             <div className="nav-section-label">Communications</div>
-            <NavItem to="/driver-messages" label="Driver Messages" icon="mail" active={location.pathname === '/driver-messages'} />
-            <NavItem to="/customer-messages" label="Customer Messages" icon="mail" active={location.pathname === '/customer-messages'} />
             <NavItem to="/feedback" label="Feedback & Support" icon="feedback" active={location.pathname === '/feedback'} />
           </div>
 
           <div className="nav-section">
             <div className="nav-section-label">Company Admin</div>
             <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-label">Admin Tools</div>
-            <NavItem to="/driver-dashboard-admin" label="Driver Activity" icon="activity" active={location.pathname === '/driver-dashboard-admin'} />
-            <NavItem to="/customer-dashboard-admin" label="Customer Activity" icon="activity" active={location.pathname === '/customer-dashboard-admin'} />
           </div>
         </nav>
 
