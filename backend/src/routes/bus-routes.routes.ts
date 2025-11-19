@@ -218,9 +218,8 @@ router.post(
           operates_saturday,
           operates_sunday,
           start_date,
-          end_date,
-          created_by
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+          end_date
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
          RETURNING *`,
         [
           tenantId,
@@ -241,8 +240,7 @@ router.post(
           operating_days?.saturday || false,
           operating_days?.sunday || false,
           start_date,
-          end_date,
-          req.user?.userId
+          end_date
         ]
       );
 
