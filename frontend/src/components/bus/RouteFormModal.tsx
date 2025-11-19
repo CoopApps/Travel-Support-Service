@@ -445,34 +445,6 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
                   />
                 </div>
               </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="total_distance_miles">Distance (miles)</label>
-                  <input
-                    type="number"
-                    id="total_distance_miles"
-                    name="total_distance_miles"
-                    value={formData.total_distance_miles}
-                    onChange={handleChange}
-                    placeholder="e.g., 5.2"
-                    step="0.1"
-                    min="0"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="estimated_duration_minutes">Duration (minutes)</label>
-                  <input
-                    type="number"
-                    id="estimated_duration_minutes"
-                    name="estimated_duration_minutes"
-                    value={formData.estimated_duration_minutes}
-                    onChange={handleChange}
-                    placeholder="e.g., 25"
-                    min="0"
-                  />
-                </div>
-              </div>
             </div>
 
             <div className="form-section">
