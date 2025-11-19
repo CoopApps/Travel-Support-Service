@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { busRoutesApi, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import { MapIcon, PinIcon, TargetIcon, CalendarIcon, RulerIcon, StopwatchIcon, ArrowRightIcon } from '../icons/BusIcons';
+import RouteFormModal from './RouteFormModal';
 import './BusRoutesPage.css';
 
 export default function BusRoutesPage() {
@@ -10,28 +11,80 @@ export default function BusRoutesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'planning'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingRoute, setEditingRoute] = useState<BusRoute | null>(null);
 
-  useEffect(() => {
+  const fetchRoutes = async () => {
     if (!tenant?.tenant_id) return;
 
-    const fetchRoutes = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        const params = filter === 'all' ? {} : { status: filter };
-        const data = await busRoutesApi.getRoutes(tenant.tenant_id, params);
-        setRoutes(data);
-      } catch (err: any) {
-        console.error('Failed to load routes:', err);
-        setError(err.message || 'Failed to load routes');
-      } finally {
-        setLoading(false);
-      }
-    };
+      const params = filter === 'all' ? {} : { status: filter };
+      const data = await busRoutesApi.getRoutes(tenant.tenant_id, params);
+      setRoutes(data);
+    } catch (err: any) {
+      console.error('Failed to load routes:', err);
+      setError(err.message || 'Failed to load routes');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRoutes();
   }, [tenant?.tenant_id, filter]);
+
+  const handleCreateRoute = () => {
+    setEditingRoute(null);
+    setShowModal(true);
+  };
+
+  const handleEditRoute = (route: BusRoute) => {
+    setEditingRoute(route);
+    setShowModal(true);
+  };
+
+  const handleDeleteRoute = async (route: BusRoute) => {
+    if (!tenant?.tenant_id) return;
+
+    const confirmMessage = route.timetable_count && route.timetable_count > 0
+      ? `This route has ${route.timetable_count} timetable(s). Are you sure you want to delete "${route.route_name}"?`
+      : `Are you sure you want to delete "${route.route_name}"?`;
+
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      await busRoutesApi.deleteRoute(tenant.tenant_id, route.route_id);
+      fetchRoutes();
+    } catch (err: any) {
+      console.error('Failed to delete route:', err);
+      alert(err.response?.data?.error || 'Failed to delete route. It may have active timetables.');
+    }
+  };
+
+  const handleModalSuccess = () => {
+    fetchRoutes();
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingRoute(null);
+  };
+
+  // Filter routes by search query
+  const filteredRoutes = routes.filter(route => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      route.route_number.toLowerCase().includes(query) ||
+      route.route_name.toLowerCase().includes(query) ||
+      route.origin_point.toLowerCase().includes(query) ||
+      route.destination_point.toLowerCase().includes(query)
+    );
+  });
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -83,6 +136,7 @@ export default function BusRoutesPage() {
         <div className="error-state">
           <h2>Error Loading Routes</h2>
           <p>{error}</p>
+          <button className="btn-primary" onClick={fetchRoutes}>Retry</button>
         </div>
       </div>
     );
@@ -95,7 +149,7 @@ export default function BusRoutesPage() {
           <h1>Bus Routes</h1>
           <p className="page-subtitle">Manage your Section 22 local bus routes</p>
         </div>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={handleCreateRoute}>
           <span>+</span>
           Create New Route
         </button>
@@ -128,26 +182,34 @@ export default function BusRoutesPage() {
             type="text"
             placeholder="Search routes..."
             className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
 
-      {routes.length === 0 ? (
+      {filteredRoutes.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">
             <MapIcon size={48} color="#9ca3af" />
           </div>
           <h2>No Routes Found</h2>
           <p>
-            {filter === 'all'
+            {searchQuery
+              ? 'No routes match your search. Try a different search term.'
+              : filter === 'all'
               ? 'Get started by creating your first bus route.'
               : `No ${filter} routes found. Try changing your filter.`}
           </p>
-          <button className="btn-primary">Create Your First Route</button>
+          {!searchQuery && (
+            <button className="btn-primary" onClick={handleCreateRoute}>
+              Create Your First Route
+            </button>
+          )}
         </div>
       ) : (
         <div className="routes-grid">
-          {routes.map((route) => (
+          {filteredRoutes.map((route) => (
             <div key={route.route_id} className="route-card">
               <div className="route-header">
                 <div className="route-number">{route.route_number}</div>
@@ -217,13 +279,30 @@ export default function BusRoutesPage() {
               </div>
 
               <div className="route-actions">
-                <button className="btn-secondary">View Details</button>
-                <button className="btn-text">Edit</button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => handleEditRoute(route)}
+                >
+                  Edit Route
+                </button>
+                <button
+                  className="btn-text btn-danger"
+                  onClick={() => handleDeleteRoute(route)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <RouteFormModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onSuccess={handleModalSuccess}
+        route={editingRoute}
+      />
     </div>
   );
 }
