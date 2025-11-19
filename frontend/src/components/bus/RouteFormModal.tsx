@@ -202,7 +202,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       setSaving(true);
       setError(null);
 
-      const payload: Partial<BusRoute> = {
+      const payload: any = {
         route_number: formData.route_number.trim(),
         route_name: formData.route_name.trim(),
         description: formData.description.trim() || undefined,
@@ -212,14 +212,15 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         total_distance_miles: formData.total_distance_miles ? parseFloat(formData.total_distance_miles) : undefined,
         estimated_duration_minutes: formData.estimated_duration_minutes ? parseInt(formData.estimated_duration_minutes) : undefined,
         service_pattern: formData.service_pattern,
-        operates_monday: formData.operates_monday,
-        operates_tuesday: formData.operates_tuesday,
-        operates_wednesday: formData.operates_wednesday,
-        operates_thursday: formData.operates_thursday,
-        operates_friday: formData.operates_friday,
-        operates_saturday: formData.operates_saturday,
-        operates_sunday: formData.operates_sunday,
-        status: formData.status,
+        operating_days: {
+          monday: formData.operates_monday,
+          tuesday: formData.operates_tuesday,
+          wednesday: formData.operates_wednesday,
+          thursday: formData.operates_thursday,
+          friday: formData.operates_friday,
+          saturday: formData.operates_saturday,
+          sunday: formData.operates_sunday
+        },
         start_date: formData.start_date || undefined,
         end_date: formData.end_date || undefined
       };
