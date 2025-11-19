@@ -23,7 +23,7 @@ export default function BusTimetablesPage() {
       setLoading(true);
       setError(null);
       const [routesData, todaysData, allData] = await Promise.all([
-        busRoutesApi.getRoutes(tenant.tenant_id, { status: 'active' }),
+        busRoutesApi.getRoutes(tenant.tenant_id, {}),
         busTimetablesApi.getTodaysServices(tenant.tenant_id),
         busTimetablesApi.getTimetables(tenant.tenant_id, {})
       ]);
