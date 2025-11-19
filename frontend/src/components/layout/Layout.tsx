@@ -85,7 +85,6 @@ function Layout() {
             {activeService === 'bus' && (
               /* Bus-specific modules */
               <>
-                <NavItem to="/bus/book" label="📍 Book Now" icon="ticket" active={location.pathname === '/bus/book'} />
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/roster" label="Driver Roster" icon="user-check" active={location.pathname === '/bus/roster'} />

@@ -701,8 +701,63 @@ function DashboardPage() {
       {dashboard && (
         <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '16px', marginBottom: '16px' }}>
 
-          {/* ========== LEFT COLUMN: Alerts, Quick Actions, Today's Data ========== */}
+          {/* ========== LEFT COLUMN: Quick Actions, Alerts, Today's Data ========== */}
           <div>
+            {/* Quick Actions - Compact */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Quick Actions</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <button
+                  onClick={() => navigate('/schedules')}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Schedule Trip
+                </button>
+                <button
+                  onClick={() => setShowIncidentModal(true)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Log Incident
+                </button>
+                <button
+                  onClick={() => setShowSafeguardingModal(true)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    color: '#0f172a',
+                    fontWeight: 500
+                  }}
+                >
+                  Safeguarding
+                </button>
+              </div>
+            </div>
+
             {/* Active Alerts - Always visible */}
             <div style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
@@ -762,61 +817,6 @@ function DashboardPage() {
                   })}
                 </div>
               )}
-            </div>
-
-            {/* Quick Actions - Compact */}
-            <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Quick Actions</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                <button
-                  onClick={() => navigate('/schedules')}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    textAlign: 'center',
-                    color: '#0f172a',
-                    fontWeight: 500
-                  }}
-                >
-                  Schedule Trip
-                </button>
-                <button
-                  onClick={() => setShowIncidentModal(true)}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    textAlign: 'center',
-                    color: '#0f172a',
-                    fontWeight: 500
-                  }}
-                >
-                  Log Incident
-                </button>
-                <button
-                  onClick={() => setShowSafeguardingModal(true)}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    textAlign: 'center',
-                    color: '#0f172a',
-                    fontWeight: 500
-                  }}
-                >
-                  Safeguarding
-                </button>
-              </div>
             </div>
 
             {/* Today's Journeys - Compact */}
