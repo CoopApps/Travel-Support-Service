@@ -254,9 +254,9 @@ router.post(
       });
 
       return res.status(201).json(result);
-    } catch (error) {
-      logger.error('Failed to create bus route', { tenantId, error });
-      return res.status(500).json({ error: 'Internal server error' });
+    } catch (error: any) {
+      logger.error('Failed to create bus route', { tenantId, error: error.message, stack: error.stack });
+      return res.status(500).json({ error: error.message || 'Internal server error' });
     }
   }
 );
