@@ -221,6 +221,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
           saturday: formData.operates_saturday,
           sunday: formData.operates_sunday
         },
+        status: formData.status,
         start_date: formData.start_date || undefined,
         end_date: formData.end_date || undefined
       };
