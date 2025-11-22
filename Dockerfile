@@ -1,64 +1,39 @@
 # Use Node with Puppeteer support (Chromium pre-installed)
 FROM ghcr.io/puppeteer/puppeteer:24.6.0 AS builder
 
-# Set working directory
 WORKDIR /app
-
-# Switch to root for installations
 USER root
 
-# Reduce memory usage during npm install
-ENV NODE_OPTIONS="--max-old-space-size=2048"
-ENV npm_config_jobs=2
+# Reduce memory usage
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 
-# Copy package files
-COPY package*.json ./
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
-
-# Install dependencies with reduced parallelism to save memory
-RUN npm install --legacy-peer-deps --no-audit --no-fund
-
-# Copy source code
+# Copy ALL files first (simpler approach)
 COPY . .
 
-# Build backend
-RUN npm run build --workspace=backend
+# Install and build in one layer
+RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund && npm run build
+RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund && npm run build
 
-# Build frontend with memory limit
-RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build --workspace=frontend
+# Copy frontend to backend public
+RUN mkdir -p backend/dist/public && cp -r frontend/dist/* backend/dist/public/
 
-# Copy frontend dist to backend public folder
-RUN mkdir -p backend/dist/public && \
-    cp -r frontend/dist/* backend/dist/public/
-
-# Production stage - smaller image
+# Production stage
 FROM ghcr.io/puppeteer/puppeteer:24.6.0
 
-WORKDIR /app
-
+WORKDIR /app/backend
 USER root
 
-# Copy package files
-COPY package*.json ./
-COPY backend/package*.json ./backend/
+# Copy backend package.json and install prod deps
+COPY backend/package*.json ./
+RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
 
-# Install production dependencies only
-RUN npm install --workspace=backend --omit=dev --legacy-peer-deps --no-audit --no-fund
+# Copy built files
+COPY --from=builder /app/backend/dist ./dist
 
-# Copy built files from builder
-COPY --from=builder /app/backend/dist ./backend/dist
-
-# Set environment
 ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Switch back to pptruser for security
 USER pptruser
-
-WORKDIR /app/backend
-
 EXPOSE 3000
-
 CMD ["node", "dist/server.js"]
