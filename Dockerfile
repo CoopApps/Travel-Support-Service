@@ -1,27 +1,49 @@
-# Use Node with Puppeteer support (Chromium pre-installed)
-FROM ghcr.io/puppeteer/puppeteer:24.6.0 AS builder
+# Build stage - use lightweight Node image
+FROM node:22-slim AS builder
 
 WORKDIR /app
-USER root
 
-# Reduce memory usage
-ENV NODE_OPTIONS="--max-old-space-size=1536"
+# Copy and build backend
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
+COPY backend ./backend
+RUN cd backend && npm run build
 
-# Copy ALL files first (simpler approach)
-COPY . .
-
-# Install and build in one layer
-RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund && npm run build
-RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund && npm run build
+# Copy and build frontend
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
+COPY frontend ./frontend
+RUN cd frontend && npm run build
 
 # Copy frontend to backend public
 RUN mkdir -p backend/dist/public && cp -r frontend/dist/* backend/dist/public/
 
-# Production stage
-FROM ghcr.io/puppeteer/puppeteer:24.6.0
+# Production stage - use Puppeteer image for Chromium
+FROM node:22-slim
+
+# Install Chromium dependencies
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/backend
-USER root
 
 # Copy backend package.json and install prod deps
 COPY backend/package*.json ./
@@ -34,6 +56,5 @@ ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-USER pptruser
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
