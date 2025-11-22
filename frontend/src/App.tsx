@@ -41,9 +41,10 @@ import BusTimetablesPage from './components/bus/BusTimetablesPage';
 import BusBookingsPage from './components/bus/BusBookingsPage';
 import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
+import RegularPassengersPage from './components/bus/RegularPassengersPage';
+import TodaysOperationsPage from './components/bus/TodaysOperationsPage';
 // BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
-import BusDriverRosterPage from './components/bus/BusDriverRosterPage';
 import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
 import CooperativeMembersPage from './components/bus/CooperativeMembersPage';
 import QuickBookPage from './components/bus/QuickBookPage';
@@ -52,6 +53,7 @@ import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 import RouteOptimizationAnalytics from './components/analytics/RouteOptimizationAnalytics';
 import RosterOptimizationDashboard from './components/roster/RosterOptimizationDashboard';
+import UnifiedRosterPage from './components/roster/UnifiedRosterPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -190,6 +192,9 @@ function App() {
         <Route path="operations/route-optimization" element={<RouteOptimizationAnalytics />} />
         <Route path="operations/roster-optimization" element={<RosterOptimizationDashboard />} />
 
+        {/* Unified Driver Roster - adapts based on active services */}
+        <Route path="roster" element={<UnifiedRosterPage />} />
+
         {/* Compliance Routes */}
         <Route path="compliance/alerts" element={<ComplianceAlertsPage />} />
         <Route path="compliance/service-registrations" element={<ServiceRegistrationsPage />} />
@@ -197,12 +202,14 @@ function App() {
         <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
 
         {/* Bus Service Routes - bus-specific modules only */}
+        <Route path="bus/operations" element={<TodaysOperationsPage />} />
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
-        <Route path="bus/roster" element={<BusDriverRosterPage />} />
+        <Route path="bus/roster" element={<Navigate to="/roster" replace />} />
         <Route path="bus/book" element={<QuickBookPage />} />
         <Route path="bus/bookings" element={<BusBookingsPage />} />
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
+        <Route path="bus/regular-passengers" element={<RegularPassengersPage />} />
         <Route path="bus/communications" element={<CustomerMessagesPage />} />
         <Route path="bus/analytics" element={<BusAnalyticsPage />} />
         <Route path="bus/surplus-pool" element={<SurplusPoolDashboard />} />

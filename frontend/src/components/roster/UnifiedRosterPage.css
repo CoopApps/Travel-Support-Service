@@ -1,0 +1,589 @@
+/* Unified Roster Page */
+.unified-roster-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.unified-roster-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.unified-roster-page .header-content h1 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.unified-roster-page .page-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.unified-roster-page .header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.view-toggle button {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle button:hover {
+  color: #374151;
+}
+
+.view-toggle button.active {
+  background: white;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #dc2626;
+}
+
+.error-banner button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.error-banner button:hover {
+  background: #b91c1c;
+}
+
+/* Navigation Bar */
+.roster-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.today-btn {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.today-btn:hover {
+  background: #f9fafb;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.date-display {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  padding: 0 8px;
+  min-width: 200px;
+}
+
+.date-picker {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.date-picker:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Filters */
+.roster-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 240px;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.driver-filter {
+  padding: 8px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.driver-filter:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Summary Stats */
+.roster-summary {
+  display: flex;
+  gap: 24px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.roster-summary .stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.roster-summary .stat svg {
+  color: #9ca3af;
+}
+
+.roster-summary .stat.transport .service-dot,
+.roster-summary .stat.bus .service-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.roster-summary .stat.transport .service-dot {
+  background: #8b5cf6;
+}
+
+.roster-summary .stat.bus .service-dot {
+  background: #3b82f6;
+}
+
+/* Loading & Empty States */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #6b7280;
+}
+
+.loading-state .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state h2 {
+  margin: 16px 0 8px;
+  font-size: 20px;
+  color: #374151;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Roster Grid */
+.roster-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Driver Row */
+.driver-row {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+  min-width: 200px;
+}
+
+.driver-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.driver-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.driver-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.driver-meta {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Driver Assignments */
+.driver-assignments {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Assignment Card */
+.assignment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  min-width: 200px;
+  max-width: 280px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.assignment-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Service Type Cards */
+.assignment-card.transport {
+  border-left: 4px solid #8b5cf6;
+}
+
+.assignment-card.bus {
+  border-left: 4px solid #3b82f6;
+}
+
+/* Status Variants */
+.assignment-card.in_progress {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.assignment-card.completed {
+  opacity: 0.6;
+}
+
+.assignment-card.cancelled {
+  opacity: 0.5;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* Service Badge */
+.service-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.service-badge.transport {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.service-badge.bus {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Assignment Time */
+.assignment-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.assignment-time svg {
+  color: #9ca3af;
+}
+
+.time-separator {
+  color: #9ca3af;
+}
+
+/* Assignment Date (Week View) */
+.assignment-date {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* Assignment Title */
+.assignment-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.assignment-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.assignment-vehicle {
+  font-size: 12px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Assignment Route (for Transport) */
+.assignment-route {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.assignment-route .from,
+.assignment-route .to {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assignment-route .arrow {
+  color: #9ca3af;
+}
+
+/* Unassigned Section */
+.unassigned-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.unassigned-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.unassigned-drivers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.unassigned-driver {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.unassigned-driver svg {
+  color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .roster-nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .roster-filters {
+    justify-content: center;
+  }
+
+  .search-input {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .unified-roster-page {
+    padding: 16px;
+  }
+
+  .unified-roster-page .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .roster-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .driver-row {
+    flex-direction: column;
+  }
+
+  .driver-info {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    min-width: auto;
+  }
+
+  .driver-assignments {
+    flex-direction: column;
+  }
+
+  .assignment-card {
+    max-width: none;
+    width: 100%;
+  }
+
+  .date-display {
+    min-width: auto;
+    text-align: center;
+    width: 100%;
+    padding: 8px 0;
+  }
+}

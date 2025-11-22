@@ -6,6 +6,7 @@ import { customerDashboardApi } from '../services/customerDashboardApi';
 import CustomerMessagesModal from '../components/customer/CustomerMessagesModal';
 import SocialOutingsModal from '../components/customer/SocialOutingsModal';
 import CustomerFeedbackModal from '../components/customer/CustomerFeedbackModal';
+import CustomerBusServicesModal from '../components/customer/CustomerBusServicesModal';
 import CooperativeMemberWidget from '../components/dashboard/CooperativeMemberWidget';
 import MemberDividendHistory from '../components/dividends/MemberDividendHistory';
 import './CustomerDashboard.css';
@@ -41,6 +42,7 @@ function CustomerDashboard() {
   const [showSocialOutingsModal, setShowSocialOutingsModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showDividendHistoryModal, setShowDividendHistoryModal] = useState(false);
+  const [showBusServicesModal, setShowBusServicesModal] = useState(false);
 
   // Journey request form
   const [destination, setDestination] = useState('');
@@ -380,6 +382,15 @@ function CustomerDashboard() {
             </svg>
             My Dividends
           </button>
+          <button className="quick-action-btn" onClick={() => setShowBusServicesModal(true)}>
+            <svg viewBox="0 0 24 24" style={{ width: '18px', height: '18px', stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <circle cx="7" cy="16" r="2" />
+              <circle cx="17" cy="16" r="2" />
+              <path d="M5 10h14" />
+            </svg>
+            Bus Services
+          </button>
         </div>
       </div>
 
@@ -573,6 +584,15 @@ function CustomerDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Bus Services Modal */}
+      {showBusServicesModal && (
+        <CustomerBusServicesModal
+          tenantId={tenantId!}
+          customerId={customerId}
+          onClose={() => setShowBusServicesModal(false)}
+        />
       )}
     </div>
   );

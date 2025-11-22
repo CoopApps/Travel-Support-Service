@@ -85,11 +85,12 @@ function Layout() {
             {activeService === 'bus' && (
               /* Bus-specific modules */
               <>
+                <NavItem to="/bus/operations" label="Today's Operations" icon="activity" active={location.pathname === '/bus/operations'} />
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
-                <NavItem to="/bus/roster" label="Driver Roster" icon="user-check" active={location.pathname === '/bus/roster'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
                 <NavItem to="/bus/seats" label="Seat Assignment" icon="grid" active={location.pathname === '/bus/seats'} />
+                <NavItem to="/bus/regular-passengers" label="Regular Passengers" icon="users" active={location.pathname === '/bus/regular-passengers'} />
                 <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
                 <NavItem to="/bus/surplus-pool" label="Surplus Pool" icon="piggy-bank" active={location.pathname === '/bus/surplus-pool'} />
                 <NavItem to="/bus/members" label="Cooperative Members" icon="users" active={location.pathname === '/bus/members'} />
@@ -109,6 +110,7 @@ function Layout() {
 
           <div className="nav-section">
             <div className="nav-section-label">Operations</div>
+            <NavItem to="/roster" label="Driver Roster" icon="user-check" active={location.pathname === '/roster'} />
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
             <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />

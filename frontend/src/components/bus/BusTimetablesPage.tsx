@@ -4,6 +4,7 @@ import { vehicleApi, driverApi } from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon, UserIcon, BusIcon, CalendarIcon } from '../icons/BusIcons';
 import TimetableFormModal from './TimetableFormModal';
+import SeatAssignmentModal from './SeatAssignmentModal';
 import './BusTimetablesPage.css';
 
 interface Vehicle {
@@ -38,6 +39,7 @@ interface ContextMenuState {
   x: number;
   y: number;
   timetable: BusTimetable | null;
+  serviceDate: string;
   showVehicleSubmenu: boolean;
   showDriverSubmenu: boolean;
   driverAvailability: DriverAvailability[];
@@ -72,6 +74,7 @@ export default function BusTimetablesPage() {
     x: 0,
     y: 0,
     timetable: null,
+    serviceDate: '',
     showVehicleSubmenu: false,
     showDriverSubmenu: false,
     driverAvailability: [],
@@ -82,6 +85,11 @@ export default function BusTimetablesPage() {
     route: null
   });
   const [prefilledData, setPrefilledData] = useState<any>(null);
+  const [seatAssignment, setSeatAssignment] = useState<{
+    isOpen: boolean;
+    timetable: BusTimetable | null;
+    serviceDate: string;
+  }>({ isOpen: false, timetable: null, serviceDate: '' });
 
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
@@ -250,6 +258,20 @@ export default function BusTimetablesPage() {
     setPrefilledData(null);
   };
 
+  // Open seat assignment modal for a specific service on a specific date
+  const handleOpenSeatAssignment = (timetable: BusTimetable, date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setSeatAssignment({
+      isOpen: true,
+      timetable,
+      serviceDate: dateStr
+    });
+  };
+
+  const handleCloseSeatAssignment = () => {
+    setSeatAssignment({ isOpen: false, timetable: null, serviceDate: '' });
+  };
+
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeekStart(prev => {
       const newDate = new Date(prev);
@@ -379,13 +401,19 @@ export default function BusTimetablesPage() {
   };
 
   // Context menu handlers
-  const handleContextMenu = (e: React.MouseEvent, timetable: BusTimetable) => {
+  const handleContextMenu = (e: React.MouseEvent, timetable: BusTimetable, date?: Date) => {
     e.preventDefault();
+    const serviceDate = date ? date.toISOString().split('T')[0] : timetable.valid_from.split('T')[0];
     setContextMenu({
       visible: true,
       x: e.clientX,
       y: e.clientY,
-      timetable
+      timetable,
+      serviceDate,
+      showVehicleSubmenu: false,
+      showDriverSubmenu: false,
+      driverAvailability: [],
+      loadingDrivers: false
     });
   };
 
@@ -618,9 +646,9 @@ export default function BusTimetablesPage() {
                               <div
                                 key={service.timetable_id}
                                 className={`service-chip ${getStatusClass(service.status)}`}
-                                onClick={() => handleEditTimetable(service)}
-                                onContextMenu={(e) => handleContextMenu(e, service)}
-                                title={`${service.service_name}\nRight-click for options`}
+                                onClick={() => handleOpenSeatAssignment(service, date)}
+                                onContextMenu={(e) => handleContextMenu(e, service, date)}
+                                title={`${service.service_name}\nClick for seat assignment\nRight-click for options`}
                               >
                                 <div className="chip-route">{service.route_number}</div>
                                 <div className="chip-time">{formatTime(service.departure_time)}</div>
@@ -703,6 +731,9 @@ export default function BusTimetablesPage() {
                         )}
                       </div>
                       <div className="timetable-actions">
+                        <button className="btn-primary" onClick={() => handleOpenSeatAssignment(timetable, new Date(timetable.valid_from))}>
+                          Seats
+                        </button>
                         <button className="btn-secondary" onClick={() => handleEditTimetable(timetable)}>
                           Edit
                         </button>
@@ -805,6 +836,14 @@ export default function BusTimetablesPage() {
               </div>
             )}
           </div>
+          <button className="context-menu-item" onClick={() => {
+            if (contextMenu.timetable) {
+              handleOpenSeatAssignment(contextMenu.timetable, new Date(contextMenu.serviceDate));
+            }
+            setContextMenu(prev => ({ ...prev, visible: false }));
+          }}>
+            <SeatIcon size={16} /> Seat Assignment
+          </button>
           <button className="context-menu-item" onClick={handleCreateReturn}>
             <ArrowLeftIcon size={16} /> Create Return Journey
           </button>
@@ -836,6 +875,13 @@ export default function BusTimetablesPage() {
         vehicles={vehicles}
         drivers={drivers}
         prefilled={prefilledData}
+      />
+
+      <SeatAssignmentModal
+        isOpen={seatAssignment.isOpen}
+        onClose={handleCloseSeatAssignment}
+        timetable={seatAssignment.timetable}
+        serviceDate={seatAssignment.serviceDate}
       />
     </div>
   );

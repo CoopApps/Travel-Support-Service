@@ -4,7 +4,7 @@ import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
 import FareTransparencyCard from './FareTransparencyCard';
 import { DynamicFareStructure } from '../../types/fare.types';
-import { WarningIcon, WheelchairIcon, EyeIcon, EditIcon, BanIcon, ArrowDownIcon } from '../icons/BusIcons';
+import { WarningIcon, WheelchairIcon, EyeIcon, EditIcon, BanIcon, ArrowDownIcon, TicketIcon } from '../icons/BusIcons';
 import './BusBookingsPage.css';
 
 interface BookingFormData {

@@ -1,0 +1,547 @@
+/* Today's Operations Page */
+.todays-operations-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.todays-operations-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.todays-operations-page .header-content h1 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.todays-operations-page .page-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.todays-operations-page .header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.date-picker {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.date-picker:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-secondary {
+  padding: 10px 16px;
+  background: white;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+}
+
+/* Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #dc2626;
+}
+
+.error-banner button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.card-icon.services {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.card-icon.passengers {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.card-icon.drivers {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.card-icon.wheelchair {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.card-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Alerts Section */
+.alerts-section {
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.alerts-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.alert-item.error {
+  border-left: 3px solid #dc2626;
+}
+
+.alert-item.warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.alert-item.info {
+  border-left: 3px solid #3b82f6;
+}
+
+.alert-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.alert-item.error .alert-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alert-item.warning .alert-icon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.alert-item.info .alert-icon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.alert-message {
+  flex: 1;
+  color: #374151;
+}
+
+/* Loading & Empty States */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #6b7280;
+}
+
+.loading-state .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state h2 {
+  margin: 16px 0 8px;
+  font-size: 20px;
+  color: #374151;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Services List */
+.services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Service Card */
+.service-card {
+  display: flex;
+  align-items: stretch;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.service-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.service-card.completed {
+  opacity: 0.7;
+}
+
+.service-card.cancelled {
+  opacity: 0.5;
+  background: #fef2f2;
+}
+
+/* Time Badge */
+.service-time-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+  min-width: 120px;
+}
+
+.service-time-badge .time {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.status-indicator {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.status-indicator.scheduled {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-indicator.in-progress {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-indicator.completed {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.status-indicator.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Service Main */
+.service-main {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.service-header .route-badge {
+  background: #3b82f6;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.service-header .service-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #111827;
+}
+
+.service-header .route-terminus {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Service Details */
+.service-details {
+  display: flex;
+  gap: 32px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.detail-value.unassigned {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.detail-value.passengers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-value.passengers span {
+  font-weight: 600;
+}
+
+/* Passenger Preview */
+.passenger-preview {
+  padding-top: 8px;
+}
+
+.preview-avatars {
+  display: flex;
+  margin-left: 8px;
+}
+
+.preview-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #10b981;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: -8px;
+  border: 2px solid white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.preview-avatar.wheelchair {
+  background: #3b82f6;
+}
+
+.preview-avatar.regular {
+  background: #8b5cf6;
+}
+
+.preview-avatar.more {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+/* Service Actions */
+.service-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-left: 1px solid #e5e7eb;
+  background: #f9fafb;
+  justify-content: center;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-action:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.btn-action.btn-cancel {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-action.btn-cancel:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .todays-operations-page {
+    padding: 16px;
+  }
+
+  .todays-operations-page .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card {
+    flex-direction: column;
+  }
+
+  .service-time-badge {
+    flex-direction: row;
+    justify-content: space-between;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    min-width: auto;
+    padding: 12px 16px;
+  }
+
+  .service-details {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .service-actions {
+    flex-direction: row;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-start;
+  }
+}

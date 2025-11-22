@@ -748,4 +748,399 @@ router.patch(
   }
 );
 
+// ==================================================================================
+// GET /tenants/:tenantId/bus/roster
+// Get driver roster entries for a date range (all scheduled services with drivers)
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/roster',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+    const { start_date, end_date, driver_id } = req.query;
+
+    try {
+      let sql = `
+        SELECT
+          t.timetable_id,
+          $2::date as roster_date,
+          t.driver_id,
+          d.name as driver_name,
+          d.first_name as driver_first_name,
+          d.last_name as driver_last_name,
+          t.departure_time,
+          t.service_name,
+          r.route_number,
+          r.route_name,
+          v.registration as vehicle_registration,
+          t.status,
+          (
+            SELECT COUNT(*) FROM section22_bus_bookings b
+            WHERE b.timetable_id = t.timetable_id
+            AND b.service_date = $2::date
+            AND b.booking_status = 'confirmed'
+          ) as passenger_count
+        FROM section22_timetables t
+        JOIN section22_bus_routes r ON t.route_id = r.route_id
+        LEFT JOIN tenant_drivers d ON t.driver_id = d.driver_id
+        LEFT JOIN tenant_vehicles v ON t.vehicle_id = v.vehicle_id
+        WHERE t.tenant_id = $1
+          AND t.driver_id IS NOT NULL
+          AND t.status IN ('scheduled', 'active')
+          AND t.valid_from <= $2::date
+          AND (t.valid_until IS NULL OR t.valid_until >= $2::date)
+      `;
+
+      // Use start_date if provided, else use today
+      const queryDate = start_date || new Date().toISOString().split('T')[0];
+      const params: any[] = [tenantId, queryDate];
+      let paramIndex = 3;
+
+      if (driver_id) {
+        sql += ` AND t.driver_id = $${paramIndex}`;
+        params.push(driver_id);
+        paramIndex++;
+      }
+
+      sql += ` ORDER BY t.departure_time`;
+
+      // If date range is provided, we need to generate entries for each date
+      if (start_date && end_date) {
+        // Build a more complex query that generates a row for each date
+        sql = `
+          WITH date_range AS (
+            SELECT generate_series($2::date, $3::date, '1 day'::interval)::date as roster_date
+          )
+          SELECT
+            t.timetable_id,
+            dr.roster_date,
+            t.driver_id,
+            d.name as driver_name,
+            d.first_name as driver_first_name,
+            d.last_name as driver_last_name,
+            t.departure_time,
+            t.service_name,
+            r.route_number,
+            r.route_name,
+            v.registration as vehicle_registration,
+            t.status,
+            (
+              SELECT COUNT(*) FROM section22_bus_bookings b
+              WHERE b.timetable_id = t.timetable_id
+              AND b.service_date = dr.roster_date
+              AND b.booking_status = 'confirmed'
+            ) as passenger_count
+          FROM date_range dr
+          CROSS JOIN section22_timetables t
+          JOIN section22_bus_routes r ON t.route_id = r.route_id
+          LEFT JOIN tenant_drivers d ON t.driver_id = d.driver_id
+          LEFT JOIN tenant_vehicles v ON t.vehicle_id = v.vehicle_id
+          LEFT JOIN section22_service_cancellations sc
+            ON sc.timetable_id = t.timetable_id
+            AND sc.service_date = dr.roster_date
+          WHERE t.tenant_id = $1
+            AND t.driver_id IS NOT NULL
+            AND t.status IN ('scheduled', 'active')
+            AND t.valid_from <= dr.roster_date
+            AND (t.valid_until IS NULL OR t.valid_until >= dr.roster_date)
+            AND sc.cancellation_id IS NULL
+        `;
+
+        params.length = 0;
+        params.push(tenantId, start_date, end_date);
+        paramIndex = 4;
+
+        if (driver_id) {
+          sql += ` AND t.driver_id = $${paramIndex}`;
+          params.push(driver_id);
+          paramIndex++;
+        }
+
+        // Filter by day of week based on route operating days
+        sql += `
+            AND (
+              (EXTRACT(DOW FROM dr.roster_date) = 0 AND r.operates_sunday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 1 AND r.operates_monday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 2 AND r.operates_tuesday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 3 AND r.operates_wednesday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 4 AND r.operates_thursday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 5 AND r.operates_friday = true) OR
+              (EXTRACT(DOW FROM dr.roster_date) = 6 AND r.operates_saturday = true)
+            )
+          ORDER BY dr.roster_date, t.departure_time
+        `;
+      }
+
+      const roster = await query(sql, params);
+
+      logger.info('Bus roster fetched', {
+        tenantId,
+        dateRange: { start_date, end_date },
+        driverId: driver_id,
+        count: roster.length
+      });
+
+      return res.json(roster);
+    } catch (error) {
+      logger.error('Failed to fetch bus roster', { tenantId, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
+// GET /tenants/:tenantId/bus/service-cancellations
+// Get all service cancellations for a date range
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/service-cancellations',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+    const { start_date, end_date, timetable_id } = req.query;
+
+    try {
+      let sql = `
+        SELECT
+          sc.cancellation_id,
+          sc.timetable_id,
+          sc.service_date,
+          sc.reason,
+          sc.cancelled_by,
+          sc.notify_passengers,
+          sc.notification_sent,
+          sc.created_at,
+          t.service_name,
+          t.departure_time,
+          r.route_number,
+          r.route_name,
+          u.first_name || ' ' || u.last_name as cancelled_by_name
+        FROM section22_service_cancellations sc
+        JOIN section22_timetables t ON sc.timetable_id = t.timetable_id
+        JOIN section22_bus_routes r ON t.route_id = r.route_id
+        LEFT JOIN users u ON sc.cancelled_by = u.user_id
+        WHERE sc.tenant_id = $1
+      `;
+
+      const params: any[] = [tenantId];
+      let paramIndex = 2;
+
+      if (start_date) {
+        sql += ` AND sc.service_date >= $${paramIndex}`;
+        params.push(start_date);
+        paramIndex++;
+      }
+
+      if (end_date) {
+        sql += ` AND sc.service_date <= $${paramIndex}`;
+        params.push(end_date);
+        paramIndex++;
+      }
+
+      if (timetable_id) {
+        sql += ` AND sc.timetable_id = $${paramIndex}`;
+        params.push(timetable_id);
+        paramIndex++;
+      }
+
+      sql += ` ORDER BY sc.service_date DESC, t.departure_time`;
+
+      const cancellations = await query(sql, params);
+
+      logger.info('Service cancellations fetched', {
+        tenantId,
+        count: cancellations.length,
+        filters: { start_date, end_date, timetable_id }
+      });
+
+      return res.json(cancellations);
+    } catch (error) {
+      logger.error('Failed to fetch cancellations', { tenantId, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
+// POST /tenants/:tenantId/bus/timetables/:timetableId/cancel
+// Cancel a service for a specific date
+// ==================================================================================
+router.post(
+  '/tenants/:tenantId/bus/timetables/:timetableId/cancel',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, timetableId } = req.params;
+    const { service_date, reason, notify_passengers } = req.body;
+
+    if (!service_date) {
+      return res.status(400).json({ error: 'service_date is required' });
+    }
+
+    try {
+      // Check timetable exists
+      const timetable = await queryOne(
+        `SELECT t.*, r.route_number, r.route_name
+         FROM section22_timetables t
+         JOIN section22_bus_routes r ON t.route_id = r.route_id
+         WHERE t.tenant_id = $1 AND t.timetable_id = $2`,
+        [tenantId, timetableId]
+      );
+
+      if (!timetable) {
+        return res.status(404).json({ error: 'Timetable not found' });
+      }
+
+      // Check if already cancelled
+      const existing = await queryOne(
+        `SELECT cancellation_id FROM section22_service_cancellations
+         WHERE tenant_id = $1 AND timetable_id = $2 AND service_date = $3`,
+        [tenantId, timetableId, service_date]
+      );
+
+      if (existing) {
+        return res.status(400).json({ error: 'Service is already cancelled for this date' });
+      }
+
+      // Create cancellation record
+      const result = await queryOne(
+        `INSERT INTO section22_service_cancellations (
+          tenant_id,
+          timetable_id,
+          service_date,
+          reason,
+          cancelled_by,
+          notify_passengers
+         ) VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING *`,
+        [
+          tenantId,
+          timetableId,
+          service_date,
+          reason || 'Service cancelled',
+          req.user?.userId || null,
+          notify_passengers || false
+        ]
+      );
+
+      // Get affected passengers for notification/response
+      let affectedPassengers: any[] = [];
+      try {
+        affectedPassengers = await query(
+          `SELECT DISTINCT c.customer_id, c.first_name, c.last_name, c.phone, c.email
+           FROM (
+             SELECT customer_id FROM section22_bus_bookings
+             WHERE timetable_id = $1 AND service_date = $2 AND booking_status = 'confirmed'
+             UNION
+             SELECT customer_id FROM section22_regular_passengers
+             WHERE timetable_id = $1 AND status = 'active'
+             AND valid_from <= $2 AND (valid_until IS NULL OR valid_until >= $2)
+           ) AS passengers
+           JOIN tenant_customers c ON passengers.customer_id = c.customer_id`,
+          [timetableId, service_date]
+        );
+      } catch {
+        // Tables might not exist yet
+      }
+
+      // TODO: If notify_passengers is true, send notifications here
+      // This would integrate with the messaging system
+
+      logger.info('Service cancelled', {
+        tenantId,
+        timetableId,
+        serviceDate: service_date,
+        reason,
+        affectedPassengers: affectedPassengers.length,
+        userId: req.user?.userId
+      });
+
+      return res.status(201).json({
+        ...result,
+        service_name: timetable.service_name,
+        route_number: timetable.route_number,
+        departure_time: timetable.departure_time,
+        affected_passengers: affectedPassengers.length,
+        passengers: affectedPassengers
+      });
+    } catch (error) {
+      logger.error('Failed to cancel service', { tenantId, timetableId, service_date, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
+// DELETE /tenants/:tenantId/bus/service-cancellations/:cancellationId
+// Remove a cancellation (reinstate service)
+// ==================================================================================
+router.delete(
+  '/tenants/:tenantId/bus/service-cancellations/:cancellationId',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, cancellationId } = req.params;
+
+    try {
+      const result = await queryOne(
+        `DELETE FROM section22_service_cancellations
+         WHERE tenant_id = $1 AND cancellation_id = $2
+         RETURNING *`,
+        [tenantId, cancellationId]
+      );
+
+      if (!result) {
+        return res.status(404).json({ error: 'Cancellation not found' });
+      }
+
+      logger.info('Service cancellation removed', {
+        tenantId,
+        cancellationId,
+        timetableId: result.timetable_id,
+        serviceDate: result.service_date,
+        userId: req.user?.userId
+      });
+
+      return res.json({
+        message: 'Service reinstated successfully',
+        cancellation: result
+      });
+    } catch (error) {
+      logger.error('Failed to remove cancellation', { tenantId, cancellationId, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
+// GET /tenants/:tenantId/bus/timetables/:timetableId/is-cancelled
+// Check if a service is cancelled for a specific date
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/timetables/:timetableId/is-cancelled',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, timetableId } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date query parameter is required' });
+    }
+
+    try {
+      const cancellation = await queryOne(
+        `SELECT * FROM section22_service_cancellations
+         WHERE tenant_id = $1 AND timetable_id = $2 AND service_date = $3`,
+        [tenantId, timetableId, date]
+      );
+
+      return res.json({
+        cancelled: !!cancellation,
+        cancellation
+      });
+    } catch (error) {
+      logger.error('Failed to check cancellation', { tenantId, timetableId, date, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
 export default router;
