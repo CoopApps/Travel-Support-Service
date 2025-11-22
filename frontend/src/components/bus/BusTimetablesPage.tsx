@@ -745,7 +745,7 @@ export default function BusTimetablesPage() {
             className="context-menu-item has-submenu"
             onMouseEnter={() => {
               setContextMenu(prev => ({ ...prev, showDriverSubmenu: true }));
-              if (contextMenu.timetable && contextMenu.driverAvailability.length === 0) {
+              if (contextMenu.timetable && (!contextMenu.driverAvailability || contextMenu.driverAvailability.length === 0)) {
                 fetchDriverAvailability(contextMenu.timetable);
               }
             }}
@@ -765,7 +765,7 @@ export default function BusTimetablesPage() {
                   <div className="context-menu-item" style={{ color: '#9ca3af', fontStyle: 'italic' }}>
                     Loading availability...
                   </div>
-                ) : contextMenu.driverAvailability.length > 0 ? (
+                ) : contextMenu.driverAvailability && contextMenu.driverAvailability.length > 0 ? (
                   contextMenu.driverAvailability.map(driver => (
                     <button
                       key={driver.driver_id}
