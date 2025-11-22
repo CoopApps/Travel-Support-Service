@@ -13,6 +13,14 @@ interface Vehicle {
   is_active: boolean;
 }
 
+interface Driver {
+  driver_id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  status: string;
+}
+
 interface TimetableFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +28,7 @@ interface TimetableFormModalProps {
   timetable?: BusTimetable | null;
   routes: BusRoute[];
   vehicles?: Vehicle[];
+  drivers?: Driver[];
   prefilled?: any;
 }
 
@@ -34,6 +43,7 @@ interface FormData {
   wheelchair_spaces: string;
   status: 'scheduled' | 'active' | 'cancelled' | 'completed';
   vehicle_id: string;
+  driver_id: string;
 }
 
 const initialFormData: FormData = {
@@ -46,7 +56,8 @@ const initialFormData: FormData = {
   total_seats: '16',
   wheelchair_spaces: '2',
   status: 'scheduled',
-  vehicle_id: ''
+  vehicle_id: '',
+  driver_id: ''
 };
 
 export default function TimetableFormModal({
@@ -56,6 +67,7 @@ export default function TimetableFormModal({
   timetable,
   routes,
   vehicles = [],
+  drivers = [],
   prefilled
 }: TimetableFormModalProps) {
   const { tenant } = useTenant();
@@ -77,7 +89,8 @@ export default function TimetableFormModal({
         total_seats: timetable.total_seats?.toString() || '16',
         wheelchair_spaces: timetable.wheelchair_spaces?.toString() || '2',
         status: timetable.status || 'scheduled',
-        vehicle_id: timetable.vehicle_id?.toString() || ''
+        vehicle_id: timetable.vehicle_id?.toString() || '',
+        driver_id: timetable.driver_id?.toString() || ''
       });
     } else if (prefilled) {
       setFormData({
@@ -90,7 +103,8 @@ export default function TimetableFormModal({
         total_seats: prefilled.total_seats || '16',
         wheelchair_spaces: prefilled.wheelchair_spaces || '2',
         status: prefilled.status || 'scheduled',
-        vehicle_id: prefilled.vehicle_id || ''
+        vehicle_id: prefilled.vehicle_id || '',
+        driver_id: prefilled.driver_id || ''
       });
     } else {
       setFormData(initialFormData);
@@ -149,6 +163,7 @@ export default function TimetableFormModal({
       setError(null);
 
       const selectedVehicle = formData.vehicle_id ? vehicles.find(v => v.vehicle_id === parseInt(formData.vehicle_id)) : null;
+      const selectedDriver = formData.driver_id ? drivers.find(d => d.driver_id === parseInt(formData.driver_id)) : null;
 
       const payload: any = {
         route_id: parseInt(formData.route_id),
@@ -161,7 +176,9 @@ export default function TimetableFormModal({
         wheelchair_spaces: parseInt(formData.wheelchair_spaces) || 0,
         status: formData.status,
         vehicle_id: formData.vehicle_id ? parseInt(formData.vehicle_id) : null,
-        vehicle_registration: selectedVehicle?.registration || null
+        vehicle_registration: selectedVehicle?.registration || null,
+        driver_id: formData.driver_id ? parseInt(formData.driver_id) : null,
+        driver_name: selectedDriver ? `${selectedDriver.first_name} ${selectedDriver.last_name}` : null
       };
 
       if (isEditing && timetable) {
@@ -379,6 +396,29 @@ export default function TimetableFormModal({
                   ))}
                 </select>
                 <span className="field-hint">Assign a vehicle to this service or use right-click menu later</span>
+              </div>
+            </div>
+          )}
+
+          {drivers.length > 0 && (
+            <div className="form-section">
+              <h3>Driver Assignment</h3>
+              <div className="form-group">
+                <label htmlFor="driver_id">Assign Driver</label>
+                <select
+                  id="driver_id"
+                  name="driver_id"
+                  value={formData.driver_id}
+                  onChange={handleChange}
+                >
+                  <option value="">-- No Driver Assigned --</option>
+                  {drivers.filter(d => d.status === 'active').map(driver => (
+                    <option key={driver.driver_id} value={driver.driver_id}>
+                      {driver.first_name} {driver.last_name}
+                    </option>
+                  ))}
+                </select>
+                <span className="field-hint">Assign a driver to this service or use right-click menu later</span>
               </div>
             </div>
           )}

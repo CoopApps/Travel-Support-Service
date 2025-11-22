@@ -16,12 +16,21 @@ interface Vehicle {
   is_active: boolean;
 }
 
+interface Driver {
+  driver_id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  status: string;
+}
+
 interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
   timetable: BusTimetable | null;
   showVehicleSubmenu: boolean;
+  showDriverSubmenu: boolean;
 }
 
 interface DragState {
@@ -34,6 +43,7 @@ export default function BusTimetablesPage() {
   const [timetables, setTimetables] = useState<BusTimetable[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string>('all');
@@ -51,7 +61,8 @@ export default function BusTimetablesPage() {
     x: 0,
     y: 0,
     timetable: null,
-    showVehicleSubmenu: false
+    showVehicleSubmenu: false,
+    showDriverSubmenu: false
   });
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -66,14 +77,16 @@ export default function BusTimetablesPage() {
     try {
       setLoading(true);
       setError(null);
-      const [routesData, allData, vehiclesData] = await Promise.all([
+      const [routesData, allData, vehiclesData, driversData] = await Promise.all([
         busRoutesApi.getRoutes(tenant.tenant_id, {}),
         busTimetablesApi.getTimetables(tenant.tenant_id, {}),
-        api.vehicles.getVehicles(tenant.tenant_id, { is_active: true })
+        api.vehicles.getVehicles(tenant.tenant_id, { is_active: true }),
+        api.drivers.getDrivers(tenant.tenant_id, { status: 'active' })
       ]);
       setRoutes(routesData);
       setTimetables(allData);
       setVehicles(vehiclesData || []);
+      setDrivers(driversData?.drivers || driversData || []);
     } catch (err: any) {
       console.error('Failed to load timetables:', err);
       setError(err.message || 'Failed to load timetables');
@@ -90,7 +103,7 @@ export default function BusTimetablesPage() {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
-        setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false }));
+        setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -106,10 +119,26 @@ export default function BusTimetablesPage() {
         vehicle_registration: vehicle?.registration || null
       });
       fetchData();
-      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false }));
+      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
     } catch (err: any) {
       console.error('Failed to assign vehicle:', err);
       alert(err.response?.data?.error || 'Failed to assign vehicle');
+    }
+  };
+
+  const handleAssignDriver = async (timetable: BusTimetable, driverId: number | null) => {
+    if (!tenant?.tenant_id) return;
+    try {
+      const driver = driverId ? drivers.find(d => d.driver_id === driverId) : null;
+      await busTimetablesApi.updateTimetable(tenant.tenant_id, timetable.timetable_id, {
+        driver_id: driverId,
+        driver_name: driver ? `${driver.first_name} ${driver.last_name}` : null
+      });
+      fetchData();
+      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
+    } catch (err: any) {
+      console.error('Failed to assign driver:', err);
+      alert(err.response?.data?.error || 'Failed to assign driver');
     }
   };
 
@@ -305,7 +334,11 @@ export default function BusTimetablesPage() {
       service_name: `${route?.route_number || ''} ${newDirection.charAt(0).toUpperCase() + newDirection.slice(1)} ${returnTime}`,
       total_seats: original.total_seats?.toString() || '16',
       wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
-      status: original.status
+      status: original.status,
+      vehicle_id: original.vehicle_id?.toString() || '',
+      vehicle_registration: original.vehicle_registration || '',
+      driver_id: original.driver_id?.toString() || '',
+      driver_name: original.driver_name || ''
     });
 
     setEditingTimetable(null);
@@ -333,7 +366,11 @@ export default function BusTimetablesPage() {
       service_name: `${route?.route_number || ''} ${original.direction.charAt(0).toUpperCase() + original.direction.slice(1)} ${nextTime}`,
       total_seats: original.total_seats?.toString() || '16',
       wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
-      status: original.status
+      status: original.status,
+      vehicle_id: original.vehicle_id?.toString() || '',
+      vehicle_registration: original.vehicle_registration || '',
+      driver_id: original.driver_id?.toString() || '',
+      driver_name: original.driver_name || ''
     });
 
     setEditingTimetable(null);
@@ -627,6 +664,33 @@ export default function BusTimetablesPage() {
               </div>
             )}
           </div>
+          <div
+            className="context-menu-item has-submenu"
+            onMouseEnter={() => setContextMenu(prev => ({ ...prev, showDriverSubmenu: true }))}
+            onMouseLeave={() => setContextMenu(prev => ({ ...prev, showDriverSubmenu: false }))}
+          >
+            <UserIcon size={16} /> Assign Driver
+            <span className="submenu-arrow">▶</span>
+            {contextMenu.showDriverSubmenu && (
+              <div className="context-submenu">
+                <button
+                  className={`context-menu-item ${!contextMenu.timetable?.driver_id ? 'active' : ''}`}
+                  onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, null)}
+                >
+                  No Driver
+                </button>
+                {drivers.filter(d => d.status === 'active').map(driver => (
+                  <button
+                    key={driver.driver_id}
+                    className={`context-menu-item ${contextMenu.timetable?.driver_id === driver.driver_id ? 'active' : ''}`}
+                    onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, driver.driver_id)}
+                  >
+                    {driver.first_name} {driver.last_name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="context-menu-item" onClick={handleCreateReturn}>
             <ArrowLeftIcon size={16} /> Create Return Journey
           </button>
@@ -656,6 +720,7 @@ export default function BusTimetablesPage() {
         timetable={editingTimetable}
         routes={routes}
         vehicles={vehicles}
+        drivers={drivers}
         prefilled={prefilledData}
       />
     </div>
