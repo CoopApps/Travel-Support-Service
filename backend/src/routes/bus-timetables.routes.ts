@@ -970,19 +970,7 @@ router.get(
           paramIndex++;
         }
 
-        // Filter by day of week based on route operating days
-        sql += `
-            AND (
-              (EXTRACT(DOW FROM dr.roster_date) = 0 AND r.operates_sunday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 1 AND r.operates_monday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 2 AND r.operates_tuesday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 3 AND r.operates_wednesday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 4 AND r.operates_thursday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 5 AND r.operates_friday = true) OR
-              (EXTRACT(DOW FROM dr.roster_date) = 6 AND r.operates_saturday = true)
-            )
-          ORDER BY dr.roster_date, t.departure_time
-        `;
+        sql += ` ORDER BY dr.roster_date, t.departure_time`;
       }
 
       const roster = await query(sql, params);
