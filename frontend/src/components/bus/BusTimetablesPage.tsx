@@ -402,29 +402,35 @@ export default function BusTimetablesPage() {
 
     const newDirection = original.direction === 'outbound' ? 'inbound' : 'outbound';
 
-    setPrefilledData({
-      route_id: original.route_id.toString(),
-      departure_time: returnTime,
-      valid_from: original.valid_from.split('T')[0],
-      valid_until: original.valid_until?.split('T')[0] || '',
-      direction: newDirection,
-      service_name: `${route?.route_number || ''} ${newDirection.charAt(0).toUpperCase() + newDirection.slice(1)} ${returnTime}`,
-      total_seats: original.total_seats?.toString() || '16',
-      wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
-      status: original.status,
-      vehicle_id: original.vehicle_id?.toString() || '',
-      vehicle_registration: original.vehicle_registration || '',
-      driver_id: original.driver_id?.toString() || '',
-      driver_name: original.driver_name || ''
-    });
+    // Close context menu immediately
+    setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
 
-    setEditingTimetable(null);
-    setShowModal(true);
-    setContextMenu(prev => ({ ...prev, visible: false }));
+    try {
+      // Create the return journey directly
+      await busTimetablesApi.createTimetable(tenant.tenant_id, {
+        route_id: original.route_id,
+        departure_time: returnTime,
+        valid_from: original.valid_from.split('T')[0],
+        valid_until: original.valid_until?.split('T')[0] || undefined,
+        direction: newDirection,
+        service_name: `${route?.route_number || ''} ${newDirection.charAt(0).toUpperCase() + newDirection.slice(1)} ${returnTime}`,
+        total_seats: original.total_seats || 16,
+        wheelchair_spaces: original.wheelchair_spaces || 2,
+        status: original.status,
+        vehicle_id: original.vehicle_id || undefined,
+        driver_id: original.driver_id || undefined
+      });
+
+      // Refresh to show the new service
+      fetchData();
+    } catch (err: any) {
+      console.error('Failed to create return journey:', err);
+      alert(err.response?.data?.error || 'Failed to create return journey');
+    }
   };
 
-  const handleDuplicateService = () => {
-    if (!contextMenu.timetable) return;
+  const handleDuplicateService = async () => {
+    if (!contextMenu.timetable || !tenant?.tenant_id) return;
 
     const original = contextMenu.timetable;
     const route = routes.find(r => r.route_id === original.route_id);
@@ -434,25 +440,31 @@ export default function BusTimetablesPage() {
     const nextDate = new Date(2000, 0, 1, hours + 1, minutes);
     const nextTime = `${nextDate.getHours().toString().padStart(2, '0')}:${nextDate.getMinutes().toString().padStart(2, '0')}`;
 
-    setPrefilledData({
-      route_id: original.route_id.toString(),
-      departure_time: nextTime,
-      valid_from: original.valid_from.split('T')[0],
-      valid_until: original.valid_until?.split('T')[0] || '',
-      direction: original.direction,
-      service_name: `${route?.route_number || ''} ${original.direction.charAt(0).toUpperCase() + original.direction.slice(1)} ${nextTime}`,
-      total_seats: original.total_seats?.toString() || '16',
-      wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
-      status: original.status,
-      vehicle_id: original.vehicle_id?.toString() || '',
-      vehicle_registration: original.vehicle_registration || '',
-      driver_id: original.driver_id?.toString() || '',
-      driver_name: original.driver_name || ''
-    });
+    // Close context menu immediately
+    setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
 
-    setEditingTimetable(null);
-    setShowModal(true);
-    setContextMenu(prev => ({ ...prev, visible: false }));
+    try {
+      // Create the duplicate service directly
+      await busTimetablesApi.createTimetable(tenant.tenant_id, {
+        route_id: original.route_id,
+        departure_time: nextTime,
+        valid_from: original.valid_from.split('T')[0],
+        valid_until: original.valid_until?.split('T')[0] || undefined,
+        direction: original.direction,
+        service_name: `${route?.route_number || ''} ${original.direction.charAt(0).toUpperCase() + original.direction.slice(1)} ${nextTime}`,
+        total_seats: original.total_seats || 16,
+        wheelchair_spaces: original.wheelchair_spaces || 2,
+        status: original.status,
+        vehicle_id: original.vehicle_id || undefined,
+        driver_id: original.driver_id || undefined
+      });
+
+      // Refresh to show the new service
+      fetchData();
+    } catch (err: any) {
+      console.error('Failed to duplicate service:', err);
+      alert(err.response?.data?.error || 'Failed to duplicate service');
+    }
   };
 
   const filteredTimetables = selectedRoute === 'all'
