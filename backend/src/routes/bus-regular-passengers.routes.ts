@@ -88,7 +88,7 @@ router.get(
       sql += ` ORDER BY r.route_number, t.departure_time, rp.seat_number`;
 
       const result = await query(sql, params);
-      return res.json(result.rows);
+      return res.json(result);
     } catch (error: any) {
       logger.error('Error fetching regular passengers', { error: error.message, tenantId });
       return res.status(500).json({ error: 'Failed to fetch regular passengers' });
@@ -189,7 +189,7 @@ router.post(
         travels_thursday || false, travels_friday || false, travels_saturday || false,
         travels_sunday || false, boarding_stop_id, alighting_stop_id,
         valid_from || new Date().toISOString().split('T')[0], valid_until,
-        special_requirements, notes, req.user?.id
+        special_requirements, notes, req.user?.userId
       ]);
 
       logger.info('Regular passenger created', { regularId: result.regular_id, tenantId, customerId: customer_id });
@@ -298,7 +298,7 @@ router.get(
         'SELECT * FROM get_effective_passengers($1, $2, $3)',
         [tenantId, timetableId, service_date]
       );
-      return res.json(result.rows);
+      return res.json(result);
     } catch (error: any) {
       logger.error('Error fetching effective passengers', { error: error.message, tenantId, timetableId });
       return res.status(500).json({ error: 'Failed to fetch effective passengers' });
@@ -373,7 +373,7 @@ router.get(
       sql += ` ORDER BY a.absence_date DESC`;
 
       const result = await query(sql, params);
-      return res.json(result.rows);
+      return res.json(result);
     } catch (error: any) {
       logger.error('Error fetching absences', { error: error.message, tenantId });
       return res.status(500).json({ error: 'Failed to fetch absences' });
@@ -442,7 +442,7 @@ router.post(
         RETURNING *
       `, [
         tenantId, customer_id, absence_date, absence_reason, reason_notes,
-        timetable_id, reported_by || 'staff', req.user?.id
+        timetable_id, reported_by || 'staff', req.user?.userId
       ]);
 
       logger.info('Absence reported', {
@@ -537,7 +537,7 @@ router.get(
         ORDER BY departure_time
       `, [tenantId, customerId]);
 
-      return res.json(result.rows);
+      return res.json(result);
     } catch (error: any) {
       logger.error('Error fetching customer bus services', { error: error.message, tenantId, customerId });
       return res.status(500).json({ error: 'Failed to fetch bus services' });
@@ -574,7 +574,7 @@ router.get(
       sql += ` ORDER BY a.absence_date DESC`;
 
       const result = await query(sql, params);
-      return res.json(result.rows);
+      return res.json(result);
     } catch (error: any) {
       logger.error('Error fetching customer absences', { error: error.message, tenantId, customerId });
       return res.status(500).json({ error: 'Failed to fetch absences' });
@@ -612,7 +612,7 @@ router.post(
         WHERE rp.tenant_id = $1 AND rp.customer_id = $2 AND rp.status = 'active'
       `, [tenantId, customerId]);
 
-      if (regularServices.rows.length === 0) {
+      if (regularServices.length === 0) {
         return res.status(400).json({ error: 'Customer is not registered as a regular bus passenger' });
       }
 
