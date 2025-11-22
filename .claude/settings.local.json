@@ -1,10 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"/c/Program Files/nodejs/npm.cmd\" install twilio)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\" \"/c/Program Files/nodejs/node.exe\":*)",
-      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npx tsc:*)",
-      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" npm run build:*)"
+      "Bash(\"/c/Program Files/nodejs/node.exe\":*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" update-timetables.js)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" update-calendar.js)",
+      "Bash(npx tsc:*)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/node_modules/typescript/bin/tsc\":*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" node_modules/typescript/lib/tsc.js --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" tsc --noEmit --project \"D:/projects/travel-support-app -test/conversion/frontend\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/frontend/node_modules/typescript/bin/tsc\" --noEmit)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --noEmit --project \"D:/projects/travel-support-app -test/conversion/frontend\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --noEmit --project \"D:/projects/travel-support-app -test/conversion/backend\")"
     ],
     "deny": [],
     "ask": []
