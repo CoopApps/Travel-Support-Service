@@ -5,9 +5,10 @@ require('dotenv').config();
 
 async function runMigration() {
   const migrationFile = process.argv[2];
+  const databaseUrl = process.argv[3]; // Optional: pass DB URL as third argument
 
   if (!migrationFile) {
-    console.error('Usage: node run-migration.js <migration-file>');
+    console.error('Usage: node run-migration.js <migration-file> [database-url]');
     process.exit(1);
   }
 
@@ -20,12 +21,13 @@ async function runMigration() {
 
   const sql = fs.readFileSync(migrationPath, 'utf8');
 
-  // Use DATABASE_URL for Railway, fallback to individual vars for local
+  // Use command line DB URL, or DATABASE_URL env var, or individual vars for local
+  const connectionString = databaseUrl || process.env.DATABASE_URL;
   const pool = new Pool(
-    process.env.DATABASE_URL
+    connectionString
       ? {
-          connectionString: process.env.DATABASE_URL,
-          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+          connectionString: connectionString,
+          ssl: { rejectUnauthorized: false }
         }
       : {
           host: process.env.DB_HOST || 'localhost',
