@@ -24,6 +24,15 @@ interface Driver {
   status: string;
 }
 
+interface DriverAvailability {
+  driver_id: number;
+  name: string;
+  available: boolean;
+  has_critical_conflicts: boolean;
+  has_warnings: boolean;
+  conflicts: Array<{ conflict_type: string; details: string; severity: string }>;
+}
+
 interface ContextMenuState {
   visible: boolean;
   x: number;
@@ -31,6 +40,8 @@ interface ContextMenuState {
   timetable: BusTimetable | null;
   showVehicleSubmenu: boolean;
   showDriverSubmenu: boolean;
+  driverAvailability: DriverAvailability[];
+  loadingDrivers: boolean;
 }
 
 interface DragState {
@@ -62,7 +73,9 @@ export default function BusTimetablesPage() {
     y: 0,
     timetable: null,
     showVehicleSubmenu: false,
-    showDriverSubmenu: false
+    showDriverSubmenu: false,
+    driverAvailability: [],
+    loadingDrivers: false
   });
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -103,12 +116,33 @@ export default function BusTimetablesPage() {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
-        setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
+        setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false, driverAvailability: [], loadingDrivers: false }));
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Fetch driver availability when driver submenu opens
+  const fetchDriverAvailability = async (timetable: BusTimetable) => {
+    if (!tenant?.tenant_id || !timetable) return;
+    setContextMenu(prev => ({ ...prev, loadingDrivers: true }));
+    try {
+      const result = await busTimetablesApi.getAvailableDrivers(
+        tenant.tenant_id,
+        timetable.valid_from,
+        timetable.departure_time
+      );
+      setContextMenu(prev => ({
+        ...prev,
+        driverAvailability: result.drivers,
+        loadingDrivers: false
+      }));
+    } catch (err) {
+      console.error('Failed to fetch driver availability:', err);
+      setContextMenu(prev => ({ ...prev, loadingDrivers: false }));
+    }
+  };
 
   const handleAssignVehicle = async (timetable: BusTimetable, vehicleId: number | null) => {
     if (!tenant?.tenant_id) return;
@@ -126,19 +160,62 @@ export default function BusTimetablesPage() {
     }
   };
 
-  const handleAssignDriver = async (timetable: BusTimetable, driverId: number | null) => {
+  const handleAssignDriver = async (timetable: BusTimetable, driverId: number | null, forceAssign: boolean = false) => {
     if (!tenant?.tenant_id) return;
     try {
-      const driver = driverId ? drivers.find(d => d.driver_id === driverId) : null;
-      await busTimetablesApi.updateTimetable(tenant.tenant_id, timetable.timetable_id, {
-        driver_id: driverId,
-        driver_name: driver ? `${driver.first_name} ${driver.last_name}` : null
-      });
+      // Check if driver has conflicts
+      const driverAvail = contextMenu.driverAvailability.find(d => d.driver_id === driverId);
+      if (driverAvail && driverAvail.has_critical_conflicts && !forceAssign) {
+        const conflictDetails = driverAvail.conflicts
+          .filter(c => c.severity === 'critical')
+          .map(c => c.details)
+          .join('\n');
+        const proceed = confirm(
+          `This driver has scheduling conflicts:\n\n${conflictDetails}\n\nAssign anyway?`
+        );
+        if (!proceed) return;
+        // Retry with force
+        return handleAssignDriver(timetable, driverId, true);
+      }
+
+      await busTimetablesApi.assignDriver(
+        tenant.tenant_id,
+        timetable.timetable_id,
+        driverId!,
+        { date: timetable.valid_from, force: forceAssign }
+      );
       fetchData();
-      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
+      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false, driverAvailability: [], loadingDrivers: false }));
     } catch (err: any) {
       console.error('Failed to assign driver:', err);
-      alert(err.response?.data?.error || 'Failed to assign driver');
+      // If conflict error, show details
+      if (err.response?.status === 409 && err.response?.data?.conflicts) {
+        const conflicts = err.response.data.conflicts;
+        const conflictDetails = conflicts.map((c: any) => c.details).join('\n');
+        const proceed = confirm(
+          `This driver has scheduling conflicts:\n\n${conflictDetails}\n\nAssign anyway?`
+        );
+        if (proceed) {
+          return handleAssignDriver(timetable, driverId, true);
+        }
+      } else {
+        alert(err.response?.data?.error || 'Failed to assign driver');
+      }
+    }
+  };
+
+  const handleUnassignDriver = async (timetable: BusTimetable) => {
+    if (!tenant?.tenant_id) return;
+    try {
+      await busTimetablesApi.updateTimetable(tenant.tenant_id, timetable.timetable_id, {
+        driver_id: null,
+        driver_name: null
+      });
+      fetchData();
+      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false, driverAvailability: [], loadingDrivers: false }));
+    } catch (err: any) {
+      console.error('Failed to unassign driver:', err);
+      alert(err.response?.data?.error || 'Failed to unassign driver');
     }
   };
 
@@ -666,7 +743,12 @@ export default function BusTimetablesPage() {
           </div>
           <div
             className="context-menu-item has-submenu"
-            onMouseEnter={() => setContextMenu(prev => ({ ...prev, showDriverSubmenu: true }))}
+            onMouseEnter={() => {
+              setContextMenu(prev => ({ ...prev, showDriverSubmenu: true }));
+              if (contextMenu.timetable && contextMenu.driverAvailability.length === 0) {
+                fetchDriverAvailability(contextMenu.timetable);
+              }
+            }}
             onMouseLeave={() => setContextMenu(prev => ({ ...prev, showDriverSubmenu: false }))}
           >
             <UserIcon size={16} /> Assign Driver
@@ -675,19 +757,39 @@ export default function BusTimetablesPage() {
               <div className="context-submenu">
                 <button
                   className={`context-menu-item ${!contextMenu.timetable?.driver_id ? 'active' : ''}`}
-                  onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, null)}
+                  onClick={() => contextMenu.timetable && handleUnassignDriver(contextMenu.timetable)}
                 >
                   No Driver
                 </button>
-                {drivers.filter(d => d.status === 'active').map(driver => (
-                  <button
-                    key={driver.driver_id}
-                    className={`context-menu-item ${contextMenu.timetable?.driver_id === driver.driver_id ? 'active' : ''}`}
-                    onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, driver.driver_id)}
-                  >
-                    {driver.first_name} {driver.last_name}
-                  </button>
-                ))}
+                {contextMenu.loadingDrivers ? (
+                  <div className="context-menu-item" style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                    Loading availability...
+                  </div>
+                ) : contextMenu.driverAvailability.length > 0 ? (
+                  contextMenu.driverAvailability.map(driver => (
+                    <button
+                      key={driver.driver_id}
+                      className={`context-menu-item ${contextMenu.timetable?.driver_id === driver.driver_id ? 'active' : ''} ${driver.has_critical_conflicts ? 'unavailable' : ''}`}
+                      onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, driver.driver_id)}
+                      title={driver.has_critical_conflicts ? driver.conflicts.map(c => c.details).join(', ') : 'Available'}
+                    >
+                      <span className={`availability-dot ${driver.available ? 'available' : 'busy'}`}></span>
+                      {driver.name}
+                      {driver.has_critical_conflicts && <span className="conflict-badge">Busy</span>}
+                      {driver.has_warnings && !driver.has_critical_conflicts && <span className="warning-badge">!</span>}
+                    </button>
+                  ))
+                ) : (
+                  drivers.filter(d => d.status === 'active').map(driver => (
+                    <button
+                      key={driver.driver_id}
+                      className={`context-menu-item ${contextMenu.timetable?.driver_id === driver.driver_id ? 'active' : ''}`}
+                      onClick={() => contextMenu.timetable && handleAssignDriver(contextMenu.timetable, driver.driver_id)}
+                    >
+                      {driver.first_name} {driver.last_name}
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>

@@ -300,11 +300,48 @@ export const busTimetablesApi = {
   assignDriver: async (
     tenantId: number,
     timetableId: number,
-    driverId: number
+    driverId: number,
+    options?: { date?: string; force?: boolean }
   ): Promise<BusTimetable> => {
     const response = await apiClient.patch(
       `/tenants/${tenantId}/bus/timetables/${timetableId}/assign-driver`,
-      { driver_id: driverId }
+      { driver_id: driverId, ...options }
+    );
+    return response.data;
+  },
+
+  /**
+   * Get available drivers for a specific date/time slot
+   */
+  getAvailableDrivers: async (
+    tenantId: number,
+    date: string,
+    time: string,
+    duration?: number
+  ): Promise<{
+    date: string;
+    time: string;
+    duration_minutes: number;
+    drivers: Array<{
+      driver_id: number;
+      name: string;
+      phone: string;
+      employment_status: string;
+      vehicle_id?: number;
+      vehicle_registration?: string;
+      available: boolean;
+      conflicts: Array<{
+        conflict_type: string;
+        details: string;
+        severity: 'critical' | 'warning' | 'info';
+      }>;
+      has_critical_conflicts: boolean;
+      has_warnings: boolean;
+    }>;
+  }> => {
+    const response = await apiClient.get(
+      `/tenants/${tenantId}/bus/timetables/available-drivers`,
+      { params: { date, time, duration } }
     );
     return response.data;
   }

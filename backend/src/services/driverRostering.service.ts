@@ -140,8 +140,38 @@ export async function checkDriverAvailability(
       });
     }
 
-    // Check driving hours compliance
-    const hoursCheck = await queryOne(
+    // Check for time overlaps with bus timetable services (Section 22)
+    // Bus services run on dates within their valid_from/valid_until range
+    const busOverlapCheck = await query(
+      `SELECT t.timetable_id, t.service_name, t.departure_time, r.route_number
+       FROM section22_timetables t
+       JOIN section22_bus_routes r ON t.route_id = r.route_id
+       WHERE t.tenant_id = $1 AND t.driver_id = $2
+         AND t.status != 'cancelled'
+         AND t.valid_from <= $3
+         AND (t.valid_until IS NULL OR t.valid_until >= $3)
+         AND (
+           (t.departure_time >= $4 AND t.departure_time < $5) OR
+           (t.departure_time < $4 AND t.departure_time + INTERVAL '90 minutes' > $4::time)
+         )`,
+      [tenantId, driverId, date, startTime, endTime]
+    );
+
+    if (busOverlapCheck.length > 0) {
+      busOverlapCheck.forEach((service: any) => {
+        conflicts.push({
+          conflict_type: 'time_overlap',
+          driver_id: driverId,
+          driver_name: '',
+          trip_id: service.timetable_id,
+          details: `Overlaps with bus service ${service.route_number} "${service.service_name}" at ${service.departure_time}`,
+          severity: 'critical'
+        });
+      });
+    }
+
+    // Check driving hours compliance (include both regular trips and bus services)
+    const tripHoursCheck = await queryOne(
       `SELECT SUM(COALESCE(duration_minutes, 60)) as total_minutes
        FROM tenant_trips
        WHERE tenant_id = $1 AND driver_id = $2
@@ -150,7 +180,20 @@ export async function checkDriverAvailability(
       [tenantId, driverId, date]
     );
 
-    const currentHours = (parseInt(hoursCheck?.total_minutes || '0')) / 60;
+    // Estimate 90 minutes per bus service
+    const busHoursCheck = await queryOne(
+      `SELECT COUNT(*) * 90 as total_minutes
+       FROM section22_timetables
+       WHERE tenant_id = $1 AND driver_id = $2
+         AND status != 'cancelled'
+         AND valid_from <= $3
+         AND (valid_until IS NULL OR valid_until >= $3)`,
+      [tenantId, driverId, date]
+    );
+
+    const tripMinutes = parseInt(tripHoursCheck?.total_minutes || '0');
+    const busMinutes = parseInt(busHoursCheck?.total_minutes || '0');
+    const currentHours = (tripMinutes + busMinutes) / 60;
     const newTotalHours = currentHours + (durationMinutes / 60);
 
     // EU driving regulations: max 9 hours per day
@@ -160,7 +203,7 @@ export async function checkDriverAvailability(
         driver_id: driverId,
         driver_name: '',
         trip_id: 0,
-        details: `Would exceed 9-hour daily limit (currently at ${currentHours.toFixed(1)}h)`,
+        details: `Would exceed 9-hour daily limit (currently at ${currentHours.toFixed(1)}h including ${(busMinutes/60).toFixed(1)}h bus services)`,
         severity: 'warning'
       });
     }
