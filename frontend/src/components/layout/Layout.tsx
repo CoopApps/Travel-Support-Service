@@ -109,7 +109,6 @@ function Layout() {
 
           <div className="nav-section">
             <div className="nav-section-label">Operations</div>
-            <NavItem to="/roster" label="Driver Roster" icon="user-check" active={location.pathname === '/roster'} />
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
             <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
@@ -202,6 +201,19 @@ function Layout() {
                   <circle cx="18.5" cy="18.5" r="2.5" />
                 </svg>
                 <span>Vehicles</span>
+              </Link>
+
+              <Link
+                to="/roster"
+                className={`quick-nav-btn ${location.pathname === '/roster' ? 'active' : ''}`}
+                title="Driver Roster"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="8.5" cy="7" r="4" />
+                  <path d="M17 11l2 2 4-4" />
+                </svg>
+                <span>Roster</span>
               </Link>
 
               <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
