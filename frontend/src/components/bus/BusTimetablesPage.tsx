@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
-import { api } from '../../services/api';
+import { vehicleApi, driverApi } from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon, UserIcon, BusIcon, CalendarIcon } from '../icons/BusIcons';
 import TimetableFormModal from './TimetableFormModal';
@@ -93,8 +93,8 @@ export default function BusTimetablesPage() {
       const [routesData, allData, vehiclesData, driversData] = await Promise.all([
         busRoutesApi.getRoutes(tenant.tenant_id, {}),
         busTimetablesApi.getTimetables(tenant.tenant_id, {}),
-        api.vehicles.getVehicles(tenant.tenant_id, { is_active: true }),
-        api.drivers.getDrivers(tenant.tenant_id, { status: 'active' })
+        vehicleApi.getVehicles(tenant.tenant_id, { is_active: true }),
+        driverApi.getDrivers(tenant.tenant_id, { status: 'active' })
       ]);
       setRoutes(routesData);
       setTimetables(allData);
