@@ -7,20 +7,26 @@ WORKDIR /app
 # Switch to root for installations
 USER root
 
+# Reduce memory usage during npm install
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+ENV npm_config_jobs=2
+
 # Copy package files
 COPY package*.json ./
 COPY backend/package*.json ./backend/
 COPY frontend/package*.json ./frontend/
 
-# Install all dependencies (including devDependencies for build)
-RUN npm ci
+# Install dependencies with reduced parallelism to save memory
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy source code
 COPY . .
 
-# Build backend and frontend
-RUN npm run build --workspace=backend && \
-    npm run build --workspace=frontend
+# Build backend
+RUN npm run build --workspace=backend
+
+# Build frontend with memory limit
+RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build --workspace=frontend
 
 # Copy frontend dist to backend public folder
 RUN mkdir -p backend/dist/public && \
@@ -38,7 +44,7 @@ COPY package*.json ./
 COPY backend/package*.json ./backend/
 
 # Install production dependencies only
-RUN npm ci --workspace=backend --omit=dev
+RUN npm install --workspace=backend --omit=dev --legacy-peer-deps --no-audit --no-fund
 
 # Copy built files from builder
 COPY --from=builder /app/backend/dist ./backend/dist
