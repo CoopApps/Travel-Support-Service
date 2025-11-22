@@ -880,20 +880,13 @@ router.get(
           $2::date as roster_date,
           t.driver_id,
           d.name as driver_name,
-          d.first_name as driver_first_name,
-          d.last_name as driver_last_name,
           t.departure_time,
           t.service_name,
           r.route_number,
           r.route_name,
           v.registration as vehicle_registration,
           t.status,
-          (
-            SELECT COUNT(*) FROM section22_bus_bookings b
-            WHERE b.timetable_id = t.timetable_id
-            AND b.service_date = $2::date
-            AND b.booking_status = 'confirmed'
-          ) as passenger_count
+          0 as passenger_count
         FROM section22_timetables t
         JOIN section22_bus_routes r ON t.route_id = r.route_id
         LEFT JOIN tenant_drivers d ON t.driver_id = d.driver_id
@@ -930,34 +923,23 @@ router.get(
             dr.roster_date,
             t.driver_id,
             d.name as driver_name,
-            d.first_name as driver_first_name,
-            d.last_name as driver_last_name,
             t.departure_time,
             t.service_name,
             r.route_number,
             r.route_name,
             v.registration as vehicle_registration,
             t.status,
-            (
-              SELECT COUNT(*) FROM section22_bus_bookings b
-              WHERE b.timetable_id = t.timetable_id
-              AND b.service_date = dr.roster_date
-              AND b.booking_status = 'confirmed'
-            ) as passenger_count
+            0 as passenger_count
           FROM date_range dr
           CROSS JOIN section22_timetables t
           JOIN section22_bus_routes r ON t.route_id = r.route_id
           LEFT JOIN tenant_drivers d ON t.driver_id = d.driver_id
           LEFT JOIN tenant_vehicles v ON t.vehicle_id = v.vehicle_id
-          LEFT JOIN section22_service_cancellations sc
-            ON sc.timetable_id = t.timetable_id
-            AND sc.service_date = dr.roster_date
           WHERE t.tenant_id = $1
             AND t.driver_id IS NOT NULL
             AND t.status IN ('scheduled', 'active')
             AND t.valid_from <= dr.roster_date
             AND (t.valid_until IS NULL OR t.valid_until >= dr.roster_date)
-            AND sc.cancellation_id IS NULL
         `;
 
         params.length = 0;
