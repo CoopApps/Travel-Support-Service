@@ -1,15 +1,27 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
+import { api } from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon, UserIcon, BusIcon, CalendarIcon } from '../icons/BusIcons';
 import TimetableFormModal from './TimetableFormModal';
 import './BusTimetablesPage.css';
+
+interface Vehicle {
+  vehicle_id: number;
+  registration: string;
+  make: string;
+  model: string;
+  seats: number;
+  wheelchair_accessible: boolean;
+  is_active: boolean;
+}
 
 interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
   timetable: BusTimetable | null;
+  showVehicleSubmenu: boolean;
 }
 
 interface DragState {
@@ -21,12 +33,13 @@ export default function BusTimetablesPage() {
   const { tenant } = useTenant();
   const [timetables, setTimetables] = useState<BusTimetable[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
   const [editingTimetable, setEditingTimetable] = useState<BusTimetable | null>(null);
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+  const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'vehicle'>('calendar');
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const today = new Date();
     const day = today.getDay();
@@ -37,7 +50,8 @@ export default function BusTimetablesPage() {
     visible: false,
     x: 0,
     y: 0,
-    timetable: null
+    timetable: null,
+    showVehicleSubmenu: false
   });
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -52,12 +66,14 @@ export default function BusTimetablesPage() {
     try {
       setLoading(true);
       setError(null);
-      const [routesData, allData] = await Promise.all([
+      const [routesData, allData, vehiclesData] = await Promise.all([
         busRoutesApi.getRoutes(tenant.tenant_id, {}),
-        busTimetablesApi.getTimetables(tenant.tenant_id, {})
+        busTimetablesApi.getTimetables(tenant.tenant_id, {}),
+        api.vehicles.getVehicles(tenant.tenant_id, { is_active: true })
       ]);
       setRoutes(routesData);
       setTimetables(allData);
+      setVehicles(vehiclesData || []);
     } catch (err: any) {
       console.error('Failed to load timetables:', err);
       setError(err.message || 'Failed to load timetables');
@@ -74,12 +90,28 @@ export default function BusTimetablesPage() {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
-        setContextMenu(prev => ({ ...prev, visible: false }));
+        setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false }));
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleAssignVehicle = async (timetable: BusTimetable, vehicleId: number | null) => {
+    if (!tenant?.tenant_id) return;
+    try {
+      const vehicle = vehicleId ? vehicles.find(v => v.vehicle_id === vehicleId) : null;
+      await busTimetablesApi.updateTimetable(tenant.tenant_id, timetable.timetable_id, {
+        vehicle_id: vehicleId,
+        vehicle_registration: vehicle?.registration || null
+      });
+      fetchData();
+      setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false }));
+    } catch (err: any) {
+      console.error('Failed to assign vehicle:', err);
+      alert(err.response?.data?.error || 'Failed to assign vehicle');
+    }
+  };
 
   const handleCreateTimetable = () => {
     setEditingTimetable(null);
@@ -568,6 +600,33 @@ export default function BusTimetablesPage() {
           className="context-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
+          <div
+            className="context-menu-item has-submenu"
+            onMouseEnter={() => setContextMenu(prev => ({ ...prev, showVehicleSubmenu: true }))}
+            onMouseLeave={() => setContextMenu(prev => ({ ...prev, showVehicleSubmenu: false }))}
+          >
+            <BusIcon size={16} /> Assign Vehicle
+            <span className="submenu-arrow">▶</span>
+            {contextMenu.showVehicleSubmenu && (
+              <div className="context-submenu">
+                <button
+                  className={`context-menu-item ${!contextMenu.timetable?.vehicle_id ? 'active' : ''}`}
+                  onClick={() => contextMenu.timetable && handleAssignVehicle(contextMenu.timetable, null)}
+                >
+                  No Vehicle
+                </button>
+                {vehicles.filter(v => v.is_active).map(vehicle => (
+                  <button
+                    key={vehicle.vehicle_id}
+                    className={`context-menu-item ${contextMenu.timetable?.vehicle_id === vehicle.vehicle_id ? 'active' : ''}`}
+                    onClick={() => contextMenu.timetable && handleAssignVehicle(contextMenu.timetable, vehicle.vehicle_id)}
+                  >
+                    {vehicle.registration} - {vehicle.make} {vehicle.model}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="context-menu-item" onClick={handleCreateReturn}>
             <ArrowLeftIcon size={16} /> Create Return Journey
           </button>
@@ -596,6 +655,7 @@ export default function BusTimetablesPage() {
         onSuccess={handleModalSuccess}
         timetable={editingTimetable}
         routes={routes}
+        vehicles={vehicles}
         prefilled={prefilledData}
       />
     </div>

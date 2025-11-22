@@ -3,12 +3,23 @@ import { busTimetablesApi, BusTimetable, BusRoute } from '../../services/busApi'
 import { useTenant } from '../../context/TenantContext';
 import './TimetableFormModal.css';
 
+interface Vehicle {
+  vehicle_id: number;
+  registration: string;
+  make: string;
+  model: string;
+  seats: number;
+  wheelchair_accessible: boolean;
+  is_active: boolean;
+}
+
 interface TimetableFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   timetable?: BusTimetable | null;
   routes: BusRoute[];
+  vehicles?: Vehicle[];
   prefilled?: any;
 }
 
@@ -22,6 +33,7 @@ interface FormData {
   total_seats: string;
   wheelchair_spaces: string;
   status: 'scheduled' | 'active' | 'cancelled' | 'completed';
+  vehicle_id: string;
 }
 
 const initialFormData: FormData = {
@@ -33,7 +45,8 @@ const initialFormData: FormData = {
   valid_until: '',
   total_seats: '16',
   wheelchair_spaces: '2',
-  status: 'scheduled'
+  status: 'scheduled',
+  vehicle_id: ''
 };
 
 export default function TimetableFormModal({
@@ -42,6 +55,7 @@ export default function TimetableFormModal({
   onSuccess,
   timetable,
   routes,
+  vehicles = [],
   prefilled
 }: TimetableFormModalProps) {
   const { tenant } = useTenant();
@@ -62,7 +76,8 @@ export default function TimetableFormModal({
         valid_until: timetable.valid_until?.split('T')[0] || '',
         total_seats: timetable.total_seats?.toString() || '16',
         wheelchair_spaces: timetable.wheelchair_spaces?.toString() || '2',
-        status: timetable.status || 'scheduled'
+        status: timetable.status || 'scheduled',
+        vehicle_id: timetable.vehicle_id?.toString() || ''
       });
     } else if (prefilled) {
       setFormData({
@@ -74,7 +89,8 @@ export default function TimetableFormModal({
         valid_until: prefilled.valid_until || '',
         total_seats: prefilled.total_seats || '16',
         wheelchair_spaces: prefilled.wheelchair_spaces || '2',
-        status: prefilled.status || 'scheduled'
+        status: prefilled.status || 'scheduled',
+        vehicle_id: prefilled.vehicle_id || ''
       });
     } else {
       setFormData(initialFormData);
@@ -132,6 +148,8 @@ export default function TimetableFormModal({
       setSaving(true);
       setError(null);
 
+      const selectedVehicle = formData.vehicle_id ? vehicles.find(v => v.vehicle_id === parseInt(formData.vehicle_id)) : null;
+
       const payload: any = {
         route_id: parseInt(formData.route_id),
         service_name: formData.service_name.trim(),
@@ -141,7 +159,9 @@ export default function TimetableFormModal({
         valid_until: formData.valid_until || undefined,
         total_seats: parseInt(formData.total_seats),
         wheelchair_spaces: parseInt(formData.wheelchair_spaces) || 0,
-        status: formData.status
+        status: formData.status,
+        vehicle_id: formData.vehicle_id ? parseInt(formData.vehicle_id) : null,
+        vehicle_registration: selectedVehicle?.registration || null
       };
 
       if (isEditing && timetable) {
@@ -339,6 +359,29 @@ export default function TimetableFormModal({
               </select>
             </div>
           </div>
+
+          {vehicles.length > 0 && (
+            <div className="form-section">
+              <h3>Vehicle Assignment</h3>
+              <div className="form-group">
+                <label htmlFor="vehicle_id">Assign Vehicle</label>
+                <select
+                  id="vehicle_id"
+                  name="vehicle_id"
+                  value={formData.vehicle_id}
+                  onChange={handleChange}
+                >
+                  <option value="">-- No Vehicle Assigned --</option>
+                  {vehicles.filter(v => v.is_active).map(vehicle => (
+                    <option key={vehicle.vehicle_id} value={vehicle.vehicle_id}>
+                      {vehicle.registration} - {vehicle.make} {vehicle.model} ({vehicle.seats} seats)
+                    </option>
+                  ))}
+                </select>
+                <span className="field-hint">Assign a vehicle to this service or use right-click menu later</span>
+              </div>
+            </div>
+          )}
 
           <div className="modal-footer">
             <button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>
