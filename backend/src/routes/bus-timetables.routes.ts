@@ -129,6 +129,92 @@ router.get(
 );
 
 // ==================================================================================
+// GET /tenants/:tenantId/bus/timetables/available-drivers
+// Get available drivers for a specific date/time slot
+// IMPORTANT: This must come BEFORE /:timetableId route
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/timetables/available-drivers',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+    const { date, time, duration } = req.query;
+
+    if (!date || !time) {
+      return res.status(400).json({
+        error: 'Missing required query parameters: date, time'
+      });
+    }
+
+    const durationMinutes = parseInt(duration as string) || 90;
+
+    try {
+      // Get all active drivers
+      const drivers = await query(
+        `SELECT d.driver_id, d.name, d.phone, d.is_active, d.employment_status,
+                v.vehicle_id, v.registration as vehicle_registration
+         FROM tenant_drivers d
+         LEFT JOIN tenant_vehicles v ON d.vehicle_id = v.vehicle_id AND v.is_active = true
+         WHERE d.tenant_id = $1 AND d.is_active = true
+         ORDER BY d.name`,
+        [tenantId]
+      );
+
+      // Check availability for each driver
+      const availabilityResults = await Promise.all(
+        drivers.map(async (driver: any) => {
+          const availability = await checkDriverAvailability(
+            parseInt(tenantId),
+            driver.driver_id,
+            date as string,
+            time as string,
+            durationMinutes
+          );
+
+          return {
+            driver_id: driver.driver_id,
+            name: driver.name,
+            phone: driver.phone,
+            employment_status: driver.employment_status,
+            vehicle_id: driver.vehicle_id,
+            vehicle_registration: driver.vehicle_registration,
+            available: availability.available,
+            conflicts: availability.conflicts,
+            has_critical_conflicts: availability.conflicts.some(c => c.severity === 'critical'),
+            has_warnings: availability.conflicts.some(c => c.severity === 'warning')
+          };
+        })
+      );
+
+      // Sort: available drivers first, then by name
+      availabilityResults.sort((a, b) => {
+        if (a.available && !b.available) return -1;
+        if (!a.available && b.available) return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      logger.info('Available drivers fetched', {
+        tenantId,
+        date,
+        time,
+        totalDrivers: drivers.length,
+        availableCount: availabilityResults.filter(d => d.available).length
+      });
+
+      return res.json({
+        date,
+        time,
+        duration_minutes: durationMinutes,
+        drivers: availabilityResults
+      });
+    } catch (error) {
+      logger.error('Failed to fetch available drivers', { tenantId, date, time, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
 // GET /tenants/:tenantId/bus/timetables/:timetableId
 // Get timetable details with availability
 // ==================================================================================
@@ -566,91 +652,6 @@ router.patch(
       return res.json(result);
     } catch (error) {
       logger.error('Failed to assign vehicle', { tenantId, timetableId, error });
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  }
-);
-
-// ==================================================================================
-// GET /tenants/:tenantId/bus/timetables/available-drivers
-// Get available drivers for a specific date/time slot
-// ==================================================================================
-router.get(
-  '/tenants/:tenantId/bus/timetables/available-drivers',
-  verifyTenantAccess,
-  async (req: AuthenticatedRequest, res: Response) => {
-    const { tenantId } = req.params;
-    const { date, time, duration } = req.query;
-
-    if (!date || !time) {
-      return res.status(400).json({
-        error: 'Missing required query parameters: date, time'
-      });
-    }
-
-    const durationMinutes = parseInt(duration as string) || 90;
-
-    try {
-      // Get all active drivers
-      const drivers = await query(
-        `SELECT d.driver_id, d.name, d.phone, d.is_active, d.employment_status,
-                v.vehicle_id, v.registration as vehicle_registration
-         FROM tenant_drivers d
-         LEFT JOIN tenant_vehicles v ON d.vehicle_id = v.vehicle_id AND v.is_active = true
-         WHERE d.tenant_id = $1 AND d.is_active = true
-         ORDER BY d.name`,
-        [tenantId]
-      );
-
-      // Check availability for each driver
-      const availabilityResults = await Promise.all(
-        drivers.map(async (driver: any) => {
-          const availability = await checkDriverAvailability(
-            parseInt(tenantId),
-            driver.driver_id,
-            date as string,
-            time as string,
-            durationMinutes
-          );
-
-          return {
-            driver_id: driver.driver_id,
-            name: driver.name,
-            phone: driver.phone,
-            employment_status: driver.employment_status,
-            vehicle_id: driver.vehicle_id,
-            vehicle_registration: driver.vehicle_registration,
-            available: availability.available,
-            conflicts: availability.conflicts,
-            has_critical_conflicts: availability.conflicts.some(c => c.severity === 'critical'),
-            has_warnings: availability.conflicts.some(c => c.severity === 'warning')
-          };
-        })
-      );
-
-      // Sort: available drivers first, then by name
-      availabilityResults.sort((a, b) => {
-        if (a.available && !b.available) return -1;
-        if (!a.available && b.available) return 1;
-        return a.name.localeCompare(b.name);
-      });
-
-      logger.info('Available drivers fetched', {
-        tenantId,
-        date,
-        time,
-        totalDrivers: drivers.length,
-        availableCount: availabilityResults.filter(d => d.available).length
-      });
-
-      return res.json({
-        date,
-        time,
-        duration_minutes: durationMinutes,
-        drivers: availabilityResults
-      });
-    } catch (error) {
-      logger.error('Failed to fetch available drivers', { tenantId, date, time, error });
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
