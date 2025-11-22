@@ -729,7 +729,7 @@ export default function BusTimetablesPage() {
                 >
                   No Vehicle
                 </button>
-                {vehicles.filter(v => v.is_active).map(vehicle => (
+                {(vehicles || []).filter(v => v.is_active).map(vehicle => (
                   <button
                     key={vehicle.vehicle_id}
                     className={`context-menu-item ${contextMenu.timetable?.vehicle_id === vehicle.vehicle_id ? 'active' : ''}`}
@@ -780,7 +780,7 @@ export default function BusTimetablesPage() {
                     </button>
                   ))
                 ) : (
-                  drivers.filter(d => d.status === 'active').map(driver => (
+                  (drivers || []).filter(d => d.status === 'active').map(driver => (
                     <button
                       key={driver.driver_id}
                       className={`context-menu-item ${contextMenu.timetable?.driver_id === driver.driver_id ? 'active' : ''}`}
