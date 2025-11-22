@@ -53,8 +53,9 @@ RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
 COPY --from=builder /app/backend/dist ./dist
 
 ENV NODE_ENV=production
+ENV PORT=8080
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-EXPOSE 3000
+EXPOSE 8080
 CMD ["node", "dist/server.js"]

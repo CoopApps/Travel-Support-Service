@@ -1,11 +1,10 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "rm -rf frontend/dist frontend/node_modules/.vite backend/dist && npm install && npm run build --workspace=backend && npm run build --workspace=frontend && mkdir -p backend/dist/public && cp -r frontend/dist/* backend/dist/public/"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "cd backend && npm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
