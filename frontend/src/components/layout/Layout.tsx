@@ -89,7 +89,6 @@ function Layout() {
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
-                <NavItem to="/bus/seats" label="Seat Assignment" icon="grid" active={location.pathname === '/bus/seats'} />
                 <NavItem to="/bus/regular-passengers" label="Regular Passengers" icon="users" active={location.pathname === '/bus/regular-passengers'} />
                 <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
                 <NavItem to="/bus/surplus-pool" label="Surplus Pool" icon="piggy-bank" active={location.pathname === '/bus/surplus-pool'} />

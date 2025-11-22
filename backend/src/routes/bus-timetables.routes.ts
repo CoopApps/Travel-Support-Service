@@ -553,6 +553,120 @@ router.delete(
 );
 
 // ==================================================================================
+// GET /tenants/:tenantId/bus/timetables/:timetableId/effective-passengers
+// Get all passengers scheduled for a specific service date
+// Combines regular passengers with one-off bookings, excludes absences
+// ==================================================================================
+router.get(
+  '/tenants/:tenantId/bus/timetables/:timetableId/effective-passengers',
+  verifyTenantAccess,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, timetableId } = req.params;
+    const { service_date } = req.query;
+
+    if (!service_date) {
+      return res.status(400).json({
+        error: 'Missing required query parameter: service_date'
+      });
+    }
+
+    try {
+      // Get regular passengers for this timetable who are active on this date
+      // and not marked as absent
+      const regularPassengers = await query(
+        `SELECT
+          rp.regular_passenger_id,
+          rp.customer_id,
+          c.first_name,
+          c.last_name,
+          c.phone,
+          c.mobility_needs,
+          c.notes as customer_notes,
+          rp.boarding_stop_id,
+          bs.stop_name as boarding_stop_name,
+          rp.alighting_stop_id,
+          als.stop_name as alighting_stop_name,
+          rp.notes as booking_notes,
+          'regular' as passenger_type,
+          rp.valid_from,
+          rp.valid_until
+        FROM section22_regular_passengers rp
+        JOIN tenant_customers c ON rp.customer_id = c.customer_id
+        LEFT JOIN section22_route_stops bs ON rp.boarding_stop_id = bs.stop_id
+        LEFT JOIN section22_route_stops als ON rp.alighting_stop_id = als.stop_id
+        LEFT JOIN section22_passenger_absences pa
+          ON pa.customer_id = rp.customer_id
+          AND pa.timetable_id = rp.timetable_id
+          AND $3::date BETWEEN pa.absence_start AND pa.absence_end
+        WHERE rp.tenant_id = $1
+          AND rp.timetable_id = $2
+          AND rp.status = 'active'
+          AND rp.valid_from <= $3::date
+          AND (rp.valid_until IS NULL OR rp.valid_until >= $3::date)
+          AND pa.absence_id IS NULL
+        ORDER BY bs.stop_sequence, c.last_name, c.first_name`,
+        [tenantId, timetableId, service_date]
+      );
+
+      // Get one-off bookings for this date
+      const oneOffBookings = await query(
+        `SELECT
+          b.booking_id,
+          b.customer_id,
+          c.first_name,
+          c.last_name,
+          c.phone,
+          c.mobility_needs,
+          c.notes as customer_notes,
+          b.boarding_stop_id,
+          bs.stop_name as boarding_stop_name,
+          b.alighting_stop_id,
+          als.stop_name as alighting_stop_name,
+          b.notes as booking_notes,
+          'one_off' as passenger_type,
+          b.service_date as valid_from,
+          b.service_date as valid_until
+        FROM section22_bus_bookings b
+        JOIN tenant_customers c ON b.customer_id = c.customer_id
+        LEFT JOIN section22_route_stops bs ON b.boarding_stop_id = bs.stop_id
+        LEFT JOIN section22_route_stops als ON b.alighting_stop_id = als.stop_id
+        WHERE b.tenant_id = $1
+          AND b.timetable_id = $2
+          AND b.service_date = $3::date
+          AND b.booking_status = 'confirmed'
+          AND NOT EXISTS (
+            SELECT 1 FROM section22_regular_passengers rp
+            WHERE rp.customer_id = b.customer_id
+              AND rp.timetable_id = b.timetable_id
+              AND rp.status = 'active'
+              AND rp.valid_from <= $3::date
+              AND (rp.valid_until IS NULL OR rp.valid_until >= $3::date)
+          )
+        ORDER BY bs.stop_sequence, c.last_name, c.first_name`,
+        [tenantId, timetableId, service_date]
+      );
+
+      // Combine results
+      const effectivePassengers = [...regularPassengers, ...oneOffBookings];
+
+      logger.info('Effective passengers fetched', {
+        tenantId,
+        timetableId,
+        serviceDate: service_date,
+        regularCount: regularPassengers.length,
+        oneOffCount: oneOffBookings.length,
+        totalCount: effectivePassengers.length
+      });
+
+      return res.json(effectivePassengers);
+    } catch (error) {
+      logger.error('Failed to fetch effective passengers', { tenantId, timetableId, service_date, error });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// ==================================================================================
 // GET /tenants/:tenantId/bus/timetables/:timetableId/availability
 // Get availability for a date range
 // ==================================================================================
@@ -766,8 +880,6 @@ router.get(
           $2::date as roster_date,
           t.driver_id,
           d.name as driver_name,
-          d.first_name as driver_first_name,
-          d.last_name as driver_last_name,
           t.departure_time,
           t.service_name,
           r.route_number,
@@ -816,8 +928,6 @@ router.get(
             dr.roster_date,
             t.driver_id,
             d.name as driver_name,
-            d.first_name as driver_first_name,
-            d.last_name as driver_last_name,
             t.departure_time,
             t.service_name,
             r.route_number,
