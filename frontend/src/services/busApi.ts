@@ -58,20 +58,20 @@ export interface BusTimetable {
   service_name: string;
   departure_time: string;
   direction: 'outbound' | 'inbound' | 'circular';
-  vehicle_id?: number;
-  driver_id?: number;
+  vehicle_id?: number | null;
+  driver_id?: number | null;
   total_seats: number;
   wheelchair_spaces: number;
   valid_from: string;
-  valid_until?: string;
+  valid_until?: string | null;
   recurrence_pattern?: any;
   status: 'scheduled' | 'active' | 'cancelled' | 'completed';
   created_at: string;
   updated_at: string;
   route_number?: string;
   route_name?: string;
-  vehicle_registration?: string;
-  driver_name?: string;
+  vehicle_registration?: string | null;
+  driver_name?: string | null;
 }
 
 export interface BusBooking {
