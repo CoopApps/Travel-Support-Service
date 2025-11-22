@@ -42,13 +42,14 @@ import BusBookingsPage from './components/bus/BusBookingsPage';
 import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import RegularPassengersPage from './components/bus/RegularPassengersPage';
-import TodaysOperationsPage from './components/bus/TodaysOperationsPage';
+// TodaysOperationsPage removed - merged into BusDashboard
 // BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
 import CooperativeMembersPage from './components/bus/CooperativeMembersPage';
 import QuickBookPage from './components/bus/QuickBookPage';
 import DividendManagementPage from './components/bus/DividendManagementPage';
+import CooperativePage from './components/bus/CooperativePage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
 import RouteOptimizationAnalytics from './components/analytics/RouteOptimizationAnalytics';
@@ -202,7 +203,7 @@ function App() {
         <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
 
         {/* Bus Service Routes - bus-specific modules only */}
-        <Route path="bus/operations" element={<TodaysOperationsPage />} />
+        <Route path="bus/cooperative" element={<CooperativePage />} />
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
         <Route path="bus/roster" element={<Navigate to="/roster" replace />} />

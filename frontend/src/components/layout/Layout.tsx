@@ -85,12 +85,12 @@ function Layout() {
             {activeService === 'bus' && (
               /* Bus-specific modules */
               <>
-                <NavItem to="/bus/operations" label="Today's Operations" icon="activity" active={location.pathname === '/bus/operations'} />
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
                 <NavItem to="/bus/regular-passengers" label="Regular Passengers" icon="users" active={location.pathname === '/bus/regular-passengers'} />
                 <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
+                <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname === '/bus/cooperative'} />
                 <NavItem to="/bus/surplus-pool" label="Surplus Pool" icon="piggy-bank" active={location.pathname === '/bus/surplus-pool'} />
                 <NavItem to="/bus/members" label="Cooperative Members" icon="users" active={location.pathname === '/bus/members'} />
                 <NavItem to="/bus/dividends" label="Dividends" icon="money" active={location.pathname === '/bus/dividends'} />
