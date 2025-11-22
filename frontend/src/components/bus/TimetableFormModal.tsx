@@ -9,6 +9,7 @@ interface TimetableFormModalProps {
   onSuccess: () => void;
   timetable?: BusTimetable | null;
   routes: BusRoute[];
+  prefilled?: any;
 }
 
 interface FormData {
@@ -40,7 +41,8 @@ export default function TimetableFormModal({
   onClose,
   onSuccess,
   timetable,
-  routes
+  routes,
+  prefilled
 }: TimetableFormModalProps) {
   const { tenant } = useTenant();
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -62,10 +64,22 @@ export default function TimetableFormModal({
         wheelchair_spaces: timetable.wheelchair_spaces?.toString() || '2',
         status: timetable.status || 'scheduled'
       });
+    } else if (prefilled) {
+      setFormData({
+        route_id: prefilled.route_id || '',
+        service_name: prefilled.service_name || '',
+        departure_time: prefilled.departure_time || '09:00',
+        direction: prefilled.direction || 'outbound',
+        valid_from: prefilled.valid_from || new Date().toISOString().split('T')[0],
+        valid_until: prefilled.valid_until || '',
+        total_seats: prefilled.total_seats || '16',
+        wheelchair_spaces: prefilled.wheelchair_spaces || '2',
+        status: prefilled.status || 'scheduled'
+      });
     } else {
       setFormData(initialFormData);
     }
-  }, [timetable]);
+  }, [timetable, prefilled]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>

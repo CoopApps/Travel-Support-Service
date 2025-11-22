@@ -4,6 +4,92 @@
   margin: 0 auto;
 }
 
+/* Route Palette */
+.route-palette {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.palette-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.palette-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.palette-hint {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.palette-routes {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.palette-route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: grab;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.palette-route:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.palette-route:active {
+  cursor: grabbing;
+}
+
+.palette-route-number {
+  background: #3b82f6;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.palette-route-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.palette-route-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.palette-route-journey {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
 /* Page Controls */
 .page-controls {
   display: flex;
@@ -74,6 +160,11 @@
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   overflow: hidden;
+}
+
+.calendar-view.dragging {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .calendar-navigation {
@@ -222,10 +313,18 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 56px;
+  transition: background 0.2s;
 }
 
 .day-cell.today {
   background: #fafbff;
+}
+
+.day-cell.drop-target {
+  background: #eff6ff;
+  border: 2px dashed #3b82f6;
+  margin: -2px;
 }
 
 /* Service Chips */
@@ -280,6 +379,51 @@
 .chip-direction {
   margin-left: auto;
   color: #6b7280;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 6px 0;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.context-menu-item:hover {
+  background: #f3f4f6;
+}
+
+.context-menu-item.danger {
+  color: #dc2626;
+}
+
+.context-menu-item.danger:hover {
+  background: #fef2f2;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 6px 0;
 }
 
 /* Timetables Grid (List View) */
@@ -499,6 +643,10 @@
   .service-chip {
     font-size: 10px;
     padding: 4px 6px;
+  }
+
+  .palette-routes {
+    flex-wrap: nowrap;
   }
 }
 

@@ -1,9 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { busTimetablesApi, busRoutesApi, BusTimetable, BusRoute } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import { AlarmClockIcon, ArrowRightIcon, ArrowLeftIcon, RefreshIcon, WheelchairIcon, SeatIcon, UserIcon, BusIcon, CalendarIcon } from '../icons/BusIcons';
 import TimetableFormModal from './TimetableFormModal';
 import './BusTimetablesPage.css';
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  timetable: BusTimetable | null;
+}
+
+interface DragState {
+  isDragging: boolean;
+  route: BusRoute | null;
+}
 
 export default function BusTimetablesPage() {
   const { tenant } = useTenant();
@@ -21,6 +33,19 @@ export default function BusTimetablesPage() {
     const diff = today.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(today.setDate(diff));
   });
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    timetable: null
+  });
+  const [dragState, setDragState] = useState<DragState>({
+    isDragging: false,
+    route: null
+  });
+  const [prefilledData, setPrefilledData] = useState<any>(null);
+
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const fetchData = async () => {
     if (!tenant?.tenant_id) return;
@@ -45,13 +70,26 @@ export default function BusTimetablesPage() {
     fetchData();
   }, [tenant?.tenant_id]);
 
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(prev => ({ ...prev, visible: false }));
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleCreateTimetable = () => {
     setEditingTimetable(null);
+    setPrefilledData(null);
     setShowModal(true);
   };
 
   const handleEditTimetable = (timetable: BusTimetable) => {
     setEditingTimetable(timetable);
+    setPrefilledData(null);
     setShowModal(true);
   };
 
@@ -68,7 +106,11 @@ export default function BusTimetablesPage() {
   };
 
   const handleModalSuccess = () => { fetchData(); };
-  const handleCloseModal = () => { setShowModal(false); setEditingTimetable(null); };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTimetable(null);
+    setPrefilledData(null);
+  };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeekStart(prev => {
@@ -108,32 +150,17 @@ export default function BusTimetablesPage() {
   };
 
   const getServicesForDay = (date: Date) => {
-    const dayOfWeek = date.getDay();
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const dayName = dayNames[dayOfWeek];
-
     return timetables.filter(t => {
-      // Filter by route if selected
       if (selectedRoute !== 'all' && t.route_id !== parseInt(selectedRoute)) return false;
-
-      // Check if service is valid on this date
       const validFrom = new Date(t.valid_from);
       const validUntil = t.valid_until ? new Date(t.valid_until) : null;
-
       if (date < validFrom) return false;
       if (validUntil && date > validUntil) return false;
-
-      // Check operating days (from route data)
-      // For now, show all valid services - operating days would come from route
       return t.status === 'active' || t.status === 'scheduled';
-    }).sort((a, b) => {
-      // Sort by departure time
-      return a.departure_time.localeCompare(b.departure_time);
-    });
+    }).sort((a, b) => a.departure_time.localeCompare(b.departure_time));
   };
 
   const getTimeSlots = () => {
-    // Generate time slots from 5 AM to 11 PM
     const slots = [];
     for (let hour = 5; hour <= 23; hour++) {
       slots.push(`${hour.toString().padStart(2, '0')}:00`);
@@ -144,7 +171,6 @@ export default function BusTimetablesPage() {
   const getServicesInTimeSlot = (date: Date, timeSlot: string) => {
     const services = getServicesForDay(date);
     const slotHour = parseInt(timeSlot.split(':')[0]);
-
     return services.filter(s => {
       const serviceHour = parseInt(s.departure_time.split(':')[0]);
       return serviceHour === slotHour;
@@ -159,12 +185,12 @@ export default function BusTimetablesPage() {
     });
   };
 
-  const getDirectionIcon = (direction: string) => {
+  const getDirectionIcon = (direction: string, size: number = 14) => {
     switch (direction) {
-      case 'outbound': return <ArrowRightIcon size={14} />;
-      case 'inbound': return <ArrowLeftIcon size={14} />;
-      case 'circular': return <RefreshIcon size={14} />;
-      default: return <ArrowRightIcon size={14} />;
+      case 'outbound': return <ArrowRightIcon size={size} />;
+      case 'inbound': return <ArrowLeftIcon size={size} />;
+      case 'circular': return <RefreshIcon size={size} />;
+      default: return <ArrowRightIcon size={size} />;
     }
   };
 
@@ -175,6 +201,112 @@ export default function BusTimetablesPage() {
       case 'cancelled': return 'status-cancelled';
       default: return '';
     }
+  };
+
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, route: BusRoute) => {
+    e.dataTransfer.setData('routeId', route.route_id.toString());
+    e.dataTransfer.effectAllowed = 'copy';
+    setDragState({ isDragging: true, route });
+  };
+
+  const handleDragEnd = () => {
+    setDragState({ isDragging: false, route: null });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e: React.DragEvent, date: Date, timeSlot: string) => {
+    e.preventDefault();
+    const routeId = e.dataTransfer.getData('routeId');
+    const route = routes.find(r => r.route_id === parseInt(routeId));
+
+    if (route) {
+      const dateStr = date.toISOString().split('T')[0];
+      setPrefilledData({
+        route_id: route.route_id.toString(),
+        departure_time: timeSlot,
+        valid_from: dateStr,
+        direction: 'outbound',
+        service_name: `${route.route_number} Outbound ${timeSlot}`
+      });
+      setEditingTimetable(null);
+      setShowModal(true);
+    }
+
+    setDragState({ isDragging: false, route: null });
+  };
+
+  // Context menu handlers
+  const handleContextMenu = (e: React.MouseEvent, timetable: BusTimetable) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      timetable
+    });
+  };
+
+  const handleCreateReturn = async () => {
+    if (!contextMenu.timetable || !tenant?.tenant_id) return;
+
+    const original = contextMenu.timetable;
+    const route = routes.find(r => r.route_id === original.route_id);
+
+    // Parse original time and add 30 minutes for return
+    const [hours, minutes] = original.departure_time.split(':').map(Number);
+    const returnDate = new Date(2000, 0, 1, hours, minutes + 30);
+    const returnTime = `${returnDate.getHours().toString().padStart(2, '0')}:${returnDate.getMinutes().toString().padStart(2, '0')}`;
+
+    const newDirection = original.direction === 'outbound' ? 'inbound' : 'outbound';
+
+    setPrefilledData({
+      route_id: original.route_id.toString(),
+      departure_time: returnTime,
+      valid_from: original.valid_from.split('T')[0],
+      valid_until: original.valid_until?.split('T')[0] || '',
+      direction: newDirection,
+      service_name: `${route?.route_number || ''} ${newDirection.charAt(0).toUpperCase() + newDirection.slice(1)} ${returnTime}`,
+      total_seats: original.total_seats?.toString() || '16',
+      wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
+      status: original.status
+    });
+
+    setEditingTimetable(null);
+    setShowModal(true);
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleDuplicateService = () => {
+    if (!contextMenu.timetable) return;
+
+    const original = contextMenu.timetable;
+    const route = routes.find(r => r.route_id === original.route_id);
+
+    // Add 1 hour for next service
+    const [hours, minutes] = original.departure_time.split(':').map(Number);
+    const nextDate = new Date(2000, 0, 1, hours + 1, minutes);
+    const nextTime = `${nextDate.getHours().toString().padStart(2, '0')}:${nextDate.getMinutes().toString().padStart(2, '0')}`;
+
+    setPrefilledData({
+      route_id: original.route_id.toString(),
+      departure_time: nextTime,
+      valid_from: original.valid_from.split('T')[0],
+      valid_until: original.valid_until?.split('T')[0] || '',
+      direction: original.direction,
+      service_name: `${route?.route_number || ''} ${original.direction.charAt(0).toUpperCase() + original.direction.slice(1)} ${nextTime}`,
+      total_seats: original.total_seats?.toString() || '16',
+      wheelchair_spaces: original.wheelchair_spaces?.toString() || '2',
+      status: original.status
+    });
+
+    setEditingTimetable(null);
+    setShowModal(true);
+    setContextMenu(prev => ({ ...prev, visible: false }));
   };
 
   const filteredTimetables = selectedRoute === 'all'
@@ -205,7 +337,7 @@ export default function BusTimetablesPage() {
       <div className="page-header">
         <div className="header-content">
           <h1>Service Timetables</h1>
-          <p className="page-subtitle">Manage scheduled bus services</p>
+          <p className="page-subtitle">Drag routes onto the calendar to schedule services</p>
         </div>
         <button className="btn-primary" onClick={handleCreateTimetable} disabled={routes.length === 0}>
           <span>+</span> Create New Service
@@ -221,6 +353,31 @@ export default function BusTimetablesPage() {
         </div>
       ) : (
         <>
+          {/* Route Palette */}
+          <div className="route-palette">
+            <div className="palette-header">
+              <span className="palette-title">Routes</span>
+              <span className="palette-hint">Drag onto calendar</span>
+            </div>
+            <div className="palette-routes">
+              {routes.filter(r => r.status === 'active' || r.status === 'planning').map(route => (
+                <div
+                  key={route.route_id}
+                  className="palette-route"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, route)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <div className="palette-route-number">{route.route_number}</div>
+                  <div className="palette-route-info">
+                    <div className="palette-route-name">{route.route_name}</div>
+                    <div className="palette-route-journey">{route.origin_point} → {route.destination_point}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="page-controls">
             <div className="view-toggle">
               <button
@@ -254,7 +411,7 @@ export default function BusTimetablesPage() {
           </div>
 
           {viewMode === 'calendar' && (
-            <div className="calendar-view">
+            <div className={`calendar-view ${dragState.isDragging ? 'dragging' : ''}`}>
               <div className="calendar-navigation">
                 <button className="nav-btn" onClick={() => navigateWeek('prev')}>
                   <ArrowLeftIcon size={20} /> Previous
@@ -295,14 +452,17 @@ export default function BusTimetablesPage() {
                         return (
                           <div
                             key={dayIndex}
-                            className={`day-cell ${isToday(date) ? 'today' : ''}`}
+                            className={`day-cell ${isToday(date) ? 'today' : ''} ${dragState.isDragging ? 'drop-target' : ''}`}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, date, timeSlot)}
                           >
                             {services.map(service => (
                               <div
                                 key={service.timetable_id}
                                 className={`service-chip ${getStatusClass(service.status)}`}
                                 onClick={() => handleEditTimetable(service)}
-                                title={`${service.service_name} - ${formatTime(service.departure_time)}`}
+                                onContextMenu={(e) => handleContextMenu(e, service)}
+                                title={`${service.service_name}\nRight-click for options`}
                               >
                                 <div className="chip-route">{service.route_number}</div>
                                 <div className="chip-time">{formatTime(service.departure_time)}</div>
@@ -333,7 +493,11 @@ export default function BusTimetablesPage() {
               ) : (
                 <div className="timetables-grid">
                   {filteredTimetables.map((timetable) => (
-                    <div key={timetable.timetable_id} className="timetable-card">
+                    <div
+                      key={timetable.timetable_id}
+                      className="timetable-card"
+                      onContextMenu={(e) => handleContextMenu(e, timetable)}
+                    >
                       <div className="timetable-header">
                         <div className="route-info">
                           <div className="route-badge">{timetable.route_number}</div>
@@ -349,7 +513,7 @@ export default function BusTimetablesPage() {
                       <div className="timetable-time">
                         <div className="time-display">
                           <span className="time-value">{formatTime(timetable.departure_time)}</span>
-                          <span className="direction-indicator">{getDirectionIcon(timetable.direction)}</span>
+                          <span className="direction-indicator">{getDirectionIcon(timetable.direction, 28)}</span>
                         </div>
                         <div className="direction-label">{timetable.direction}</div>
                       </div>
@@ -361,12 +525,6 @@ export default function BusTimetablesPage() {
                             {timetable.valid_until && ` to ${new Date(timetable.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                           </span>
                         </div>
-                        {timetable.vehicle_registration && (
-                          <div className="detail-row">
-                            <span className="detail-icon"><BusIcon size={16} /></span>
-                            <span className="detail-text">{timetable.vehicle_registration}</span>
-                          </div>
-                        )}
                       </div>
                       <div className="capacity-info">
                         <div className="capacity-item">
@@ -403,12 +561,42 @@ export default function BusTimetablesPage() {
         </>
       )}
 
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div
+          ref={contextMenuRef}
+          className="context-menu"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <button className="context-menu-item" onClick={handleCreateReturn}>
+            <ArrowLeftIcon size={16} /> Create Return Journey
+          </button>
+          <button className="context-menu-item" onClick={handleDuplicateService}>
+            <CalendarIcon size={16} /> Duplicate (+1 hour)
+          </button>
+          <div className="context-menu-divider"></div>
+          <button className="context-menu-item" onClick={() => {
+            if (contextMenu.timetable) handleEditTimetable(contextMenu.timetable);
+            setContextMenu(prev => ({ ...prev, visible: false }));
+          }}>
+            Edit Service
+          </button>
+          <button className="context-menu-item danger" onClick={() => {
+            if (contextMenu.timetable) handleDeleteTimetable(contextMenu.timetable);
+            setContextMenu(prev => ({ ...prev, visible: false }));
+          }}>
+            Delete Service
+          </button>
+        </div>
+      )}
+
       <TimetableFormModal
         isOpen={showModal}
         onClose={handleCloseModal}
         onSuccess={handleModalSuccess}
         timetable={editingTimetable}
         routes={routes}
+        prefilled={prefilledData}
       />
     </div>
   );
