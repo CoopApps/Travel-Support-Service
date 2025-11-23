@@ -86,7 +86,7 @@ function VehicleCard({
       case 'personal':
         return { color: '#c2185b', label: 'DRIVER OWNED' };
       default:
-        return { color: '#666', label: vehicle.ownership?.toUpperCase() || 'UNKNOWN' };
+        return { color: '#666', label: (vehicle.ownership as string)?.toUpperCase() || 'UNKNOWN' };
     }
   };
 

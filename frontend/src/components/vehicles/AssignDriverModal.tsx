@@ -94,7 +94,7 @@ function AssignDriverModal({ vehicle, drivers, onClose }: AssignDriverModalProps
                 {drivers.map(driver => (
                   <option key={driver.driver_id} value={driver.driver_id}>
                     {driver.name}
-                    {driver.vehicle_registration && driver.vehicle_id !== vehicle.vehicle_id
+                    {driver.vehicle_registration && String(driver.vehicle_id) !== String(vehicle.vehicle_id)
                       ? ` (Currently: ${driver.vehicle_registration})`
                       : ''
                     }
