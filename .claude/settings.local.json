@@ -24,7 +24,10 @@
       "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/node_modules/typescript/bin/tsc\" --project \"D:/projects/travel-support-app -test/conversion/backend\")",
       "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --project \"D:/projects/travel-support-app -test/conversion/backend\")",
       "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/run-migration.js\" add-route-types-and-service-aware-outings.sql \"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\")",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(\"/c/Program Files/nodejs/npm.cmd\" install leaflet react-leaflet @types/leaflet --prefix \"D:/projects/travel-support-app -test/conversion/frontend\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"/c/Program Files/nodejs/node_modules/npm/bin/npm-cli.js\" install leaflet react-leaflet @types/leaflet)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"/c/Program Files/nodejs/node_modules/npm/bin/npm-cli.js\" install leaflet react-leaflet@4.2.1 @types/leaflet)"
     ],
     "deny": [],
     "ask": []

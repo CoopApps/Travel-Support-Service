@@ -465,6 +465,34 @@
   flex-shrink: 0;
 }
 
+/* Route Map Section */
+.route-map-section {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Address with Geocode Button */
+.address-with-geocode {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.address-with-geocode input {
+  flex: 1;
+}
+
+.address-with-geocode .btn-secondary {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+}
+
+.address-with-geocode .btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .form-row {
     grid-template-columns: 1fr;
@@ -487,6 +515,14 @@
   }
 
   .modal-footer button {
+    width: 100%;
+  }
+
+  .address-with-geocode {
+    flex-direction: column;
+  }
+
+  .address-with-geocode .btn-secondary {
     width: 100%;
   }
 }

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { busRoutesApi, BusRoute, RouteStop } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
+import RouteMapView, { geocodeAddress } from './RouteMapView';
 import './RouteFormModal.css';
+import 'leaflet/dist/leaflet.css';
 
 interface RouteFormModalProps {
   isOpen: boolean;
@@ -47,6 +49,8 @@ interface StopFormData {
   is_timing_point: boolean;
   is_pickup_point: boolean;
   is_setdown_point: boolean;
+  latitude: string;
+  longitude: string;
 }
 
 const initialFormData: FormData = {
@@ -90,11 +94,14 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
     dwell_time_minutes: '2',
     is_timing_point: false,
     is_pickup_point: true,
-    is_setdown_point: true
+    is_setdown_point: true,
+    latitude: '',
+    longitude: ''
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'stops'>('details');
+  const [geocoding, setGeocoding] = useState(false);
 
   const isEditing = !!route;
 
@@ -259,6 +266,33 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
     }
   };
 
+  const handleGeocodeAddress = async () => {
+    if (!stopFormData.stop_address.trim()) {
+      setError('Enter an address to geocode');
+      return;
+    }
+
+    setGeocoding(true);
+    setError(null);
+
+    try {
+      const result = await geocodeAddress(stopFormData.stop_address);
+      if (result) {
+        setStopFormData(prev => ({
+          ...prev,
+          latitude: result.lat.toFixed(6),
+          longitude: result.lng.toFixed(6)
+        }));
+      } else {
+        setError('Could not find coordinates for this address');
+      }
+    } catch (err) {
+      setError('Geocoding failed. Please enter coordinates manually.');
+    } finally {
+      setGeocoding(false);
+    }
+  };
+
   const handleAddStop = async () => {
     if (!tenant?.tenant_id || !route?.route_id) return;
     if (!stopFormData.stop_name.trim()) {
@@ -279,7 +313,9 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         dwell_time_minutes: parseInt(stopFormData.dwell_time_minutes) || 2,
         is_timing_point: stopFormData.is_timing_point,
         is_pickup_point: stopFormData.is_pickup_point,
-        is_setdown_point: stopFormData.is_setdown_point
+        is_setdown_point: stopFormData.is_setdown_point,
+        latitude: stopFormData.latitude ? parseFloat(stopFormData.latitude) : undefined,
+        longitude: stopFormData.longitude ? parseFloat(stopFormData.longitude) : undefined
       };
 
       if (editingStop) {
@@ -303,7 +339,9 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         dwell_time_minutes: '2',
         is_timing_point: false,
         is_pickup_point: true,
-        is_setdown_point: true
+        is_setdown_point: true,
+        latitude: '',
+        longitude: ''
       });
     } catch (err: any) {
       console.error('Failed to save stop:', err);
@@ -324,7 +362,9 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       dwell_time_minutes: stop.dwell_time_minutes?.toString() || '2',
       is_timing_point: stop.is_timing_point,
       is_pickup_point: stop.is_pickup_point,
-      is_setdown_point: stop.is_setdown_point
+      is_setdown_point: stop.is_setdown_point,
+      latitude: stop.latitude?.toString() || '',
+      longitude: stop.longitude?.toString() || ''
     });
     setShowStopForm(true);
   };
@@ -655,7 +695,9 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
                     dwell_time_minutes: '2',
                     is_timing_point: false,
                     is_pickup_point: true,
-                    is_setdown_point: true
+                    is_setdown_point: true,
+                    latitude: '',
+                    longitude: ''
                   });
                   setShowStopForm(true);
                 }}
@@ -663,6 +705,18 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
                 + Add Stop
               </button>
             </div>
+
+            {/* Route Map Preview */}
+            {stops.length > 0 && (
+              <div className="route-map-section">
+                <RouteMapView
+                  stops={stops}
+                  showMap={true}
+                  height="250px"
+                  onStopClick={(stop) => handleEditStop(stop)}
+                />
+              </div>
+            )}
 
             {showStopForm && (
               <div className="stop-form">
@@ -689,12 +743,43 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
                 </div>
                 <div className="form-group">
                   <label>Address</label>
-                  <input
-                    type="text"
-                    value={stopFormData.stop_address}
-                    onChange={e => setStopFormData(prev => ({ ...prev, stop_address: e.target.value }))}
-                    placeholder="Full address (optional)"
-                  />
+                  <div className="address-with-geocode">
+                    <input
+                      type="text"
+                      value={stopFormData.stop_address}
+                      onChange={e => setStopFormData(prev => ({ ...prev, stop_address: e.target.value }))}
+                      placeholder="Full address (for geocoding)"
+                    />
+                    <button
+                      type="button"
+                      className="btn-secondary btn-sm"
+                      onClick={handleGeocodeAddress}
+                      disabled={geocoding || !stopFormData.stop_address.trim()}
+                      title="Find coordinates from address"
+                    >
+                      {geocoding ? '...' : '📍'}
+                    </button>
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Latitude</label>
+                    <input
+                      type="text"
+                      value={stopFormData.latitude}
+                      onChange={e => setStopFormData(prev => ({ ...prev, latitude: e.target.value }))}
+                      placeholder="e.g., 51.5074"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Longitude</label>
+                    <input
+                      type="text"
+                      value={stopFormData.longitude}
+                      onChange={e => setStopFormData(prev => ({ ...prev, longitude: e.target.value }))}
+                      placeholder="e.g., -0.1278"
+                    />
+                  </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
