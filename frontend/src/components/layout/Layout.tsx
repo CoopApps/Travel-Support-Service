@@ -88,7 +88,7 @@ function Layout() {
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
-                <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname.startsWith('/bus/cooperative')} />
+                <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
               </>
             )}
           </div>
@@ -108,18 +108,14 @@ function Layout() {
             <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
             <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
             <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
+            {activeService === 'bus' && (
+              <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname.startsWith('/bus/cooperative')} />
+            )}
             {activeService === 'transport' && (
               <NavItem to="/operations/route-optimization" label="Analytics" icon="chart" active={location.pathname.startsWith('/operations/')} />
             )}
             <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
           </div>
-
-          {activeService === 'bus' && (
-            <div className="nav-section">
-              <div className="nav-section-label">Bus Admin</div>
-              <NavItem to="/admin/route-proposals" label="Route Proposals" icon="vote" active={location.pathname === '/admin/route-proposals'} />
-            </div>
-          )}
         </nav>
 
         <div className="sidebar-footer">
