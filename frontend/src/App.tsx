@@ -38,7 +38,7 @@ import { ServiceProvider } from './contexts/ServiceContext';
 import BusDashboard from './components/bus/BusDashboard';
 import BusRoutesPage from './components/bus/BusRoutesPage';
 import BusTimetablesPage from './components/bus/BusTimetablesPage';
-import BusBookingsPage from './components/bus/BusBookingsPage';
+// BusBookingsPage removed - booking handled via customer journey requests
 // Section22CompliancePage now integrated into PermitsPage as a tab
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import RegularPassengersPage from './components/bus/RegularPassengersPage';
@@ -47,7 +47,7 @@ import BusCustomersPage from './components/bus/BusCustomersPage';
 // BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
 // SurplusPoolDashboard, CooperativeMembersPage, DividendManagementPage now integrated into CooperativePage as tabs
-import QuickBookPage from './components/bus/QuickBookPage';
+// QuickBookPage removed - booking handled via customer journey requests
 import CooperativePage from './components/bus/CooperativePage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
@@ -207,8 +207,7 @@ function App() {
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
         <Route path="bus/roster" element={<Navigate to="/roster" replace />} />
-        <Route path="bus/book" element={<QuickBookPage />} />
-        <Route path="bus/bookings" element={<BusBookingsPage />} />
+        {/* bus/book and bus/bookings routes removed - booking handled via customer journey requests */}
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
         <Route path="bus/regular-passengers" element={<RegularPassengersPage />} />
         <Route path="bus/communications" element={<CustomerMessagesPage />} />
