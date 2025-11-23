@@ -3,17 +3,8 @@ import { BusTimetable, BusBooking, busBookingsApi, busRoutesApi, RouteStop, regu
 import { customerApi } from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { WheelchairIcon, UserIcon, SeatIcon, CalendarIcon } from '../icons/BusIcons';
+import { Customer } from '../../types';
 import './SeatAssignmentModal.css';
-
-interface Customer {
-  customer_id: number;
-  first_name: string;
-  last_name: string;
-  phone?: string;
-  email?: string;
-  requires_wheelchair?: boolean;
-  mobility_needs?: string;
-}
 
 interface SeatAssignmentModalProps {
   isOpen: boolean;

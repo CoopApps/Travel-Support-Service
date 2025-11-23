@@ -39,6 +39,10 @@ export interface Customer {
   id?: number; // Alias for customer_id
   tenant_id: number;
   name: string;
+  first_name?: string; // Some queries return first/last separately
+  last_name?: string;
+  requires_wheelchair?: boolean;
+  mobility_needs?: string;
   address?: string;
   address_line_2?: string;
   city?: string;

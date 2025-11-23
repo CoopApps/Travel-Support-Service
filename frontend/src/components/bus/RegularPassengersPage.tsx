@@ -11,15 +11,8 @@ import {
 } from '../../services/busApi';
 import { customerApi } from '../../services/api';
 import { WheelchairIcon, UserIcon, CalendarIcon, SeatIcon } from '../icons/BusIcons';
+import { Customer } from '../../types';
 import './RegularPassengersPage.css';
-
-interface Customer {
-  customer_id: number;
-  first_name: string;
-  last_name: string;
-  phone?: string;
-  requires_wheelchair?: boolean;
-}
 
 export default function RegularPassengersPage() {
   const { tenant } = useTenant();
