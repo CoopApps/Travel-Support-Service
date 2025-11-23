@@ -1,77 +1,68 @@
 .bus-customers-page {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.bus-customers-page .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-}
-
-.bus-customers-page .header-content h1 {
+  padding: 0;
+  max-width: 100%;
   margin: 0;
-  font-size: 1.75rem;
-  color: var(--gray-900);
 }
 
-.bus-customers-page .page-subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--gray-600);
-  font-size: 0.875rem;
-}
-
-.bus-customers-page .header-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Tabs */
-.bus-customers-page .tabs-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid var(--gray-200);
-}
-
-.bus-customers-page .tab {
-  padding: 0.75rem 1.5rem;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  color: var(--gray-600);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.bus-customers-page .tab:hover {
-  color: var(--gray-900);
-}
-
-.bus-customers-page .tab.active {
-  color: #10b981;
-  border-bottom-color: #10b981;
-  font-weight: 600;
-}
-
-/* Search */
-.bus-customers-page .search-bar {
-  display: flex;
-  gap: 0.5rem;
+/* Statistics Cards - Match CustomerStats */
+.bus-customers-page .customer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.bus-customers-page .search-bar input {
-  flex: 1;
-  max-width: 400px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--gray-300);
-  border-radius: 6px;
-  font-size: 0.875rem;
+.bus-customers-page .stat-card {
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bus-customers-page .stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: inherit;
+}
+
+.bus-customers-page .stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  color: inherit;
+}
+
+/* Theme Colors - Matching CustomerStats */
+.bus-customers-page .stat-card-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.bus-customers-page .stat-card-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.bus-customers-page .stat-card-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.bus-customers-page .stat-card-purple {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.bus-customers-page .stat-card-teal {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+.bus-customers-page .stat-card-indigo {
+  background: #e8eaf6;
+  color: #3f51b5;
 }
 
 /* Loading & Error */
