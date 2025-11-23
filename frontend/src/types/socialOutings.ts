@@ -24,6 +24,10 @@ export interface SocialOuting {
   created_by: string;
   created_at: string;
   updated_at: string;
+  // Service awareness - which part of the business
+  service_type?: 'transport' | 'bus';
+  requires_section_22?: boolean;
+  vehicle_type_required?: string;
   // Aggregated fields from JOIN queries
   booking_count?: number;
   driver_count?: number;
@@ -115,6 +119,10 @@ export interface OutingFormData {
   contact_phone?: string;
   weather_dependent?: boolean;
   minimum_passengers?: number;
+  // Service awareness
+  service_type?: 'transport' | 'bus';
+  requires_section_22?: boolean;
+  vehicle_type_required?: string;
 }
 
 export interface BookingFormData {

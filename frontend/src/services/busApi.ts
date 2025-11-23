@@ -30,6 +30,11 @@ export interface BusRoute {
   updated_at: string;
   stop_count?: number;
   timetable_count?: number;
+  // Route type: group (auto-assigned members) or public (request-based)
+  route_type?: 'group' | 'public';
+  group_name?: string;
+  group_description?: string;
+  group_auto_assign?: boolean;
 }
 
 export interface RouteStop {
