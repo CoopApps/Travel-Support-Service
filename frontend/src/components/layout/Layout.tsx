@@ -88,7 +88,6 @@ function Layout() {
                 <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                 <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                 <NavItem to="/bus/bookings" label="Bookings" icon="users" active={location.pathname === '/bus/bookings'} />
-                <NavItem to="/bus/regular-passengers" label="Regular Passengers" icon="users" active={location.pathname === '/bus/regular-passengers'} />
                 <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
                 <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname === '/bus/cooperative'} />
                 <NavItem to="/bus/surplus-pool" label="Surplus Pool" icon="piggy-bank" active={location.pathname === '/bus/surplus-pool'} />
@@ -165,16 +164,16 @@ function Layout() {
               </Link>
 
               <Link
-                to="/customers"
-                className={`quick-nav-btn ${location.pathname === '/customers' ? 'active' : ''}`}
-                title="Customers"
+                to={activeService === 'bus' ? '/bus/customers' : '/customers'}
+                className={`quick-nav-btn ${location.pathname === '/customers' || location.pathname === '/bus/customers' ? 'active' : ''}`}
+                title={activeService === 'bus' ? 'Bus Customers' : 'Customers'}
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                <span>Customers</span>
+                <span>{activeService === 'bus' ? 'Passengers' : 'Customers'}</span>
               </Link>
 
               <Link

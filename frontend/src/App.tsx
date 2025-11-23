@@ -42,6 +42,7 @@ import BusBookingsPage from './components/bus/BusBookingsPage';
 import Section22CompliancePage from './components/bus/Section22CompliancePage';
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import RegularPassengersPage from './components/bus/RegularPassengersPage';
+import BusCustomersPage from './components/bus/BusCustomersPage';
 // TodaysOperationsPage removed - merged into BusDashboard
 // BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
@@ -203,6 +204,7 @@ function App() {
         <Route path="compliance/passenger-classes" element={<PassengerClassPage />} />
 
         {/* Bus Service Routes - bus-specific modules only */}
+        <Route path="bus/customers" element={<BusCustomersPage />} />
         <Route path="bus/cooperative" element={<CooperativePage />} />
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />

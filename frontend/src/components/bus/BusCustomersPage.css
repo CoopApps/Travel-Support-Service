@@ -1,0 +1,504 @@
+.bus-customers-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.bus-customers-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.bus-customers-page .header-content h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--gray-900);
+}
+
+.bus-customers-page .page-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.bus-customers-page .header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Tabs */
+.bus-customers-page .tabs-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.bus-customers-page .tab {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bus-customers-page .tab:hover {
+  color: var(--gray-900);
+}
+
+.bus-customers-page .tab.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+  font-weight: 600;
+}
+
+/* Search */
+.bus-customers-page .search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bus-customers-page .search-bar input {
+  flex: 1;
+  max-width: 400px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+/* Loading & Error */
+.bus-customers-page .loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--gray-600);
+}
+
+.bus-customers-page .error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bus-customers-page .empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--gray-50);
+  border-radius: 12px;
+}
+
+.bus-customers-page .empty-state h2 {
+  margin: 1rem 0 0.5rem;
+  color: var(--gray-900);
+}
+
+.bus-customers-page .empty-state p {
+  color: var(--gray-600);
+  margin-bottom: 1.5rem;
+}
+
+/* Customer List */
+.bus-customers-page .customers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bus-customers-page .customer-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.bus-customers-page .customer-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.bus-customers-page .customer-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bus-customers-page .customer-avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--gray-100);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-customers-page .customer-info {
+  flex: 1;
+}
+
+.bus-customers-page .customer-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--gray-900);
+}
+
+.bus-customers-page .customer-contact {
+  display: flex;
+  gap: 1rem;
+  color: var(--gray-600);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.bus-customers-page .customer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Assignments Section */
+.bus-customers-page .assignments-section {
+  background: var(--gray-50);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.bus-customers-page .assignments-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.75rem;
+}
+
+.bus-customers-page .no-assignments {
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.bus-customers-page .assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bus-customers-page .assignment-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bus-customers-page .assignment-card.suspended {
+  opacity: 0.6;
+  background: #fef3c7;
+}
+
+.bus-customers-page .assignment-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bus-customers-page .assignment-service {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bus-customers-page .route-badge {
+  background: #10b981;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.bus-customers-page .service-time {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.875rem;
+}
+
+.bus-customers-page .service-name {
+  color: var(--gray-600);
+  font-size: 0.8rem;
+}
+
+.bus-customers-page .assignment-details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.bus-customers-page .seat-badge {
+  background: #3b82f6;
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bus-customers-page .days {
+  color: var(--gray-600);
+}
+
+.bus-customers-page .status-badge.suspended {
+  background: #f59e0b;
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+}
+
+.bus-customers-page .assignment-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Buttons */
+.bus-customers-page .btn-primary {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.bus-customers-page .btn-primary:hover {
+  background: #059669;
+}
+
+.bus-customers-page .btn-secondary {
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bus-customers-page .btn-secondary:hover {
+  background: var(--gray-50);
+}
+
+.bus-customers-page .btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--gray-300);
+  background: white;
+  cursor: pointer;
+}
+
+.bus-customers-page .btn-sm:hover {
+  background: var(--gray-50);
+}
+
+.bus-customers-page .btn-sm.btn-primary {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.bus-customers-page .btn-sm.btn-warning {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: white;
+}
+
+.bus-customers-page .btn-sm.btn-success {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: white;
+}
+
+.bus-customers-page .btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6875rem;
+  border-radius: 4px;
+  border: 1px solid var(--gray-300);
+  background: white;
+  cursor: pointer;
+}
+
+.bus-customers-page .btn-xs:hover {
+  background: var(--gray-50);
+}
+
+.bus-customers-page .btn-xs.btn-danger {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+/* Pagination */
+.bus-customers-page .pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.bus-customers-page .page-info {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.bus-customers-page .page-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Modal */
+.bus-customers-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.bus-customers-page .modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.bus-customers-page .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.bus-customers-page .modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.bus-customers-page .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-500);
+}
+
+.bus-customers-page .modal-customer-info {
+  padding: 0.75rem 1.5rem;
+  background: #f0fdf4;
+  border-bottom: 1px solid #dcfce7;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+.bus-customers-page .modal-body {
+  padding: 1.5rem;
+}
+
+.bus-customers-page .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Form */
+.bus-customers-page .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bus-customers-page .form-group {
+  margin-bottom: 1rem;
+}
+
+.bus-customers-page .form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: 0.375rem;
+}
+
+.bus-customers-page .form-group input,
+.bus-customers-page .form-group select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.bus-customers-page .days-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bus-customers-page .day-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gray-100);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.bus-customers-page .day-checkbox:hover {
+  background: var(--gray-200);
+}
+
+.bus-customers-page .day-checkbox input {
+  width: auto;
+}
+
+.bus-customers-page .day-checkbox input:checked + span {
+  font-weight: 600;
+  color: #10b981;
+}
