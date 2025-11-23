@@ -1,16 +1,26 @@
 import React from 'react';
 
-export const Alert = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className = '', ...props }, ref) => (
-  <div
-    ref={ref}
-    role="alert"
-    className={`relative w-full rounded-lg border p-4 ${className}`}
-    {...props}
-  />
-));
+interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'destructive' | 'success' | 'warning';
+}
+
+const variantStyles = {
+  default: 'bg-gray-50 border-gray-200 text-gray-900',
+  destructive: 'bg-red-50 border-red-200 text-red-900',
+  success: 'bg-green-50 border-green-200 text-green-900',
+  warning: 'bg-yellow-50 border-yellow-200 text-yellow-900'
+};
+
+export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
+  ({ className = '', variant = 'default', ...props }, ref) => (
+    <div
+      ref={ref}
+      role="alert"
+      className={`relative w-full rounded-lg border p-4 ${variantStyles[variant]} ${className}`}
+      {...props}
+    />
+  )
+);
 Alert.displayName = 'Alert';
 
 export const AlertTitle = React.forwardRef<
