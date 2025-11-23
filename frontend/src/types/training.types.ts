@@ -41,6 +41,7 @@ export interface TrainingRecord {
   location?: string;
   certificateNumber?: string;
   notes?: string;
+  provider?: string;
   status: TrainingStatus;
   daysUntilExpiry?: number;
   created_at?: string;
@@ -58,7 +59,7 @@ export interface DriverCompliance {
   completedTraining: number;
   validTraining: number;
   expiredTraining: number;
-  expiringTraining: number;
+  expiringTrainingCount: number;
   compliancePercentage: number;
   complianceStatus: ComplianceStatus;
   missingTraining: string[];
@@ -156,6 +157,7 @@ export interface CreateTrainingRecordDTO {
   location?: string;
   certificateNumber?: string;
   notes?: string;
+  provider?: string;
 }
 
 export interface UpdateTrainingRecordDTO {

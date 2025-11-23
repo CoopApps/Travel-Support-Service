@@ -18,6 +18,7 @@ export interface SalaryStructure {
 
 export interface Driver {
   driver_id: number;
+  id?: number; // Alias for driver_id
   tenant_id: number;
   name: string;
   first_name?: string; // Some queries return first/last name separately
@@ -31,8 +32,10 @@ export interface Driver {
   weekly_wage: number | null;
   weekly_lease: number | null; // Fuel allowance
   vehicle_id: string | null; // Vehicle assignment ID
+  current_vehicle_id?: number | null; // Currently assigned vehicle
   assigned_vehicle: string | null; // Personal vehicle details
   vehicle_assignment: any | null; // Vehicle assignment JSON
+  vehicle_registration?: string | null; // Registration of assigned vehicle
   employment_type: 'contracted' | 'freelance' | 'employed' | null;
   employment_status: 'active' | 'on_leave' | 'terminated' | null;
   salary_structure: SalaryStructure | null;

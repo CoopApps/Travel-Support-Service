@@ -65,7 +65,9 @@ export interface ProviderStats {
 
 export interface ProviderCustomerInfo {
   id: number;
+  customerId?: number; // Alias for id
   name: string;
+  customerName?: string; // Alias for name
   address?: string;
   phone?: string;
   weeklyAmount: number;
@@ -88,7 +90,8 @@ export interface ProvidersStatsResponse {
   timestamp: string;
 }
 
-export interface RouteDistribution {
+// Object-style route distribution (keyed by day)
+export interface RouteDistributionObject {
   mon: number;
   tue: number;
   wed: number;
@@ -98,10 +101,20 @@ export interface RouteDistribution {
   sun: number;
 }
 
+// Array-style route distribution (for charts)
+export interface RouteDistributionItem {
+  dayOfWeek: string;
+  routeCount: number;
+}
+
+// RouteDistribution can be either format
+export type RouteDistribution = RouteDistributionObject | RouteDistributionItem[];
+
 export interface ProviderDetailsSummary {
   totalCustomers: number;
   totalRoutes: number;
   weeklyAmount: number;
+  totalWeeklyAmount?: number; // Alias for weeklyAmount
   monthlyEstimate: number;
   annualProjection: number;
   averagePerCustomer: number;

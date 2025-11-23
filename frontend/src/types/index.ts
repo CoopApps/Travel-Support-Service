@@ -6,11 +6,13 @@
 export interface User {
   id: number;
   email: string;
-  role: 'admin' | 'manager' | 'driver' | 'customer';
+  role: 'admin' | 'manager' | 'driver' | 'customer' | 'super_admin' | 'staff';
   tenantId: number;
   customerId?: number; // For customer portal users
   customer_id?: number; // Alias
   driverId?: number; // For driver portal users
+  driver_id?: number; // Alias for driverId
+  employmentType?: string; // For driver users
 }
 
 export interface LoginCredentials {
@@ -77,6 +79,11 @@ export interface Customer {
   // Reminder preferences
   reminder_opt_in?: boolean;
   reminder_preference?: 'sms' | 'email' | 'both' | 'none';
+  // Reliability tracking
+  total_trips_attempted?: number;
+  reliability_percentage?: number;
+  no_show_count?: number;
+  last_no_show_date?: string;
   created_at: string;
   updated_at: string;
 }
@@ -180,7 +187,7 @@ export interface Tenant {
   domain?: string;
   subscription_tier?: 'free' | 'basic' | 'professional' | 'enterprise';
   organization_type: 'charity' | 'cic' | 'third_sector' | 'cooperative' | 'cooperative_commonwealth';
-  cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union';
+  cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union' | 'passenger' | 'hybrid';
   discount_percentage: number;
   base_price: number;
   currency: string;
@@ -216,7 +223,7 @@ export interface CreateTenantDto {
   domain?: string;
   subscription_tier?: 'free' | 'basic' | 'professional' | 'enterprise';
   organization_type?: 'charity' | 'cic' | 'third_sector' | 'cooperative' | 'cooperative_commonwealth';
-  cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union';
+  cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union' | 'passenger' | 'hybrid';
   base_price?: number;
   currency?: string;
   billing_cycle?: 'monthly' | 'quarterly' | 'annual';
@@ -299,8 +306,39 @@ export * from './socialOutings';
 // Re-export provider types
 export * from './provider.types';
 
-// Re-export permit types
-export * from './permit.types';
+// Re-export permit types (excluding ComplianceStatus which conflicts with training.types)
+export {
+  PermitType,
+  OrganizationalPermitType,
+  PermitSizeType,
+  PassengerClass,
+  IssuingBodyType,
+  EUExemptionType,
+  OperatingStructure,
+  TrafficCommissionerArea,
+  DriverPermit,
+  DriverPermits,
+  DriverRole,
+  OrganizationalPermit,
+  PermitsOverview,
+  PermitsStats,
+  DriverPermitsData,
+  OrganizationalPermitsData,
+  CreateOrganizationalPermitDto,
+  UpdateOrganizationalPermitDto,
+  PermitStatus,
+  ComplianceStatus as PermitComplianceStatus,
+  EUExemption,
+  DriverLicensingCompliance,
+  VehiclePermitCompliance,
+  LocalBusServiceRegistration,
+  FinancialSurplus,
+  PassengerClassDefinition,
+  ComplianceAlert,
+  CreateServiceRegistrationDto,
+  CreateFinancialSurplusDto,
+  CreatePassengerClassDto
+} from './permit.types';
 
 // Re-export training types
 export * from './training.types';

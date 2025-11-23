@@ -14,6 +14,7 @@ export interface Vehicle {
   vehicle_type: string;
   type: string;
   seats: number;
+  seating_capacity?: number; // Alias for seats
   fuel_type: string;
   fuelType: string;
   mileage: number;

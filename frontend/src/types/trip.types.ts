@@ -11,6 +11,7 @@ export interface Trip {
   trip_date: string;
   day_of_week: string;
   pickup_time: string;
+  scheduled_pickup_time?: string; // Alias for pickup_time
   pickup_location: string | null;
   pickup_address: string | null;
   destination: string;

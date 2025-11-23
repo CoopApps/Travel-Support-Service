@@ -47,7 +47,9 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
       ]);
 
       setBookings(bookingsData);
-      setCustomers(customersData.customers || customersData);
+      // Handle both CustomerListResponse and Customer[] formats
+      const customers = 'customers' in customersData ? customersData.customers : customersData;
+      setCustomers(customers || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load bookings');

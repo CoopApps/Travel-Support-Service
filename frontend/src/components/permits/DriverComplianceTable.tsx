@@ -1,4 +1,7 @@
-import { Driver, DriverPermits, DriverRole, DriverPermit, ComplianceStatus } from '../../types';
+import { Driver, DriverPermits, DriverRole, DriverPermit, PermitComplianceStatus } from '../../types';
+
+// Local alias for permit compliance status (object with text/color)
+type ComplianceStatus = PermitComplianceStatus;
 
 interface DriverComplianceTableProps {
   drivers: Driver[];

@@ -41,9 +41,12 @@ interface MemberDividend {
   member_id: number;
   member_name: string;
   membership_number: string;
+  member_type?: 'driver' | 'customer' | 'staff' | 'other';
   trips_count: number;
   trip_percentage: number;
   dividend_amount: number;
+  patronage_value?: number;
+  patronage_percentage?: number;
 }
 
 interface DividendCalculation {

@@ -250,6 +250,9 @@ export interface MemberDistribution {
   notes?: string;
   member_name?: string;
   member_type?: string;
+  // Joined fields from period
+  period_start?: string;
+  period_end?: string;
 }
 
 export interface DistributionSummary {
