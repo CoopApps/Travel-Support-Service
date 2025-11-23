@@ -2,11 +2,10 @@
   padding: 20px;
 }
 
-/* Layout with sidebar */
-.routes-with-sidebar {
+/* Main Layout with Sidebar */
+.routes-layout {
   display: flex;
   gap: 24px;
-  max-width: none;
 }
 
 .routes-main {
@@ -14,94 +13,47 @@
   min-width: 0;
 }
 
-/* Compact Header */
-.page-header.compact {
+/* Toolbar */
+.routes-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.page-header.compact h1 {
-  font-size: 24px;
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left h1 {
+  font-size: 22px;
   font-weight: 600;
   color: var(--text-primary, #111827);
   margin: 0;
 }
 
-.btn-primary {
-  background: var(--primary-color, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+.toolbar-right {
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: var(--primary-color-dark, #2563eb);
-}
-
-.btn-primary.btn-sm {
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-.btn-secondary {
-  background: white;
-  color: var(--primary-color, #3b82f6);
-  border: 1px solid var(--primary-color, #3b82f6);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-}
-
-.btn-secondary:hover {
-  background: var(--primary-color, #3b82f6);
-  color: white;
-}
-
-.btn-secondary.btn-sm {
-  padding: 6px 10px;
-  font-size: 12px;
-}
-
-.btn-block {
-  display: block;
-  width: 100%;
-}
-
-/* Compact Filters */
-.page-filters.compact {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
   gap: 12px;
 }
 
-.filter-group {
+/* Filter Pills */
+.filter-pills {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
-.filter-btn {
+.filter-pill {
   background: white;
   border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 6px;
-  padding: 6px 12px;
+  border-radius: 20px;
+  padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary, #6b7280);
@@ -109,19 +61,32 @@
   transition: all 0.2s ease;
 }
 
-.filter-btn:hover {
+.filter-pill:hover {
   border-color: var(--primary-color, #3b82f6);
   color: var(--primary-color, #3b82f6);
 }
 
-.filter-btn.active {
+.filter-pill.active {
   background: var(--primary-color, #3b82f6);
   border-color: var(--primary-color, #3b82f6);
   color: white;
 }
 
-.search-input.compact {
-  padding: 8px 12px;
+.pill-count {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.filter-pill.active .pill-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Search Input */
+.search-input {
+  padding: 8px 14px;
   border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 6px;
   font-size: 13px;
@@ -133,119 +98,170 @@
   border-color: var(--primary-color, #3b82f6);
 }
 
-/* Routes Table */
-.routes-table-container {
+/* Primary Button */
+.btn-primary {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-color-dark, #2563eb);
+}
+
+/* Routes Grid - Compact Cards */
+.routes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+/* Route Card - Compact */
+.route-card {
   background: white;
   border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 8px;
   overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.routes-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+.route-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color, #3b82f6);
 }
 
-.routes-table th {
-  background: var(--background-secondary, #f9fafb);
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 12px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-secondary, #6b7280);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: var(--background-secondary, #f9fafb);
   border-bottom: 1px solid var(--border-color, #e5e7eb);
 }
 
-.routes-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
-  color: var(--text-primary, #111827);
-}
-
-.routes-table tr:last-child td {
-  border-bottom: none;
-}
-
-.routes-table tr:hover td {
-  background: var(--background-secondary, #f9fafb);
-}
-
-.routes-table td.center {
-  text-align: center;
-}
-
-/* Route Number Badge */
-.route-number-badge {
+.route-badge {
   background: var(--primary-color, #3b82f6);
   color: white;
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 4px;
-  display: inline-block;
 }
 
-/* Route Name Cell */
-.route-name-cell {
+.card-body {
+  padding: 12px;
+}
+
+.route-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.route-name-cell .route-name {
-  font-weight: 500;
-}
-
-.route-type-badge {
+.type-tag {
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 3px;
+  background: #f3e8ff;
+  color: #7c3aed;
   font-weight: 600;
 }
 
-.route-type-badge.group {
-  background: #f3e8ff;
-  color: #7c3aed;
-}
-
-/* Journey Cell */
-.journey-cell {
+.route-journey {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
+  color: var(--text-secondary, #6b7280);
 }
 
-.journey-cell .origin {
+.route-journey .origin {
   color: #10b981;
+  font-weight: 500;
 }
 
-.journey-cell .arrow {
-  color: var(--text-secondary, #6b7280);
+.route-journey .arrow {
+  color: var(--text-secondary, #9ca3af);
 }
 
-.journey-cell .destination {
+.route-journey .dest {
   color: #ef4444;
+  font-weight: 500;
 }
 
-/* Days Badge */
-.days-badge {
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
   background: var(--background-secondary, #f9fafb);
-  padding: 3px 6px;
-  border-radius: 4px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.route-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.route-stats .stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
-  font-weight: 600;
   color: var(--text-secondary, #6b7280);
+}
+
+.stat-icon {
+  font-size: 12px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--primary-color, #3b82f6);
+  border-color: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.action-btn.danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
 }
 
 /* Status Badges */
 .status-badge {
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: capitalize;
 }
@@ -273,37 +289,6 @@
 .status-cancelled {
   background: #fee2e2;
   color: #991b1b;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 4px;
-}
-
-.btn-icon {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color, #e5e7eb);
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.btn-icon:hover {
-  background: var(--primary-color, #3b82f6);
-  border-color: var(--primary-color, #3b82f6);
-  color: white;
-}
-
-.btn-icon.btn-danger:hover {
-  background: #dc2626;
-  border-color: #dc2626;
 }
 
 /* Proposals Sidebar */
@@ -344,6 +329,31 @@
 
 .sidebar-actions {
   margin-bottom: 16px;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--primary-color, #3b82f6);
+  border: 1px solid var(--primary-color, #3b82f6);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
 }
 
 .sidebar-empty {
@@ -461,7 +471,7 @@
 }
 
 /* Empty State */
-.empty-state.compact {
+.empty-state {
   text-align: center;
   padding: 48px 24px;
   background: white;
@@ -469,17 +479,22 @@
   border-radius: 8px;
 }
 
-.empty-state.compact h3 {
-  font-size: 16px;
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-primary, #111827);
   margin: 0 0 8px 0;
 }
 
-.empty-state.compact p {
-  font-size: 13px;
+.empty-state p {
+  font-size: 14px;
   color: var(--text-secondary, #6b7280);
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
 }
 
 /* Loading and Error States */
@@ -521,7 +536,7 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .routes-with-sidebar {
+  .routes-layout {
     flex-direction: column;
   }
 
@@ -536,26 +551,30 @@
     padding: 16px;
   }
 
-  .page-header.compact {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .page-filters.compact {
+  .routes-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .search-input.compact {
+  .toolbar-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar-right {
+    flex-direction: column;
     width: 100%;
   }
 
-  .routes-table-container {
-    overflow-x: auto;
+  .search-input {
+    width: 100%;
   }
 
-  .routes-table {
-    min-width: 600px;
+  .btn-primary {
+    width: 100%;
+  }
+
+  .routes-grid {
+    grid-template-columns: 1fr;
   }
 }

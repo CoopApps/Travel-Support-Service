@@ -64,7 +64,6 @@ export default function BusRoutesPage() {
 
       if (response.ok) {
         const data = await response.json();
-        // Only show actionable proposals (open or threshold_met)
         setProposals(data.filter((p: RouteProposal) =>
           p.status === 'open' || p.status === 'threshold_met'
         ));
@@ -116,7 +115,6 @@ export default function BusRoutesPage() {
     setEditingRoute(null);
   };
 
-  // Filter routes by search query
   const filteredRoutes = routes.filter(route => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -185,192 +183,184 @@ export default function BusRoutesPage() {
   }
 
   return (
-    <div className="bus-routes-page routes-with-sidebar">
-      {/* Main Content Area */}
-      <div className="routes-main">
-        <div className="page-header compact">
-          <div className="header-content">
-            <h1>Bus Routes</h1>
-          </div>
-          <button className="btn-primary btn-sm" onClick={handleCreateRoute}>
-            + New Route
-          </button>
-        </div>
-
-        <div className="page-filters compact">
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              All ({routes.length})
-            </button>
-            <button
-              className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
-              onClick={() => setFilter('active')}
-            >
-              Active
-            </button>
-            <button
-              className={`filter-btn ${filter === 'planning' ? 'active' : ''}`}
-              onClick={() => setFilter('planning')}
-            >
-              Planning
-            </button>
-          </div>
-
-          <input
-            type="text"
-            placeholder="Search routes..."
-            className="search-input compact"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {filteredRoutes.length === 0 ? (
-          <div className="empty-state compact">
-            <h3>No Routes Found</h3>
-            <p>
-              {searchQuery
-                ? 'No routes match your search.'
-                : 'Create your first bus route to get started.'}
-            </p>
-            {!searchQuery && (
-              <button className="btn-primary btn-sm" onClick={handleCreateRoute}>
-                Create Route
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="routes-table-container">
-            <table className="routes-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '70px' }}>Route</th>
-                  <th>Name</th>
-                  <th>Journey</th>
-                  <th style={{ width: '70px' }}>Days</th>
-                  <th style={{ width: '60px' }}>Stops</th>
-                  <th style={{ width: '80px' }}>Services</th>
-                  <th style={{ width: '90px' }}>Status</th>
-                  <th style={{ width: '100px' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRoutes.map((route) => (
-                  <tr key={route.route_id}>
-                    <td>
-                      <span className="route-number-badge">{route.route_number}</span>
-                    </td>
-                    <td>
-                      <div className="route-name-cell">
-                        <span className="route-name">{route.route_name}</span>
-                        {route.route_type === 'group' && (
-                          <span className="route-type-badge group">Group</span>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="journey-cell">
-                        <span className="origin">{route.origin_point}</span>
-                        <span className="arrow">→</span>
-                        <span className="destination">{route.destination_point}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="days-badge">{getOperatingDaysShort(route)}</span>
-                    </td>
-                    <td className="center">{route.stop_count || 0}</td>
-                    <td className="center">{route.timetable_count || 0}</td>
-                    <td>
-                      <span className={`status-badge ${getStatusBadgeClass(route.status)}`}>
-                        {route.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="btn-icon"
-                          onClick={() => handleEditRoute(route)}
-                          title="Edit"
-                        >
-                          ✎
-                        </button>
-                        <button
-                          className="btn-icon btn-danger"
-                          onClick={() => handleDeleteRoute(route)}
-                          title="Delete"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Proposed Routes Sidebar */}
-      <aside className="proposals-sidebar">
-        <div className="sidebar-header">
-          <h2>Route Proposals</h2>
-          <span className="proposal-count">{proposals.length}</span>
-        </div>
-
-        <div className="sidebar-actions">
-          <Link to="/admin/route-proposals" className="btn-secondary btn-sm btn-block">
-            Review All
-          </Link>
-        </div>
-
-        {proposals.length === 0 ? (
-          <div className="sidebar-empty">
-            <p>No pending proposals</p>
-          </div>
-        ) : (
-          <div className="proposals-list">
-            {proposals.slice(0, 5).map((proposal) => (
-              <div key={proposal.proposal_id} className={`proposal-card ${getProposalStatusClass(proposal)}`}>
-                <div className="proposal-header">
-                  <span className="proposal-name">{proposal.route_name}</span>
-                  {proposal.status === 'threshold_met' && (
-                    <span className="proposal-badge ready">Ready</span>
-                  )}
-                </div>
-                <div className="proposal-journey">
-                  {proposal.origin_area} → {proposal.destination_name}
-                </div>
-                <div className="proposal-stats">
-                  <span className="stat">
-                    <strong>{proposal.total_pledges}</strong>/{proposal.target_passengers} pledges
-                  </span>
-                  <span className="stat">
-                    <strong>{proposal.total_votes}</strong> votes
-                  </span>
-                </div>
-                <div className="proposal-progress">
-                  <div
-                    className="progress-bar"
-                    style={{ width: `${Math.min(100, (proposal.total_pledges / proposal.target_passengers) * 100)}%` }}
-                  />
-                </div>
+    <div className="bus-routes-page">
+      <div className="routes-layout">
+        {/* Main Content Area */}
+        <div className="routes-main">
+          {/* Header with filters and actions */}
+          <div className="routes-toolbar">
+            <div className="toolbar-left">
+              <h1>Bus Routes</h1>
+              <div className="filter-pills">
+                <button
+                  className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  All <span className="pill-count">{routes.length}</span>
+                </button>
+                <button
+                  className={`filter-pill ${filter === 'active' ? 'active' : ''}`}
+                  onClick={() => setFilter('active')}
+                >
+                  Active
+                </button>
+                <button
+                  className={`filter-pill ${filter === 'planning' ? 'active' : ''}`}
+                  onClick={() => setFilter('planning')}
+                >
+                  Planning
+                </button>
               </div>
-            ))}
+            </div>
+            <div className="toolbar-right">
+              <input
+                type="text"
+                placeholder="Search routes..."
+                className="search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="btn-primary" onClick={handleCreateRoute}>
+                + New Route
+              </button>
+            </div>
           </div>
-        )}
 
-        {proposals.length > 5 && (
-          <div className="sidebar-more">
-            <Link to="/admin/route-proposals">
-              +{proposals.length - 5} more proposals
+          {/* Routes Grid */}
+          {filteredRoutes.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🚌</div>
+              <h3>No Routes Found</h3>
+              <p>
+                {searchQuery
+                  ? 'No routes match your search.'
+                  : 'Create your first bus route to get started.'}
+              </p>
+              {!searchQuery && (
+                <button className="btn-primary" onClick={handleCreateRoute}>
+                  + Create Route
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="routes-grid">
+              {filteredRoutes.map((route) => (
+                <div key={route.route_id} className="route-card">
+                  <div className="card-header">
+                    <span className="route-badge">{route.route_number}</span>
+                    <span className={`status-badge ${getStatusBadgeClass(route.status)}`}>
+                      {route.status}
+                    </span>
+                  </div>
+                  <div className="card-body">
+                    <h3 className="route-name">
+                      {route.route_name}
+                      {route.route_type === 'group' && (
+                        <span className="type-tag">Group</span>
+                      )}
+                    </h3>
+                    <div className="route-journey">
+                      <span className="origin">{route.origin_point}</span>
+                      <span className="arrow">→</span>
+                      <span className="dest">{route.destination_point}</span>
+                    </div>
+                  </div>
+                  <div className="card-footer">
+                    <div className="route-stats">
+                      <span className="stat" title="Operating Days">
+                        <span className="stat-icon">📅</span>
+                        {getOperatingDaysShort(route)}
+                      </span>
+                      <span className="stat" title="Stops">
+                        <span className="stat-icon">📍</span>
+                        {route.stop_count || 0}
+                      </span>
+                      <span className="stat" title="Services">
+                        <span className="stat-icon">🕐</span>
+                        {route.timetable_count || 0}
+                      </span>
+                    </div>
+                    <div className="card-actions">
+                      <button
+                        className="action-btn"
+                        onClick={() => handleEditRoute(route)}
+                        title="Edit"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        className="action-btn danger"
+                        onClick={() => handleDeleteRoute(route)}
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Proposals Sidebar */}
+        <aside className="proposals-sidebar">
+          <div className="sidebar-header">
+            <h2>Route Proposals</h2>
+            <span className="proposal-count">{proposals.length}</span>
+          </div>
+
+          <div className="sidebar-actions">
+            <Link to="/admin/route-proposals" className="btn-secondary btn-block">
+              Review All Proposals
             </Link>
           </div>
-        )}
-      </aside>
+
+          {proposals.length === 0 ? (
+            <div className="sidebar-empty">
+              <p>No pending proposals</p>
+            </div>
+          ) : (
+            <div className="proposals-list">
+              {proposals.slice(0, 5).map((proposal) => (
+                <div key={proposal.proposal_id} className={`proposal-card ${getProposalStatusClass(proposal)}`}>
+                  <div className="proposal-header">
+                    <span className="proposal-name">{proposal.route_name}</span>
+                    {proposal.status === 'threshold_met' && (
+                      <span className="proposal-badge ready">Ready</span>
+                    )}
+                  </div>
+                  <div className="proposal-journey">
+                    {proposal.origin_area} → {proposal.destination_name}
+                  </div>
+                  <div className="proposal-stats">
+                    <span className="stat">
+                      <strong>{proposal.total_pledges}</strong>/{proposal.target_passengers}
+                    </span>
+                    <span className="stat">
+                      <strong>{proposal.total_votes}</strong> votes
+                    </span>
+                  </div>
+                  <div className="proposal-progress">
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${Math.min(100, (proposal.total_pledges / proposal.target_passengers) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {proposals.length > 5 && (
+            <div className="sidebar-more">
+              <Link to="/admin/route-proposals">
+                +{proposals.length - 5} more proposals
+              </Link>
+            </div>
+          )}
+        </aside>
+      </div>
 
       <RouteFormModal
         isOpen={showModal}
