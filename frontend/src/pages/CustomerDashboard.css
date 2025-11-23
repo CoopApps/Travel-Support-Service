@@ -7,8 +7,6 @@
 
 /* Stats Section */
 .stats-section {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 1.5rem;
 }
 
@@ -63,8 +61,6 @@
 
 /* Quick Actions */
 .quick-actions-section {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 0 1.5rem 1.5rem;
 }
 
@@ -104,8 +100,6 @@
 
 /* Schedule Section */
 .schedule-section {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 0 1.5rem 1.5rem;
 }
 
