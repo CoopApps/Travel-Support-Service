@@ -33,8 +33,13 @@ function ServiceRegistrationsPage() {
 
     try {
       setLoading(true);
+      // Convert filter for API (empty strings to undefined)
+      const apiFilter = {
+        status: filter.status || undefined,
+        permitId: filter.permitId ? parseInt(filter.permitId, 10) : undefined
+      };
       const [regsData, permitsData, complianceData] = await Promise.all([
-        serviceRegistrationsApi.getRegistrations(tenantId, filter),
+        serviceRegistrationsApi.getRegistrations(tenantId, apiFilter),
         permitsApi.getOrganizationalPermits(tenantId),
         serviceRegistrationsApi.checkCompliance(tenantId),
       ]);

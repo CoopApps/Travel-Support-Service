@@ -7,13 +7,24 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   maxWidth?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | string;
 }
+
+// Size presets
+const sizeMap: Record<string, string> = {
+  sm: '400px',
+  md: '600px',
+  lg: '800px',
+  xl: '1000px'
+};
 
 /**
  * Reusable Modal Component
  * Provides consistent modal styling and behavior
  */
-function Modal({ isOpen, onClose, title, children, maxWidth = '700px' }: ModalProps) {
+function Modal({ isOpen, onClose, title, children, maxWidth, size }: ModalProps) {
+  // Resolve maxWidth from size prop or use default
+  const resolvedMaxWidth = maxWidth || (size && sizeMap[size]) || size || '700px';
   // Close modal on Escape key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -48,7 +59,7 @@ function Modal({ isOpen, onClose, title, children, maxWidth = '700px' }: ModalPr
         {/* Modal Content */}
         <div
           className="modal-content"
-          style={{ maxWidth }}
+          style={{ maxWidth: resolvedMaxWidth }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Modal Header */}
