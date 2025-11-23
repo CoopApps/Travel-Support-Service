@@ -30,6 +30,11 @@ interface FormData {
   status: 'planning' | 'registered' | 'active' | 'suspended' | 'cancelled';
   start_date: string;
   end_date: string;
+  // Route type: group (auto-assigned) or public (request-based)
+  route_type: 'group' | 'public';
+  group_name: string;
+  group_description: string;
+  group_auto_assign: boolean;
 }
 
 interface StopFormData {
@@ -63,7 +68,11 @@ const initialFormData: FormData = {
   operates_sunday: true,
   status: 'planning',
   start_date: '',
-  end_date: ''
+  end_date: '',
+  route_type: 'public',
+  group_name: '',
+  group_description: '',
+  group_auto_assign: true
 };
 
 export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: RouteFormModalProps) {
@@ -110,7 +119,11 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         operates_sunday: route.operates_sunday ?? true,
         status: route.status || 'planning',
         start_date: route.start_date?.split('T')[0] || '',
-        end_date: route.end_date?.split('T')[0] || ''
+        end_date: route.end_date?.split('T')[0] || '',
+        route_type: route.route_type || 'public',
+        group_name: route.group_name || '',
+        group_description: route.group_description || '',
+        group_auto_assign: route.group_auto_assign ?? true
       });
       // Load stops for existing route
       loadStops(route.route_id);
@@ -223,7 +236,11 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         },
         status: formData.status,
         start_date: formData.start_date || undefined,
-        end_date: formData.end_date || undefined
+        end_date: formData.end_date || undefined,
+        route_type: formData.route_type,
+        group_name: formData.route_type === 'group' ? formData.group_name.trim() || undefined : undefined,
+        group_description: formData.route_type === 'group' ? formData.group_description.trim() || undefined : undefined,
+        group_auto_assign: formData.route_type === 'group' ? formData.group_auto_assign : undefined
       };
 
       if (isEditing && route) {
@@ -416,6 +433,72 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
                   placeholder="Section 22 registration reference"
                 />
               </div>
+            </div>
+
+            <div className="form-section">
+              <h3>Service Type</h3>
+              <div className="form-group">
+                <label>Route Type</label>
+                <div className="pattern-buttons">
+                  <button
+                    type="button"
+                    className={`pattern-btn ${formData.route_type === 'public' ? 'active' : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, route_type: 'public' }))}
+                  >
+                    Public Service
+                  </button>
+                  <button
+                    type="button"
+                    className={`pattern-btn ${formData.route_type === 'group' ? 'active' : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, route_type: 'group' }))}
+                  >
+                    Group Service
+                  </button>
+                </div>
+                <p className="form-hint" style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+                  {formData.route_type === 'public'
+                    ? 'Open to all registered passengers on a request basis (space permitting)'
+                    : 'Service for a specific community group - members are auto-assigned unless they opt out'}
+                </p>
+              </div>
+
+              {formData.route_type === 'group' && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="group_name">Group Name *</label>
+                    <input
+                      type="text"
+                      id="group_name"
+                      name="group_name"
+                      value={formData.group_name}
+                      onChange={handleChange}
+                      placeholder="e.g., Oakwood Community Centre Group"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="group_description">Group Description</label>
+                    <textarea
+                      id="group_description"
+                      name="group_description"
+                      value={formData.group_description}
+                      onChange={handleChange}
+                      placeholder="Describe the group and their transport arrangement"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        name="group_auto_assign"
+                        checked={formData.group_auto_assign}
+                        onChange={handleChange}
+                      />
+                      <span>Auto-assign group members to services (they can opt out for illness/holiday)</span>
+                    </label>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="form-section">

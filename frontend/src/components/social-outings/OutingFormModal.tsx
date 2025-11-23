@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SocialOuting, OutingFormData } from '../../types';
 import socialOutingsApi from '../../services/socialOutingsApi';
 import { useTenant } from '../../context/TenantContext';
+import { useServiceContext } from '../../contexts/ServiceContext';
 
 interface OutingFormModalProps {
   outing: SocialOuting | null;
@@ -15,6 +16,7 @@ interface OutingFormModalProps {
  */
 function OutingFormModal({ outing, onClose }: OutingFormModalProps) {
   const { tenantId } = useTenant();
+  const { busEnabled } = useServiceContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +35,9 @@ function OutingFormModal({ outing, onClose }: OutingFormModalProps) {
     contact_person: outing?.contact_person || '',
     contact_phone: outing?.contact_phone || '',
     weather_dependent: outing?.weather_dependent || false,
-    minimum_passengers: outing?.minimum_passengers || 1
+    minimum_passengers: outing?.minimum_passengers || 1,
+    service_type: outing?.service_type || 'transport',
+    requires_section_22: outing?.requires_section_22 || false
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -215,6 +219,76 @@ function OutingFormModal({ outing, onClose }: OutingFormModalProps) {
                   />
                 </div>
               </div>
+
+              {/* Service Type - Only show if bus service is enabled */}
+              {busEnabled && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--gray-900)' }}>
+                    Service Type
+                  </h3>
+
+                  <div className="form-group">
+                    <label>Which service is this outing for?</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, service_type: 'transport', requires_section_22: false }))}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          border: formData.service_type === 'transport' ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                          background: formData.service_type === 'transport' ? '#eff6ff' : 'white',
+                          color: formData.service_type === 'transport' ? '#1d4ed8' : '#374151',
+                          fontWeight: formData.service_type === 'transport' ? 600 : 400,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Transport Service
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, service_type: 'bus' }))}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          border: formData.service_type === 'bus' ? '2px solid #10b981' : '1px solid #d1d5db',
+                          background: formData.service_type === 'bus' ? '#ecfdf5' : 'white',
+                          color: formData.service_type === 'bus' ? '#047857' : '#374151',
+                          fontWeight: formData.service_type === 'bus' ? 600 : 400,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Bus Service
+                      </button>
+                    </div>
+                    <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+                      {formData.service_type === 'transport'
+                        ? 'Uses regular transport vehicles and drivers'
+                        : 'Uses Section 22 licensed vehicles and qualified drivers'}
+                    </p>
+                  </div>
+
+                  {formData.service_type === 'bus' && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          name="requires_section_22"
+                          checked={formData.requires_section_22}
+                          onChange={handleChange}
+                          style={{ width: 'auto' }}
+                        />
+                        <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>
+                          Requires Section 22 licensed vehicle
+                        </span>
+                      </label>
+                      <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#6b7280', marginLeft: '1.5rem' }}>
+                        Check this if the outing requires a vehicle with Section 22 community bus licensing
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Date & Time */}
               <div style={{ marginBottom: '1.5rem' }}>

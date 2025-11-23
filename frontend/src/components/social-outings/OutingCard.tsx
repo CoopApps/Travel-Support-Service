@@ -61,7 +61,19 @@ function OutingCard({ outing, onEdit, onDelete, onManageBookings, onAssignDriver
             {outing.destination}
           </div>
         </div>
-        {getStatusBadge()}
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+          {outing.service_type === 'bus' && (
+            <span className="badge" style={{ background: '#10b981', color: 'white', fontSize: '0.65rem', padding: '0.2rem 0.5rem' }}>
+              Bus
+            </span>
+          )}
+          {outing.requires_section_22 && (
+            <span className="badge" style={{ background: '#8b5cf6', color: 'white', fontSize: '0.65rem', padding: '0.2rem 0.5rem' }}>
+              S22
+            </span>
+          )}
+          {getStatusBadge()}
+        </div>
       </div>
 
       {/* Date & Time */}

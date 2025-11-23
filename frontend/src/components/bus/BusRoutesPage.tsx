@@ -213,12 +213,24 @@ export default function BusRoutesPage() {
             <div key={route.route_id} className="route-card">
               <div className="route-header">
                 <div className="route-number">{route.route_number}</div>
-                <span className={`status-badge ${getStatusBadgeClass(route.status)}`}>
-                  {route.status}
-                </span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {route.route_type === 'group' && (
+                    <span className="status-badge" style={{ background: '#8b5cf6', color: 'white' }}>
+                      Group
+                    </span>
+                  )}
+                  <span className={`status-badge ${getStatusBadgeClass(route.status)}`}>
+                    {route.status}
+                  </span>
+                </div>
               </div>
 
               <h3 className="route-name">{route.route_name}</h3>
+              {route.route_type === 'group' && route.group_name && (
+                <p style={{ fontSize: '0.8rem', color: '#8b5cf6', margin: '0 0 0.5rem 0' }}>
+                  {route.group_name}
+                </p>
+              )}
 
               {route.description && (
                 <p className="route-description">{route.description}</p>
