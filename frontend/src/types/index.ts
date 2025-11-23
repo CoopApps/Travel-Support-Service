@@ -307,7 +307,7 @@ export * from './socialOutings';
 export * from './provider.types';
 
 // Re-export permit types (excluding ComplianceStatus which conflicts with training.types)
-export {
+export type {
   PermitType,
   OrganizationalPermitType,
   PermitSizeType,

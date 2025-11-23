@@ -306,13 +306,18 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
                         >
                           ➕ Add to Trip
                         </button>
-                        <a
-                          href={`tel:${opportunity.compatible_customer.phone}`}
-                          className="call-button"
-                          disabled={!opportunity.compatible_customer.phone}
-                        >
-                          📞 Call Customer
-                        </a>
+                        {opportunity.compatible_customer.phone ? (
+                          <a
+                            href={`tel:${opportunity.compatible_customer.phone}`}
+                            className="call-button"
+                          >
+                            📞 Call Customer
+                          </a>
+                        ) : (
+                          <span className="call-button" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                            📞 Call Customer
+                          </span>
+                        )}
                       </div>
                     </div>
                   );

@@ -47,9 +47,10 @@ function ProviderDetailsModal({
     return `£${amount.toFixed(2)}`;
   };
 
-  const getDayAbbreviation = (day: number) => {
+  const getDayAbbreviation = (day: number | string) => {
     const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    return days[day] || '';
+    const index = typeof day === 'string' ? parseInt(day, 10) : day;
+    return days[index] || '';
   };
 
   if (!isOpen) return null;

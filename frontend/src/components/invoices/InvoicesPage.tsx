@@ -257,14 +257,14 @@ export const InvoicesPage: React.FC = () => {
             className={`tab ${viewMode === 'dashboard' ? 'active' : ''}`}
             onClick={() => setViewMode('dashboard')}
           >
-            <FileTextIcon size={14} style={{ marginRight: '6px' }} />
+            <span style={{ marginRight: '6px', display: 'inline-flex' }}><FileTextIcon size={14} /></span>
             Dashboard
           </button>
           <button
             className={`tab ${viewMode === 'archive' ? 'active' : ''}`}
             onClick={() => setViewMode('archive')}
           >
-            <FileTextIcon size={14} style={{ marginRight: '6px' }} />
+            <span style={{ marginRight: '6px', display: 'inline-flex' }}><FileTextIcon size={14} /></span>
             Archive
           </button>
         </div>

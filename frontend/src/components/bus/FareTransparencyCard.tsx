@@ -293,7 +293,7 @@ export default function FareTransparencyCard({
                 alignItems: 'flex-start',
                 gap: '0.5rem'
               }}>
-                <LightBulbIcon size={16} color="#1e3a8a" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                <span style={{ flexShrink: 0, marginTop: '0.125rem' }}><LightBulbIcon size={16} color="#1e3a8a" /></span>
                 <div>
                   <strong>How it works:</strong> The total trip cost is {formatCurrency(tripCostBreakdown.totalTripCost)}.
                   We share this cost equally among all passengers. More passengers = cheaper for everyone!
@@ -367,7 +367,7 @@ export default function FareTransparencyCard({
                   alignItems: 'flex-start',
                   gap: '0.5rem'
                 }}>
-                  <SparklesIcon size={16} color="#065f46" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                  <span style={{ flexShrink: 0, marginTop: '0.125rem' }}><SparklesIcon size={16} color="#065f46" /></span>
                   <div>
                     <strong>Building Community Wealth:</strong> Your participation helps build reserves for
                     the cooperative, returns value to members, and contributes to the broader cooperative movement.

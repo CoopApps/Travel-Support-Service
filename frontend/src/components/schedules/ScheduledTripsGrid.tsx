@@ -938,7 +938,8 @@ function ScheduledTripsGrid({
                                     checked={selectedTripIds.has(trip.trip_id)}
                                     onChange={(e) => {
                                       e.stopPropagation();
-                                      handleTripSelect(trip.trip_id, e.shiftKey || e.ctrlKey || e.metaKey);
+                                      const nativeEvent = e.nativeEvent as MouseEvent;
+                                      handleTripSelect(trip.trip_id, nativeEvent.shiftKey || nativeEvent.ctrlKey || nativeEvent.metaKey);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
                                     style={{
@@ -1103,7 +1104,8 @@ function ScheduledTripsGrid({
                                     checked={selectedTripIds.has(trip.trip_id)}
                                     onChange={(e) => {
                                       e.stopPropagation();
-                                      handleTripSelect(trip.trip_id, e.shiftKey || e.ctrlKey || e.metaKey);
+                                      const nativeEvent = e.nativeEvent as MouseEvent;
+                                      handleTripSelect(trip.trip_id, nativeEvent.shiftKey || nativeEvent.ctrlKey || nativeEvent.metaKey);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
                                     style={{

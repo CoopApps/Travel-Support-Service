@@ -118,7 +118,7 @@ function OrganizationalPermitModal({ permit, permitType, onClose, onSuccess }: O
               <label>Permit Size Type</label>
               <select
                 value={formData.permit_size_type}
-                onChange={(e) => setFormData({ ...formData, permit_size_type: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, permit_size_type: e.target.value as 'standard' | 'large_bus' })}
                 className="form-control"
               >
                 <option value="standard">Standard (≤16 passengers)</option>
@@ -134,13 +134,13 @@ function OrganizationalPermitModal({ permit, permitType, onClose, onSuccess }: O
                     <label key={classCode} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
-                        checked={formData.permitted_passenger_classes.includes(classCode)}
+                        checked={formData.permitted_passenger_classes.includes(classCode as 'A' | 'B' | 'C' | 'D' | 'E' | 'F')}
                         onChange={(e) => {
                           const classes = [...formData.permitted_passenger_classes];
                           if (e.target.checked) {
-                            classes.push(classCode);
+                            classes.push(classCode as 'A' | 'B' | 'C' | 'D' | 'E' | 'F');
                           } else {
-                            const index = classes.indexOf(classCode);
+                            const index = classes.indexOf(classCode as 'A' | 'B' | 'C' | 'D' | 'E' | 'F');
                             if (index > -1) classes.splice(index, 1);
                           }
                           setFormData({ ...formData, permitted_passenger_classes: classes });
@@ -171,7 +171,7 @@ function OrganizationalPermitModal({ permit, permitType, onClose, onSuccess }: O
               <label>Issued By</label>
               <select
                 value={formData.issued_by_type}
-                onChange={(e) => setFormData({ ...formData, issued_by_type: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, issued_by_type: e.target.value as 'traffic_commissioner' | 'designated_body' })}
                 className="form-control"
               >
                 <option value="traffic_commissioner">Traffic Commissioner</option>

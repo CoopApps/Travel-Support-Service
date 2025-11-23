@@ -86,7 +86,6 @@ function HolidayRequestModal({ tenantId, driverId, balance, onClose, onSuccess, 
         startDate,
         endDate,
         type,
-        days: workingDays,
         notes
       });
       onSuccess();

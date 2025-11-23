@@ -27,6 +27,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  tenantId: number | null; // Convenience accessor for user.tenantId
   login: (user: User, token: string) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
@@ -38,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
+      tenantId: null,
 
       login: (user, token) => {
         // Clear React Query cache on login to ensure fresh data
@@ -51,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
           user,
           token,
           isAuthenticated: true,
+          tenantId: user.tenantId,
         });
       },
 
@@ -66,6 +69,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
+          tenantId: null,
         });
       },
 
@@ -81,6 +85,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        tenantId: state.tenantId,
       }),
       // Check token expiration on hydration
       onRehydrateStorage: () => (state) => {

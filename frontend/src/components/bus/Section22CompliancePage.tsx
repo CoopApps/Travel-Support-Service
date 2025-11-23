@@ -360,7 +360,7 @@ export default function Section22CompliancePage() {
             alignItems: 'flex-start',
             gap: '0.5rem'
           }}>
-            <InfoIcon size={16} color="#1e40af" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+            <span style={{ flexShrink: 0, marginTop: '0.125rem' }}><InfoIcon size={16} color="#1e40af" /></span>
             <div>
               <strong>Exemption Basis:</strong> Community transport operations under 10 miles,
               not-for-profit, serving local communities only.

@@ -25,7 +25,7 @@ function DriverLogin() {
     setLoading(true);
 
     try {
-      const response = await authApi.login(tenantId!, username, password);
+      const response = await authApi.login(tenantId!, { username, password });
 
       // Verify user is a driver
       if (response.user.role !== 'driver') {
