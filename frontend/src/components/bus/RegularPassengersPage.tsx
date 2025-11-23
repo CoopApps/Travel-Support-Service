@@ -79,7 +79,9 @@ export default function RegularPassengersPage() {
       setRoutes(routesData);
       setTimetables(timetablesData);
       setRegularPassengers(passengersData);
-      setCustomers(customersData.customers || customersData || []);
+      // Handle both CustomerListResponse and Customer[] response types
+      const customers = 'customers' in customersData ? customersData.customers : customersData;
+      setCustomers(customers || []);
     } catch (err: any) {
       console.error('Failed to load data:', err);
       setError(err.message || 'Failed to load data');

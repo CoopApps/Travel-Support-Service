@@ -522,7 +522,7 @@ function DashboardPage() {
           <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Dashboard</h2>
           {tenant && (
             <p style={{ margin: '2px 0 0 0', color: 'var(--gray-600)', fontSize: '13px' }}>
-              {tenant.companyName}
+              {tenant.company_name}
             </p>
           )}
         </div>

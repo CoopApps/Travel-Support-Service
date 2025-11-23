@@ -22,6 +22,10 @@ export interface Provider {
   contact_name?: string;
   contact_phone?: string;
   invoice_notes?: string;
+  // Additional contact fields
+  main_contact?: string;
+  phone_number?: string;
+  notes?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -132,3 +136,6 @@ export interface ProviderInvoiceData {
   customers: InvoiceCustomer[];
   totals: InvoiceTotals;
 }
+
+// Alias for ProviderDetailsResponse
+export type ProviderDetails = ProviderDetailsResponse;

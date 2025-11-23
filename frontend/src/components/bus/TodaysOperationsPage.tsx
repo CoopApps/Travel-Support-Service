@@ -492,6 +492,7 @@ export default function TodaysOperationsPage() {
       {/* Seat Assignment Modal */}
       {seatAssignmentService && (
         <SeatAssignmentModal
+          isOpen={true}
           timetable={seatAssignmentService.timetable}
           serviceDate={seatAssignmentService.serviceDate}
           onClose={handleCloseSeatAssignment}

@@ -8,6 +8,9 @@ export interface User {
   email: string;
   role: 'admin' | 'manager' | 'driver' | 'customer';
   tenantId: number;
+  customerId?: number; // For customer portal users
+  customer_id?: number; // Alias
+  driverId?: number; // For driver portal users
 }
 
 export interface LoginCredentials {
@@ -67,6 +70,9 @@ export interface Customer {
   last_login?: string;
   section_19_eligible?: boolean; // Eligible for Section 19 community transport (cars)
   section_22_eligible?: boolean; // Eligible for Section 22 community bus services
+  // Reminder preferences
+  reminder_opt_in?: boolean;
+  reminder_preference?: 'sms' | 'email' | 'both' | 'none';
   created_at: string;
   updated_at: string;
 }
@@ -93,6 +99,9 @@ export interface CreateCustomerDto {
   mobility_requirements?: string;
   section_19_eligible?: boolean;
   section_22_eligible?: boolean;
+  is_active?: boolean;
+  reminder_opt_in?: boolean;
+  reminder_preference?: 'sms' | 'email' | 'both' | 'none';
 }
 
 export interface UpdateCustomerDto extends Partial<CreateCustomerDto> {}
@@ -165,6 +174,7 @@ export interface Tenant {
   company_name: string;
   subdomain: string;
   domain?: string;
+  subscription_tier?: 'free' | 'basic' | 'professional' | 'enterprise';
   organization_type: 'charity' | 'cic' | 'third_sector' | 'cooperative' | 'cooperative_commonwealth';
   cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union';
   discount_percentage: number;
@@ -201,6 +211,11 @@ export interface CreateTenantDto {
   subdomain: string;
   domain?: string;
   subscription_tier?: 'free' | 'basic' | 'professional' | 'enterprise';
+  organization_type?: 'charity' | 'cic' | 'third_sector' | 'cooperative' | 'cooperative_commonwealth';
+  cooperative_model?: 'worker' | 'consumer' | 'producer' | 'multi_stakeholder' | 'platform' | 'housing' | 'credit_union';
+  base_price?: number;
+  currency?: string;
+  billing_cycle?: 'monthly' | 'quarterly' | 'annual';
   contact_name?: string;
   contact_email?: string;
   contact_phone?: string;

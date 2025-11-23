@@ -99,7 +99,9 @@ export default function SeatAssignmentModal({
         busRoutesApi.getRoute(tenant.tenant_id, timetable.route_id)
       ]);
 
-      setCustomers(customersData.customers || customersData || []);
+      // Handle both CustomerListResponse and Customer[] response types
+      const customers = 'customers' in customersData ? customersData.customers : customersData;
+      setCustomers(customers || []);
       setEffectivePassengers(passengersData || []);
       setRouteStops(routeData.stops || []);
 

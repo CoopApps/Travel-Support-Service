@@ -22,7 +22,8 @@
       "Bash(findstr:*)",
       "Bash(git restore:*)",
       "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/node_modules/typescript/bin/tsc\" --project \"D:/projects/travel-support-app -test/conversion/backend\")",
-      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --project \"D:/projects/travel-support-app -test/conversion/backend\")"
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --project \"D:/projects/travel-support-app -test/conversion/backend\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/run-migration.js\" add-route-types-and-service-aware-outings.sql \"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\")"
     ],
     "deny": [],
     "ask": []

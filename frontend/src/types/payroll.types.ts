@@ -231,15 +231,26 @@ export interface PayrollSummary {
 }
 
 export interface PayrollStats {
-  total_periods: number;
-  active_employees: number;
-  freelance_count: number;
-  this_month_gross: number;
-  this_month_net: number;
-  this_month_hmrc: number;
-  ytd_gross: number;
-  ytd_net: number;
-  ytd_hmrc: number;
+  // Snake case (from API)
+  total_periods?: number;
+  active_employees?: number;
+  freelance_count?: number;
+  this_month_gross?: number;
+  this_month_net?: number;
+  this_month_hmrc?: number;
+  ytd_gross?: number;
+  ytd_net?: number;
+  ytd_hmrc?: number;
+  // Camel case aliases (also from some endpoints)
+  totalPeriods?: number;
+  activeEmployees?: number;
+  freelanceCount?: number;
+  thisMonthGross?: number;
+  thisMonthNet?: number;
+  thisMonthHmrc?: number;
+  ytdGross?: number;
+  ytdNet?: number;
+  ytdHmrc?: number;
 }
 
 export interface PayrollPeriodsResponse {

@@ -20,6 +20,8 @@ export interface Driver {
   driver_id: number;
   tenant_id: number;
   name: string;
+  first_name?: string; // Some queries return first/last name separately
+  last_name?: string;
   phone: string | null;
   email: string | null;
   license_number: string | null;
@@ -38,9 +40,24 @@ export interface Driver {
   emergency_phone: string | null;
   preferred_hours: string | null;
   notes: string | null;
-  // Permit fields
+  // Age/DOB verification
+  date_of_birth?: string | null;
+  age_verified?: boolean;
+  // PCV License fields (for bus/minibus driving)
+  pcv_license_number?: string | null;
+  pcv_license_expiry_date?: string | null;
+  license_pre_1997?: boolean;
+  d1_entitlement_granted?: string | null;
+  // Driver CPC fields
+  driver_cpc_required?: boolean;
+  driver_cpc_exempt?: boolean;
+  driver_cpc_card_number?: string | null;
+  driver_cpc_expiry_date?: string | null;
+  // DBS fields
+  dbs_check_required?: boolean;
   dbs_check_date: string | null;
   dbs_expiry_date: string | null;
+  // Section 19/22 permit fields
   section19_permit: boolean | null;
   section19_expiry: string | null;
   section19_driver_auth: boolean | null;

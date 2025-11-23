@@ -11,9 +11,10 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTenant } from '../../context/TenantContext';
 
 interface RouteAnalyticsProps {
-  tenantId: number;
+  tenantId?: number; // Optional - will use context if not provided
 }
 
 interface RouteAnalytics {
@@ -38,7 +39,9 @@ interface RouteAnalytics {
   }>;
 }
 
-export const RouteOptimizationAnalytics: React.FC<RouteAnalyticsProps> = ({ tenantId }) => {
+export const RouteOptimizationAnalytics: React.FC<RouteAnalyticsProps> = ({ tenantId: propTenantId }) => {
+  const { tenant } = useTenant();
+  const tenantId = propTenantId || tenant?.tenant_id;
   const [analytics, setAnalytics] = useState<RouteAnalytics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

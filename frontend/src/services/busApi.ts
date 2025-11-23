@@ -13,6 +13,8 @@ export interface BusRoute {
   registration_number?: string;
   origin_point: string;
   destination_point: string;
+  origin_stop?: string; // Alias for origin_point (some queries return this)
+  destination_stop?: string; // Alias for destination_point
   total_distance_miles?: number;
   estimated_duration_minutes?: number;
   service_pattern: 'daily' | 'weekdays' | 'weekends' | 'custom';
@@ -77,6 +79,9 @@ export interface BusTimetable {
   route_name?: string;
   vehicle_registration?: string | null;
   driver_name?: string | null;
+  // Computed fields from queries
+  vehicle_capacity?: number;
+  current_bookings?: number;
 }
 
 export interface BusBooking {
@@ -100,6 +105,11 @@ export interface BusBooking {
   special_requirements?: string;
   created_at: string;
   updated_at: string;
+  // Joined fields from queries
+  route_number?: string;
+  route_name?: string;
+  boarding_stop_name?: string;
+  alighting_stop_name?: string;
 }
 
 export interface SeatAvailability {
@@ -601,12 +611,18 @@ export interface PassengerAbsence {
 export interface EffectivePassenger {
   customer_id: number;
   customer_name: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
   seat_number: string;
   requires_wheelchair_space: boolean;
   boarding_stop_id?: number;
   alighting_stop_id?: number;
+  boarding_stop_name?: string;
+  alighting_stop_name?: string;
   is_regular: boolean;
   booking_id?: number;
+  special_requirements?: string;
 }
 
 export const regularPassengersApi = {
