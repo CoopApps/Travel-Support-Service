@@ -18,7 +18,11 @@
       "Bash(npm install:*)",
       "Bash(\"/c/Program Files/nodejs/npm.cmd\" install --save-dev @types/nodemailer)",
       "Bash(psql:*)",
-      "Bash(\"/c/Program Files/nodejs/node.exe\" run-migration.js add-driver-name-columns.sql \"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\")"
+      "Bash(\"/c/Program Files/nodejs/node.exe\" run-migration.js add-driver-name-columns.sql \"postgresql://postgres:cDSLDmLIfgMCWeqBWNnvAhcMXWQmwgvi@hopper.proxy.rlwy.net:55001/railway\")",
+      "Bash(findstr:*)",
+      "Bash(git restore:*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/backend/node_modules/typescript/bin/tsc\" --project \"D:/projects/travel-support-app -test/conversion/backend\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"D:/projects/travel-support-app -test/conversion/node_modules/typescript/lib/tsc.js\" --project \"D:/projects/travel-support-app -test/conversion/backend\")"
     ],
     "deny": [],
     "ask": []

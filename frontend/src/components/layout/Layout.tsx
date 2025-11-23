@@ -108,12 +108,11 @@ function Layout() {
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
             <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
             <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
-            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-label">Support</div>
             <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
+            {activeService === 'transport' && (
+              <NavItem to="/operations/route-optimization" label="Analytics" icon="chart" active={location.pathname.startsWith('/operations/')} />
+            )}
+            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
           </div>
 
           {activeService === 'bus' && (
