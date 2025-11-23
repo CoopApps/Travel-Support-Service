@@ -15,26 +15,21 @@ import TimesManagementModal from './TimesManagementModal';
 import AssessmentModal from './AssessmentModal';
 
 /**
- * Service-Aware Customer/Passenger List Page
+ * Transport Service Customer List Page
  *
- * Shows different terminology based on active service:
- * - Transport: "Customers" (people booking trips)
- * - Bus: "Passengers" (people booking seats on scheduled routes)
+ * Shows Section 19 eligible customers for transport service.
+ * Bus customers are managed in a separate BusCustomersPage.
  *
  * Features:
- * - Pagination, Search, Filtering
+ * - Pagination, Search
  * - Create/Edit/Delete operations
- * - Service-aware labels and actions
+ * - Copy to Bus Service option for dual-service companies
  */
 
 function CustomerListPage() {
   const { tenantId, tenant } = useTenant();
   const toast = useToast();
-  const { activeService } = useServiceContext();
-
-  // Service-aware terminology
-  const entityName = activeService === 'bus' ? 'Passenger' : 'Customer';
-  const entityNamePlural = activeService === 'bus' ? 'Passengers' : 'Customers';
+  const { busEnabled } = useServiceContext();
 
   // Safety check: should never happen if tenant context loaded
   if (!tenantId) {
@@ -63,7 +58,6 @@ function CustomerListPage() {
   // Filter/search state
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
-  const [eligibilityFilter, setEligibilityFilter] = useState<'all' | 'section_19_only' | 'section_22_only' | 'both'>('all');
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -299,31 +293,37 @@ function CustomerListPage() {
   };
 
   /**
-   * Filter customers based on service eligibility
+   * Filter customers to show Section 19 eligible only (transport service)
    */
   const getFilteredCustomers = (): Customer[] => {
-    let filtered = customers;
+    return customers.filter(c => c.section_19_eligible);
+  };
 
-    // Filter by service eligibility based on active service and filter selection
-    if (activeService === 'bus' && eligibilityFilter === 'all') {
-      // In bus mode: by default show only Section 22 eligible customers
-      filtered = filtered.filter(c => c.section_22_eligible);
-    } else if (activeService === 'transport' && eligibilityFilter === 'all') {
-      // In transport mode: by default show only Section 19 eligible customers
-      filtered = filtered.filter(c => c.section_19_eligible);
-    } else if (eligibilityFilter === 'section_19_only') {
-      // Show only Section 19 eligible (not Section 22)
-      filtered = filtered.filter(c => c.section_19_eligible && !c.section_22_eligible);
-    } else if (eligibilityFilter === 'section_22_only') {
-      // Show only Section 22 eligible (not Section 19)
-      filtered = filtered.filter(c => !c.section_19_eligible && c.section_22_eligible);
-    } else if (eligibilityFilter === 'both') {
-      // Show only customers eligible for both services
-      filtered = filtered.filter(c => c.section_19_eligible && c.section_22_eligible);
+  /**
+   * Copy customer to Bus Service (makes them Section 22 eligible)
+   */
+  const handleCopyToBus = async (customer: Customer) => {
+    if (customer.section_22_eligible) {
+      toast.info(`${customer.name} is already eligible for bus service`);
+      return;
     }
-    // If 'all' and no active service filter, show all customers
 
-    return filtered;
+    const confirmed = window.confirm(
+      `Copy "${customer.name}" to Bus Service?\n\n` +
+      `This will make them eligible for Section 22 bus services while keeping their transport service access.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await customerApi.updateCustomer(tenantId, customer.id, {
+        section_22_eligible: true
+      } as any);
+      toast.success(`${customer.name} is now eligible for bus service`);
+      fetchCustomers();
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || 'Failed to update customer');
+    }
   };
 
   return (
@@ -331,10 +331,10 @@ function CustomerListPage() {
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>{entityNamePlural} Management</h2>
+          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Customers Management</h2>
           {tenant && (
             <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
+              Section 19 Transport Service Customers
             </p>
           )}
         </div>
@@ -355,7 +355,7 @@ function CustomerListPage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
-            Add {entityName}
+            Add Customer
           </button>
         </div>
       </div>
@@ -385,7 +385,7 @@ function CustomerListPage() {
             transition: 'all 0.2s'
           }}
         >
-          Active {entityNamePlural}
+          Active Customers
         </button>
         <button
           onClick={() => {
@@ -405,7 +405,7 @@ function CustomerListPage() {
             transition: 'all 0.2s'
           }}
         >
-          Archived {entityNamePlural}
+          Archived Customers
         </button>
       </div>
 
@@ -449,49 +449,7 @@ function CustomerListPage() {
             )}
           </div>
         </form>
-
-        {/* Service Eligibility Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label htmlFor="eligibilityFilter" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--gray-700)', whiteSpace: 'nowrap' }}>
-            Service Filter:
-          </label>
-          <select
-            id="eligibilityFilter"
-            value={eligibilityFilter}
-            onChange={(e) => setEligibilityFilter(e.target.value as any)}
-            style={{ padding: '0.5rem', fontSize: '14px', minWidth: '200px' }}
-          >
-            <option value="all">
-              {activeService === 'bus' ? '🚌 Section 22 Eligible' : activeService === 'transport' ? '🚗 Section 19 Eligible' : 'All Customers'}
-            </option>
-            <option value="section_19_only">🚗 Section 19 Only</option>
-            <option value="section_22_only">🚌 Section 22 Only</option>
-            <option value="both">✓ Both Services</option>
-          </select>
-        </div>
       </div>
-
-      {/* Active Service Indicator */}
-      {activeService && eligibilityFilter === 'all' && (
-        <div style={{
-          marginBottom: '1rem',
-          padding: '0.75rem 1rem',
-          background: activeService === 'bus' ? '#d1fae510' : '#dbeafe10',
-          border: `1px solid ${activeService === 'bus' ? '#10b981' : '#3b82f6'}`,
-          borderRadius: '6px',
-          fontSize: '13px',
-          color: 'var(--gray-700)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <span style={{ fontSize: '16px' }}>{activeService === 'bus' ? '🚌' : '🚗'}</span>
-          <span>
-            <strong>{activeService === 'bus' ? 'Bus Service Mode:' : 'Transport Service Mode:'}</strong>
-            {' '}Showing {activeService === 'bus' ? 'Section 22' : 'Section 19'} eligible {entityNamePlural.toLowerCase()} only
-          </span>
-        </div>
-      )}
 
       {/* Error Message */}
       {error && (
@@ -702,6 +660,23 @@ function CustomerListPage() {
                             </svg>
                             Assess
                           </button>
+                          {/* Copy to Bus - only show if bus service enabled and customer not already eligible */}
+                          {busEnabled && !customer.section_22_eligible && (
+                            <button
+                              className="btn btn-action"
+                              onClick={() => handleCopyToBus(customer)}
+                              title="Make eligible for bus service"
+                              style={{ background: '#10b981', borderColor: '#10b981', color: 'white' }}
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="1" y="3" width="15" height="13"></rect>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                              </svg>
+                              + Bus
+                            </button>
+                          )}
                           {activeTab === 'active' ? (
                             <button
                               className="btn btn-action btn-archive"
