@@ -20,14 +20,13 @@ import './Payroll.css';
 // ============================================================================
 
 interface PayrollStats {
-  activeEmployees: number;
-  thisMonthGross: number;
-  thisMonthNet: number;
-  hmrcDue: number;
-  ytdGross: number;
-  ytdNet: number;
-  ytdTax: number;
-  ytdNI: number;
+  active_employees: number;
+  this_month_gross: number;
+  this_month_net: number;
+  this_month_hmrc: number;
+  ytd_gross: number;
+  ytd_net: number;
+  ytd_hmrc: number;
 }
 
 interface PayrollPeriod {

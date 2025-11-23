@@ -116,7 +116,7 @@ function ProviderDetailsModal({
             </div>
 
             {/* Route Distribution */}
-            {details.routeDistribution && details.routeDistribution.length > 0 && (
+            {details.routeDistribution && Array.isArray(details.routeDistribution) && details.routeDistribution.length > 0 && (
               <div className="provider-route-distribution">
                 <h4 style={{ margin: '0 0 1rem 0', color: '#388e3c', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -126,8 +126,9 @@ function ProviderDetailsModal({
                 </h4>
 
                 <div className="provider-route-chart">
-                  {details.routeDistribution.map((day) => {
-                    const maxRoutes = Math.max(...details.routeDistribution.map(d => d.routeCount));
+                  {(details.routeDistribution as { dayOfWeek: string; routeCount: number }[]).map((day) => {
+                    const distribution = details.routeDistribution as { dayOfWeek: string; routeCount: number }[];
+                    const maxRoutes = Math.max(...distribution.map(d => d.routeCount));
                     const heightPercent = (day.routeCount / maxRoutes) * 100;
 
                     return (
@@ -146,7 +147,7 @@ function ProviderDetailsModal({
                 </div>
 
                 <div style={{ marginTop: '1rem', fontSize: '13px', color: 'var(--gray-700)' }}>
-                  <strong>Total Weekly Routes:</strong> {details.routeDistribution.reduce((sum, d) => sum + d.routeCount, 0)}
+                  <strong>Total Weekly Routes:</strong> {(details.routeDistribution as { dayOfWeek: string; routeCount: number }[]).reduce((sum, d) => sum + d.routeCount, 0)}
                 </div>
               </div>
             )}
