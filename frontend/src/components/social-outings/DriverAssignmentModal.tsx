@@ -427,7 +427,7 @@ function DriverAssignmentModal({ outing, onClose }: DriverAssignmentModalProps) 
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {rotas.map(rota => {
-                  const vehicleData = rota.vehicle_data || {};
+                  const vehicleData = (rota.vehicle_data || {}) as any;
                   const assignedPassengers = rota.assigned_passengers || [];
 
                   return (

@@ -387,7 +387,7 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
         <SendInvoiceModal
           invoiceId={sendingInvoiceId}
           tenantId={tenantId}
-          currentEmail={draftInvoices.find(inv => inv.id === sendingInvoiceId)?.email}
+          currentEmail={(draftInvoices.find(inv => inv.id === sendingInvoiceId) as any)?.email}
           onClose={() => setSendingInvoiceId(null)}
           onSuccess={loadDashboardData}
         />

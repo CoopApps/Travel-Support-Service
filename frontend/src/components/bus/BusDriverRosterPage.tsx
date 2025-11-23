@@ -72,7 +72,7 @@ export default function BusDriverRosterPage() {
       setDrivers(driversData.drivers || []);
 
       // Transform timetables into driver assignments
-      const timetables = timetablesData.timetables || [];
+      const timetables = (timetablesData as any).timetables || timetablesData || [];
       const assignmentsData: DriverAssignment[] = timetables
         .filter(t => t.driver_id)
         .map(t => ({

@@ -83,9 +83,8 @@ export const EditInvoiceModal: React.FC<Props> = ({
       await invoiceApi.addLineItem(tenantId, invoiceId, {
         description: editingLineItem.description,
         quantity: editingLineItem.quantity,
-        unit_price: editingLineItem.unitPrice,
-        total_price: editingLineItem.quantity * editingLineItem.unitPrice
-      });
+        unit_price: editingLineItem.unitPrice
+      } as any);
       setShowAddLineItem(false);
       setEditingLineItem(null);
       await loadInvoice();

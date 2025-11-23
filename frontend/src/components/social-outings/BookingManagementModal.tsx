@@ -360,7 +360,7 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
                 {bookings
                   .filter(b => b.booking_status === 'confirmed')
                   .map(booking => {
-                    const customerData = booking.customer_data || {};
+                    const customerData = (booking.customer_data || {}) as any;
                     const isWheelchairUser = customerData.accessibility_needs?.wheelchairUser || false;
 
                     return (
@@ -423,7 +423,7 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
                   {bookings
                     .filter(b => b.booking_status === 'cancelled')
                     .map(booking => {
-                      const customerData = booking.customer_data || {};
+                      const customerData = (booking.customer_data || {}) as any;
                       return (
                         <div
                           key={booking.id}

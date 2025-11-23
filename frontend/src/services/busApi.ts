@@ -218,7 +218,15 @@ export const busTimetablesApi = {
    */
   getTimetables: async (
     tenantId: number,
-    params?: { route_id?: number; status?: string; date?: string }
+    params?: {
+      route_id?: number;
+      status?: string;
+      date?: string;
+      startDate?: string;
+      endDate?: string;
+      includeRoutes?: boolean;
+      includeVehicles?: boolean;
+    }
   ): Promise<BusTimetable[]> => {
     const response = await apiClient.get(`/tenants/${tenantId}/bus/timetables`, { params });
     return response.data;
@@ -810,7 +818,7 @@ export const busRosterApi = {
    */
   getRoster: async (
     tenantId: number,
-    params?: { start_date?: string; end_date?: string; driver_id?: number }
+    params?: { start_date?: string; end_date?: string; driver_id?: number; timetable_id?: number }
   ): Promise<BusRosterEntry[]> => {
     const response = await apiClient.get(`/tenants/${tenantId}/bus/roster`, { params });
     return response.data;

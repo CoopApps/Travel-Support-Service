@@ -248,7 +248,7 @@ function CustomerListPage() {
    */
   const handleExportCSV = async () => {
     try {
-      const response = await customerApi.exportCustomers(tenantId, {
+      const response = await (customerApi as any).exportCustomers(tenantId, {
         search,
         archived: activeTab === 'archive',
       });
