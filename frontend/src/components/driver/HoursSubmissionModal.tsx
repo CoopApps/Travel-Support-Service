@@ -1,16 +1,18 @@
 import { useState, FormEvent } from 'react';
 
 interface HoursSubmissionModalProps {
+  tenantId: number;
   driverId: number;
-  hourlyRate: number;
-  overtimeRate: number;
-  onSubmit: (data: {
+  hourlyRate?: number;
+  overtimeRate?: number;
+  onSubmit?: (data: {
     weekEnding: string;
     regularHours: number;
     overtimeHours: number;
     notes?: string;
   }) => Promise<void>;
   onClose: () => void;
+  onSuccess?: () => Promise<void>;
 }
 
 /**

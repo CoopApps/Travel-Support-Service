@@ -1,8 +1,9 @@
 import { useState, FormEvent } from 'react';
 
 interface FuelCostsSubmissionModalProps {
+  tenantId: number;
   driverId: number;
-  onSubmit: (data: {
+  onSubmit?: (data: {
     date: string;
     station: string;
     litres: number;
@@ -11,6 +12,7 @@ interface FuelCostsSubmissionModalProps {
     notes?: string;
   }) => Promise<void>;
   onClose: () => void;
+  onSuccess?: () => Promise<void>;
 }
 
 /**

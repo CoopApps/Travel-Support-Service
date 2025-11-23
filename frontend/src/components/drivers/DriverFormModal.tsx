@@ -12,6 +12,7 @@ import { useTenant } from '../../context/TenantContext';
 interface DriverFormModalProps {
   driver: Driver | null;
   onClose: (refresh?: boolean) => void;
+  tenantId?: number; // Optional - uses context if not provided
 }
 
 function DriverFormModal({ driver, onClose }: DriverFormModalProps) {
