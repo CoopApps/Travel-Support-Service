@@ -39,17 +39,15 @@ import BusDashboard from './components/bus/BusDashboard';
 import BusRoutesPage from './components/bus/BusRoutesPage';
 import BusTimetablesPage from './components/bus/BusTimetablesPage';
 import BusBookingsPage from './components/bus/BusBookingsPage';
-import Section22CompliancePage from './components/bus/Section22CompliancePage';
+// Section22CompliancePage now integrated into PermitsPage as a tab
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
 import RegularPassengersPage from './components/bus/RegularPassengersPage';
 import BusCustomersPage from './components/bus/BusCustomersPage';
 // TodaysOperationsPage removed - merged into BusDashboard
 // BusCommunicationsPage removed - using universal CustomerMessagesPage instead
 import BusAnalyticsPage from './components/bus/BusAnalyticsPage';
-import SurplusPoolDashboard from './components/bus/SurplusPoolDashboard';
-import CooperativeMembersPage from './components/bus/CooperativeMembersPage';
+// SurplusPoolDashboard, CooperativeMembersPage, DividendManagementPage now integrated into CooperativePage as tabs
 import QuickBookPage from './components/bus/QuickBookPage';
-import DividendManagementPage from './components/bus/DividendManagementPage';
 import CooperativePage from './components/bus/CooperativePage';
 import CustomerRouteProposalsPage from './pages/CustomerRouteProposalsPage';
 import RouteProposalsAdmin from './pages/admin/RouteProposalsAdmin';
@@ -215,10 +213,8 @@ function App() {
         <Route path="bus/regular-passengers" element={<RegularPassengersPage />} />
         <Route path="bus/communications" element={<CustomerMessagesPage />} />
         <Route path="bus/analytics" element={<BusAnalyticsPage />} />
-        <Route path="bus/surplus-pool" element={<SurplusPoolDashboard />} />
-        <Route path="bus/members" element={<CooperativeMembersPage />} />
-        <Route path="bus/dividends" element={<DividendManagementPage />} />
-        <Route path="bus/compliance" element={<Section22CompliancePage />} />
+        {/* surplus-pool, members, dividends routes removed - now tabs in CooperativePage */}
+        {/* bus/compliance route removed - now tab in PermitsPage */}
 
         {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
 
