@@ -106,7 +106,6 @@ function Layout() {
             <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
             <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
             <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
-            <NavItem to="/holidays" label="Holidays" icon="sun" active={location.pathname === '/holidays'} />
             <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
             {activeService === 'bus' && (
               <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname.startsWith('/bus/cooperative')} />
@@ -279,6 +278,25 @@ function Layout() {
                   <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                 </svg>
                 <span>Providers</span>
+              </Link>
+
+              <Link
+                to="/holidays"
+                className={`quick-nav-btn ${location.pathname === '/holidays' ? 'active' : ''}`}
+                title="Holidays"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                <span>Holidays</span>
               </Link>
             </nav>
           </div>
