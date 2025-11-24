@@ -58,6 +58,10 @@ interface BusAnalyticsOverview {
 export default function BusDashboard() {
   const { tenant } = useTenant();
   const navigate = useNavigate();
+
+  // Check if tenant is a cooperative
+  const isCooperative = tenant?.organization_type === 'cooperative' || tenant?.organization_type === 'cooperative_commonwealth';
+
   const [stats, setStats] = useState<DashboardStats>({
     activeRoutes: 0,
     todaysServices: 0,
@@ -539,19 +543,21 @@ export default function BusDashboard() {
               <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>Seat utilization</div>
             </div>
 
-            <div style={{
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'white',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>Co-op Surplus</div>
-              <div style={{ fontSize: '24px', fontWeight: 700 }}>
-                {surplusBalance !== null ? `£${surplusBalance.toLocaleString()}` : '--'}
+            {isCooperative && (
+              <div style={{
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                borderRadius: '8px',
+                padding: '1rem',
+                color: 'white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>Co-op Surplus</div>
+                <div style={{ fontSize: '24px', fontWeight: 700 }}>
+                  {surplusBalance !== null ? `£${surplusBalance.toLocaleString()}` : '--'}
+                </div>
+                <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>Pool balance</div>
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>Pool balance</div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -893,50 +899,52 @@ export default function BusDashboard() {
             </div>
           </div>
 
-          {/* Co-operative Summary */}
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>Co-operative</h3>
-              <Link
-                to="/bus/cooperative"
-                style={{ fontSize: '11px', color: '#3b82f6', textDecoration: 'none' }}
-              >
-                View Details →
-              </Link>
-            </div>
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '8px',
-              padding: '12px',
-              color: 'white'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '11px', opacity: 0.9 }}>Surplus Pool Balance</div>
-                  <div style={{ fontSize: '22px', fontWeight: 700 }}>
-                    {surplusBalance !== null ? `£${surplusBalance.toLocaleString()}` : 'Loading...'}
+          {/* Co-operative Summary - Only show for cooperative tenants */}
+          {isCooperative && (
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>Co-operative</h3>
+                <Link
+                  to="/bus/cooperative"
+                  style={{ fontSize: '11px', color: '#3b82f6', textDecoration: 'none' }}
+                >
+                  View Details →
+                </Link>
+              </div>
+              <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '8px',
+                padding: '12px',
+                color: 'white'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', opacity: 0.9 }}>Surplus Pool Balance</div>
+                    <div style={{ fontSize: '22px', fontWeight: 700 }}>
+                      {surplusBalance !== null ? `£${surplusBalance.toLocaleString()}` : 'Loading...'}
+                    </div>
+                  </div>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="1" x2="12" y2="23"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
                   </div>
                 </div>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                  </svg>
+                <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                  Available for subsidies & dividends
                 </div>
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
-                Available for subsidies & dividends
-              </div>
             </div>
-          </div>
+          )}
 
           {/* Quick Links */}
           <div>
