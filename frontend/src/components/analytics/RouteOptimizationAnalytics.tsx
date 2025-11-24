@@ -79,7 +79,10 @@ export const RouteOptimizationAnalytics: React.FC<RouteAnalyticsProps> = ({ tena
       setAnalytics(response.data);
     } catch (err: any) {
       console.error('Error fetching route analytics:', err);
-      setError(err.response?.data?.error || 'Failed to load analytics');
+      const errorData = err.response?.data?.error;
+      const errorMessage = typeof errorData === 'string' ? errorData :
+        (errorData?.message || err.message || 'Failed to load analytics');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -100,7 +103,10 @@ export const RouteOptimizationAnalytics: React.FC<RouteAnalyticsProps> = ({ tena
       setBatchResult(response.data);
     } catch (err: any) {
       console.error('Error running batch optimization:', err);
-      setError(err.response?.data?.error || 'Failed to run batch optimization');
+      const errorData = err.response?.data?.error;
+      const errorMessage = typeof errorData === 'string' ? errorData :
+        (errorData?.message || err.message || 'Failed to run batch optimization');
+      setError(errorMessage);
     } finally {
       setBatchOptimizing(false);
     }
