@@ -565,69 +565,8 @@ export default function BusDashboard() {
       {/* Main Two Column Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '16px', marginBottom: '16px' }}>
 
-        {/* ========== LEFT COLUMN: Quick Actions, Alerts, Today's Operations ========== */}
+        {/* ========== LEFT COLUMN: Alerts, Today's Operations ========== */}
         <div>
-          {/* Quick Actions */}
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>Quick Actions</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              <Link
-                to="/bus/routes"
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  color: '#0f172a',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  display: 'block'
-                }}
-              >
-                Manage Routes
-              </Link>
-              <Link
-                to="/bus/timetables"
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  color: '#0f172a',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  display: 'block'
-                }}
-              >
-                Timetables
-              </Link>
-              <Link
-                to="/bus/cooperative"
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  color: '#0f172a',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  display: 'block'
-                }}
-              >
-                Co-operative
-              </Link>
-            </div>
-          </div>
-
           {/* Active Alerts */}
           <div style={{ marginBottom: '16px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
@@ -946,24 +885,6 @@ export default function BusDashboard() {
             </div>
           )}
 
-          {/* Quick Links */}
-          <div>
-            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>Quick Links</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <Link to="/bus/analytics" style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', padding: '6px 0' }}>
-                → View Full Analytics
-              </Link>
-              <Link to="/drivers" style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', padding: '6px 0' }}>
-                → Manage Drivers
-              </Link>
-              <Link to="/vehicles" style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', padding: '6px 0' }}>
-                → Manage Fleet
-              </Link>
-              <Link to="/compliance/service-registrations" style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', padding: '6px 0' }}>
-                → Service Registrations
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
 
