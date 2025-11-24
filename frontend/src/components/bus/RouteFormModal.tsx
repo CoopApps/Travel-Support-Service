@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { busRoutesApi, BusRoute, RouteStop } from '../../services/busApi';
 import { useTenant } from '../../context/TenantContext';
 import RouteMapView, { geocodeAddress } from './RouteMapView';
+import PassengerImportPicker from './PassengerImportPicker';
 import './RouteFormModal.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -102,6 +103,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'stops'>('details');
   const [geocoding, setGeocoding] = useState(false);
+  const [showPassengerPicker, setShowPassengerPicker] = useState(false);
 
   const isEditing = !!route;
 
@@ -682,28 +684,33 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
           <div className="stops-section">
             <div className="stops-header">
               <h3>Route Stops</h3>
-              <button
-                className="btn-primary btn-sm"
-                onClick={() => {
-                  setEditingStop(null);
-                  setStopFormData({
-                    stop_sequence: stops.length + 1,
-                    stop_name: '',
-                    stop_address: '',
-                    arrival_offset_minutes: '0',
-                    departure_offset_minutes: '0',
-                    dwell_time_minutes: '2',
-                    is_timing_point: false,
-                    is_pickup_point: true,
-                    is_setdown_point: true,
-                    latitude: '',
-                    longitude: ''
-                  });
-                  setShowStopForm(true);
-                }}
-              >
-                + Add Stop
-              </button>
+              <div className="stops-header-actions">
+                <button className="btn-secondary btn-sm" onClick={() => setShowPassengerPicker(true)}>
+                  Import Passengers
+                </button>
+                <button
+                  className="btn-primary btn-sm"
+                  onClick={() => {
+                    setEditingStop(null);
+                    setStopFormData({
+                      stop_sequence: stops.length + 1,
+                      stop_name: '',
+                      stop_address: '',
+                      arrival_offset_minutes: '0',
+                      departure_offset_minutes: '0',
+                      dwell_time_minutes: '2',
+                      is_timing_point: false,
+                      is_pickup_point: true,
+                      is_setdown_point: true,
+                      latitude: '',
+                      longitude: ''
+                    });
+                    setShowStopForm(true);
+                  }}
+                >
+                  + Add Stop
+                </button>
+              </div>
             </div>
 
             {/* Route Map Preview */}
@@ -907,6 +914,48 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
             </div>
           </div>
         )}
+
+        {/* Passenger Import Picker */}
+        <PassengerImportPicker
+          isOpen={showPassengerPicker}
+          onClose={() => setShowPassengerPicker(false)}
+          onImport={async (passengersData) => {
+            if (!tenant?.tenant_id || !route?.route_id) return;
+
+            try {
+              setSaving(true);
+              setError(null);
+
+              // Add each passenger as a stop
+              const currentStopCount = stops.length;
+              for (let i = 0; i < passengersData.length; i++) {
+                const passenger = passengersData[i];
+                const payload: Partial<RouteStop> = {
+                  stop_sequence: currentStopCount + i + 1,
+                  stop_name: passenger.name,
+                  stop_address: passenger.address,
+                  arrival_offset_minutes: (currentStopCount + i) * 5, // Estimate 5 mins between stops
+                  departure_offset_minutes: (currentStopCount + i) * 5 + 2,
+                  dwell_time_minutes: 2,
+                  is_timing_point: false,
+                  is_pickup_point: true,
+                  is_setdown_point: true,
+                  customer_id: passenger.customer_id
+                };
+
+                await busRoutesApi.addStop(tenant.tenant_id, route.route_id, payload);
+              }
+
+              // Reload stops
+              await loadStops(route.route_id);
+            } catch (err: any) {
+              console.error('Failed to import passengers:', err);
+              setError(err.response?.data?.error || err.message || 'Failed to import passengers');
+            } finally {
+              setSaving(false);
+            }
+          }}
+        />
       </div>
     </div>
   );

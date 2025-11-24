@@ -55,6 +55,7 @@ export interface RouteStop {
   is_pickup_point: boolean;
   is_setdown_point: boolean;
   accessibility_features?: string;
+  customer_id?: number; // Link to customer if stop is a passenger pickup
   created_at: string;
 }
 
