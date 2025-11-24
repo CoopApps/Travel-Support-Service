@@ -63,7 +63,7 @@ export const BulkGenerateModal: React.FC<Props> = ({ tenantId, onClose, onSucces
       setPreview(data);
       setStep('preview');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load preview');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load preview'));
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export const BulkGenerateModal: React.FC<Props> = ({ tenantId, onClose, onSucces
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to generate invoices');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to generate invoices'));
       setStep('preview');
     } finally {
       setLoading(false);

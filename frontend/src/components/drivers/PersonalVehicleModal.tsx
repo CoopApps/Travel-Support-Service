@@ -76,7 +76,7 @@ function PersonalVehicleModal({ driver, onClose }: PersonalVehicleModalProps) {
       onClose(true);
     } catch (err: any) {
       console.error('Error creating personal vehicle:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to create personal vehicle');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to create personal vehicle'));
     } finally {
       setLoading(false);
     }

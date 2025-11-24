@@ -84,7 +84,7 @@ export const InvoicesPage: React.FC = () => {
       setFilteredInvoices(data);
     } catch (err: any) {
       console.error('Failed to fetch invoices:', err);
-      setError(err.response?.data?.error || 'Failed to load invoices');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load invoices'));
     } finally {
       setLoading(false);
     }

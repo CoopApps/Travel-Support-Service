@@ -83,7 +83,7 @@ export default function CustomerBusServicesModal({
       loadData();
     } catch (err: any) {
       console.error('Failed to report absence:', err);
-      setError(err.response?.data?.error || 'Failed to report absence. Please try again.');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to report absence. Please try again.'));
     } finally {
       setSubmitting(false);
     }

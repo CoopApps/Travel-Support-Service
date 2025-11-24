@@ -54,7 +54,7 @@ export const SplitPaymentManager: React.FC<Props> = ({ invoiceId, tenantId, invo
       setSplits(splitsData);
       setSummary(summaryData);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load split payments');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load split payments'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export const SplitPaymentManager: React.FC<Props> = ({ invoiceId, tenantId, invo
       await loadSplitPayments();
       onUpdate?.();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to add split payment');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to add split payment'));
     }
   };
 
@@ -83,7 +83,7 @@ export const SplitPaymentManager: React.FC<Props> = ({ invoiceId, tenantId, invo
       await loadSplitPayments();
       onUpdate?.();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete split payment');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to delete split payment'));
     }
   };
 
@@ -107,7 +107,7 @@ export const SplitPaymentManager: React.FC<Props> = ({ invoiceId, tenantId, invo
       await loadSplitPayments();
       onUpdate?.();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to record payment');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to record payment'));
     }
   };
 

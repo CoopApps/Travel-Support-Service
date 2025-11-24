@@ -76,7 +76,7 @@ function LogServiceModal({ vehicles, preselectedVehicleId, onClose }: LogService
       onClose(true);
     } catch (err: any) {
       console.error('Error logging service:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to log service');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to log service'));
     } finally {
       setLoading(false);
     }

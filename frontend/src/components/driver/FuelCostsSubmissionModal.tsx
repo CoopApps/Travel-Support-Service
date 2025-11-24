@@ -77,7 +77,7 @@ function FuelCostsSubmissionModal({
       });
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit fuel costs');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to submit fuel costs'));
     } finally {
       setSubmitting(false);
     }

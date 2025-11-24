@@ -119,7 +119,7 @@ function DriverAssignmentModal({ outing, onClose }: DriverAssignmentModalProps) 
       fetchData();
     } catch (err: any) {
       console.error('Error assigning driver:', err);
-      setError(err.response?.data?.error || 'Failed to assign driver');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to assign driver'));
     } finally {
       setSubmitting(false);
     }

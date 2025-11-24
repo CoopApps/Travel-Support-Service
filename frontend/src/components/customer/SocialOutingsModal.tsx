@@ -53,7 +53,7 @@ function SocialOutingsModal({ tenantId, customerId, onClose }: SocialOutingsModa
       const data = await customerDashboardApi.getSocialOutings(tenantId, customerId);
       setOutings(data.outings || []);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load outings');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load outings'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ function SocialOutingsModal({ tenantId, customerId, onClose }: SocialOutingsModa
       loadOutings();
       alert('Successfully booked onto outing!');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to book outing');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to book outing'));
     } finally {
       setBooking(false);
     }
@@ -98,7 +98,7 @@ function SocialOutingsModal({ tenantId, customerId, onClose }: SocialOutingsModa
       loadOutings();
       alert('Booking cancelled successfully');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to cancel booking');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to cancel booking'));
     }
   };
 
@@ -123,7 +123,7 @@ function SocialOutingsModal({ tenantId, customerId, onClose }: SocialOutingsModa
       setSuggestionNotes('');
       alert('Suggestion submitted successfully!');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit suggestion');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to submit suggestion'));
     } finally {
       setSuggesting(false);
     }

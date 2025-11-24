@@ -91,7 +91,7 @@ function HolidayRequestModal({ tenantId, driverId, balance, onClose, onSuccess, 
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit request');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to submit request'));
     } finally {
       setSubmitting(false);
     }

@@ -93,7 +93,7 @@ function OutingFormModal({ outing, onClose }: OutingFormModalProps) {
       onClose(true);
     } catch (err: any) {
       console.error('Error saving outing:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to save outing');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save outing'));
     } finally {
       setLoading(false);
     }

@@ -167,7 +167,7 @@ const PayrollPage: React.FC = () => {
       setPeriods(data.periods || []);
     } catch (err: any) {
       console.error('Error loading periods:', err);
-      setError(err.response?.data?.error || 'Failed to load payroll periods');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load payroll periods'));
     } finally {
       setLoading(false);
     }
@@ -186,7 +186,7 @@ const PayrollPage: React.FC = () => {
       setSummary(summaryData);
     } catch (err: any) {
       console.error('Error loading period details:', err);
-      setError(err.response?.data?.error || 'Failed to load period details');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load period details'));
     }
   };
 

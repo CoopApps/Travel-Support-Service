@@ -49,7 +49,7 @@ export const EditInvoiceModal: React.FC<Props> = ({
       setEmail(data.customerName); // Assuming email is stored in a field
       setDescription(data.notes || '');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load invoice');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load invoice'));
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export const EditInvoiceModal: React.FC<Props> = ({
       });
       await loadInvoice(); // Reload to get updated data
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update invoice');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to update invoice'));
     } finally {
       setSaving(false);
     }
@@ -89,7 +89,7 @@ export const EditInvoiceModal: React.FC<Props> = ({
       setEditingLineItem(null);
       await loadInvoice();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to add line item');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to add line item'));
     } finally {
       setSaving(false);
     }
@@ -111,7 +111,7 @@ export const EditInvoiceModal: React.FC<Props> = ({
       setEditingLineItem(null);
       await loadInvoice();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update line item');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to update line item'));
     } finally {
       setSaving(false);
     }
@@ -127,7 +127,7 @@ export const EditInvoiceModal: React.FC<Props> = ({
       await invoiceApi.deleteLineItem(tenantId, invoiceId, lineItemId);
       await loadInvoice();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete line item');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to delete line item'));
     } finally {
       setSaving(false);
     }

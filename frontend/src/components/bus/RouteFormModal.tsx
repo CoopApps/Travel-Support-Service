@@ -262,7 +262,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       onClose();
     } catch (err: any) {
       console.error('Failed to save route:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to save route');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save route'));
     } finally {
       setSaving(false);
     }
@@ -347,7 +347,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       });
     } catch (err: any) {
       console.error('Failed to save stop:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to save stop');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save stop'));
     } finally {
       setSaving(false);
     }
@@ -381,7 +381,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       await loadStops(route.route_id);
     } catch (err: any) {
       console.error('Failed to delete stop:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to delete stop');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to delete stop'));
     } finally {
       setSaving(false);
     }
@@ -950,7 +950,7 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
               await loadStops(route.route_id);
             } catch (err: any) {
               console.error('Failed to import passengers:', err);
-              setError(err.response?.data?.error || err.message || 'Failed to import passengers');
+              setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to import passengers'));
             } finally {
               setSaving(false);
             }

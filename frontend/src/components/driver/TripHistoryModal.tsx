@@ -48,7 +48,7 @@ function TripHistoryModal({ tenantId, driverId, onClose }: TripHistoryModalProps
 
       setTrips(completedTrips);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load trip history');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load trip history'));
     } finally {
       setLoading(false);
     }

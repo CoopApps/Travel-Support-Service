@@ -57,7 +57,7 @@ export const RecordPaymentModal: React.FC<Props> = ({ invoice, tenantId, onClose
       await invoiceApi.recordPayment(tenantId, invoice.id, formData);
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to record payment');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to record payment'));
       setSubmitting(false);
     }
   };

@@ -110,7 +110,7 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
       fetchData();
     } catch (err: any) {
       console.error('Error adding booking:', err);
-      setError(err.response?.data?.error || 'Failed to add booking');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to add booking'));
     } finally {
       setSubmitting(false);
     }

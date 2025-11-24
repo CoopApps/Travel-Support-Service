@@ -84,7 +84,7 @@ export const RosterOptimizationDashboard: React.FC = () => {
       });
     } catch (err: any) {
       console.error('Error fetching roster dashboard:', err);
-      setError(err.response?.data?.error || 'Failed to load roster dashboard');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load roster dashboard'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export const RosterOptimizationDashboard: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error in auto-assignment:', err);
-      setError(err.response?.data?.error || 'Failed to auto-assign drivers');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to auto-assign drivers'));
     } finally {
       setAutoAssigning(false);
     }

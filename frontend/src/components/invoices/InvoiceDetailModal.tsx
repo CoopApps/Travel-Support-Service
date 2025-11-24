@@ -31,7 +31,7 @@ export const InvoiceDetailModal: React.FC<Props> = ({ invoiceId, tenantId, onClo
       const data = await invoiceApi.getInvoice(tenantId, invoiceId);
       setInvoice(data);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load invoice details');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load invoice details'));
     } finally {
       setLoading(false);
     }

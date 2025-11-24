@@ -62,7 +62,7 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       setMessages(data.messages || []);
     } catch (err: any) {
       console.error('Error loading messages:', err);
-      setError(err.response?.data?.error || 'Failed to load messages');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load messages'));
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       setMessagesToOffice(data.messages || []);
     } catch (err: any) {
       console.error('Error loading sent messages:', err);
-      setError(err.response?.data?.error || 'Failed to load sent messages');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load sent messages'));
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       loadMessagesToOffice();
     } catch (err: any) {
       console.error('Error sending message:', err);
-      setError(err.response?.data?.error || 'Failed to send message');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to send message'));
     } finally {
       setSending(false);
     }

@@ -78,7 +78,7 @@ function SafeguardingReportModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit safeguarding report');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to submit safeguarding report'));
     } finally {
       setSubmitting(false);
     }

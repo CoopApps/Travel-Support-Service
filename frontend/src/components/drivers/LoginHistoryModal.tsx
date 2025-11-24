@@ -28,7 +28,7 @@ function LoginHistoryModal({ driver, tenantId, onClose }: LoginHistoryModalProps
         const data = await driverApi.getLoginHistory(tenantId, driver.driver_id);
         setHistory(data);
       } catch (err: any) {
-        setError(err.response?.data?.error || 'Failed to load login history');
+        setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load login history'));
       } finally {
         setLoading(false);
       }

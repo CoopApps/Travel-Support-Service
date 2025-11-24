@@ -52,7 +52,7 @@ function ReportDetailModal({ report, onClose }: ReportDetailModalProps) {
       });
       onClose(true);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update report');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to update report'));
     } finally {
       setUpdating(false);
     }

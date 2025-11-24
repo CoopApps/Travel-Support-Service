@@ -73,7 +73,7 @@ function HoursSubmissionModal({
       });
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit hours');
+      setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to submit hours'));
     } finally {
       setSubmitting(false);
     }
