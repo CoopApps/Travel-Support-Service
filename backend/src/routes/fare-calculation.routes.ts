@@ -8,6 +8,7 @@ import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { FareCalculationService } from '../services/fareCalculation.service';
 import { OrganizationalConfigService } from '../services/organizationalConfig.service';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 const fareService = new FareCalculationService(pool);
@@ -31,7 +32,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
         serviceConfig,
       });
     } catch (error: any) {
-      console.error('Error fetching organizational config:', error);
+      logger.error('Error fetching organizational config', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch organizational configuration',
@@ -54,7 +55,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
 
       res.json(settings);
     } catch (error: any) {
-      console.error('Error fetching fare settings:', error);
+      logger.error('Error fetching fare settings', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch fare settings',
@@ -124,7 +125,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
         client.release();
       }
     } catch (error: any) {
-      console.error('Error updating fare settings:', error);
+      logger.error('Error updating fare settings', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to update fare settings',
@@ -166,7 +167,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
         message: 'Fare calculated successfully',
       });
     } catch (error: any) {
-      console.error('Error calculating fare:', error);
+      logger.error('Error calculating fare', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to calculate fare',
@@ -189,7 +190,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
 
       res.json(summary);
     } catch (error: any) {
-      console.error('Error fetching commonwealth fund:', error);
+      logger.error('Error fetching commonwealth fund', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch commonwealth fund',
@@ -219,7 +220,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
 
       res.json(result);
     } catch (error: any) {
-      console.error('Error recording commonwealth contribution:', error);
+      logger.error('Error recording commonwealth contribution', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to record contribution',
@@ -250,7 +251,7 @@ const orgConfigService = new OrganizationalConfigService(pool);
         client.release();
       }
     } catch (error: any) {
-      console.error('Error fetching fare tiers:', error);
+      logger.error('Error fetching fare tiers', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch fare tiers',

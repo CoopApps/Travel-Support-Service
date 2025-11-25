@@ -1,6 +1,8 @@
 import express, { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
 import { successResponse, ErrorResponses } from '../utils/responseWrapper';
+import { getCacheStats } from '../utils/cache';
+import { logger } from '../utils/logger';
 
 const router: Router = express.Router();
 
@@ -81,6 +83,48 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
   if (memUsage.heapUsed / memUsage.heapTotal > 0.9) {
     health.checks.memory.status = 'warning';
     health.checks.memory.message = 'High memory usage detected';
+  }
+
+  // Check database pool status
+  try {
+    health.checks.databasePool = {
+      status: 'healthy',
+      totalConnections: pool.totalCount,
+      idleConnections: pool.idleCount,
+      waitingRequests: pool.waitingCount,
+    };
+
+    // Warn if pool is exhausted
+    if (pool.waitingCount > 0) {
+      health.checks.databasePool.status = 'warning';
+      health.checks.databasePool.message = 'Connection pool has waiting requests';
+    }
+  } catch (error) {
+    health.checks.databasePool = {
+      status: 'unknown',
+      message: 'Could not retrieve pool stats',
+    };
+  }
+
+  // Check cache status
+  try {
+    const cacheStats = getCacheStats();
+    health.checks.cache = {
+      status: 'healthy',
+      global: {
+        keys: cacheStats.global.keys,
+        hitRate: isNaN(cacheStats.global.hitRate) ? 0 : Math.round(cacheStats.global.hitRate * 100),
+      },
+      tenant: {
+        keys: cacheStats.tenant.keys,
+        hitRate: isNaN(cacheStats.tenant.hitRate) ? 0 : Math.round(cacheStats.tenant.hitRate * 100),
+      },
+    };
+  } catch (error) {
+    health.checks.cache = {
+      status: 'unknown',
+      message: 'Could not retrieve cache stats',
+    };
   }
 
   // Overall response time

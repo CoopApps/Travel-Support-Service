@@ -14,6 +14,7 @@
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -107,7 +108,7 @@ router.get('/tenants/:tenantId/bus-analytics/overview', verifyTenantAccess, asyn
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching analytics overview:', error);
+    logger.error('Error fetching analytics overview', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch analytics',
@@ -188,7 +189,7 @@ router.get('/tenants/:tenantId/bus-analytics/route-profitability', verifyTenantA
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching route profitability:', error);
+    logger.error('Error fetching route profitability', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch route profitability',
@@ -280,7 +281,7 @@ router.get('/tenants/:tenantId/bus-analytics/demand-forecast', verifyTenantAcces
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching demand forecast:', error);
+    logger.error('Error fetching demand forecast', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch demand forecast',
@@ -394,7 +395,7 @@ router.get('/tenants/:tenantId/bus-analytics/passenger-demographics', verifyTena
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching passenger demographics:', error);
+    logger.error('Error fetching passenger demographics', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch demographics',
@@ -452,7 +453,7 @@ router.get('/tenants/:tenantId/bus-analytics/efficiency-metrics', verifyTenantAc
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching efficiency metrics:', error);
+    logger.error('Error fetching efficiency metrics', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch efficiency metrics',

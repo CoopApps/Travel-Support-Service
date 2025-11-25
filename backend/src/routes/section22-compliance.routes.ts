@@ -13,6 +13,7 @@
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -280,7 +281,7 @@ router.get('/tenants/:tenantId/section22-compliance', verifyTenantAccess, async 
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching Section 22 compliance:', error);
+    logger.error('Error fetching Section 22 compliance', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch compliance status',
@@ -338,7 +339,7 @@ router.get('/tenants/:tenantId/section22-compliance/drivers', verifyTenantAccess
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching driver compliance:', error);
+    logger.error('Error fetching driver compliance', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch driver compliance',
@@ -402,7 +403,7 @@ router.get('/tenants/:tenantId/section22-compliance/vehicles', verifyTenantAcces
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching vehicle compliance:', error);
+    logger.error('Error fetching vehicle compliance', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch vehicle compliance',
@@ -449,7 +450,7 @@ router.post('/tenants/:tenantId/section22-compliance/export', verifyTenantAccess
     });
 
   } catch (error: any) {
-    console.error('Error generating compliance report:', error);
+    logger.error('Error generating compliance report', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to generate compliance report',

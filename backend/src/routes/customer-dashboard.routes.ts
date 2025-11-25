@@ -3,6 +3,7 @@ import { AuthenticatedRequest, verifyTenantAccess } from '../middleware/verifyTe
 import { query, queryOne } from '../config/database';
 import { asyncHandler } from '../middleware/errorHandler';
 import { sanitizeInput, sanitizeEmail, sanitizePhone } from '../utils/sanitize';
+import { logger } from '../utils/logger';
 
 /**
  * Customer Dashboard Routes
@@ -48,7 +49,7 @@ const verifyCustomerOwnership = async (
 
     return res.status(403).json({ error: 'Access denied: You can only access your own data' });
   } catch (error) {
-    console.error('Error in verifyCustomerOwnership:', error);
+    logger.error('Error in verifyCustomerOwnership', { error });
     return res.status(500).json({ error: 'Authorization check failed' });
   }
 };
@@ -537,7 +538,7 @@ async function getCustomerAlerts(tenantId: number, customerId: number): Promise<
       }
     }
   } catch (error) {
-    console.error('Error fetching customer alerts:', error);
+    logger.error('Error fetching customer alerts', { error });
   }
 
   return alerts;

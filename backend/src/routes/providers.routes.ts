@@ -8,6 +8,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { query } from '../config/database';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { ValidationError } from '../utils/errorTypes';
+import { logger } from '../utils/logger';
 
 const router: Router = express.Router();
 
@@ -199,7 +200,7 @@ router.get(
     `, [tenantId]);
 
     if (result.length === 0) {
-      console.warn(`⚠️ Tenant ${tenantId} has no providers in tenant_providers table`);
+      logger.warn('Tenant has no providers in tenant_providers table', { tenantId });
     }
 
     res.json(result);
@@ -338,7 +339,7 @@ router.post(
       invoice_notes
     ]);
 
-    console.log(`✅ Provider "${name}" created for tenant ${tenantId}`);
+    logger.info('Provider created', { name, tenantId });
     res.status(201).json(result[0]);
   })
 );
@@ -441,7 +442,7 @@ router.put(
       RETURNING *
     `, values);
 
-    console.log(`✅ Provider ${providerId} updated for tenant ${tenantId}`);
+    logger.info('Provider updated', { providerId, tenantId });
     res.json(result[0]);
   })
 );

@@ -1,6 +1,7 @@
 import express, { Router, Request } from 'express';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { getDbClient } from '../config/database';
+import { logger } from '../utils/logger';
 
 const router: Router = express.Router();
 
@@ -88,7 +89,7 @@ interface AuthRequest extends Request {
         client.release();
       }
     } catch (error: any) {
-      console.error('Error logging late arrival:', error);
+      logger.error('Error logging late arrival', { error });
       res.status(500).json({
         error: {
           message: 'Failed to log late arrival',
@@ -155,7 +156,7 @@ interface AuthRequest extends Request {
         client.release();
       }
     } catch (error: any) {
-      console.error('Error fetching late arrivals:', error);
+      logger.error('Error fetching late arrivals', { error });
       res.status(500).json({
         error: {
           message: 'Failed to fetch late arrivals',
@@ -237,7 +238,7 @@ interface AuthRequest extends Request {
         client.release();
       }
     } catch (error: any) {
-      console.error('Error fetching late arrival stats:', error);
+      logger.error('Error fetching late arrival stats', { error });
       res.status(500).json({
         error: {
           message: 'Failed to fetch late arrival statistics',

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { getDbClient } from '../config/database';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -177,7 +178,7 @@ router.get(
         }))
       });
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      logger.error('Error fetching analytics', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to fetch analytics' });
     }

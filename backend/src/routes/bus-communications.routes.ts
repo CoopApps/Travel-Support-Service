@@ -13,6 +13,7 @@
 import express, { Request, Response } from 'express';
 import { pool } from '../config/database';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.get('/tenants/:tenantId/bus-communications', verifyTenantAccess, async (r
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching communications:', error);
+    logger.error('Error fetching communications', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch communications',
@@ -244,7 +245,7 @@ router.post('/tenants/:tenantId/bus-communications', verifyTenantAccess, async (
       client.release();
     }
   } catch (error: any) {
-    console.error('Error creating communication:', error);
+    logger.error('Error creating communication', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to create communication',
@@ -282,7 +283,7 @@ router.get('/tenants/:tenantId/bus-communications/:messageId/recipients', verify
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching recipients:', error);
+    logger.error('Error fetching recipients', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch recipients',
@@ -367,7 +368,7 @@ Thank you for choosing our community bus service!
       client.release();
     }
   } catch (error: any) {
-    console.error('Error sending booking confirmation:', error);
+    logger.error('Error sending booking confirmation', { error });
     return res.status(500).json({
       error: {
         message: error.message || 'Failed to send booking confirmation',
@@ -441,7 +442,7 @@ We apologize for any inconvenience caused.`
 
     return res.json({ templates });
   } catch (error: any) {
-    console.error('Error fetching templates:', error);
+    logger.error('Error fetching templates', { error });
     return res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch templates',
@@ -496,7 +497,7 @@ router.get('/tenants/:tenantId/bus-communications/stats', verifyTenantAccess, as
       client.release();
     }
   } catch (error: any) {
-    console.error('Error fetching communication stats:', error);
+    logger.error('Error fetching communication stats', { error });
     res.status(500).json({
       error: {
         message: error.message || 'Failed to fetch stats',

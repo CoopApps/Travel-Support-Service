@@ -3,6 +3,7 @@ import axios from 'axios';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { getDbClient } from '../config/database';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -37,7 +38,7 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
       const coords = await routeOptimizationService.geocodeAddress(address);
       if (coords) return coords;
     } catch (error) {
-      console.warn('Google Geocoding failed, using mock coordinates:', error);
+      logger.warn('Google Geocoding failed, using mock coordinates', { error });
     }
   }
 
@@ -132,7 +133,7 @@ router.post(
 
       if (googleApiKey && googleApiKey.trim() !== '' && googleApiKey !== 'your_google_maps_api_key_here') {
         try {
-          console.log('Attempting to use Google Maps Distance Matrix API for route optimization...');
+          logger.debug('Attempting to use Google Maps Distance Matrix API for route optimization');
 
           // Prepare origins (destinations of each trip)
           const origins = fullTrips.map((t: any) => t.destination_address || t.destination);
@@ -182,7 +183,7 @@ router.post(
 
             optimizationMethod = 'google';
 
-            console.log('✅ Google Maps route optimization successful');
+            logger.info('Google Maps route optimization successful');
 
             return res.json({
               method: optimizationMethod,
@@ -198,7 +199,7 @@ router.post(
             throw new Error(`Google Maps API returned status: ${response.data.status}`);
           }
         } catch (googleError: any) {
-          console.warn('Google Maps failed, falling back to Haversine:', googleError.message);
+          logger.warn('Google Maps failed, falling back to Haversine', { error: googleError.message });
           optimizationMethod = 'haversine';
           warning = 'Using estimated distances (Google Maps unavailable). Results may be less accurate.';
         }
@@ -266,7 +267,7 @@ router.post(
       // This should never be reached, but TypeScript needs it
       return res.status(500).json({ error: 'Optimization method not supported' });
     } catch (error) {
-      console.error('Error optimizing route:', error);
+      logger.error('Error optimizing route', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to optimize route' });
     }
@@ -477,7 +478,7 @@ router.get(
               savingsPotential: parseFloat(savingsPotential.toFixed(2))
             };
           } catch (error) {
-            console.error(`Error calculating score for driver ${row.driver_id} on ${row.trip_date}:`, error);
+            logger.error('Error calculating score for driver', { driverId: row.driver_id, tripDate: row.trip_date, error });
             return {
               driverId: row.driver_id,
               date: row.trip_date,
@@ -495,7 +496,7 @@ router.get(
 
       return res.json({ scores });
     } catch (error) {
-      console.error('Error fetching optimization scores:', error);
+      logger.error('Error fetching optimization scores', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to fetch optimization scores' });
     }
@@ -605,7 +606,7 @@ router.post(
         dateRange: { startDate, endDate }
       });
     } catch (error: any) {
-      console.error('Error in batch optimization:', error);
+      logger.error('Error in batch optimization', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to batch optimize routes', details: error.message });
     }
@@ -694,7 +695,7 @@ router.post(
         }
       });
     } catch (error: any) {
-      console.error('Error in capacity optimization:', error);
+      logger.error('Error in capacity optimization', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to optimize capacity', details: error.message });
     }
@@ -801,7 +802,7 @@ router.get(
         }))
       });
     } catch (error: any) {
-      console.error('Error fetching route analytics:', error);
+      logger.error('Error fetching route analytics', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to fetch analytics', details: error.message });
     }

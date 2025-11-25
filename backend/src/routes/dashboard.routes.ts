@@ -1,6 +1,8 @@
 import express, { Request, Response, Router } from 'express';
 import { pool } from '../config/database';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
+import { logger } from '../utils/logger';
+import { cachedTenantQuery, CacheKeys, invalidateTenantCacheKey } from '../utils/cache';
 
 const router: Router = express.Router();
 
@@ -201,7 +203,7 @@ router.get('/tenants/:tenantId/dashboard/all-notifications', verifyTenantAccess,
       });
 
     } catch (error: any) {
-      console.error('Error fetching all notifications:', error);
+      logger.error('Error fetching all notifications', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch notifications',
@@ -1087,7 +1089,7 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
       });
 
     } catch (error: any) {
-      console.error('Error fetching dashboard overview:', error);
+      logger.error('Error fetching dashboard overview', { error });
       res.status(500).json({
         error: {
           message: error.message || 'Failed to fetch dashboard overview',
@@ -1096,5 +1098,150 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
       });
     }
   });
+
+/**
+ * Get cached dashboard stats (lighter weight, faster)
+ * GET /api/tenants/:tenantId/dashboard/stats
+ *
+ * This endpoint returns commonly needed stats with caching enabled.
+ * Use this for widgets/summaries that don't need real-time data.
+ * Cache TTL: 5 minutes
+ */
+router.get('/tenants/:tenantId/dashboard/stats', verifyTenantAccess, async (req: Request, res: Response) => {
+  try {
+    const tenantId = parseInt(req.params.tenantId, 10);
+    const CACHE_TTL = 300; // 5 minutes
+
+    const stats = await cachedTenantQuery(
+      tenantId,
+      CacheKeys.dashboardStats(tenantId),
+      CACHE_TTL,
+      async () => {
+        logger.debug('Fetching dashboard stats from database', { tenantId });
+
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        // Get start of week
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
+
+        // Get start of month
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+
+        // Run all queries in parallel for better performance
+        const [
+          activeCountsResult,
+          journeysTodayResult,
+          weeklyStatsResult,
+          outstandingInvoicesResult,
+          monthlyRevenueResult,
+        ] = await Promise.all([
+          // Active counts
+          pool.query(`
+            SELECT
+              (SELECT COUNT(*) FROM tenant_drivers WHERE tenant_id = $1 AND is_active = true) as active_drivers,
+              (SELECT COUNT(*) FROM tenant_customers WHERE tenant_id = $1 AND is_active = true) as active_customers,
+              (SELECT COUNT(*) FROM tenant_vehicles WHERE tenant_id = $1 AND is_active = true) as active_vehicles
+          `, [tenantId]),
+
+          // Today's journeys
+          pool.query(`
+            SELECT COUNT(*) as journeys_today
+            FROM tenant_trips
+            WHERE tenant_id = $1 AND trip_date = $2
+          `, [tenantId, todayStr]),
+
+          // Weekly estimate
+          pool.query(`
+            SELECT
+              COUNT(*) as trips_this_week,
+              COALESCE(SUM(CASE WHEN fare > 0 THEN fare ELSE 0 END), 0) as revenue_this_week
+            FROM tenant_trips
+            WHERE tenant_id = $1
+              AND trip_date >= $2
+              AND trip_date <= $3
+          `, [tenantId, startOfWeekStr, todayStr]),
+
+          // Outstanding invoices
+          pool.query(`
+            SELECT
+              COUNT(*) as invoice_count,
+              COALESCE(SUM(total_amount - COALESCE(amount_paid, 0)), 0) as total_outstanding
+            FROM tenant_invoices
+            WHERE tenant_id = $1
+              AND invoice_status NOT IN ('paid', 'cancelled')
+          `, [tenantId]),
+
+          // Monthly revenue
+          pool.query(`
+            SELECT COALESCE(SUM(amount_paid), 0) as revenue_mtd
+            FROM tenant_invoices
+            WHERE tenant_id = $1
+              AND invoice_date >= $2
+              AND invoice_status = 'paid'
+          `, [tenantId, startOfMonthStr]),
+        ]);
+
+        return {
+          activeDrivers: parseInt(activeCountsResult.rows[0]?.active_drivers || '0'),
+          activeCustomers: parseInt(activeCountsResult.rows[0]?.active_customers || '0'),
+          activeVehicles: parseInt(activeCountsResult.rows[0]?.active_vehicles || '0'),
+          journeysToday: parseInt(journeysTodayResult.rows[0]?.journeys_today || '0'),
+          tripsThisWeek: parseInt(weeklyStatsResult.rows[0]?.trips_this_week || '0'),
+          revenueThisWeek: parseFloat(weeklyStatsResult.rows[0]?.revenue_this_week || '0'),
+          outstandingInvoicesCount: parseInt(outstandingInvoicesResult.rows[0]?.invoice_count || '0'),
+          outstandingInvoicesTotal: parseFloat(outstandingInvoicesResult.rows[0]?.total_outstanding || '0'),
+          revenueMTD: parseFloat(monthlyRevenueResult.rows[0]?.revenue_mtd || '0'),
+          cachedAt: new Date().toISOString(),
+        };
+      }
+    );
+
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error: any) {
+    logger.error('Error fetching cached dashboard stats', { error });
+    res.status(500).json({
+      error: {
+        message: error.message || 'Failed to fetch dashboard stats',
+        code: 'FETCH_STATS_ERROR',
+      },
+    });
+  }
+});
+
+/**
+ * Invalidate dashboard cache for a tenant
+ * POST /api/tenants/:tenantId/dashboard/invalidate-cache
+ *
+ * Call this after significant data changes to force fresh data
+ */
+router.post('/tenants/:tenantId/dashboard/invalidate-cache', verifyTenantAccess, async (req: Request, res: Response) => {
+  try {
+    const tenantId = parseInt(req.params.tenantId, 10);
+
+    invalidateTenantCacheKey(tenantId, CacheKeys.dashboardStats(tenantId));
+
+    logger.info('Dashboard cache invalidated', { tenantId });
+
+    res.json({
+      success: true,
+      message: 'Dashboard cache invalidated',
+    });
+  } catch (error: any) {
+    logger.error('Error invalidating dashboard cache', { error });
+    res.status(500).json({
+      error: {
+        message: error.message || 'Failed to invalidate cache',
+        code: 'CACHE_INVALIDATION_ERROR',
+      },
+    });
+  }
+});
 
 export default router;
