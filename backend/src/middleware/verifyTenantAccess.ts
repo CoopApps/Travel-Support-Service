@@ -43,12 +43,10 @@ export function verifyTenantAccess(
 ): void {
   try {
     let token: string | undefined;
-    let authSource: 'cookie' | 'header' = 'header';
 
     // SECURITY: Check httpOnly cookie first (preferred method - XSS safe)
     if (req.cookies && req.cookies[AUTH_COOKIE_NAME]) {
       token = req.cookies[AUTH_COOKIE_NAME];
-      authSource = 'cookie';
       logger.debug('verifyTenantAccess - token found in httpOnly cookie', {
         path: req.path
       });
