@@ -9,6 +9,7 @@ import { AuthenticationError, ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
 import { authRateLimiter } from '../middleware/rateLimiting';
 import { sanitizeInput, sanitizeInteger } from '../utils/sanitize';
+import { setAuthCookie, clearAuthCookie, AUTH_COOKIE_NAME } from '../utils/cookieAuth';
 
 const router: Router = express.Router();
 
@@ -142,9 +143,13 @@ router.post(
       role: user.role,
     });
 
-    // Return user info and token
+    // SECURITY: Set httpOnly cookie (XSS-safe, cannot be accessed by JavaScript)
+    setAuthCookie(res, token);
+
+    // Return user info (token still included for backward compatibility during migration)
+    // Frontend should NOT store this token in localStorage anymore
     res.json({
-      token,
+      token, // DEPRECATED: Will be removed after frontend migration
       user: {
         id: user.user_id,
         userId: user.user_id,
@@ -168,16 +173,17 @@ router.post(
 
 /**
  * @route POST /api/tenants/:tenantId/logout
- * @desc Logout user (client-side token removal)
+ * @desc Logout user (clears httpOnly cookie)
  * @access Public
  */
 router.post(
   '/tenants/:tenantId/logout',
   asyncHandler(async (req, res) => {
-    // With JWT, logout is primarily client-side (remove token)
-    // Here we can log the event for audit purposes
     const userId = (req as any).user?.userId;
     const tenantId = sanitizeInteger(req.params.tenantId);
+
+    // SECURITY: Clear the httpOnly auth cookie
+    clearAuthCookie(res);
 
     if (userId) {
       logger.info('User logged out', { userId, tenantId });
@@ -189,18 +195,32 @@ router.post(
 
 /**
  * @route GET /api/tenants/:tenantId/verify
- * @desc Verify JWT token validity
+ * @desc Verify JWT token validity (checks cookie first, then header)
  * @access Public
  */
 router.get(
   '/tenants/:tenantId/verify',
   asyncHandler(async (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+
+    // SECURITY: Check httpOnly cookie first (preferred method)
+    if (req.cookies && req.cookies[AUTH_COOKIE_NAME]) {
+      token = req.cookies[AUTH_COOKIE_NAME];
+      logger.debug('Token found in httpOnly cookie');
+    }
+    // Fallback to Authorization header (for backward compatibility)
+    else {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+        logger.debug('Token found in Authorization header (legacy)');
+      }
+    }
+
+    if (!token) {
       throw new AuthenticationError('No token provided');
     }
 
-    const token = authHeader.substring(7);
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET not configured');
@@ -210,6 +230,8 @@ router.get(
       const decoded = jwt.verify(token, jwtSecret);
       res.json({ valid: true, user: decoded });
     } catch (error) {
+      // Clear invalid cookie if present
+      clearAuthCookie(res);
       throw new AuthenticationError('Invalid token');
     }
   })
@@ -225,12 +247,24 @@ router.post(
   '/tenants/:tenantId/refresh',
   authRateLimiter, // Use auth rate limiter to prevent abuse
   asyncHandler(async (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+
+    // SECURITY: Check httpOnly cookie first (preferred method)
+    if (req.cookies && req.cookies[AUTH_COOKIE_NAME]) {
+      token = req.cookies[AUTH_COOKIE_NAME];
+    }
+    // Fallback to Authorization header (for backward compatibility)
+    else {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       throw new AuthenticationError('No token provided');
     }
 
-    const token = authHeader.substring(7);
     const tenantId = sanitizeInteger(req.params.tenantId);
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
@@ -284,8 +318,11 @@ router.post(
         tenantId: user.tenant_id,
       });
 
+      // SECURITY: Set new token in httpOnly cookie
+      setAuthCookie(res, newToken);
+
       res.json({
-        token: newToken,
+        token: newToken, // DEPRECATED: Will be removed after frontend migration
         user: {
           id: user.user_id,
           userId: user.user_id,
@@ -297,6 +334,7 @@ router.post(
       });
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
+        clearAuthCookie(res);
         throw new AuthenticationError('Invalid token');
       }
       throw error;

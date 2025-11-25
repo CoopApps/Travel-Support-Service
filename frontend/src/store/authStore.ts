@@ -3,32 +3,21 @@ import { persist } from 'zustand/middleware';
 import { User } from '../types';
 
 /**
- * Authentication Store - Stage 3
+ * Authentication Store - Stage 3 (Updated for httpOnly cookies)
+ *
+ * SECURITY UPDATE: Tokens are now stored in httpOnly cookies, NOT localStorage
  *
  * Uses Zustand for lightweight state management.
- * Persists auth state to localStorage for session persistence.
+ * Only user metadata is persisted to localStorage (no sensitive tokens).
+ * The actual JWT is in an httpOnly cookie that JavaScript cannot access.
  */
-
-/**
- * Check if a JWT token is expired
- */
-function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    // Check if token has expired (exp is in seconds, Date.now() is in milliseconds)
-    return payload.exp * 1000 < Date.now();
-  } catch (err) {
-    console.error('Failed to decode token:', err);
-    return true; // If we can't decode it, consider it expired
-  }
-}
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  token: string | null; // DEPRECATED: Token is now in httpOnly cookie, this is kept for backward compatibility
   isAuthenticated: boolean;
   tenantId: number | null; // Convenience accessor for user.tenantId
-  login: (user: User, token: string) => void;
+  login: (user: User, token?: string) => void; // token param is now optional (cookie handles auth)
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -37,11 +26,13 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
+      token: null, // DEPRECATED: Not used for auth anymore (httpOnly cookie handles this)
       isAuthenticated: false,
       tenantId: null,
 
-      login: (user, token) => {
+      login: (user, _token) => {
+        // SECURITY: Token is now stored in httpOnly cookie by the server
+        // We only store user metadata in localStorage (no sensitive data)
         // Clear React Query cache on login to ensure fresh data
         if (typeof window !== 'undefined') {
           import('../main').then(({ queryClient }) => {
@@ -51,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
 
         set({
           user,
-          token,
+          token: null, // SECURITY: Don't store token in localStorage
           isAuthenticated: true,
           tenantId: user.tenantId,
         });
@@ -81,30 +72,19 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // SECURITY: Only persist user metadata, NOT the token
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
+        // token is intentionally NOT persisted - it's in an httpOnly cookie
         isAuthenticated: state.isAuthenticated,
         tenantId: state.tenantId,
       }),
-      // Check token expiration on hydration
-      onRehydrateStorage: () => (state) => {
-        if (state?.token && isTokenExpired(state.token)) {
-          console.log('Token expired on rehydration, clearing auth state');
-          state.logout();
-        }
-      },
+      // Token expiration is now handled by the server (httpOnly cookie)
+      // No client-side token validation needed
     }
   )
 );
 
-// Periodic token expiration check (runs every minute)
-if (typeof window !== 'undefined') {
-  setInterval(() => {
-    const state = useAuthStore.getState();
-    if (state.token && isTokenExpired(state.token)) {
-      console.log('Token expired during session, logging out');
-      state.logout();
-    }
-  }, 60000); // Check every 60 seconds
-}
+// SECURITY: Token expiration is now handled server-side via httpOnly cookies
+// The server will return 401 when the cookie expires, triggering logout via response interceptor
+// No client-side token checking needed (and not possible since token is httpOnly)

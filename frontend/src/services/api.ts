@@ -21,29 +21,28 @@ import type {
  */
 
 // Create axios instance
+// SECURITY: withCredentials: true enables sending httpOnly cookies automatically
 const apiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // SECURITY: Enable cookies for all requests
 });
 
-// Request interceptor - Add auth token
+// Request interceptor - Log requests (auth is handled via httpOnly cookies)
+// SECURITY: Token is now sent automatically via httpOnly cookie (withCredentials: true)
+// No need to manually add Authorization header - browser handles cookies automatically
 apiClient.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
-    console.log('🔑 Request interceptor:', {
-      url: config.url,
-      hasToken: !!token,
-      tokenPreview: token ? token.substring(0, 20) + '...' : 'NO TOKEN',
-      headers: config.headers
-    });
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log('✅ Authorization header added');
-    } else {
-      console.warn('⚠️ No token available or no headers object');
+    // Token is no longer stored in JS - it's in an httpOnly cookie
+    // The browser automatically sends cookies with requests when withCredentials: true
+    if (import.meta.env.DEV) {
+      console.log('🔐 Request (auth via httpOnly cookie):', {
+        url: config.url,
+        method: config.method?.toUpperCase(),
+      });
     }
     return config;
   },

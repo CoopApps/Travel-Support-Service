@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 // Driver management and dashboard routes added
 
 // Load environment variables
@@ -199,6 +200,9 @@ app.use(cors({
 // Request parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cookie parser for httpOnly JWT cookies (SECURITY: replaces localStorage)
+app.use(cookieParser());
 
 // Response compression
 app.use(compression());

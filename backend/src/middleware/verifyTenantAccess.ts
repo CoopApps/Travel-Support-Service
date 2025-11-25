@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthenticationError, TenantAccessError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
+import { AUTH_COOKIE_NAME, clearAuthCookie } from '../utils/cookieAuth';
 
 /**
  * JWT Payload Interface
@@ -28,35 +29,56 @@ export interface AuthenticatedRequest extends Request {
  * Verify Tenant Access Middleware
  *
  * This middleware:
- * 1. Validates the JWT token
+ * 1. Validates the JWT token (from httpOnly cookie or Authorization header)
  * 2. Extracts user information
  * 3. Ensures the user can only access their own tenant's data
  * 4. Prevents cross-tenant data access (critical security feature)
+ *
+ * SECURITY: Prefers httpOnly cookies over Authorization header
  */
 export function verifyTenantAccess(
   req: AuthenticatedRequest,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ): void {
   try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
+    let token: string | undefined;
+    let authSource: 'cookie' | 'header' = 'header';
 
-    logger.debug('verifyTenantAccess - checking auth header', {
-      hasAuthHeader: !!authHeader,
-      authHeaderPrefix: authHeader?.substring(0, 10),
-      path: req.path
-    });
+    // SECURITY: Check httpOnly cookie first (preferred method - XSS safe)
+    if (req.cookies && req.cookies[AUTH_COOKIE_NAME]) {
+      token = req.cookies[AUTH_COOKIE_NAME];
+      authSource = 'cookie';
+      logger.debug('verifyTenantAccess - token found in httpOnly cookie', {
+        path: req.path
+      });
+    }
+    // Fallback to Authorization header (for backward compatibility)
+    else {
+      const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn('No valid authorization header', {
-        authHeader: authHeader?.substring(0, 20),
+      logger.debug('verifyTenantAccess - checking auth header', {
+        hasAuthHeader: !!authHeader,
+        authHeaderPrefix: authHeader?.substring(0, 10),
+        path: req.path
+      });
+
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+        logger.debug('verifyTenantAccess - using legacy Authorization header', {
+          path: req.path
+        });
+      }
+    }
+
+    if (!token) {
+      logger.warn('No valid authentication token', {
+        hasCookies: !!req.cookies,
+        hasAuthHeader: !!req.headers.authorization,
         path: req.path
       });
       throw new AuthenticationError('No token provided');
     }
-
-    const token = authHeader.substring(7);
 
     // Verify JWT token
     const jwtSecret = process.env.JWT_SECRET;
@@ -104,6 +126,9 @@ export function verifyTenantAccess(
 
     next();
   } catch (error) {
+    // SECURITY: Clear invalid/expired cookies to prevent stale auth
+    clearAuthCookie(res);
+
     if (error instanceof jwt.JsonWebTokenError) {
       next(new AuthenticationError('Invalid token'));
     } else if (error instanceof jwt.TokenExpiredError) {
@@ -117,6 +142,7 @@ export function verifyTenantAccess(
 /**
  * Optional authentication middleware
  * Attaches user info if token is present, but doesn't require it
+ * SECURITY: Checks httpOnly cookie first, then Authorization header
  */
 export function optionalAuth(
   req: AuthenticatedRequest,
@@ -124,11 +150,22 @@ export function optionalAuth(
   next: NextFunction
 ): void {
   try {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const jwtSecret = process.env.JWT_SECRET;
+    let token: string | undefined;
 
+    // Check httpOnly cookie first (preferred)
+    if (req.cookies && req.cookies[AUTH_COOKIE_NAME]) {
+      token = req.cookies[AUTH_COOKIE_NAME];
+    }
+    // Fallback to Authorization header
+    else {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (token) {
+      const jwtSecret = process.env.JWT_SECRET;
       if (jwtSecret) {
         const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
         req.user = decoded;

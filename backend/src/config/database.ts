@@ -83,6 +83,62 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
 }
 
 /**
+ * Execute a query with tenant context for RLS
+ * SECURITY: Sets the tenant context before executing the query
+ * This enables PostgreSQL Row-Level Security policies
+ *
+ * @param tenantId - The tenant ID to set in the session context
+ * @param text - SQL query string
+ * @param params - Query parameters
+ */
+export async function queryWithTenant<T = any>(
+  tenantId: number,
+  text: string,
+  params?: any[]
+): Promise<T[]> {
+  const client = await getDbClient();
+  try {
+    // SECURITY: Set tenant context for RLS
+    await client.query('SELECT set_config($1, $2, true)', [
+      'app.current_tenant_id',
+      tenantId.toString()
+    ]);
+    const result = await client.query(text, params);
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Execute a query with tenant context and return single row
+ * SECURITY: Sets the tenant context before executing the query
+ */
+export async function queryOneWithTenant<T = any>(
+  tenantId: number,
+  text: string,
+  params?: any[]
+): Promise<T | null> {
+  const rows = await queryWithTenant<T>(tenantId, text, params);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Set tenant context for RLS on an existing client connection
+ * Use this when you need to run multiple queries in a transaction
+ *
+ * @param client - Database client from pool
+ * @param tenantId - The tenant ID to set
+ */
+export async function setTenantContext(client: PoolClient, tenantId: number): Promise<void> {
+  await client.query('SELECT set_config($1, $2, true)', [
+    'app.current_tenant_id',
+    tenantId.toString()
+  ]);
+  logger.debug('Tenant context set for RLS', { tenantId });
+}
+
+/**
  * Execute a query and return a single row
  */
 export async function queryOne<T = any>(text: string, params?: any[]): Promise<T | null> {
