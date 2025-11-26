@@ -10,6 +10,7 @@ import { logger } from '../utils/logger';
 import { authRateLimiter } from '../middleware/rateLimiting';
 import { sanitizeInput, sanitizeInteger } from '../utils/sanitize';
 import { setAuthCookie, clearAuthCookie, AUTH_COOKIE_NAME } from '../utils/cookieAuth';
+import { getCSRFTokenHandler } from '../middleware/csrf';
 
 const router: Router = express.Router();
 
@@ -236,6 +237,15 @@ router.get(
     }
   })
 );
+
+/**
+ * @route GET /api/tenants/:tenantId/csrf-token
+ * @desc Get a new CSRF token for the session
+ * @access Public (call after login or page load)
+ * @description Returns a CSRF token that must be included in X-CSRF-Token header
+ *              for all state-changing requests (POST, PUT, PATCH, DELETE)
+ */
+router.get('/tenants/:tenantId/csrf-token', getCSRFTokenHandler);
 
 /**
  * @route POST /api/tenants/:tenantId/refresh

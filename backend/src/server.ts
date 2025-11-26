@@ -32,6 +32,7 @@ import { apiRateLimiter, authRateLimiter as _authRateLimiter } from './middlewar
 import { httpLogger, requestIdMiddleware, slowRequestLogger } from './middleware/requestLogger';
 import { auditMiddleware } from './middleware/auditLogger';
 import { sanitizeMiddleware } from './utils/sanitize';
+import { csrfProtection, getCSRFTokenHandler } from './middleware/csrf';
 
 // Import Swagger documentation
 import { setupSwagger } from './config/swagger';
@@ -104,6 +105,7 @@ import dividendRoutes from './routes/dividend.routes';
 import dividendSchedulerRoutes from './routes/dividend-scheduler.routes';
 import memberDividendsRoutes from './routes/member-dividends.routes';
 import driverRosteringRoutes from './routes/driver-rostering.routes';
+import gdprRoutes from './routes/gdpr.routes';
 
 /**
  * Main Server File - Stage 4
@@ -193,7 +195,7 @@ app.use(cors({
     }
   },
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
@@ -219,6 +221,17 @@ app.use(httpLogger);
 
 // Audit logging for compliance
 app.use(auditMiddleware);
+
+// CSRF protection for state-changing requests (POST, PUT, PATCH, DELETE)
+// Protects against cross-site request forgery when using httpOnly cookie auth
+app.use(csrfProtection({
+  excludePatterns: [
+    /^\/api\/tenants\/\d+\/login$/,      // Login endpoint (no session yet)
+    /^\/api\/tenants\/register$/,        // Registration endpoint
+    /^\/api\/tenants\/\d+\/logout$/,     // Logout endpoint
+    /^\/api\/password-reset/,            // Password reset flow
+  ],
+}));
 
 // Slow request detection (warn if >1000ms)
 app.use(slowRequestLogger(1000));
@@ -321,6 +334,7 @@ app.use('/api', dividendRoutes);
 app.use('/api', dividendSchedulerRoutes);
 app.use('/api', memberDividendsRoutes);
 app.use('/api', driverRosteringRoutes);
+app.use('/api', gdprRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
