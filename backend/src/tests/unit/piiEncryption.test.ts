@@ -319,7 +319,8 @@ describe('Error Handling', () => {
     const originalKey = process.env.ENCRYPTION_KEY;
     delete process.env.ENCRYPTION_KEY;
 
-    expect(() => encrypt('test')).toThrow('ENCRYPTION_KEY');
+    // Service wraps errors with generic message for security
+    expect(() => encrypt('test')).toThrow('Failed to encrypt data');
 
     process.env.ENCRYPTION_KEY = originalKey;
   });
@@ -328,7 +329,8 @@ describe('Error Handling', () => {
     const originalKey = process.env.ENCRYPTION_KEY;
     process.env.ENCRYPTION_KEY = 'tooshort';
 
-    expect(() => encrypt('test')).toThrow('64 hex characters');
+    // Service wraps errors with generic message for security
+    expect(() => encrypt('test')).toThrow('Failed to encrypt data');
 
     process.env.ENCRYPTION_KEY = originalKey;
   });

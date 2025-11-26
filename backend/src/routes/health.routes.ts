@@ -2,7 +2,6 @@ import express, { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
 import { successResponse, ErrorResponses } from '../utils/responseWrapper';
 import { getCacheStats } from '../utils/cache';
-import { logger } from '../utils/logger';
 
 const router: Router = express.Router();
 

@@ -2,7 +2,7 @@ import request from 'supertest';
 import { Application } from 'express';
 import { createTestTenant, createTestUser, cleanupTestTenant, closeTestPool, getTestPool } from '../setup/testDatabase';
 import { createTestApp } from '../setup/testApp';
-import { testData, expectSuccess, expectPaginated, loginAsUser } from '../setup/testHelpers';
+import { testData } from '../setup/testHelpers';
 
 /**
  * Vehicle Routes Integration Tests

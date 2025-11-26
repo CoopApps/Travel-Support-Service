@@ -60,9 +60,10 @@ describe('CSRF Token Generation', () => {
     // Check that cookie was set
     const cookies = response.headers['set-cookie'];
     expect(cookies).toBeDefined();
-    const csrfCookieHeader = cookies.find((c: string) => c.startsWith('csrf_token_id='));
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    const csrfCookieHeader = cookieArray.find((c: string) => c.startsWith('csrf_token_id='));
     expect(csrfCookieHeader).toBeDefined();
-    csrfCookie = csrfCookieHeader;
+    csrfCookie = csrfCookieHeader!;
   });
 
   it('should issue CSRF token without authentication', async () => {
@@ -84,7 +85,8 @@ describe('CSRF Protection on State-Changing Requests', () => {
 
     csrfToken = response.body.data.csrfToken;
     const cookies = response.headers['set-cookie'];
-    csrfCookie = cookies.find((c: string) => c.startsWith('csrf_token_id='));
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    csrfCookie = cookieArray.find((c: string) => c.startsWith('csrf_token_id='))!;
   });
 
   it('should allow POST request with valid CSRF token', async () => {

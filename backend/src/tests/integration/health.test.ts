@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Application } from 'express';
-import { createTestApp, createMinimalTestApp } from '../setup/testApp';
+import { createMinimalTestApp } from '../setup/testApp';
 import { expectSuccess, expectFields } from '../setup/testHelpers';
 
 /**

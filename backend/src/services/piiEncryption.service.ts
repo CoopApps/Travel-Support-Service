@@ -29,6 +29,9 @@ const IV_LENGTH = 16; // 128 bits
 const AUTH_TAG_LENGTH = 16; // 128 bits
 const KEY_LENGTH = 32; // 256 bits
 
+// Export constants for documentation/testing
+export { AUTH_TAG_LENGTH, KEY_LENGTH };
+
 // Get encryption key from environment
 function getEncryptionKey(): Buffer {
   const keyHex = process.env.ENCRYPTION_KEY;

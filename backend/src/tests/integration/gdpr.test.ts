@@ -44,7 +44,8 @@ beforeAll(async () => {
 
   csrfToken = csrfResponse.body.data.csrfToken;
   const cookies = csrfResponse.headers['set-cookie'];
-  csrfCookie = cookies.find((c: string) => c.startsWith('csrf_token_id='));
+  const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+  csrfCookie = cookieArray.find((c: string) => c.startsWith('csrf_token_id='))!;
 
   // Create a test customer
   const customerResult = await query(
@@ -53,7 +54,7 @@ beforeAll(async () => {
      RETURNING customer_id`,
     [tenantId]
   );
-  testCustomerId = customerResult.rows[0].customer_id;
+  testCustomerId = (customerResult as any)[0].customer_id;
 }, 30000);
 
 afterAll(async () => {
@@ -136,7 +137,7 @@ describe('GDPR Data Deletion (Article 17)', () => {
        RETURNING customer_id`,
       [tenantId]
     );
-    deletionTestCustomerId = result.rows[0].customer_id;
+    deletionTestCustomerId = (result as any)[0].customer_id;
 
     // Refresh CSRF token
     const csrfResponse = await request(app)
@@ -145,7 +146,8 @@ describe('GDPR Data Deletion (Article 17)', () => {
 
     csrfToken = csrfResponse.body.data.csrfToken;
     const cookies = csrfResponse.headers['set-cookie'];
-    csrfCookie = cookies.find((c: string) => c.startsWith('csrf_token_id='));
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    csrfCookie = cookieArray.find((c: string) => c.startsWith('csrf_token_id='))!;
   });
 
   afterEach(async () => {
@@ -177,8 +179,8 @@ describe('GDPR Data Deletion (Article 17)', () => {
       [deletionTestCustomerId]
     );
 
-    if (customerResult.rows.length > 0) {
-      const customer = customerResult.rows[0];
+    if ((customerResult as any[]).length > 0) {
+      const customer = (customerResult as any)[0];
       expect(customer.name).toBe('[DELETED]');
       expect(customer.email).toContain('deleted_');
       expect(customer.is_active).toBe(false);
@@ -234,7 +236,8 @@ describe('GDPR Data Deletion (Article 17)', () => {
 
     const staffCsrfToken = staffCsrfResponse.body.data.csrfToken;
     const staffCookies = staffCsrfResponse.headers['set-cookie'];
-    const staffCsrfCookie = staffCookies.find((c: string) => c.startsWith('csrf_token_id='));
+    const staffCookieArray = Array.isArray(staffCookies) ? staffCookies : [staffCookies];
+    const staffCsrfCookie = staffCookieArray.find((c: string) => c.startsWith('csrf_token_id='));
 
     const response = await request(app)
       .delete(`/api/tenants/${tenantId}/gdpr/customers/${deletionTestCustomerId}`)
