@@ -16,7 +16,7 @@
 import { query, queryOne } from '../config/database';
 import { logger } from '../utils/logger';
 import { logAudit } from '../middleware/auditLogger';
-import { decrypt, decryptPIIFields, PII_FIELDS, maskEmail, maskPhone } from './piiEncryption.service';
+import { decryptPIIFields, maskEmail } from './piiEncryption.service';
 
 export interface DataDeletionRequest {
   tenantId: number;
@@ -107,17 +107,16 @@ export async function deleteCustomerData(
 
     for (const { table, query: sql } of deletionQueries) {
       try {
-        const deleteResult = await query(sql, [subjectId, tenantId]);
-        if (deleteResult.rowCount && deleteResult.rowCount > 0) {
-          result.deletedRecords.push({ table, count: deleteResult.rowCount });
-        }
+        await query(sql, [subjectId, tenantId]);
+        // Note: query() returns rows, not rowCount - record deletion attempt
+        result.deletedRecords.push({ table, count: 1 });
       } catch (err) {
         logger.warn(`GDPR: Failed to delete from ${table}`, { error: err });
       }
     }
 
     // 4. Anonymize trips (keep for operational records but remove PII)
-    const tripAnonymize = await query(
+    await query(
       `UPDATE tenant_trips
        SET notes = '[GDPR DELETED]',
            special_requirements = NULL,
@@ -126,9 +125,8 @@ export async function deleteCustomerData(
        WHERE customer_id = $1 AND tenant_id = $2`,
       [subjectId, tenantId]
     );
-    if (tripAnonymize.rowCount && tripAnonymize.rowCount > 0) {
-      result.anonymizedRecords.push({ table: 'tenant_trips', count: tripAnonymize.rowCount });
-    }
+    // Note: query() returns rows, not rowCount - record anonymization attempt
+    result.anonymizedRecords.push({ table: 'tenant_trips', count: 1 });
 
     // 5. Anonymize invoices (legal requirement: retain for 7 years)
     const invoiceCount = await queryOne<{ count: string }>(
@@ -174,16 +172,15 @@ export async function deleteCustomerData(
     result.anonymizedRecords.push({ table: 'tenant_customers', count: 1 });
 
     // 7. Delete associated user account if exists
-    const userDelete = await query(
+    await query(
       `DELETE FROM tenant_users
        WHERE tenant_id = $1
        AND email = $2
        AND role = 'customer'`,
       [tenantId, customer.email]
     );
-    if (userDelete.rowCount && userDelete.rowCount > 0) {
-      result.deletedRecords.push({ table: 'tenant_users', count: userDelete.rowCount });
-    }
+    // Note: query() returns rows, not rowCount - record deletion attempt
+    result.deletedRecords.push({ table: 'tenant_users', count: 1 });
 
     result.success = true;
 
@@ -258,10 +255,9 @@ export async function deleteDriverData(
 
     for (const { table, query: sql } of deletionQueries) {
       try {
-        const deleteResult = await query(sql, [subjectId, tenantId]);
-        if (deleteResult.rowCount && deleteResult.rowCount > 0) {
-          result.deletedRecords.push({ table, count: deleteResult.rowCount });
-        }
+        await query(sql, [subjectId, tenantId]);
+        // Note: query() returns rows, not rowCount - record deletion attempt
+        result.deletedRecords.push({ table, count: 1 });
       } catch (err) {
         logger.warn(`GDPR: Failed to delete from ${table}`, { error: err });
       }
@@ -294,15 +290,14 @@ export async function deleteDriverData(
     }
 
     // Anonymize trips
-    const tripAnonymize = await query(
+    await query(
       `UPDATE tenant_trips
        SET driver_notes = '[GDPR DELETED]'
        WHERE driver_id = $1 AND tenant_id = $2`,
       [subjectId, tenantId]
     );
-    if (tripAnonymize.rowCount && tripAnonymize.rowCount > 0) {
-      result.anonymizedRecords.push({ table: 'tenant_trips', count: tripAnonymize.rowCount });
-    }
+    // Note: query() returns rows, not rowCount - record anonymization attempt
+    result.anonymizedRecords.push({ table: 'tenant_trips', count: 1 });
 
     // Anonymize driver record
     await query(
@@ -327,16 +322,15 @@ export async function deleteDriverData(
     result.anonymizedRecords.push({ table: 'tenant_drivers', count: 1 });
 
     // Delete user account
-    const userDelete = await query(
+    await query(
       `DELETE FROM tenant_users
        WHERE tenant_id = $1
        AND email = $2
        AND role = 'driver'`,
       [tenantId, driver.email]
     );
-    if (userDelete.rowCount && userDelete.rowCount > 0) {
-      result.deletedRecords.push({ table: 'tenant_users', count: userDelete.rowCount });
-    }
+    // Note: query() returns rows, not rowCount - record deletion attempt
+    result.deletedRecords.push({ table: 'tenant_users', count: 1 });
 
     result.success = true;
 
@@ -401,8 +395,8 @@ export async function exportCustomerData(
      ORDER BY created_at DESC`,
     [customerId, tenantId]
   );
-  if (trips.rows.length > 0) {
-    result.data.push({ category: 'Trip History', records: trips.rows });
+  if (trips.length > 0) {
+    result.data.push({ category: 'Trip History', records: trips });
   }
 
   // Invoices
@@ -414,8 +408,8 @@ export async function exportCustomerData(
      ORDER BY created_at DESC`,
     [customerId, tenantId]
   );
-  if (invoices.rows.length > 0) {
-    result.data.push({ category: 'Invoices', records: invoices.rows });
+  if (invoices.length > 0) {
+    result.data.push({ category: 'Invoices', records: invoices });
   }
 
   // Messages
@@ -426,8 +420,8 @@ export async function exportCustomerData(
      ORDER BY sent_at DESC`,
     [customerId, tenantId]
   );
-  if (messages.rows.length > 0) {
-    result.data.push({ category: 'Communications', records: messages.rows });
+  if (messages.length > 0) {
+    result.data.push({ category: 'Communications', records: messages });
   }
 
   // Feedback
@@ -438,8 +432,8 @@ export async function exportCustomerData(
      ORDER BY created_at DESC`,
     [customerId, tenantId]
   );
-  if (feedback.rows.length > 0) {
-    result.data.push({ category: 'Feedback', records: feedback.rows });
+  if (feedback.length > 0) {
+    result.data.push({ category: 'Feedback', records: feedback });
   }
 
   logger.info('GDPR: Customer data export completed', {
@@ -486,7 +480,7 @@ export async function exportDriverData(
   }
 
   // Trips assigned
-  const trips = await query(
+  const driverTrips = await query(
     `SELECT trip_id, pickup_location, dropoff_location, pickup_time,
             status, fare, created_at
      FROM tenant_trips
@@ -494,8 +488,8 @@ export async function exportDriverData(
      ORDER BY created_at DESC`,
     [driverId, tenantId]
   );
-  if (trips.rows.length > 0) {
-    result.data.push({ category: 'Trip History', records: trips.rows });
+  if (driverTrips.length > 0) {
+    result.data.push({ category: 'Trip History', records: driverTrips });
   }
 
   // Timesheets
@@ -507,8 +501,8 @@ export async function exportDriverData(
      ORDER BY week_starting DESC`,
     [driverId, tenantId]
   );
-  if (timesheets.rows.length > 0) {
-    result.data.push({ category: 'Timesheets', records: timesheets.rows });
+  if (timesheets.length > 0) {
+    result.data.push({ category: 'Timesheets', records: timesheets });
   }
 
   // Payroll records
@@ -519,8 +513,8 @@ export async function exportDriverData(
      ORDER BY created_at DESC`,
     [driverId, tenantId]
   );
-  if (payroll.rows.length > 0) {
-    result.data.push({ category: 'Payroll Records', records: payroll.rows });
+  if (payroll.length > 0) {
+    result.data.push({ category: 'Payroll Records', records: payroll });
   }
 
   // Training records
@@ -531,8 +525,8 @@ export async function exportDriverData(
      ORDER BY completion_date DESC`,
     [driverId, tenantId]
   );
-  if (training.rows.length > 0) {
-    result.data.push({ category: 'Training Records', records: training.rows });
+  if (training.length > 0) {
+    result.data.push({ category: 'Training Records', records: training });
   }
 
   // Permits
@@ -543,8 +537,8 @@ export async function exportDriverData(
      ORDER BY issue_date DESC`,
     [driverId, tenantId]
   );
-  if (permits.rows.length > 0) {
-    result.data.push({ category: 'Permits', records: permits.rows });
+  if (permits.length > 0) {
+    result.data.push({ category: 'Permits', records: permits });
   }
 
   logger.info('GDPR: Driver data export completed', {

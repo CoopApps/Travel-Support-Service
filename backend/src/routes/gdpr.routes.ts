@@ -8,11 +8,11 @@
  * SECURITY: These endpoints require admin role and are rate-limited
  */
 
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess, requireRole, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
-import { ValidationError, NotFoundError } from '../utils/errorTypes';
-import { successResponse, ErrorResponses } from '../utils/responseWrapper';
+import { ValidationError } from '../utils/errorTypes';
+import { successResponse } from '../utils/responseWrapper';
 import { logger } from '../utils/logger';
 import { sanitizeInteger } from '../utils/sanitize';
 import {
