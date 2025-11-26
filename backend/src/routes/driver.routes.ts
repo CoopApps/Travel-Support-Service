@@ -12,8 +12,80 @@ import {
   updateDriverSchema,
   driverIdParamSchema
 } from '../schemas/driver.schemas';
+import {
+  encrypt,
+  decrypt,
+  encryptSearchable,
+  decryptSearchable,
+  isPIIEncryptionEnabled,
+} from '../services/piiEncryption.service';
 
 const router: Router = express.Router();
+
+/**
+ * PII Fields for drivers that need encryption
+ * - email: searchable (deterministic) - allows lookups
+ * - phone: searchable (deterministic) - allows lookups
+ * - emergency_phone, license_number, notes: encrypted (random IV)
+ */
+const DRIVER_PII_FIELDS = {
+  searchable: ['email', 'phone'],
+  encrypted: ['emergency_phone', 'license_number', 'notes'],
+};
+
+/**
+ * Encrypt PII fields before storing in database
+ */
+function encryptDriverPII(data: any): any {
+  if (!isPIIEncryptionEnabled()) {
+    return data;
+  }
+
+  const result = { ...data };
+
+  // Searchable fields (deterministic encryption)
+  for (const field of DRIVER_PII_FIELDS.searchable) {
+    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
+      result[field] = encryptSearchable(result[field]);
+    }
+  }
+
+  // Encrypted fields (random IV)
+  for (const field of DRIVER_PII_FIELDS.encrypted) {
+    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
+      result[field] = encrypt(result[field]);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Decrypt PII fields when reading from database
+ */
+function decryptDriverPII(data: any): any {
+  if (!data || !isPIIEncryptionEnabled()) {
+    return data;
+  }
+
+  const result = { ...data };
+
+  // Decrypt searchable fields
+  for (const field of DRIVER_PII_FIELDS.searchable) {
+    if (result[field] && typeof result[field] === 'string') {
+      result[field] = decryptSearchable(result[field]);
+    }
+  }
+
+  // Decrypt encrypted fields
+  for (const field of DRIVER_PII_FIELDS.encrypted) {
+    if (result[field] && typeof result[field] === 'string') {
+      result[field] = decrypt(result[field]);
+    }
+  }
+
+  return result;
+}
 
 /**
  * Driver Routes
@@ -294,8 +366,11 @@ router.get(
 
     const totalPages = Math.ceil(total / parseInt(limit as string));
 
+    // Decrypt PII fields for each driver
+    const decryptedDrivers = drivers.map((driver: any) => decryptDriverPII(driver));
+
     res.json({
-      drivers,
+      drivers: decryptedDrivers,
       total,
       page: parseInt(page as string),
       limit: parseInt(limit as string),
@@ -482,7 +557,10 @@ router.get(
       throw new NotFoundError('Driver not found');
     }
 
-    res.json(driver);
+    // Decrypt PII fields before returning
+    const decryptedDriver = decryptDriverPII(driver);
+
+    res.json(decryptedDriver);
   })
 );
 
@@ -515,6 +593,15 @@ router.post(
     if (!name) {
       throw new ValidationError('Driver name is required');
     }
+
+    // Encrypt PII fields before storing
+    const piiData = encryptDriverPII({
+      email: email || '',
+      phone: phone || '',
+      emergency_phone: emergencyPhone || '',
+      license_number: licenseNumber || '',
+      notes: notes || '',
+    });
 
     // Default salary structure based on employment type
     const defaultSalaryStructure = (employmentType: string) => {
@@ -562,11 +649,11 @@ router.post(
       [
         tenantId,
         name,  // sanitized
-        phone,  // sanitized
-        email,  // sanitized
-        licenseNumber,  // sanitized
+        piiData.phone,  // encrypted
+        piiData.email,  // encrypted
+        piiData.license_number,  // encrypted
         driverData.licenseExpiry || null,
-        licenseClass,  // sanitized
+        licenseClass,  // sanitized (not PII)
         driverData.vehicleType || 'own',
         driverData.weeklyWage || 0,
         driverData.weeklyLease || 0,
@@ -591,10 +678,10 @@ router.post(
         driverData.holidays ? JSON.stringify(driverData.holidays) : null,
         driverData.availabilityRestrictions ? JSON.stringify(driverData.availabilityRestrictions) : null,
         driverData.qualifications ? JSON.stringify(driverData.qualifications) : null,
-        emergencyContact || null,  // sanitized
-        emergencyPhone || null,  // sanitized
+        emergencyContact || null,  // sanitized (name, not PII phone)
+        piiData.emergency_phone,  // encrypted
         driverData.preferredHours || null,
-        notes || null,  // sanitized
+        piiData.notes,  // encrypted
       ]
     );
 
@@ -630,6 +717,15 @@ router.put(
     const emergencyPhone = driverData.emergencyPhone ? sanitizePhone(driverData.emergencyPhone) : undefined;
     const notes = driverData.notes ? sanitizeInput(driverData.notes, { maxLength: 2000 }) : undefined;
 
+    // Encrypt PII fields if they are being updated
+    const piiData = encryptDriverPII({
+      email,
+      phone,
+      emergency_phone: emergencyPhone,
+      license_number: licenseNumber,
+      notes,
+    });
+
     logger.info('Updating driver', { tenantId, driverId });
 
     const result = await query(
@@ -660,11 +756,11 @@ router.put(
         tenantId,
         driverId,
         name,  // sanitized
-        phone,  // sanitized
-        email,  // sanitized
-        licenseNumber,  // sanitized
+        piiData.phone,  // encrypted
+        piiData.email,  // encrypted
+        piiData.license_number,  // encrypted
         driverData.licenseExpiry,
-        licenseClass,  // sanitized
+        licenseClass,  // sanitized (not PII)
         driverData.vehicleType,
         driverData.weeklyWage,
         driverData.weeklyLease,
@@ -673,10 +769,10 @@ router.put(
         driverData.employmentType,
         driverData.employmentStatus,
         driverData.salaryStructure ? JSON.stringify(driverData.salaryStructure) : null,
-        emergencyContact,  // sanitized
-        emergencyPhone,  // sanitized
+        emergencyContact,  // sanitized (name, not PII)
+        piiData.emergency_phone,  // encrypted
         driverData.preferredHours,
-        notes,  // sanitized
+        piiData.notes,  // encrypted
       ]
     );
 
@@ -1233,10 +1329,13 @@ router.get(
       throw new NotFoundError('Driver not found or login not enabled');
     }
 
-    logger.info('Found driver for user', { driverName: driver.name });
+    // Decrypt PII fields before returning
+    const decryptedDriver = decryptDriverPII(driver);
+
+    logger.info('Found driver for user', { driverName: decryptedDriver.name });
 
     res.json({
-      driver
+      driver: decryptedDriver
     });
   })
 );

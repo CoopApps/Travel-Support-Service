@@ -19,8 +19,80 @@ import {
   CustomerListQuery,
   CustomerListResponse
 } from '../types/customer.types';
+import {
+  encrypt,
+  decrypt,
+  encryptSearchable,
+  decryptSearchable,
+  isPIIEncryptionEnabled,
+} from '../services/piiEncryption.service';
 
 const router: Router = express.Router();
+
+/**
+ * PII Fields for customers that need encryption
+ * - email: searchable (deterministic) - allows lookups
+ * - phone: searchable (deterministic) - allows lookups
+ * - address, postcode, emergency_contact_phone, medical_notes: encrypted (random IV)
+ */
+const CUSTOMER_PII_FIELDS = {
+  searchable: ['email', 'phone'],
+  encrypted: ['address', 'postcode', 'emergency_contact_phone', 'medical_notes', 'medication_notes'],
+};
+
+/**
+ * Encrypt PII fields before storing in database
+ */
+function encryptCustomerPII(data: any): any {
+  if (!isPIIEncryptionEnabled()) {
+    return data;
+  }
+
+  const result = { ...data };
+
+  // Searchable fields (deterministic encryption - same input = same output)
+  for (const field of CUSTOMER_PII_FIELDS.searchable) {
+    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
+      result[field] = encryptSearchable(result[field]);
+    }
+  }
+
+  // Encrypted fields (random IV - more secure but not searchable)
+  for (const field of CUSTOMER_PII_FIELDS.encrypted) {
+    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
+      result[field] = encrypt(result[field]);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Decrypt PII fields when reading from database
+ */
+function decryptCustomerPII(data: any): any {
+  if (!data || !isPIIEncryptionEnabled()) {
+    return data;
+  }
+
+  const result = { ...data };
+
+  // Decrypt searchable fields
+  for (const field of CUSTOMER_PII_FIELDS.searchable) {
+    if (result[field] && typeof result[field] === 'string') {
+      result[field] = decryptSearchable(result[field]);
+    }
+  }
+
+  // Decrypt encrypted fields
+  for (const field of CUSTOMER_PII_FIELDS.encrypted) {
+    if (result[field] && typeof result[field] === 'string') {
+      result[field] = decrypt(result[field]);
+    }
+  }
+
+  return result;
+}
 
 /**
  * Customer Routes - Stage 4
@@ -528,19 +600,22 @@ router.get(
       [...params, limit, offset]
     );
 
-    // Parse JSON fields
-    const processedCustomers = customers.map((customer) => ({
-      ...customer,
-      provider_split: typeof customer.provider_split === 'string'
-        ? JSON.parse(customer.provider_split || '{}')
-        : customer.provider_split || {},
-      payment_split: typeof customer.payment_split === 'string'
-        ? JSON.parse(customer.payment_split || '{}')
-        : customer.payment_split || {},
-      schedule: typeof customer.schedule === 'string'
-        ? JSON.parse(customer.schedule || '{}')
-        : customer.schedule || {},
-    }));
+    // Decrypt PII and parse JSON fields
+    const processedCustomers = customers.map((customer) => {
+      const decrypted = decryptCustomerPII(customer);
+      return {
+        ...decrypted,
+        provider_split: typeof decrypted.provider_split === 'string'
+          ? JSON.parse(decrypted.provider_split || '{}')
+          : decrypted.provider_split || {},
+        payment_split: typeof decrypted.payment_split === 'string'
+          ? JSON.parse(decrypted.payment_split || '{}')
+          : decrypted.payment_split || {},
+        schedule: typeof decrypted.schedule === 'string'
+          ? JSON.parse(decrypted.schedule || '{}')
+          : decrypted.schedule || {},
+      };
+    });
 
     const response: CustomerListResponse = {
       customers: processedCustomers,
@@ -772,18 +847,21 @@ router.get(
       throw new NotFoundError('Customer not found');
     }
 
+    // Decrypt PII fields
+    const decryptedCustomer = decryptCustomerPII(customer);
+
     // Parse JSON fields
     const processedCustomer = {
-      ...customer,
-      provider_split: typeof customer.provider_split === 'string'
-        ? JSON.parse(customer.provider_split || '{}')
-        : customer.provider_split || {},
-      payment_split: typeof customer.payment_split === 'string'
-        ? JSON.parse(customer.payment_split || '{}')
-        : customer.payment_split || {},
-      schedule: typeof customer.schedule === 'string'
-        ? JSON.parse(customer.schedule || '{}')
-        : customer.schedule || {},
+      ...decryptedCustomer,
+      provider_split: typeof decryptedCustomer.provider_split === 'string'
+        ? JSON.parse(decryptedCustomer.provider_split || '{}')
+        : decryptedCustomer.provider_split || {},
+      payment_split: typeof decryptedCustomer.payment_split === 'string'
+        ? JSON.parse(decryptedCustomer.payment_split || '{}')
+        : decryptedCustomer.payment_split || {},
+      schedule: typeof decryptedCustomer.schedule === 'string'
+        ? JSON.parse(decryptedCustomer.schedule || '{}')
+        : decryptedCustomer.schedule || {},
     };
 
     logger.info('Customer retrieved successfully', { tenantId, customerId });
@@ -829,6 +907,17 @@ router.post(
       throw new ValidationError('Customer name is required');
     }
 
+    // Encrypt PII fields before storing
+    const piiData = encryptCustomerPII({
+      email: email || '',
+      phone: phone || '',
+      address: address || '',
+      postcode: postcode || '',
+      emergency_contact_phone: emergencyContactPhone || '',
+      medical_notes: medicalNotes || '',
+      medication_notes: medicationNotes || '',
+    });
+
     const result = await queryOne<{ id: number; name: string; created_at: Date }>(
       `INSERT INTO tenant_customers (
         tenant_id, name, address, address_line_2, city, county, postcode,
@@ -843,22 +932,22 @@ router.post(
       [
         tenantId,
         name,
-        address || '',
+        piiData.address,
         addressLine2 || '',
         city || '',
         county || '',
-        postcode || '',
-        phone || '',
-        email || '',
+        piiData.postcode,
+        piiData.phone,
+        piiData.email,
         payingOrg || 'Self-Pay',
         customerData.has_split_payment || false,
         JSON.stringify(customerData.provider_split || {}),
         JSON.stringify(customerData.payment_split || {}),
         JSON.stringify(customerData.schedule || {}),
         emergencyContactName || '',
-        emergencyContactPhone || '',
-        medicalNotes || '',
-        medicationNotes || '',
+        piiData.emergency_contact_phone,
+        piiData.medical_notes,
+        piiData.medication_notes,
         driverNotes || '',
         mobilityRequirements || '',
         customerData.reminder_opt_in !== undefined ? customerData.reminder_opt_in : true,
@@ -921,6 +1010,17 @@ router.put(
     const driverNotes = customerData.driver_notes ? sanitizeInput(customerData.driver_notes, { maxLength: 2000 }) : undefined;
     const mobilityRequirements = customerData.mobility_requirements ? sanitizeInput(customerData.mobility_requirements, { maxLength: 1000 }) : undefined;
 
+    // Encrypt PII fields if they are being updated
+    const piiData = encryptCustomerPII({
+      email,
+      phone,
+      address,
+      postcode,
+      emergency_contact_phone: emergencyContactPhone,
+      medical_notes: medicalNotes,
+      medication_notes: medicationNotes,
+    });
+
     // Perform update
     const result = await queryOne<{ id: number; name: string; updated_at: Date }>(
       `UPDATE tenant_customers SET
@@ -952,22 +1052,22 @@ router.put(
         tenantId,
         customerId,
         name,
-        address,
+        piiData.address,
         addressLine2,
         city,
         county,
-        postcode,
-        phone,
-        email,
+        piiData.postcode,
+        piiData.phone,
+        piiData.email,
         payingOrg,
         customerData.has_split_payment,
         customerData.provider_split ? JSON.stringify(customerData.provider_split) : null,
         customerData.payment_split ? JSON.stringify(customerData.payment_split) : null,
         customerData.schedule ? JSON.stringify(customerData.schedule) : null,
         emergencyContactName,
-        emergencyContactPhone,
-        medicalNotes,
-        medicationNotes,
+        piiData.emergency_contact_phone,
+        piiData.medical_notes,
+        piiData.medication_notes,
         driverNotes,
         mobilityRequirements,
         customerData.reminder_opt_in,
@@ -1045,6 +1145,17 @@ router.post(
         const driverNotes = sanitizeInput(customerData.driver_notes, { maxLength: 2000 });
         const mobilityRequirements = sanitizeInput(customerData.mobility_requirements, { maxLength: 1000 });
 
+        // Encrypt PII fields before storing
+        const piiData = encryptCustomerPII({
+          email: email || '',
+          phone: phone || '',
+          address: address || '',
+          postcode: postcode || '',
+          emergency_contact_phone: emergencyContactPhone || '',
+          medical_notes: medicalNotes || '',
+          medication_notes: medicationNotes || '',
+        });
+
         // Insert customer
         const result = await queryOne<{ id: number; name: string }>(
           `INSERT INTO tenant_customers (
@@ -1060,22 +1171,22 @@ router.post(
           [
             tenantId,
             name,
-            address || '',
+            piiData.address,
             addressLine2 || '',
             city || '',
             county || '',
-            postcode || '',
-            phone || '',
-            email || '',
+            piiData.postcode,
+            piiData.phone,
+            piiData.email,
             payingOrg || 'Self-Pay',
             customerData.has_split_payment || false,
             JSON.stringify(customerData.provider_split || {}),
             JSON.stringify(customerData.payment_split || {}),
             JSON.stringify(customerData.schedule || {}),
             emergencyContactName || '',
-            emergencyContactPhone || '',
-            medicalNotes || '',
-            medicationNotes || '',
+            piiData.emergency_contact_phone,
+            piiData.medical_notes,
+            piiData.medication_notes,
             driverNotes || '',
             mobilityRequirements || '',
             customerData.reminder_opt_in !== undefined ? customerData.reminder_opt_in : true,
@@ -1166,21 +1277,30 @@ router.put(
         const params: any[] = [tenantId, updateData.customer_id];
         let paramIndex = 3;
 
+        // Prepare PII data for encryption if any PII fields are being updated
+        const piiToEncrypt: any = {};
+        if (updateData.phone !== undefined) piiToEncrypt.phone = sanitizePhone(updateData.phone);
+        if (updateData.email !== undefined) piiToEncrypt.email = sanitizeEmail(updateData.email);
+        if (updateData.address !== undefined) piiToEncrypt.address = sanitizeInput(updateData.address, { maxLength: 500 });
+        if (updateData.postcode !== undefined) piiToEncrypt.postcode = sanitizeInput(updateData.postcode, { maxLength: 20 });
+
+        const encryptedPII = encryptCustomerPII(piiToEncrypt);
+
         if (updateData.name !== undefined) {
           updateFields.push(`name = $${paramIndex++}`);
           params.push(sanitizeInput(updateData.name, { maxLength: 200 }));
         }
         if (updateData.phone !== undefined) {
           updateFields.push(`phone = $${paramIndex++}`);
-          params.push(sanitizePhone(updateData.phone));
+          params.push(encryptedPII.phone);
         }
         if (updateData.email !== undefined) {
           updateFields.push(`email = $${paramIndex++}`);
-          params.push(sanitizeEmail(updateData.email));
+          params.push(encryptedPII.email);
         }
         if (updateData.address !== undefined) {
           updateFields.push(`address = $${paramIndex++}`);
-          params.push(sanitizeInput(updateData.address, { maxLength: 500 }));
+          params.push(encryptedPII.address);
         }
         if (updateData.city !== undefined) {
           updateFields.push(`city = $${paramIndex++}`);
@@ -1188,7 +1308,7 @@ router.put(
         }
         if (updateData.postcode !== undefined) {
           updateFields.push(`postcode = $${paramIndex++}`);
-          params.push(sanitizeInput(updateData.postcode, { maxLength: 20 }));
+          params.push(encryptedPII.postcode);
         }
         if (updateData.paying_org !== undefined) {
           updateFields.push(`paying_org = $${paramIndex++}`);
