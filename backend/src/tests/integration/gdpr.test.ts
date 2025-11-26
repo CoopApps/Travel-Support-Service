@@ -94,7 +94,7 @@ describe('GDPR Data Export (Article 20)', () => {
 
   it('should require admin role for data export', async () => {
     // Create a non-admin user
-    const staffUser = await createTestUser(tenantId, 'staff@test.local', 'staff');
+    const staffUser = await createTestUser(tenantId, 'staff@test.local', 'driver');
 
     const staffLoginResponse = await request(app)
       .post(`/api/tenants/${tenantId}/login`)
@@ -218,7 +218,7 @@ describe('GDPR Data Deletion (Article 17)', () => {
 
   it('should require admin role for deletion', async () => {
     // Create a non-admin user
-    const staffUser = await createTestUser(tenantId, 'deletestaff@test.local', 'staff');
+    const staffUser = await createTestUser(tenantId, 'deletestaff@test.local', 'driver');
 
     const staffLoginResponse = await request(app)
       .post(`/api/tenants/${tenantId}/login`)

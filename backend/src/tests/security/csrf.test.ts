@@ -77,6 +77,10 @@ describe('CSRF Token Generation', () => {
 });
 
 describe('CSRF Protection on State-Changing Requests', () => {
+  // Note: CSRF protection only applies when using cookie-based auth (auth_token cookie)
+  // Bearer token auth via Authorization header skips CSRF (by design - API tokens don't need CSRF)
+  // These tests simulate cookie-based auth by including a fake auth_token cookie
+
   beforeAll(async () => {
     // Get fresh CSRF token
     const response = await request(app)
@@ -87,6 +91,8 @@ describe('CSRF Protection on State-Changing Requests', () => {
     const cookies = response.headers['set-cookie'];
     const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
     csrfCookie = cookieArray.find((c: string) => c.startsWith('csrf_token_id='))!;
+    // Add fake auth_token cookie to trigger CSRF validation
+    csrfCookie += '; auth_token=test_token';
   });
 
   it('should allow POST request with valid CSRF token', async () => {

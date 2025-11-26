@@ -118,10 +118,7 @@ export async function deleteCustomerData(
     // 4. Anonymize trips (keep for operational records but remove PII)
     await query(
       `UPDATE tenant_trips
-       SET notes = '[GDPR DELETED]',
-           special_requirements = NULL,
-           pickup_notes = NULL,
-           dropoff_notes = NULL
+       SET special_requirements = NULL
        WHERE customer_id = $1 AND tenant_id = $2`,
       [subjectId, tenantId]
     );
@@ -289,10 +286,10 @@ export async function deleteDriverData(
       });
     }
 
-    // Anonymize trips
+    // Anonymize trips (remove any PII from special_requirements)
     await query(
       `UPDATE tenant_trips
-       SET driver_notes = '[GDPR DELETED]'
+       SET special_requirements = NULL
        WHERE driver_id = $1 AND tenant_id = $2`,
       [subjectId, tenantId]
     );
@@ -388,8 +385,8 @@ export async function exportCustomerData(
 
   // Trips
   const trips = await query(
-    `SELECT trip_id, pickup_location, dropoff_location, pickup_time,
-            status, fare, special_requirements, created_at
+    `SELECT trip_id, pickup_location, destination, pickup_time,
+            status, price, special_requirements, created_at
      FROM tenant_trips
      WHERE customer_id = $1 AND tenant_id = $2
      ORDER BY created_at DESC`,
@@ -481,8 +478,8 @@ export async function exportDriverData(
 
   // Trips assigned
   const driverTrips = await query(
-    `SELECT trip_id, pickup_location, dropoff_location, pickup_time,
-            status, fare, created_at
+    `SELECT trip_id, pickup_location, destination, pickup_time,
+            status, price, created_at
      FROM tenant_trips
      WHERE driver_id = $1 AND tenant_id = $2
      ORDER BY created_at DESC`,

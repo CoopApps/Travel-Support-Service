@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { Application } from 'express';
 import { createMinimalTestApp } from '../setup/testApp';
-import { expectSuccess, expectFields } from '../setup/testHelpers';
+import { expectSuccess } from '../setup/testHelpers';
 
 /**
  * Health Check Routes Integration Tests
@@ -29,25 +29,29 @@ describe('GET /health - Basic Health Check', () => {
       .expect('Content-Type', /json/);
 
     expectSuccess(response, 200);
-    expectFields(response, ['status', 'timestamp', 'uptime', 'environment']);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveProperty('status');
+    expect(response.body.data).toHaveProperty('timestamp');
+    expect(response.body.data).toHaveProperty('uptime');
+    expect(response.body.data).toHaveProperty('environment');
 
-    expect(response.body.status).toBe('healthy');
-    expect(typeof response.body.uptime).toBe('number');
-    expect(response.body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(response.body.data.status).toBe('healthy');
+    expect(typeof response.body.data.uptime).toBe('number');
+    expect(response.body.data.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
   it('should include version information', async () => {
     const response = await request(app).get('/api/health');
 
     expectSuccess(response, 200);
-    expect(response.body).toHaveProperty('version');
+    expect(response.body.data).toHaveProperty('version');
   });
 
   it('should include environment', async () => {
     const response = await request(app).get('/api/health');
 
     expectSuccess(response, 200);
-    expect(['development', 'test', 'production']).toContain(response.body.environment);
+    expect(['development', 'test', 'production']).toContain(response.body.data.environment);
   });
 });
 
@@ -61,8 +65,11 @@ describe('GET /health/detailed - Detailed Health Check', () => {
     expect([200, 503]).toContain(response.status);
 
     if (response.status === 200) {
-      expectFields(response, ['status', 'timestamp', 'uptime', 'checks']);
-      expect(response.body.checks).toHaveProperty('memory');
+      expect(response.body.data).toHaveProperty('status');
+      expect(response.body.data).toHaveProperty('timestamp');
+      expect(response.body.data).toHaveProperty('uptime');
+      expect(response.body.data).toHaveProperty('checks');
+      expect(response.body.data.checks).toHaveProperty('memory');
     }
   });
 
@@ -70,8 +77,8 @@ describe('GET /health/detailed - Detailed Health Check', () => {
     const response = await request(app).get('/api/health/detailed');
 
     if (response.status === 200) {
-      expect(response.body.checks).toHaveProperty('database');
-      expect(response.body.checks.database).toHaveProperty('status');
+      expect(response.body.data.checks).toHaveProperty('database');
+      expect(response.body.data.checks.database).toHaveProperty('status');
     }
   });
 
@@ -79,10 +86,10 @@ describe('GET /health/detailed - Detailed Health Check', () => {
     const response = await request(app).get('/api/health/detailed');
 
     if (response.status === 200) {
-      expect(response.body.checks).toHaveProperty('memory');
-      expect(response.body.checks.memory).toHaveProperty('heapUsed');
-      expect(response.body.checks.memory).toHaveProperty('heapTotal');
-      expect(response.body.checks.memory).toHaveProperty('rss');
+      expect(response.body.data.checks).toHaveProperty('memory');
+      expect(response.body.data.checks.memory).toHaveProperty('heapUsed');
+      expect(response.body.data.checks.memory).toHaveProperty('heapTotal');
+      expect(response.body.data.checks.memory).toHaveProperty('rss');
     }
   });
 
@@ -90,24 +97,24 @@ describe('GET /health/detailed - Detailed Health Check', () => {
     const response = await request(app).get('/api/health/detailed');
 
     if (response.status === 200) {
-      expect(response.body).toHaveProperty('responseTime');
-      expect(response.body.responseTime).toMatch(/^\d+ms$/);
+      expect(response.body.data).toHaveProperty('responseTime');
+      expect(response.body.data.responseTime).toMatch(/^\d+ms$/);
     }
   });
 
   it('should include database pool stats when available', async () => {
     const response = await request(app).get('/api/health/detailed');
 
-    if (response.status === 200 && response.body.checks.databasePool) {
-      expect(response.body.checks.databasePool).toHaveProperty('status');
+    if (response.status === 200 && response.body.data.checks.databasePool) {
+      expect(response.body.data.checks.databasePool).toHaveProperty('status');
     }
   });
 
   it('should include cache stats when available', async () => {
     const response = await request(app).get('/api/health/detailed');
 
-    if (response.status === 200 && response.body.checks.cache) {
-      expect(response.body.checks.cache).toHaveProperty('status');
+    if (response.status === 200 && response.body.data.checks.cache) {
+      expect(response.body.data.checks.cache).toHaveProperty('status');
     }
   });
 });
@@ -122,8 +129,8 @@ describe('GET /health/ready - Readiness Probe', () => {
     expect([200, 503]).toContain(response.status);
 
     if (response.status === 200) {
-      expect(response.body).toHaveProperty('ready', true);
-      expect(response.body).toHaveProperty('timestamp');
+      expect(response.body.data).toHaveProperty('ready', true);
+      expect(response.body.data).toHaveProperty('timestamp');
     }
   });
 
@@ -143,9 +150,9 @@ describe('GET /health/live - Liveness Probe', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body).toHaveProperty('alive', true);
-    expect(response.body).toHaveProperty('timestamp');
-    expect(response.body).toHaveProperty('uptime');
+    expect(response.body.data).toHaveProperty('alive', true);
+    expect(response.body.data).toHaveProperty('timestamp');
+    expect(response.body.data).toHaveProperty('uptime');
   });
 
   it('should always respond (even if DB is down)', async () => {
@@ -153,7 +160,7 @@ describe('GET /health/live - Liveness Probe', () => {
     const response = await request(app).get('/api/health/live');
 
     expect(response.status).toBe(200);
-    expect(response.body.alive).toBe(true);
+    expect(response.body.data.alive).toBe(true);
   });
 
   it('should respond very quickly (under 100ms)', async () => {
@@ -168,9 +175,9 @@ describe('GET /health/live - Liveness Probe', () => {
   it('should include server uptime', async () => {
     const response = await request(app).get('/api/health/live');
 
-    expect(response.body.uptime).toBeDefined();
-    expect(typeof response.body.uptime).toBe('number');
-    expect(response.body.uptime).toBeGreaterThanOrEqual(0);
+    expect(response.body.data.uptime).toBeDefined();
+    expect(typeof response.body.data.uptime).toBe('number');
+    expect(response.body.data.uptime).toBeGreaterThanOrEqual(0);
   });
 });
 
