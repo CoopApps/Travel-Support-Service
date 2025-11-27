@@ -398,8 +398,8 @@ export async function exportCustomerData(
 
   // Invoices
   const invoices = await query(
-    `SELECT invoice_id, invoice_number, total_amount, status,
-            due_date, paid_date, created_at
+    `SELECT invoice_id, invoice_number, total_amount, invoice_status as status,
+            due_date, amount_paid as paid_amount, created_at
      FROM tenant_invoices
      WHERE customer_id = $1 AND tenant_id = $2
      ORDER BY created_at DESC`,

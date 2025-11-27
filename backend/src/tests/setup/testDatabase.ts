@@ -52,6 +52,8 @@ export async function closeTestPool() {
 export async function createTestTenant(companyName: string = 'Test Company'): Promise<number> {
   const pool = getTestPool();
   const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const uniqueId = `${timestamp}${randomSuffix}`;
 
   // Get the app_id for travel_support (required by schema)
   const appResult = await pool.query(
@@ -61,11 +63,12 @@ export async function createTestTenant(companyName: string = 'Test Company'): Pr
   const appId = appResult.rows[0]?.app_id || 1; // Fallback to 1 if not found
 
   // Use unique domain for each test tenant to avoid constraint violations
+  // Include random suffix to prevent collisions when tests run in parallel
   const result = await pool.query(
     `INSERT INTO tenants (company_name, subdomain, domain, app_id, is_active, created_at, updated_at)
      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
      RETURNING tenant_id`,
-    [`${companyName}_${timestamp}`, `test${timestamp}`, `test${timestamp}.local`, appId, true]
+    [`${companyName}_${uniqueId}`, `test${uniqueId}`, `test${uniqueId}.local`, appId, true]
   );
   return result.rows[0].tenant_id;
 }
@@ -122,6 +125,51 @@ export async function createTestCustomer(
 }
 
 /**
+ * Create a test driver for a tenant
+ */
+export async function createTestDriver(
+  tenantId: number,
+  name: string = `Test Driver ${Date.now()}`
+): Promise<number> {
+  const pool = getTestPool();
+  const result = await pool.query(
+    `INSERT INTO tenant_drivers (
+      tenant_id, name, email, phone, license_number, license_expiry,
+      employment_type, employment_status, is_active, archived, created_at, updated_at
+    )
+    VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '1 year', $6, $7, $8, $9, NOW(), NOW())
+    RETURNING driver_id`,
+    [tenantId, name, `${name.replace(/\s/g, '')}@test.local`, '07700900000', 'DL123456', 'contracted', 'active', true, false]
+  );
+  return result.rows[0].driver_id;
+}
+
+/**
+ * Create a test trip for a tenant
+ */
+export async function createTestTrip(
+  tenantId: number,
+  customerId: number,
+  driverId?: number
+): Promise<number> {
+  const pool = getTestPool();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tripDate = tomorrow.toISOString().split('T')[0];
+
+  const result = await pool.query(
+    `INSERT INTO tenant_trips (
+      tenant_id, customer_id, driver_id, trip_date, pickup_time,
+      pickup_address, destination, status, trip_type, created_at, updated_at
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+    RETURNING trip_id`,
+    [tenantId, customerId, driverId || null, tripDate, '09:00', '123 Test St', 'Test Destination', 'scheduled', 'adhoc']
+  );
+  return result.rows[0].trip_id;
+}
+
+/**
  * Clean up test data for a specific tenant
  * Deletes all data associated with test tenant(s)
  */
@@ -129,6 +177,7 @@ export async function cleanupTestTenant(tenantId: number) {
   const pool = getTestPool();
 
   // Delete in order of foreign key dependencies
+  await pool.query('DELETE FROM tenant_trips WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_training_records WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_training_types WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_customers WHERE tenant_id = $1', [tenantId]);
