@@ -263,7 +263,7 @@ async function generateInvoicesForProvider(tenantId: number, provider: Provider)
           await query(`
             INSERT INTO tenant_invoice_line_items (
               tenant_id, invoice_id, description,
-              quantity, unit_price, total_price,
+              quantity, unit_price, line_total,
               metadata, created_at
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
           `, [
@@ -283,7 +283,7 @@ async function generateInvoicesForProvider(tenantId: number, provider: Provider)
           await query(`
             INSERT INTO tenant_invoice_line_items (
               tenant_id, invoice_id, description,
-              quantity, unit_price, total_price,
+              quantity, unit_price, line_total,
               metadata, created_at
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
           `, [

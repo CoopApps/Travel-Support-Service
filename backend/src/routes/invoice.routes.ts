@@ -325,7 +325,7 @@ router.post(
         await query(`
           INSERT INTO tenant_invoice_line_items (
             tenant_id, invoice_id, description,
-            quantity, unit_price, total_price,
+            quantity, unit_price, line_total,
             metadata, created_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
         `, [
@@ -1931,14 +1931,14 @@ router.post(
 
     const lineItem = await query(`
       INSERT INTO tenant_invoice_line_items (
-        tenant_id, invoice_id, description, quantity, unit_price, total_price, metadata, created_at
+        tenant_id, invoice_id, description, quantity, unit_price, line_total, metadata, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
       RETURNING *
     `, [tenantId, invoiceId, description, quantity, unit_price, total_price, metadata ? JSON.stringify(metadata) : null]);
 
     // Recalculate invoice total
     const totals = await query<{ total: number }>(`
-      SELECT SUM(total_price) as total
+      SELECT SUM(line_total) as total
       FROM tenant_invoice_line_items
       WHERE tenant_id = $1 AND invoice_id = $2
     `, [tenantId, invoiceId]);
@@ -1977,7 +1977,7 @@ router.put(
         description = COALESCE($4, description),
         quantity = COALESCE($5, quantity),
         unit_price = COALESCE($6, unit_price),
-        total_price = $7
+        line_total = $7
       WHERE tenant_id = $1 AND invoice_id = $2 AND line_item_id = $3
       RETURNING *
     `, [tenantId, invoiceId, lineItemId, description, quantity, unit_price, total_price]);
@@ -1988,7 +1988,7 @@ router.put(
 
     // Recalculate invoice total
     const totals = await query<{ total: number }>(`
-      SELECT SUM(total_price) as total
+      SELECT SUM(line_total) as total
       FROM tenant_invoice_line_items
       WHERE tenant_id = $1 AND invoice_id = $2
     `, [tenantId, invoiceId]);
@@ -2030,7 +2030,7 @@ router.delete(
 
     // Recalculate invoice total
     const totals = await query<{ total: number }>(`
-      SELECT SUM(total_price) as total
+      SELECT SUM(line_total) as total
       FROM tenant_invoice_line_items
       WHERE tenant_id = $1 AND invoice_id = $2
     `, [tenantId, invoiceId]);

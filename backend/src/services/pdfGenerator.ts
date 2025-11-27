@@ -28,7 +28,7 @@ interface LineItem {
   description: string;
   quantity: number;
   unit_price: number;
-  total_price: number;
+  line_total: number;
 }
 
 interface TenantInfo {
@@ -138,7 +138,7 @@ async function fetchInvoiceData(
  */
 async function fetchLineItems(tenantId: number, invoiceId: number): Promise<LineItem[]> {
   return await query<LineItem>(`
-    SELECT description, quantity, unit_price, total_price
+    SELECT description, quantity, unit_price, line_total
     FROM tenant_invoice_line_items
     WHERE tenant_id = $1 AND invoice_id = $2
     ORDER BY line_item_id ASC
@@ -480,7 +480,7 @@ function generateInvoiceHTML(
               <td>${item.description}</td>
               <td style="text-align: center;">${item.quantity}</td>
               <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
-              <td style="text-align: right;">${formatCurrency(item.total_price)}</td>
+              <td style="text-align: right;">${formatCurrency(item.line_total)}</td>
             </tr>
           `).join('')}
         </tbody>

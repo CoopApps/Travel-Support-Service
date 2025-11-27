@@ -411,10 +411,10 @@ export async function exportCustomerData(
 
   // Messages
   const messages = await query(
-    `SELECT message_id, message_content, sent_at, delivery_status
+    `SELECT message_id, title, message, priority, created_at
      FROM tenant_messages
-     WHERE customer_id = $1 AND tenant_id = $2
-     ORDER BY sent_at DESC`,
+     WHERE target_customer_id = $1 AND tenant_id = $2
+     ORDER BY created_at DESC`,
     [customerId, tenantId]
   );
   if (messages.length > 0) {
