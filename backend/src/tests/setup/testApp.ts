@@ -48,6 +48,39 @@ import fareCalculationRoutes from '../../routes/fare-calculation.routes';
 // Import routes - Documents
 import documentsRoutes from '../../routes/documents.routes';
 
+// Import routes - HR & Payroll
+import payrollRoutes from '../../routes/payroll.routes';
+import timesheetRoutes from '../../routes/timesheet.routes';
+import officeStaffRoutes from '../../routes/office-staff.routes';
+import driverSubmissionsRoutes from '../../routes/driver-submissions.routes';
+import driverDashboardAdminRoutes from '../../routes/driver-dashboard-admin.routes';
+
+// Import routes - Fleet Management
+import fuelcardRoutes from '../../routes/fuelcard.routes';
+import serviceRegistrationsRoutes from '../../routes/service-registrations.routes';
+
+// Import routes - Business Intelligence
+import capacityAlertsRoutes from '../../routes/capacity-alerts.routes';
+import providersRoutes from '../../routes/providers.routes';
+
+// Import routes - Section 22 Bus Services
+import busTimetablesRoutes from '../../routes/bus-timetables.routes';
+import busCommunicationsRoutes from '../../routes/bus-communications.routes';
+import busRoutesRoutes from '../../routes/bus-routes.routes';
+import busBookingsRoutes from '../../routes/bus-bookings.routes';
+import busRegularPassengersRoutes from '../../routes/bus-regular-passengers.routes';
+import busAnalyticsRoutes from '../../routes/bus-analytics.routes';
+import routeOptimizerRoutes from '../../routes/route-optimizer.routes';
+
+// Import routes - Cooperative & Financial Compliance
+import cooperativeRoutes from '../../routes/cooperative.routes';
+import dividendRoutes from '../../routes/dividend.routes';
+import dividendSchedulerRoutes from '../../routes/dividend-scheduler.routes';
+import profitDistributionRoutes from '../../routes/profit-distribution.routes';
+import financialSurplusRoutes from '../../routes/financial-surplus.routes';
+import surplusManagementRoutes from '../../routes/surplus-management.routes';
+import memberDividendsRoutes from '../../routes/member-dividends.routes';
+
 /**
  * Create Test Express App
  *
@@ -102,6 +135,39 @@ export function createTestApp(): Application {
 
   // Mount API routes - Documents
   app.use('/api', documentsRoutes);
+
+  // Mount API routes - HR & Payroll
+  app.use('/api', payrollRoutes);
+  app.use('/api', timesheetRoutes);
+  app.use('/api', officeStaffRoutes);
+  app.use('/api', driverSubmissionsRoutes);
+  app.use('/api', driverDashboardAdminRoutes);
+
+  // Mount API routes - Fleet Management
+  app.use('/api', fuelcardRoutes);
+  app.use('/api', serviceRegistrationsRoutes);
+
+  // Mount API routes - Business Intelligence
+  app.use('/api', capacityAlertsRoutes);
+  app.use('/api', providersRoutes);
+
+  // Mount API routes - Section 22 Bus Services
+  app.use('/api', busTimetablesRoutes);
+  app.use('/api', busCommunicationsRoutes);
+  app.use('/api', busRoutesRoutes);
+  app.use('/api', busBookingsRoutes);
+  app.use('/api', busRegularPassengersRoutes);
+  app.use('/api', busAnalyticsRoutes);
+  app.use('/api', routeOptimizerRoutes);
+
+  // Mount API routes - Cooperative & Financial Compliance
+  app.use('/api', cooperativeRoutes);
+  app.use('/api', dividendRoutes);
+  app.use('/api', dividendSchedulerRoutes);
+  app.use('/api', profitDistributionRoutes);
+  app.use('/api', financialSurplusRoutes);
+  app.use('/api', surplusManagementRoutes);
+  app.use('/api', memberDividendsRoutes);
 
   // Error handlers (must be last)
   app.use(notFoundHandler);

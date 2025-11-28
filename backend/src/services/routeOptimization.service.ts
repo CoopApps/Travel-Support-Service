@@ -583,6 +583,48 @@ export function optimizeWithCapacity(params: {
   return routes;
 }
 
+/**
+ * AI-Enhanced Route Optimization
+ * Uses 2-opt algorithm when AI is enabled, falls back to greedy otherwise
+ */
+export async function optimizeWithCapacityAI(params: {
+  trips: Array<{
+    trip_id: number;
+    passengers: number;
+    pickup_location: Location;
+    destination: Location;
+    pickup_time: string;
+  }>;
+  vehicleCapacity: number;
+  optimizationLevel?: 'quick' | 'standard' | 'thorough';
+}): Promise<{
+  routes: Array<{
+    route_id: number;
+    trips: number[];
+    total_passengers: number;
+    capacity_used: number;
+  }>;
+  method: 'ai' | 'fallback';
+  improvement?: number;
+  processingTimeMs: number;
+}> {
+  const { getRouteOptimizationAI } = await import('./ai/routeOptimization.ai.service');
+  const aiService = getRouteOptimizationAI();
+
+  const result = await aiService.execute({
+    trips: params.trips,
+    vehicleCapacity: params.vehicleCapacity,
+    optimizationLevel: params.optimizationLevel
+  });
+
+  return {
+    routes: result.data.routes,
+    method: result.method,
+    improvement: result.data.improvement,
+    processingTimeMs: result.processingTimeMs
+  };
+}
+
 export const routeOptimizationService = {
   geocodeAddress,
   calculateDistance,
@@ -592,5 +634,6 @@ export const routeOptimizationService = {
   calculateCompatibilityScore,
   batchOptimizeRoutes,
   checkCapacityConstraint,
-  optimizeWithCapacity
+  optimizeWithCapacity,
+  optimizeWithCapacityAI
 };

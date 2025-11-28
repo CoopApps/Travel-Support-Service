@@ -1,6 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 import { asyncHandler } from '../middleware/errorHandler';
+import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { query, queryOne } from '../config/database';
 import { NotFoundError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
@@ -21,6 +22,7 @@ const router: Router = express.Router();
  */
 router.get(
   '/tenants/:tenantId/users',
+  verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
 
@@ -55,6 +57,7 @@ router.get(
  */
 router.post(
   '/tenants/:tenantId/users',
+  verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
     const { username, email, password, fullName, phone, role } = req.body;
@@ -137,6 +140,7 @@ router.post(
  */
 router.put(
   '/tenants/:tenantId/users/:userId',
+  verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, userId } = req.params;
     const { email, fullName, phone, role, isActive } = req.body;
@@ -224,6 +228,7 @@ router.put(
  */
 router.delete(
   '/tenants/:tenantId/users/:userId',
+  verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, userId } = req.params;
     const { permanent } = req.query;
@@ -271,6 +276,7 @@ router.delete(
  */
 router.post(
   '/tenants/:tenantId/users/:userId/activate',
+  verifyTenantAccess,
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId, userId } = req.params;
 

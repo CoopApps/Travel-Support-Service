@@ -221,7 +221,7 @@ router.get(
           ELSE NULL
         END as days_until_expiry
       FROM tenant_documents d
-      LEFT JOIN users u ON d.uploaded_by = u.id
+      LEFT JOIN tenant_users u ON d.uploaded_by = u.user_id
       WHERE d.tenant_id = $1
         AND d.module = $2
         AND d.entity_id = $3
@@ -292,7 +292,7 @@ router.get(
           ELSE NULL
         END as days_until_expiry
       FROM tenant_documents d
-      LEFT JOIN users u ON d.uploaded_by = u.id
+      LEFT JOIN tenant_users u ON d.uploaded_by = u.user_id
       WHERE d.tenant_id = $1 AND d.is_active = true
     `;
 
@@ -539,7 +539,7 @@ router.get(
           ELSE NULL
         END as days_until_expiry
       FROM tenant_documents d
-      LEFT JOIN users u ON d.uploaded_by = u.id
+      LEFT JOIN tenant_users u ON d.uploaded_by = u.user_id
       WHERE d.tenant_id = $1
         AND d.entity_id = $2
         AND d.is_active = true
@@ -758,6 +758,20 @@ router.delete(
 
     logger.info('Deleting document', { tenantId, documentId, permanent });
 
+    // Log access BEFORE deletion (so document_id FK constraint is satisfied)
+    await query(`
+      INSERT INTO document_access_log (
+        document_id, tenant_id, user_id, action, ip_address, user_agent
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      documentId,
+      tenantId,
+      (req as any).user?.userId,
+      permanent === 'true' ? 'delete' : 'archive',
+      req.ip,
+      req.get('user-agent')
+    ]);
+
     if (permanent === 'true') {
       // Get document path before deletion
       const docResult = await query(`
@@ -793,20 +807,6 @@ router.delete(
         WHERE tenant_id = $1 AND document_id = $2
       `, [tenantId, documentId, (req as any).user?.userId]);
     }
-
-    // Log access
-    await query(`
-      INSERT INTO document_access_log (
-        document_id, tenant_id, user_id, action, ip_address, user_agent
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-    `, [
-      documentId,
-      tenantId,
-      (req as any).user?.userId,
-      permanent === 'true' ? 'delete' : 'archive',
-      req.ip,
-      req.get('user-agent')
-    ]);
 
     res.json({
       message: `Document ${permanent === 'true' ? 'deleted' : 'archived'} successfully`

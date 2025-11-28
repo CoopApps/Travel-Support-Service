@@ -106,6 +106,7 @@ import dividendSchedulerRoutes from './routes/dividend-scheduler.routes';
 import memberDividendsRoutes from './routes/member-dividends.routes';
 import driverRosteringRoutes from './routes/driver-rostering.routes';
 import gdprRoutes from './routes/gdpr.routes';
+import aiStatusRoutes from './routes/ai-status.routes';
 
 /**
  * Main Server File - Stage 4
@@ -335,6 +336,7 @@ app.use('/api', dividendSchedulerRoutes);
 app.use('/api', memberDividendsRoutes);
 app.use('/api', driverRosteringRoutes);
 app.use('/api', gdprRoutes);
+app.use('/api', aiStatusRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {

@@ -90,10 +90,10 @@ export async function createTestUser(
   const username = `testuser${timestamp}`;
 
   const result = await pool.query(
-    `INSERT INTO tenant_users (tenant_id, username, email, password_hash, role, full_name, is_active, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+    `INSERT INTO tenant_users (tenant_id, username, email, password_hash, role, full_name, first_name, last_name, is_active, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
      RETURNING user_id`,
-    [tenantId, username, email, hashedPassword, role, 'Test User', true]
+    [tenantId, username, email, hashedPassword, role, 'Test User', 'Test', 'User', true]
   );
 
   return {
@@ -112,14 +112,18 @@ export async function createTestCustomer(
   name: string = `Test Customer ${Date.now()}`
 ): Promise<number> {
   const pool = getTestPool();
+  const nameParts = name.split(' ');
+  const firstName = nameParts[0] || 'Test';
+  const lastName = nameParts.slice(1).join(' ') || 'Customer';
+
   const result = await pool.query(
     `INSERT INTO tenant_customers (
-      tenant_id, name, email, phone, address, postcode,
+      tenant_id, name, first_name, last_name, email, phone, address, postcode,
       mobility_requirements, is_active, archived, created_at, updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
     RETURNING customer_id`,
-    [tenantId, name, `${name.replace(/\s/g, '')}@test.local`, '1234567890', '123 Test St', 'TE1 1ST', 'None', true, false]
+    [tenantId, name, firstName, lastName, `${name.replace(/\s/g, '')}@test.local`, '1234567890', '123 Test St', 'TE1 1ST', 'None', true, false]
   );
   return result.rows[0].customer_id;
 }
@@ -132,16 +136,40 @@ export async function createTestDriver(
   name: string = `Test Driver ${Date.now()}`
 ): Promise<number> {
   const pool = getTestPool();
+  const nameParts = name.split(' ');
+  const firstName = nameParts[0] || 'Test';
+  const lastName = nameParts.slice(1).join(' ') || 'Driver';
+
   const result = await pool.query(
     `INSERT INTO tenant_drivers (
-      tenant_id, name, email, phone, license_number, license_expiry,
+      tenant_id, name, first_name, last_name, email, phone, license_number, license_expiry,
       employment_type, employment_status, is_active, archived, created_at, updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '1 year', $6, $7, $8, $9, NOW(), NOW())
+    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 year', $8, $9, $10, $11, NOW(), NOW())
     RETURNING driver_id`,
-    [tenantId, name, `${name.replace(/\s/g, '')}@test.local`, '07700900000', 'DL123456', 'contracted', 'active', true, false]
+    [tenantId, name, firstName, lastName, `${name.replace(/\s/g, '')}@test.local`, '07700900000', 'DL123456', 'contracted', 'active', true, false]
   );
   return result.rows[0].driver_id;
+}
+
+/**
+ * Create a test vehicle for a tenant
+ */
+export async function createTestVehicle(
+  tenantId: number,
+  registration: string = `TEST${Date.now()}`
+): Promise<number> {
+  const pool = getTestPool();
+  const result = await pool.query(
+    `INSERT INTO tenant_vehicles (
+      tenant_id, registration, make, model, year, color, capacity,
+      mot_date, insurance_expiry, is_active, is_basic_record, created_at, updated_at
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '6 months', NOW() + INTERVAL '6 months', $8, $9, NOW(), NOW())
+    RETURNING vehicle_id`,
+    [tenantId, registration, 'Test Make', 'Test Model', 2024, 'White', 4, true, false]
+  );
+  return result.rows[0].vehicle_id;
 }
 
 /**
@@ -180,6 +208,7 @@ export async function cleanupTestTenant(tenantId: number) {
   await pool.query('DELETE FROM tenant_trips WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_training_records WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_training_types WHERE tenant_id = $1', [tenantId]);
+  await pool.query('DELETE FROM tenant_financial_surplus WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_customers WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_drivers WHERE tenant_id = $1', [tenantId]);
   await pool.query('DELETE FROM tenant_users WHERE tenant_id = $1', [tenantId]);
