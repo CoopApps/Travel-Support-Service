@@ -32,7 +32,7 @@ import { apiRateLimiter, authRateLimiter as _authRateLimiter } from './middlewar
 import { httpLogger, requestIdMiddleware, slowRequestLogger } from './middleware/requestLogger';
 import { auditMiddleware } from './middleware/auditLogger';
 import { sanitizeMiddleware } from './utils/sanitize';
-import { csrfProtection, getCSRFTokenHandler } from './middleware/csrf';
+import { csrfProtection, getCSRFTokenHandler as _getCSRFTokenHandler } from './middleware/csrf';
 
 // Import Swagger documentation
 import { setupSwagger } from './config/swagger';

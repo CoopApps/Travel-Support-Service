@@ -199,7 +199,7 @@ export function dualModeAuth(
  */
 export function optionalCookieAuth(
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   const token = req.cookies[COOKIE_NAME];

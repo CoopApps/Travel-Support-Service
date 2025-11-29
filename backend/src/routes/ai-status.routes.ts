@@ -51,7 +51,7 @@ router.get(
     const budget = getAIBudgetStatus();
     const health = await checkAIServicesHealth();
 
-    res.json({
+    return res.json({
       status: 'success',
       data: {
         ...summary,
@@ -102,7 +102,7 @@ router.get(
       }
     };
 
-    res.json({
+    return res.json({
       status: 'success',
       data: sanitizedConfig
     });
@@ -125,7 +125,7 @@ router.get(
 
     const budget = getAIBudgetStatus();
 
-    res.json({
+    return res.json({
       status: 'success',
       data: {
         budget,
@@ -166,7 +166,7 @@ router.post(
 
     const newConfig = reloadAIConfig();
 
-    res.json({
+    return res.json({
       status: 'success',
       message: 'AI configuration reloaded',
       data: {
@@ -212,7 +212,7 @@ router.get(
       }
     }
 
-    res.json({
+    return res.json({
       status: 'success',
       data: overallHealth
     });

@@ -147,6 +147,20 @@ export async function queryOne<T = any>(text: string, params?: any[]): Promise<T
 }
 
 /**
+ * Execute a query and return the raw QueryResult object
+ * Use this when you need access to rowCount or other metadata
+ */
+export async function queryRaw(text: string, params?: any[]): Promise<{rows: any[], rowCount: number}> {
+  const client = await getDbClient();
+  try {
+    const result = await client.query(text, params);
+    return { rows: result.rows, rowCount: result.rowCount || 0 };
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * Test database connection
  */
 export async function testConnection(): Promise<boolean> {

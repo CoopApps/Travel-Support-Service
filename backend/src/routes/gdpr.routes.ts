@@ -258,7 +258,7 @@ router.get(
     successResponse(res, {
       logs: result,
       pagination: {
-        total: parseInt((countResult as any[])[0]?.total || '0'),
+        total: parseInt(countResult[0]?.total || '0'),
         limit,
         offset,
       },

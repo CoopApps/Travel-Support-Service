@@ -26,11 +26,10 @@ import { logger } from '../utils/logger';
 // Configuration
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // 128 bits
-const AUTH_TAG_LENGTH = 16; // 128 bits
-const KEY_LENGTH = 32; // 256 bits
 
 // Export constants for documentation/testing
-export { AUTH_TAG_LENGTH, KEY_LENGTH };
+export const AUTH_TAG_LENGTH = 16; // 128 bits
+export const KEY_LENGTH = 32; // 256 bits
 
 // Get encryption key from environment
 function getEncryptionKey(): Buffer {
