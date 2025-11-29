@@ -341,7 +341,7 @@ export async function sendInvoiceEmail(
       <div class="detail-row"><strong>Bill To:</strong> ${invoice.paying_organisation}</div>
     </div>
     <div class="amount-due">${formatCurrency(amountDue)}</div>
-    <p>📎 <strong>PDF Invoice Attached</strong></p>
+    <p><strong>[PDF] Invoice Attached</strong></p>
     <p>Please reference invoice number <strong>${invoice.invoice_number}</strong> with your payment.</p>
     <p>Thank you for your business!</p>
   </div>
@@ -447,7 +447,7 @@ export async function sendPasswordResetEmail(
 </head>
 <body>
   <div class="header">
-    <h1>🔒 Password Reset</h1>
+    <h1>Password Reset</h1>
   </div>
   <div class="content">
     <p>Hello ${recipientName},</p>
@@ -460,7 +460,7 @@ export async function sendPasswordResetEmail(
       <a href="${resetUrl}">${resetUrl}</a>
     </p>
     <div class="warning">
-      <strong>⚠️ Important:</strong>
+      <strong>IMPORTANT:</strong>
       <ul style="margin: 10px 0 0 0;">
         <li>This link will expire in <strong>1 hour</strong></li>
         <li>If you didn't request this, please ignore this email</li>
@@ -576,7 +576,7 @@ export async function sendWelcomeEmail(
 </head>
 <body>
   <div class="header">
-    <h1>🎉 Welcome!</h1>
+    <h1>Welcome!</h1>
     <p style="font-size: 18px; margin: 10px 0 0 0;">Your account is ready</p>
   </div>
   <div class="content">
@@ -584,7 +584,7 @@ export async function sendWelcomeEmail(
     <p>Welcome to <strong>${companyName}</strong>! Your travel support management system is now set up and ready to use.</p>
 
     <div class="info-box">
-      <h3 style="margin-top: 0;">🔗 Your Login Details</h3>
+      <h3 style="margin-top: 0;">→ Your Login Details</h3>
       <p><strong>Your unique URL:</strong><br>
       <a href="${loginUrl}">${loginUrl}</a></p>
       <p><strong>Email:</strong> ${recipientEmail}</p>
@@ -594,7 +594,7 @@ export async function sendWelcomeEmail(
       <a href="${loginUrl}" class="button">Access Your Dashboard</a>
     </p>
 
-    <h3>🚀 Getting Started</h3>
+    <h3>Getting Started</h3>
     <ol>
       <li>Log in using your email and the password you created</li>
       <li>Complete your company profile</li>

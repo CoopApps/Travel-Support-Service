@@ -339,7 +339,7 @@ export function generateSecondOverdueTemplate(data: InvoiceEmailData, companyNam
       <h2 style="color: #dc2626; margin-top: 0;">Second Overdue Notice</h2>
 
       <div class="alert">
-        <strong>⚠️ Urgent:</strong> This invoice is significantly overdue and requires immediate attention.
+        <strong>URGENT:</strong> This invoice is significantly overdue and requires immediate attention.
       </div>
 
       <p>Dear ${data.customerName},</p>
@@ -432,7 +432,7 @@ export function generateThirdOverdueTemplate(data: InvoiceEmailData, companyName
       <h2 style="color: #dc2626; margin-top: 0;">Third Overdue Notice</h2>
 
       <div class="alert urgent">
-        <strong>🚨 CRITICAL:</strong> This account is seriously overdue. Immediate action required to avoid escalation.
+        <strong>CRITICAL:</strong> This account is seriously overdue. Immediate action required to avoid escalation.
       </div>
 
       <p>Dear ${data.customerName},</p>
@@ -537,7 +537,7 @@ export function generateFinalWarningTemplate(data: InvoiceEmailData, companyName
       </h2>
 
       <div class="alert urgent">
-        <strong>🚨 FINAL WARNING:</strong> This is the last notice before this account is handed to collections and legal proceedings commence.
+        <strong>FINAL WARNING:</strong> This is the last notice before this account is handed to collections and legal proceedings commence.
       </div>
 
       <p>Dear ${data.customerName},</p>

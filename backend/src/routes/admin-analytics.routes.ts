@@ -585,39 +585,39 @@ function generateRecommendations(
 
   // Overall profitability
   if (netProfit < 0) {
-    recommendations.push(`⚠️ Fleet is operating at a loss. Total costs (£${totalCosts.toFixed(2)}) exceed revenue (£${totalRevenue.toFixed(2)}).`);
+    recommendations.push(`[WARNING] Fleet is operating at a loss. Total costs (£${totalCosts.toFixed(2)}) exceed revenue (£${totalRevenue.toFixed(2)}).`);
   } else {
     const profitMargin = ((netProfit / totalRevenue) * 100).toFixed(2);
     if (parseFloat(profitMargin) < 10) {
-      recommendations.push(`💡 Profit margin is low (${profitMargin}%). Consider optimizing costs or increasing trip prices.`);
+      recommendations.push(`[INFO] Profit margin is low (${profitMargin}%). Consider optimizing costs or increasing trip prices.`);
     }
   }
 
   // Wage costs
   const wagePercentage = (costBreakdown.wages / totalCosts) * 100;
   if (wagePercentage > 60) {
-    recommendations.push(`💰 Wage costs are ${wagePercentage.toFixed(1)}% of total costs. Review driver utilization to maximize productivity.`);
+    recommendations.push(`[COST] Wage costs are ${wagePercentage.toFixed(1)}% of total costs. Review driver utilization to maximize productivity.`);
   }
 
   // Fuel costs
   const fuelPercentage = (costBreakdown.fuel / totalCosts) * 100;
   if (fuelPercentage > 25) {
-    recommendations.push(`⛽ Fuel costs are ${fuelPercentage.toFixed(1)}% of total costs. Consider route optimization or fuel-efficient vehicles.`);
+    recommendations.push(`[FUEL] Fuel costs are ${fuelPercentage.toFixed(1)}% of total costs. Consider route optimization or fuel-efficient vehicles.`);
   }
 
   // Maintenance costs
   const maintenancePercentage = (costBreakdown.maintenance / totalCosts) * 100;
   if (maintenancePercentage > 15) {
-    recommendations.push(`🔧 Maintenance costs are ${maintenancePercentage.toFixed(1)}% of total costs. High maintenance may indicate aging fleet.`);
+    recommendations.push(`[MAINTENANCE] Maintenance costs are ${maintenancePercentage.toFixed(1)}% of total costs. High maintenance may indicate aging fleet.`);
   }
 
   // Incident costs
   if (costBreakdown.incidents > 5000) {
-    recommendations.push(`🚨 Incident costs are £${costBreakdown.incidents.toFixed(2)}. Review driver training and safety protocols.`);
+    recommendations.push(`[ALERT] Incident costs are £${costBreakdown.incidents.toFixed(2)}. Review driver training and safety protocols.`);
   }
 
   if (recommendations.length === 0) {
-    recommendations.push('✅ Fleet operations are performing well. Continue monitoring key metrics.');
+    recommendations.push('[SUCCESS] Fleet operations are performing well. Continue monitoring key metrics.');
   }
 
   return recommendations;
