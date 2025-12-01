@@ -36,7 +36,7 @@ router.get('/tenants/:tenantId/bus-analytics/overview', verifyTenantAccess, asyn
           COALESCE(SUM(fare_amount), 0) as total_revenue,
           COALESCE(AVG(fare_amount), 0) as average_fare,
           COUNT(DISTINCT timetable_id) as services_booked
-        FROM bus_bookings
+        FROM section22_bus_bookings
         WHERE tenant_id = $1
         AND service_date >= CURRENT_DATE - INTERVAL '${period} days'
         AND booking_status NOT IN ('cancelled', 'no_show')`,
@@ -53,8 +53,8 @@ router.get('/tenants/:tenantId/bus-analytics/overview', verifyTenantAccess, asyn
           SELECT
             t.timetable_id,
             (COUNT(b.booking_id)::DECIMAL / NULLIF(t.vehicle_capacity, 0) * 100) as occupancy_rate
-          FROM bus_timetables t
-          LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+          FROM section22_timetables t
+          LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
             AND b.booking_status NOT IN ('cancelled', 'no_show')
           WHERE t.tenant_id = $1
           AND t.service_date >= CURRENT_DATE - INTERVAL '${period} days'
@@ -71,10 +71,10 @@ router.get('/tenants/:tenantId/bus-analytics/overview', verifyTenantAccess, asyn
           COUNT(DISTINCT t.timetable_id) as services_count,
           COUNT(b.booking_id) as total_bookings,
           COALESCE(SUM(b.fare_amount), 0) as revenue
-        FROM bus_routes r
-        LEFT JOIN bus_timetables t ON r.route_id = t.route_id
+        FROM section22_bus_routes r
+        LEFT JOIN section22_timetables t ON r.route_id = t.route_id
           AND t.service_date >= CURRENT_DATE - INTERVAL '${period} days'
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
           AND b.booking_status NOT IN ('cancelled', 'no_show')
         WHERE r.tenant_id = $1
         GROUP BY r.route_id, r.route_name
@@ -143,10 +143,10 @@ router.get('/tenants/:tenantId/bus-analytics/route-profitability', verifyTenantA
           (COUNT(b.booking_id)::DECIMAL / NULLIF(
             SUM(CASE WHEN t.vehicle_capacity IS NOT NULL THEN t.vehicle_capacity ELSE 0 END), 0
           ) * 100) as overall_occupancy_rate
-        FROM bus_routes r
-        LEFT JOIN bus_timetables t ON r.route_id = t.route_id
+        FROM section22_bus_routes r
+        LEFT JOIN section22_timetables t ON r.route_id = t.route_id
           AND t.service_date >= CURRENT_DATE - INTERVAL '30 days'
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
           AND b.booking_status NOT IN ('cancelled', 'no_show')
         WHERE r.tenant_id = $1 AND r.status = 'active'
         GROUP BY r.route_id, r.route_name, r.distance_miles
@@ -217,8 +217,8 @@ router.get('/tenants/:tenantId/bus-analytics/demand-forecast', verifyTenantAcces
           TO_CHAR(service_date, 'Day') as day_name,
           COUNT(b.booking_id) as bookings,
           COALESCE(AVG(b.fare_amount), 0) as avg_fare
-        FROM bus_timetables t
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        FROM section22_timetables t
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
           AND b.booking_status NOT IN ('cancelled', 'no_show')
         WHERE t.tenant_id = $1
         AND t.service_date >= CURRENT_DATE - INTERVAL '60 days'
@@ -233,8 +233,8 @@ router.get('/tenants/:tenantId/bus-analytics/demand-forecast', verifyTenantAcces
           EXTRACT(HOUR FROM CAST(t.departure_time AS TIME)) as hour,
           COUNT(b.booking_id) as bookings,
           COALESCE(AVG(b.fare_amount), 0) as avg_fare
-        FROM bus_timetables t
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        FROM section22_timetables t
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
           AND b.booking_status NOT IN ('cancelled', 'no_show')
         WHERE t.tenant_id = $1
         AND t.service_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -249,8 +249,8 @@ router.get('/tenants/:tenantId/bus-analytics/demand-forecast', verifyTenantAcces
           DATE_TRUNC('week', service_date) as week_start,
           COUNT(b.booking_id) as bookings,
           COALESCE(SUM(b.fare_amount), 0) as revenue
-        FROM bus_timetables t
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        FROM section22_timetables t
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
           AND b.booking_status NOT IN ('cancelled', 'no_show')
         WHERE t.tenant_id = $1
         AND t.service_date >= CURRENT_DATE - INTERVAL '12 weeks'
@@ -309,7 +309,7 @@ router.get('/tenants/:tenantId/bus-analytics/passenger-demographics', verifyTena
           COUNT(*) as count,
           COALESCE(SUM(fare_amount), 0) as total_revenue,
           COALESCE(AVG(fare_amount), 0) as avg_fare
-        FROM bus_bookings
+        FROM section22_bus_bookings
         WHERE tenant_id = $1
         AND service_date >= CURRENT_DATE - INTERVAL '30 days'
         AND booking_status NOT IN ('cancelled', 'no_show')
@@ -335,7 +335,7 @@ router.get('/tenants/:tenantId/bus-analytics/passenger-demographics', verifyTena
             booking_id,
             fare_amount,
             EXTRACT(DAY FROM (service_date - created_at)) as booking_lead_days
-          FROM bus_bookings
+          FROM section22_bus_bookings
           WHERE tenant_id = $1
           AND service_date >= CURRENT_DATE - INTERVAL '60 days'
           AND booking_status NOT IN ('cancelled', 'no_show')
@@ -360,7 +360,7 @@ router.get('/tenants/:tenantId/bus-analytics/passenger-demographics', verifyTena
           COALESCE(SUM(fare_amount), 0) as total_spent,
           MIN(service_date) as first_booking,
           MAX(service_date) as last_booking
-        FROM bus_bookings
+        FROM section22_bus_bookings
         WHERE tenant_id = $1
         AND booking_status NOT IN ('cancelled', 'no_show')
         GROUP BY passenger_email
@@ -426,8 +426,8 @@ router.get('/tenants/:tenantId/bus-analytics/efficiency-metrics', verifyTenantAc
           (COALESCE(SUM(b.fare_amount), 0) / NULLIF(COUNT(b.booking_id), 0)) as revenue_per_booking,
           COUNT(b.booking_id) FILTER (WHERE b.booking_status = 'no_show') as no_shows,
           COUNT(b.booking_id) FILTER (WHERE b.booking_status = 'cancelled') as cancellations
-        FROM bus_timetables t
-        LEFT JOIN bus_bookings b ON t.timetable_id = b.timetable_id
+        FROM section22_timetables t
+        LEFT JOIN section22_bus_bookings b ON t.timetable_id = b.timetable_id
         WHERE t.tenant_id = $1
         AND t.service_date >= CURRENT_DATE - INTERVAL '30 days'`,
         [tenantId]
