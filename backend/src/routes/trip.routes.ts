@@ -1674,7 +1674,7 @@ router.get(
           tenantId,
           trip.trip_date,
           trip.pickup_time,
-          trip.destination.split(',')[0], // First part of destination (e.g., "Tesco" from "Tesco, Sheffield")
+          trip.destination ? trip.destination.split(',')[0] : '', // First part of destination (e.g., "Tesco" from "Tesco, Sheffield")
           trip.wheelchair_accessible
         ]
       );
