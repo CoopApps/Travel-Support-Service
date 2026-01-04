@@ -1,11 +1,13 @@
-/* Send Invoice Modal Styles */
+/**
+ * Send Invoice Modal - Design System 2026
+ */
 
 .send-invoice-modal {
   max-width: 500px;
   width: 100%;
 }
 
-.modal-overlay {
+.send-invoice-modal .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -15,165 +17,165 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal-backdrop);
 }
 
-.modal-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+.send-invoice-modal .modal-content {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
   max-height: 90vh;
   overflow-y: auto;
 }
 
-.modal-header {
+.send-invoice-modal .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--surface-border);
 }
 
-.modal-header h3 {
+.send-invoice-modal .modal-header h3 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #333;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
-.modal-close {
+.send-invoice-modal .modal-close {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
-  color: #666;
-  transition: color 0.2s;
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast) var(--ease-default);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.modal-close:hover {
-  color: #333;
+.send-invoice-modal .modal-close:hover {
+  color: var(--text-primary);
 }
 
-.modal-body {
-  padding: 1.5rem;
+.send-invoice-modal .modal-body {
+  padding: var(--space-6);
 }
 
-.modal-footer {
+.send-invoice-modal .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  border-top: 1px solid #e0e0e0;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-top: 1px solid var(--surface-border);
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.send-invoice-modal .form-group {
+  margin-bottom: var(--space-5);
 }
 
-.form-group label {
+.send-invoice-modal .form-group label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-size: 0.9375rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
 }
 
-.form-control {
+.send-invoice-modal .form-control {
   width: 100%;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
-  font-size: 0.9375rem;
-  transition: border-color 0.2s;
+  padding: var(--space-2-5) var(--space-3-5);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
-.form-control:focus {
+.send-invoice-modal .form-control:focus {
   outline: none;
-  border-color: #1976D2;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
 
-.form-text {
+.send-invoice-modal .form-text {
   display: block;
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  color: #666;
+  margin-top: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
-.error-message {
-  background: #FFEBEE;
-  border-left: 4px solid #D32F2F;
-  color: #C62828;
-  padding: 0.875rem;
-  border-radius: 4px;
-  margin-bottom: 1.5rem;
-  font-size: 0.9375rem;
+.send-invoice-modal .error-message {
+  background: var(--color-danger-50);
+  border-left: 4px solid var(--color-danger-600);
+  color: var(--color-danger-700);
+  padding: var(--space-3-5);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-5);
+  font-size: var(--font-size-base);
 }
 
-.info-box {
-  background: #E3F2FD;
-  border-left: 4px solid #1976D2;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-top: 1.5rem;
+.send-invoice-modal .info-box {
+  background: var(--color-brand-50);
+  border-left: 4px solid var(--color-brand-500);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-5);
 }
 
-.info-box p {
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-  color: #1565C0;
+.send-invoice-modal .info-box p {
+  margin: 0 0 var(--space-2) 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-700);
 }
 
-.info-box ul {
-  margin: 0.5rem 0 0 1.25rem;
+.send-invoice-modal .info-box ul {
+  margin: var(--space-2) 0 0 var(--space-5);
   padding: 0;
-  color: #333;
-  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
 }
 
-.info-box li {
-  margin-bottom: 0.375rem;
+.send-invoice-modal .info-box li {
+  margin-bottom: var(--space-1-5);
 }
 
-.btn {
-  padding: 0.625rem 1.25rem;
+.send-invoice-modal .btn {
+  padding: var(--space-2-5) var(--space-5);
   border: none;
-  border-radius: 6px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
-.btn-primary {
-  background: #1976D2;
+.send-invoice-modal .btn-primary {
+  background: var(--color-brand-500);
   color: white;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: #1565C0;
+.send-invoice-modal .btn-primary:hover:not(:disabled) {
+  background: var(--color-brand-600);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
-.btn-secondary {
-  background: #F5F5F5;
-  color: #333;
+.send-invoice-modal .btn-secondary {
+  background: var(--surface-section);
+  color: var(--text-primary);
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: #E0E0E0;
+.send-invoice-modal .btn-secondary:hover:not(:disabled) {
+  background: var(--color-gray-200);
 }
 
-.btn:disabled {
+.send-invoice-modal .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
