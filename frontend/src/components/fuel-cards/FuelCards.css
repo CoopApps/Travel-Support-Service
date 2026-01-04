@@ -1,4 +1,6 @@
-/* Fuel Cards Module Styles */
+/**
+ * Fuel Cards Module - Design System 2026
+ */
 
 .fuel-cards-container {
   padding: 0;
@@ -8,97 +10,140 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .fuel-cards-header-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 /* Fuel Cards Grid */
 .fuel-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 .fuel-card-item {
-  border: 1px solid var(--gray-200);
-  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  background: white;
+  background: var(--surface-card);
+  transition: all var(--transition-fast) var(--ease-default);
+}
+
+.fuel-card-item:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .fuel-card-header {
-  background: var(--gray-50);
-  padding: 1rem;
-  border-bottom: 1px solid var(--gray-200);
+  background: var(--surface-section);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--surface-border);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
 .fuel-card-status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fuel-card-status-badge.active {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.fuel-card-status-badge.inactive {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.fuel-card-status-badge.suspended {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
 }
 
 .fuel-card-body {
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 .fuel-card-info {
   display: grid;
-  gap: 0.5rem;
-  font-size: 14px;
-  margin-bottom: 1rem;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
 }
 
 .fuel-card-info-row {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
+}
+
+.fuel-card-info-row label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.fuel-card-info-row span {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .fuel-card-limit-bar {
   width: 100%;
   height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  margin-top: 5px;
+  background: var(--surface-border);
+  border-radius: var(--radius-full);
+  margin-top: var(--space-1);
   overflow: hidden;
 }
 
 .fuel-card-limit-bar-fill {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow) var(--ease-default);
+}
+
+.fuel-card-limit-bar-fill.low {
+  background: var(--color-success-500);
+}
+
+.fuel-card-limit-bar-fill.medium {
+  background: var(--color-warning-500);
+}
+
+.fuel-card-limit-bar-fill.high {
+  background: var(--color-danger-500);
 }
 
 .fuel-card-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 /* Empty State */
 .fuel-cards-empty-state {
   text-align: center;
-  padding: 3rem 1.5rem;
-  background: white;
-  border: 2px dashed var(--gray-300);
-  border-radius: 8px;
+  padding: var(--space-12) var(--space-6);
+  background: var(--surface-card);
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--radius-xl);
 }
 
 .fuel-cards-empty-icon {
   width: 80px;
   height: 80px;
-  background: #e9ecef;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
+  background: var(--surface-section);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,21 +152,36 @@
 .fuel-cards-empty-icon svg {
   width: 40px;
   height: 40px;
-  color: var(--gray-600);
+  color: var(--text-muted);
+}
+
+.fuel-cards-empty-state h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.fuel-cards-empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
 }
 
 /* Recent Transactions Section */
 .recent-transactions {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
+  background: var(--surface-card);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--surface-border);
 }
 
 .recent-transactions h3 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.25rem;
+  margin: 0 0 var(--space-6) 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .transactions-table-container {
@@ -134,96 +194,105 @@
 }
 
 .transactions-table thead {
-  background: var(--gray-50);
+  background: var(--surface-section);
 }
 
 .transactions-table th {
-  padding: 0.75rem;
+  padding: var(--space-3);
   text-align: left;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--gray-700);
-  border-bottom: 2px solid var(--gray-200);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--surface-border);
 }
 
 .transactions-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--gray-100);
-  font-size: 14px;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--surface-border);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.transactions-table tbody tr {
+  transition: background-color var(--transition-fast) var(--ease-default);
 }
 
 .transactions-table tbody tr:hover {
-  background: var(--gray-50);
+  background: var(--surface-hover);
 }
 
 /* Alerts Section */
 .fuel-alerts {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .fuel-alerts h4 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--space-4) 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .fuel-alerts-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .fuel-alert {
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
   border-left: 4px solid;
+  font-size: var(--font-size-sm);
 }
 
 .fuel-alert-danger {
-  background: #ffebee;
-  border-left-color: #dc3545;
-  color: #721c24;
+  background: var(--color-danger-50);
+  border-left-color: var(--color-danger-500);
+  color: var(--color-danger-800);
 }
 
 .fuel-alert-warning {
-  background: #fff3cd;
-  border-left-color: #ffc107;
-  color: #856404;
+  background: var(--color-warning-50);
+  border-left-color: var(--color-warning-500);
+  color: var(--color-warning-800);
 }
 
 .fuel-alert-info {
-  background: #e3f2fd;
-  border-left-color: #2196f3;
-  color: #0c5460;
+  background: var(--color-brand-50);
+  border-left-color: var(--color-brand-500);
+  color: var(--color-brand-800);
 }
 
 /* Modal Specific Styles */
 .fuel-card-form-section {
-  background: var(--gray-50);
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
+  background: var(--surface-section);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
 }
 
 .fuel-card-form-section h4 {
-  color: #007bff;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
+  color: var(--color-brand-600);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
 }
 
 .transaction-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .transaction-form-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 /* Loading State */
@@ -231,6 +300,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 3rem;
-  color: var(--gray-600);
+  padding: var(--space-12);
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fuel-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fuel-cards-header {
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+
+  .fuel-cards-header-buttons {
+    flex-direction: column;
+  }
+
+  .transaction-form-grid,
+  .transaction-form-grid-3 {
+    grid-template-columns: 1fr;
+  }
 }

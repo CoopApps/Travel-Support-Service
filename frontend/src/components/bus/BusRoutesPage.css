@@ -1,11 +1,15 @@
+/**
+ * Bus Routes Page - Design System 2026
+ */
+
 .bus-routes-page {
-  padding: 20px;
+  padding: var(--space-5);
 }
 
 /* Main Layout with Sidebar */
 .routes-layout {
   display: flex;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .routes-main {
@@ -18,66 +22,66 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--space-5);
   flex-wrap: wrap;
 }
 
 .toolbar-left h1 {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 /* Filter Pills */
 .filter-pills {
   display: flex;
-  gap: 6px;
+  gap: var(--space-1-5);
 }
 
 .filter-pill {
-  background: white;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary, #6b7280);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-1-5) var(--space-3-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .filter-pill:hover {
-  border-color: var(--primary-color, #3b82f6);
-  color: var(--primary-color, #3b82f6);
+  border-color: var(--color-brand-500);
+  color: var(--color-brand-600);
 }
 
 .filter-pill.active {
-  background: var(--primary-color, #3b82f6);
-  border-color: var(--primary-color, #3b82f6);
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-500);
   color: white;
 }
 
 .pill-count {
   background: rgba(0, 0, 0, 0.1);
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-size: 11px;
-  margin-left: 4px;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  margin-left: var(--space-1);
 }
 
 .filter-pill.active .pill-count {
@@ -86,269 +90,234 @@
 
 /* Search Input */
 .search-input {
-  padding: 8px 14px;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 6px;
-  font-size: 13px;
+  padding: var(--space-2) var(--space-3-5);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
   width: 200px;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary-color, #3b82f6);
-}
-
-/* Primary Button */
-.btn-primary {
-  background: var(--primary-color, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: var(--primary-color-dark, #2563eb);
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
 }
 
 /* Routes Grid - Compact Cards */
 .routes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
 }
 
 /* Route Card - Compact */
 .route-card {
-  background: white;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 8px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .route-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: var(--primary-color, #3b82f6);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-brand-500);
 }
 
-.card-header {
+.route-card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: var(--background-secondary, #f9fafb);
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .route-badge {
-  background: var(--primary-color, #3b82f6);
+  background: var(--color-brand-500);
   color: white;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-sm);
 }
 
-.card-body {
-  padding: 12px;
+.route-card .card-body {
+  padding: var(--space-3);
 }
 
 .route-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
-  margin: 0 0 8px 0;
-  line-height: 1.3;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: var(--line-height-snug);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-5);
   flex-wrap: wrap;
 }
 
 .type-tag {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: #f3e8ff;
-  color: #7c3aed;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
+  font-weight: var(--font-weight-semibold);
 }
 
 .route-journey {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-secondary, #6b7280);
+  gap: var(--space-1-5);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .route-journey .origin {
-  color: #10b981;
-  font-weight: 500;
+  color: var(--color-success-600);
+  font-weight: var(--font-weight-medium);
 }
 
 .route-journey .arrow {
-  color: var(--text-secondary, #9ca3af);
+  color: var(--text-muted);
 }
 
 .route-journey .dest {
-  color: #ef4444;
-  font-weight: 500;
+  color: var(--color-danger-500);
+  font-weight: var(--font-weight-medium);
 }
 
-.card-footer {
+.route-card .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: var(--background-secondary, #f9fafb);
-  border-top: 1px solid var(--border-color, #e5e7eb);
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--surface-section);
+  border-top: 1px solid var(--surface-border);
 }
 
 .route-stats {
   display: flex;
-  gap: 10px;
+  gap: var(--space-2-5);
 }
 
 .route-stats .stat {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--text-secondary, #6b7280);
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .stat-icon {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
 
 .card-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .action-btn {
-  width: 26px;
-  height: 26px;
-  border: 1px solid var(--border-color, #e5e7eb);
-  background: white;
-  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: all 0.2s ease;
+  font-size: var(--font-size-xs);
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .action-btn:hover {
-  background: var(--primary-color, #3b82f6);
-  border-color: var(--primary-color, #3b82f6);
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-500);
   color: white;
 }
 
 .action-btn.danger:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--color-danger-500);
+  border-color: var(--color-danger-500);
 }
 
 /* Status Badges */
-.status-badge {
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
+.bus-routes-page .status-badge {
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: capitalize;
 }
 
 .status-active {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
 .status-planning {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
 }
 
 .status-registered {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
 .status-suspended {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-100);
+  color: var(--color-warning-700);
 }
 
 .status-cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
 }
 
 /* Proposals Sidebar */
 .proposals-sidebar {
-  width: 280px;
+  width: 300px;
   flex-shrink: 0;
-  background: white;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 8px;
-  padding: 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   height: fit-content;
   position: sticky;
-  top: 20px;
+  top: var(--space-5);
 }
 
-.sidebar-header {
+.proposals-sidebar .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
-.sidebar-header h2 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
+.proposals-sidebar .sidebar-header h2 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .proposal-count {
-  background: var(--primary-color, #3b82f6);
+  background: var(--color-brand-500);
   color: white;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-full);
 }
 
 .sidebar-actions {
-  margin-bottom: 16px;
-}
-
-.btn-secondary {
-  background: white;
-  color: var(--primary-color, #3b82f6);
-  border: 1px solid var(--primary-color, #3b82f6);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-}
-
-.btn-secondary:hover {
-  background: var(--primary-color, #3b82f6);
-  color: white;
+  margin-bottom: var(--space-4);
 }
 
 .btn-block {
@@ -358,111 +327,111 @@
 
 .sidebar-empty {
   text-align: center;
-  padding: 24px 16px;
-  color: var(--text-secondary, #6b7280);
-  font-size: 13px;
+  padding: var(--space-6) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .proposals-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2-5);
 }
 
 /* Proposal Card */
 .proposal-card {
-  padding: 12px;
-  border-radius: 6px;
-  border-left: 3px solid var(--border-color, #e5e7eb);
-  background: var(--background-secondary, #f9fafb);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--surface-border);
+  background: var(--surface-section);
 }
 
 .proposal-card.proposal-ready {
-  border-left-color: #10b981;
-  background: #f0fdf4;
+  border-left-color: var(--color-success-500);
+  background: var(--color-success-50);
 }
 
 .proposal-card.proposal-viable {
-  border-left-color: #3b82f6;
-  background: #eff6ff;
+  border-left-color: var(--color-brand-500);
+  background: var(--color-brand-50);
 }
 
 .proposal-card.proposal-open {
-  border-left-color: #f59e0b;
-  background: #fffbeb;
+  border-left-color: var(--color-warning-500);
+  background: var(--color-warning-50);
 }
 
 .proposal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-5);
 }
 
 .proposal-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
-  line-height: 1.3;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-snug);
 }
 
 .proposal-badge {
-  font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
 }
 
 .proposal-badge.ready {
-  background: #10b981;
+  background: var(--color-success-500);
   color: white;
 }
 
 .proposal-journey {
-  font-size: 11px;
-  color: var(--text-secondary, #6b7280);
-  margin-bottom: 8px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
 }
 
 .proposal-stats {
   display: flex;
-  gap: 12px;
-  font-size: 11px;
-  color: var(--text-secondary, #6b7280);
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
 }
 
 .proposal-stats strong {
-  color: var(--text-primary, #111827);
+  color: var(--text-primary);
 }
 
 .proposal-progress {
   height: 4px;
   background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .proposal-progress .progress-bar {
   height: 100%;
-  background: var(--primary-color, #3b82f6);
-  border-radius: 2px;
-  transition: width 0.3s ease;
+  background: var(--color-brand-500);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow) var(--ease-default);
 }
 
 .proposal-card.proposal-ready .proposal-progress .progress-bar {
-  background: #10b981;
+  background: var(--color-success-500);
 }
 
 .sidebar-more {
-  margin-top: 12px;
+  margin-top: var(--space-3);
   text-align: center;
 }
 
 .sidebar-more a {
-  color: var(--primary-color, #3b82f6);
-  font-size: 12px;
+  color: var(--color-brand-600);
+  font-size: var(--font-size-xs);
   text-decoration: none;
 }
 
@@ -471,35 +440,35 @@
 }
 
 /* Empty State */
-.empty-state {
+.bus-routes-page .empty-state {
   text-align: center;
-  padding: 48px 24px;
-  background: white;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 8px;
+  padding: var(--space-12) var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: var(--font-size-5xl);
+  margin-bottom: var(--space-4);
 }
 
-.empty-state h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
-  margin: 0 0 8px 0;
+.bus-routes-page .empty-state h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
 }
 
-.empty-state p {
-  font-size: 14px;
-  color: var(--text-secondary, #6b7280);
-  margin: 0 0 20px 0;
+.bus-routes-page .empty-state p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-5) 0;
 }
 
 /* Loading and Error States */
-.loading-state,
-.error-state {
+.bus-routes-page .loading-state,
+.bus-routes-page .error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -508,30 +477,24 @@
   text-align: center;
 }
 
-.spinner {
+.bus-routes-page .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--border-color, #e5e7eb);
-  border-top-color: var(--primary-color, #3b82f6);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border: 3px solid var(--surface-border);
+  border-top-color: var(--color-brand-500);
+  border-radius: var(--radius-full);
+  animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.bus-routes-page .error-state h2 {
+  font-size: var(--font-size-xl);
+  color: var(--color-danger-600);
+  margin-bottom: var(--space-2);
 }
 
-.error-state h2 {
-  font-size: 18px;
-  color: #dc2626;
-  margin-bottom: 8px;
-}
-
-.error-state p {
-  color: var(--text-secondary, #6b7280);
-  font-size: 14px;
+.bus-routes-page .error-state p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 /* Responsive */
@@ -548,7 +511,7 @@
 
 @media (max-width: 768px) {
   .bus-routes-page {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .routes-toolbar {
@@ -567,10 +530,6 @@
   }
 
   .search-input {
-    width: 100%;
-  }
-
-  .btn-primary {
     width: 100%;
   }
 
