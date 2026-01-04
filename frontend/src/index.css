@@ -1804,3 +1804,305 @@ select {
     border: 1px solid #ddd;
   }
 }
+
+/* ============================================================================
+   9. ACCESSIBILITY UTILITIES
+   ============================================================================ */
+
+/**
+ * Screen Reader Only - Visually hidden but accessible to screen readers
+ * Use for providing context to assistive technologies
+ */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/**
+ * Screen Reader Only - Focusable variant
+ * Becomes visible when focused (useful for skip links)
+ */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: var(--space-3) var(--space-4) !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/**
+ * Skip Link - Allows keyboard users to skip navigation
+ * Should be the first focusable element on the page
+ */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: var(--z-tooltip);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-brand-600);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  transition: top var(--transition-fast) var(--ease-default);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+  outline: 2px solid var(--color-brand-300);
+  outline-offset: 2px;
+}
+
+/**
+ * Focus Visible Styles - Enhanced focus indicators for keyboard navigation
+ * These provide clear visual feedback for keyboard users
+ */
+
+/* Global focus-visible styling for all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Remove default focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Enhanced focus states for buttons */
+.btn:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(59 130 246 / 0.25);
+}
+
+/* Enhanced focus states for form inputs */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+}
+
+/* Enhanced focus states for links */
+a:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Enhanced focus states for checkboxes and radios */
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Focus ring utility class */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(59 130 246 / 0.25);
+}
+
+/* Focus within for composite components */
+.focus-within:focus-within {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/**
+ * Reduced Motion - Respects user's motion preferences
+ * Disables animations for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/**
+ * High Contrast Mode Support
+ * Provides enhanced contrast for users with visual impairments
+ */
+@media (prefers-contrast: high) {
+  :root {
+    --surface-border: var(--color-gray-900);
+    --text-secondary: var(--color-gray-800);
+    --text-muted: var(--color-gray-700);
+  }
+
+  .btn {
+    border: 2px solid currentColor;
+  }
+
+  .card {
+    border: 2px solid var(--surface-border);
+  }
+
+  input,
+  select,
+  textarea {
+    border: 2px solid var(--surface-border);
+  }
+}
+
+/**
+ * Forced Colors Mode (Windows High Contrast)
+ * Ensures proper display in Windows High Contrast mode
+ */
+@media (forced-colors: active) {
+  .btn {
+    border: 2px solid ButtonText;
+  }
+
+  .btn:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  input,
+  select,
+  textarea {
+    border: 2px solid ButtonText;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 3px solid Highlight;
+  }
+
+  .card {
+    border: 2px solid CanvasText;
+  }
+
+  /* Ensure disabled states are visually distinct */
+  .btn:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    border-style: dashed;
+    opacity: 1;
+  }
+}
+
+/**
+ * ARIA Live Region Styles
+ * For dynamic content announcements
+ */
+[aria-live] {
+  position: relative;
+}
+
+.aria-live-polite {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/**
+ * Interactive Element States
+ * Clear visual feedback for interactive elements
+ */
+
+/* Disabled state - cursor and visual feedback */
+[disabled],
+.disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Loading state indicator */
+[aria-busy="true"] {
+  cursor: progress !important;
+}
+
+/* Expanded/collapsed state for accordions and dropdowns */
+[aria-expanded="true"] > .expand-indicator {
+  transform: rotate(180deg);
+}
+
+[aria-expanded="false"] > .expand-indicator {
+  transform: rotate(0deg);
+}
+
+/* Selected state for selectable items */
+[aria-selected="true"] {
+  background: var(--color-brand-50);
+  border-color: var(--color-brand-500);
+}
+
+/* Current page indicator for navigation */
+[aria-current="page"] {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-600);
+}
+
+/* Invalid form field state */
+[aria-invalid="true"] {
+  border-color: var(--color-danger-500) !important;
+}
+
+[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.15);
+}
+
+/**
+ * Touch Target Size
+ * Ensures minimum 44x44px touch targets for mobile accessibility
+ */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/**
+ * Text Selection
+ * Improved selection colors for better visibility
+ */
+::selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-900);
+}
+
+::-moz-selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-900);
+}

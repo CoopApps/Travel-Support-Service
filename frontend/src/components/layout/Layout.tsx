@@ -13,6 +13,12 @@ import './Layout.css';
  *
  * Provides consistent layout with navigation and header.
  * Dark slate sidebar with blue accents, professional SaaS aesthetic.
+ *
+ * Accessibility features:
+ * - Skip link for keyboard navigation
+ * - ARIA landmarks for screen readers
+ * - aria-current for active navigation state
+ * - Keyboard navigable menu items
  */
 
 function Layout() {
@@ -60,11 +66,16 @@ function Layout() {
 
   return (
     <div className="layout-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
+      {/* Skip Link - Allows keyboard users to skip navigation */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
+      {/* Sidebar Navigation */}
+      <aside className="sidebar" role="complementary" aria-label="Sidebar navigation">
         <div className="sidebar-header">
           <div className="logo">
-            <div className="logo-icon">
+            <div className="logo-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
@@ -76,49 +87,57 @@ function Layout() {
           </div>
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Main navigation">
           <div className="nav-section">
-            <div className="nav-section-label">{activeService === 'bus' ? 'Bus Operations' : 'Core Operations'}</div>
-            {/* Dashboard is service-aware - same route for both */}
-            <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+            <div className="nav-section-label" id="nav-section-core">
+              {activeService === 'bus' ? 'Bus Operations' : 'Core Operations'}
+            </div>
+            <div role="list" aria-labelledby="nav-section-core">
+              {/* Dashboard is service-aware - same route for both */}
+              <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
 
-            {activeService === 'bus' && (
-              /* Bus-specific modules */
-              <>
-                <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
-                <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
-                <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
-              </>
-            )}
+              {activeService === 'bus' && (
+                /* Bus-specific modules */
+                <>
+                  <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
+                  <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
+                  <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
+                </>
+              )}
+            </div>
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Compliance & Safety</div>
-            <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
-            <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
-            <NavItem to="/safeguarding" label="Safeguarding" icon="shield" active={location.pathname === '/safeguarding'} />
-            <NavItem to="/documents" label="Documents" icon="file" active={location.pathname === '/documents'} />
+            <div className="nav-section-label" id="nav-section-compliance">Compliance & Safety</div>
+            <div role="list" aria-labelledby="nav-section-compliance">
+              <NavItem to="/training" label="Training" icon="training" active={location.pathname === '/training'} />
+              <NavItem to="/permits" label="Permits" icon="permits" active={location.pathname === '/permits'} />
+              <NavItem to="/safeguarding" label="Safeguarding" icon="shield" active={location.pathname === '/safeguarding'} />
+              <NavItem to="/documents" label="Documents" icon="file" active={location.pathname === '/documents'} />
+            </div>
           </div>
 
           <div className="nav-section">
-            <div className="nav-section-label">Operations</div>
-            <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
-            <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
-            <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
-            <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
-            {activeService === 'bus' && (
-              <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname.startsWith('/bus/cooperative')} />
-            )}
-            {activeService === 'transport' && (
-              <NavItem to="/operations/route-optimization" label="Analytics" icon="chart" active={location.pathname.startsWith('/operations/')} />
-            )}
-            <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
+            <div className="nav-section-label" id="nav-section-operations">Operations</div>
+            <div role="list" aria-labelledby="nav-section-operations">
+              <NavItem to="/fuel-cards" label="Fuel Cards" icon="fuel" active={location.pathname === '/fuel-cards'} />
+              <NavItem to="/payroll" label="Payroll" icon="money" active={location.pathname === '/payroll'} />
+              <NavItem to="/admin" label="Company Admin" icon="cog" active={location.pathname === '/admin'} />
+              <NavItem to="/feedback" label="Feedback" icon="feedback" active={location.pathname === '/feedback'} />
+              {activeService === 'bus' && (
+                <NavItem to="/bus/cooperative" label="Co-operative" icon="piggy-bank" active={location.pathname.startsWith('/bus/cooperative')} />
+              )}
+              {activeService === 'transport' && (
+                <NavItem to="/operations/route-optimization" label="Analytics" icon="chart" active={location.pathname.startsWith('/operations/')} />
+              )}
+              <NavItem to="/admin/settings" label="Settings" icon="settings" active={location.pathname === '/admin/settings'} />
+            </div>
           </div>
         </nav>
 
         <div className="sidebar-footer">
-          <div className="nav-item">
-            <div className="nav-icon">
+          <a href="/help" className="nav-item" aria-label="Help and Support">
+            <div className="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
@@ -126,23 +145,23 @@ function Layout() {
               </svg>
             </div>
             <span>Help & Support</span>
-          </div>
+          </a>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="main-content">
         {/* Header */}
-        <header className="top-header">
+        <header className="top-header" role="banner">
           <div className="header-left">
             {/* Quick Access Buttons */}
-            <nav style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+            <nav aria-label="Quick access navigation" style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
               <Link
                 to="/schedules"
                 className={`quick-nav-btn ${location.pathname === '/schedules' ? 'active' : ''}`}
-                title="Schedules"
+                aria-current={location.pathname === '/schedules' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
@@ -154,9 +173,9 @@ function Layout() {
               <Link
                 to={activeService === 'bus' ? '/bus/customers' : '/customers'}
                 className={`quick-nav-btn ${location.pathname === '/customers' || location.pathname === '/bus/customers' ? 'active' : ''}`}
-                title={activeService === 'bus' ? 'Bus Customers' : 'Customers'}
+                aria-current={location.pathname === '/customers' || location.pathname === '/bus/customers' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
@@ -167,9 +186,9 @@ function Layout() {
               <Link
                 to="/drivers"
                 className={`quick-nav-btn ${location.pathname === '/drivers' ? 'active' : ''}`}
-                title="Drivers"
+                aria-current={location.pathname === '/drivers' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
@@ -179,9 +198,9 @@ function Layout() {
               <Link
                 to="/vehicles"
                 className={`quick-nav-btn ${location.pathname === '/vehicles' ? 'active' : ''}`}
-                title="Vehicles"
+                aria-current={location.pathname === '/vehicles' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="1" y="3" width="15" height="13" rx="2" />
                   <path d="M16 8h3l3 6v4h-6" />
                   <circle cx="5.5" cy="18.5" r="2.5" />
@@ -193,9 +212,9 @@ function Layout() {
               <Link
                 to="/roster"
                 className={`quick-nav-btn ${location.pathname === '/roster' ? 'active' : ''}`}
-                title="Driver Roster"
+                aria-current={location.pathname === '/roster' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   <circle cx="8.5" cy="7" r="4" />
                   <path d="M17 11l2 2 4-4" />
@@ -203,47 +222,49 @@ function Layout() {
                 <span>Roster</span>
               </Link>
 
-              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
+              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} aria-hidden="true" />
 
               <Link
                 to="/driver-messages"
                 className={`quick-nav-btn ${location.pathname === '/driver-messages' ? 'active' : ''}`}
-                title="Driver Messages"
+                aria-current={location.pathname === '/driver-messages' ? 'page' : undefined}
                 style={{ position: 'relative' }}
+                aria-label={`Driver Messages${driverMessageCount > 0 ? `, ${driverMessageCount} unread` : ''}`}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
                 <span>Drivers</span>
                 {driverMessageCount > 0 && (
-                  <span className="message-badge">{driverMessageCount > 99 ? '99+' : driverMessageCount}</span>
+                  <span className="message-badge" aria-hidden="true">{driverMessageCount > 99 ? '99+' : driverMessageCount}</span>
                 )}
               </Link>
 
               <Link
                 to="/customer-messages"
                 className={`quick-nav-btn ${location.pathname === '/customer-messages' ? 'active' : ''}`}
-                title="Customer Messages"
+                aria-current={location.pathname === '/customer-messages' ? 'page' : undefined}
                 style={{ position: 'relative' }}
+                aria-label={`Customer Messages${customerMessageCount > 0 ? `, ${customerMessageCount} unread` : ''}`}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>Customers</span>
                 {customerMessageCount > 0 && (
-                  <span className="message-badge">{customerMessageCount > 99 ? '99+' : customerMessageCount}</span>
+                  <span className="message-badge" aria-hidden="true">{customerMessageCount > 99 ? '99+' : customerMessageCount}</span>
                 )}
               </Link>
 
-              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} />
+              <div style={{ width: '1px', height: '24px', background: 'var(--gray-300)', margin: '0 0.5rem' }} aria-hidden="true" />
 
               <Link
                 to="/invoices"
                 className={`quick-nav-btn ${location.pathname === '/invoices' ? 'active' : ''}`}
-                title="Invoices"
+                aria-current={location.pathname === '/invoices' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                   <line x1="16" y1="13" x2="8" y2="13" />
@@ -256,9 +277,9 @@ function Layout() {
               <Link
                 to="/social-outings"
                 className={`quick-nav-btn ${location.pathname === '/social-outings' ? 'active' : ''}`}
-                title="Outings"
+                aria-current={location.pathname === '/social-outings' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -270,9 +291,9 @@ function Layout() {
               <Link
                 to="/providers"
                 className={`quick-nav-btn ${location.pathname === '/providers' ? 'active' : ''}`}
-                title="Providers"
+                aria-current={location.pathname === '/providers' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
                   <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                 </svg>
@@ -282,9 +303,9 @@ function Layout() {
               <Link
                 to="/holidays"
                 className={`quick-nav-btn ${location.pathname === '/holidays' ? 'active' : ''}`}
-                title="Holidays"
+                aria-current={location.pathname === '/holidays' ? 'page' : undefined}
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <circle cx="12" cy="12" r="5" />
                   <line x1="12" y1="1" x2="12" y2="3" />
                   <line x1="12" y1="21" x2="12" y2="23" />
@@ -308,7 +329,7 @@ function Layout() {
         </header>
 
         {/* Page Content */}
-        <main className="page-content">
+        <main id="main-content" className="page-content" role="main" tabIndex={-1}>
           <Outlet />
         </main>
       </div>
@@ -359,8 +380,8 @@ function NavItem({ to, label, icon, active, disabled }: NavItemProps) {
 
   if (disabled) {
     return (
-      <div className={className}>
-        <div className="nav-icon">
+      <div className={className} role="listitem" aria-disabled="true">
+        <div className="nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d={iconPaths[icon as keyof typeof iconPaths]} />
           </svg>
@@ -371,8 +392,13 @@ function NavItem({ to, label, icon, active, disabled }: NavItemProps) {
   }
 
   return (
-    <Link to={to} className={className}>
-      <div className="nav-icon">
+    <Link
+      to={to}
+      className={className}
+      role="listitem"
+      aria-current={active ? 'page' : undefined}
+    >
+      <div className="nav-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path d={iconPaths[icon as keyof typeof iconPaths]} />
         </svg>
