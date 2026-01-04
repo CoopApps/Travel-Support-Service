@@ -607,11 +607,7 @@ function DashboardPage() {
             </button>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '0.75rem'
-          }}>
+          <div className="dashboard-financial-row">
             {/* Total Revenue */}
             <div style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -696,7 +692,7 @@ function DashboardPage() {
 
       {/* Main Two Column Layout */}
       {dashboard && (
-        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '16px', marginBottom: '16px' }}>
+        <div className="dashboard-main-grid">
 
           {/* ========== LEFT COLUMN: Alerts, Today's Data ========== */}
           <div>
@@ -814,13 +810,13 @@ function DashboardPage() {
           <div>
             {/* Financial Summary - Compact */}
             <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
+              <h3 className="dashboard-section-title">
                 Financial Summary
                 <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 400, marginLeft: '4px', display: 'block' }}>
                   {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'short' })}
                 </span>
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
+              <div className="dashboard-mini-grid" style={{ marginBottom: '12px' }}>
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', marginBottom: '4px' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -878,8 +874,8 @@ function DashboardPage() {
 
             {/* Driver Compliance - Compact */}
             <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>Driver Compliance</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+              <h3 className="dashboard-section-title">Driver Compliance</h3>
+              <div className="dashboard-mini-grid">
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', marginBottom: '4px' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -940,8 +936,8 @@ function DashboardPage() {
             {/* Fleet Utilization - Compact */}
             {dashboard.fleet && (
               <div style={{ marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>Fleet Utilization</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                <h3 className="dashboard-section-title">Fleet Utilization</h3>
+                <div className="dashboard-mini-grid">
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
                     <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', marginBottom: '4px' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -203,6 +203,32 @@
   overflow-x: auto;
   flex: 1;
   padding-right: var(--space-4);
+  min-width: 0;
+  /* Custom scrollbar for nav */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+  -webkit-overflow-scrolling: touch;
+  /* Fade effect on right edge */
+  mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+}
+
+.header-left::-webkit-scrollbar {
+  height: 4px;
+}
+
+.header-left::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.header-left::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: var(--radius-full);
+}
+
+.header-left:hover {
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 
 .header-right {
