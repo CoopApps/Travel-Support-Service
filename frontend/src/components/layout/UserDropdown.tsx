@@ -47,8 +47,7 @@ function UserDropdown() {
         label: 'My Profile',
         action: () => {
           setIsOpen(false);
-          // TODO: Navigate to profile page
-          console.log('Navigate to profile');
+          navigate('/profile');
         },
       },
       {
@@ -56,8 +55,7 @@ function UserDropdown() {
         label: 'System Settings',
         action: () => {
           setIsOpen(false);
-          // TODO: Navigate to settings page
-          console.log('Navigate to settings');
+          navigate('/settings');
         },
       },
       {
@@ -65,8 +63,7 @@ function UserDropdown() {
         label: 'User Management',
         action: () => {
           setIsOpen(false);
-          // TODO: Navigate to user management page
-          console.log('Navigate to user management');
+          navigate('/admin/users');
         },
       },
       {
@@ -74,8 +71,7 @@ function UserDropdown() {
         label: 'Audit Logs',
         action: () => {
           setIsOpen(false);
-          // TODO: Navigate to audit logs page
-          console.log('Navigate to audit logs');
+          navigate('/admin/audit-logs');
         },
       },
       {

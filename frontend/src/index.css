@@ -158,6 +158,43 @@ html {
   --color-orange-900: #7c2d12;
 
   /* -------------------------------------------------------------------------
+     SHORT ALIAS VARIABLES (Backward Compatibility)
+     These map shorthand variable names to the full design system tokens.
+     Prefer using the full --color-* names in new code.
+     ------------------------------------------------------------------------- */
+  /* Primary/Brand */
+  --primary: var(--color-brand-500);
+  --primary-dark: var(--color-brand-600);
+  --primary-light: var(--color-brand-400);
+  --primary-hover: var(--color-brand-600);
+
+  /* Semantic Colors */
+  --success: var(--color-success-500);
+  --success-dark: var(--color-success-600);
+  --success-light: var(--color-success-400);
+  --warning: var(--color-warning-500);
+  --warning-dark: var(--color-warning-600);
+  --warning-light: var(--color-warning-400);
+  --danger: var(--color-danger-500);
+  --danger-dark: var(--color-danger-600);
+  --danger-light: var(--color-danger-400);
+  --info: var(--color-info-500);
+
+  /* Gray Scale Aliases */
+  --gray-25: var(--color-gray-25);
+  --gray-50: var(--color-gray-50);
+  --gray-100: var(--color-gray-100);
+  --gray-200: var(--color-gray-200);
+  --gray-300: var(--color-gray-300);
+  --gray-400: var(--color-gray-400);
+  --gray-500: var(--color-gray-500);
+  --gray-600: var(--color-gray-600);
+  --gray-700: var(--color-gray-700);
+  --gray-800: var(--color-gray-800);
+  --gray-900: var(--color-gray-900);
+  --gray-950: var(--color-gray-950);
+
+  /* -------------------------------------------------------------------------
      TYPOGRAPHY
      ------------------------------------------------------------------------- */
   --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
@@ -221,6 +258,19 @@ html {
   --space-16: 4rem;        /* 64px */
   --space-20: 5rem;        /* 80px */
   --space-24: 6rem;        /* 96px */
+
+  /* -------------------------------------------------------------------------
+     ICON SIZES
+     ------------------------------------------------------------------------- */
+  --icon-xs: 0.875rem;     /* 14px */
+  --icon-sm: 1rem;         /* 16px */
+  --icon-base: 1.125rem;   /* 18px */
+  --icon-md: 1.25rem;      /* 20px */
+  --icon-lg: 1.5rem;       /* 24px */
+  --icon-xl: 2rem;         /* 32px */
+  --icon-2xl: 2.5rem;      /* 40px */
+  --icon-3xl: 3rem;        /* 48px */
+  --icon-4xl: 4rem;        /* 64px */
 
   /* -------------------------------------------------------------------------
      BORDER RADIUS

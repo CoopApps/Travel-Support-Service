@@ -24,7 +24,6 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
 
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: any) => {
-      console.log('[PWA] Install prompt available');
       e.preventDefault();
       setDeferredPrompt(e);
       setShowPrompt(true);
@@ -32,7 +31,6 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
 
     // Listen for app installed event
     const handleAppInstalled = () => {
-      console.log('[PWA] App installed successfully');
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
@@ -50,7 +48,6 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      console.log('[PWA] No install prompt available');
       return;
     }
 
@@ -58,14 +55,7 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
     deferredPrompt.prompt();
 
     // Wait for the user's response
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`[PWA] User response: ${outcome}`);
-
-    if (outcome === 'accepted') {
-      console.log('[PWA] User accepted the install prompt');
-    } else {
-      console.log('[PWA] User dismissed the install prompt');
-    }
+    await deferredPrompt.userChoice;
 
     // Clear the deferred prompt
     setDeferredPrompt(null);
@@ -170,6 +160,12 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'var(--primary)';
               }}
+              onFocus={(e) => {
+                e.currentTarget.style.background = 'var(--primary-dark)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.background = 'var(--primary)';
+              }}
             >
               Install
             </button>
@@ -192,6 +188,12 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';
               }}
+              onFocus={(e) => {
+                e.currentTarget.style.background = 'var(--gray-100)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
             >
               Later
             </button>
@@ -201,6 +203,7 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
         {/* Close button */}
         <button
           onClick={handleDismiss}
+          aria-label="Dismiss install prompt"
           style={{
             width: '24px',
             height: '24px',
@@ -218,6 +221,12 @@ function PWAInstallPrompt({ onInstall }: PWAInstallPromptProps) {
             e.currentTarget.style.color = 'var(--gray-900)';
           }}
           onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--gray-500)';
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.color = 'var(--gray-900)';
+          }}
+          onBlur={(e) => {
             e.currentTarget.style.color = 'var(--gray-500)';
           }}
         >

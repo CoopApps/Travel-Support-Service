@@ -26,19 +26,11 @@ export function ServiceToggleCompact() {
   }, []);
 
   const handleToggle = (newService: ServiceType) => {
-    console.log('🔄 Service toggle clicked:', {
-      newService,
-      currentService: activeService,
-      willSwitch: newService !== activeService
-    });
-
     if (newService === activeService) {
-      console.log('⚠️ Same service clicked, just closing dropdown');
       setIsOpen(false);
       return;
     }
 
-    console.log('✅ Switching service to:', newService);
     setActiveService(newService);
     navigate('/dashboard');
     setIsOpen(false);
@@ -78,6 +70,8 @@ export function ServiceToggleCompact() {
           <div className="notification-dropdown-content" style={{ padding: 0 }}>
             <button
               onClick={() => handleToggle('transport')}
+              aria-label="Switch to Community Transport service"
+              aria-pressed={activeService === 'transport'}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -96,6 +90,16 @@ export function ServiceToggleCompact() {
                 }
               }}
               onMouseLeave={(e) => {
+                if (activeService !== 'transport') {
+                  e.currentTarget.style.background = 'white';
+                }
+              }}
+              onFocus={(e) => {
+                if (activeService !== 'transport') {
+                  e.currentTarget.style.background = 'var(--gray-50)';
+                }
+              }}
+              onBlur={(e) => {
                 if (activeService !== 'transport') {
                   e.currentTarget.style.background = 'white';
                 }
@@ -125,6 +129,8 @@ export function ServiceToggleCompact() {
 
             <button
               onClick={() => handleToggle('bus')}
+              aria-label="Switch to Community Bus service"
+              aria-pressed={activeService === 'bus'}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -142,6 +148,16 @@ export function ServiceToggleCompact() {
                 }
               }}
               onMouseLeave={(e) => {
+                if (activeService !== 'bus') {
+                  e.currentTarget.style.background = 'white';
+                }
+              }}
+              onFocus={(e) => {
+                if (activeService !== 'bus') {
+                  e.currentTarget.style.background = 'var(--gray-50)';
+                }
+              }}
+              onBlur={(e) => {
                 if (activeService !== 'bus') {
                   e.currentTarget.style.background = 'white';
                 }
