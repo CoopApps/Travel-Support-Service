@@ -80,7 +80,6 @@ function IncidentFormModal({ incident, vehicles, drivers, onClose }: IncidentFor
 
       onClose(true);
     } catch (err: any) {
-      console.error('Error saving incident:', err);
       setError(err.response?.data?.message || err.response?.data?.error || 'Failed to save incident');
     } finally {
       setSaving(false);

@@ -80,7 +80,6 @@ export default function ServiceCancellationModal({
 
       onCancelled();
     } catch (err: any) {
-      console.error('Failed to cancel service:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to cancel service'));
     } finally {
       setCancelling(false);

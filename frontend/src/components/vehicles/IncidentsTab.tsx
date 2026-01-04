@@ -78,8 +78,8 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
 
       setIncidents(incidentsData.incidents || incidentsData);
       setStats(statsData);
-    } catch (err) {
-      console.error('Error fetching incidents:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

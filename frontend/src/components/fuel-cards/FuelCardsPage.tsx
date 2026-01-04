@@ -60,8 +60,8 @@ const FuelCardsPage: React.FC = () => {
       setLoading(true);
       const cards = await getFuelCardsWithFilter(tenantId!, archivedFilter);
       setFuelCards(cards);
-    } catch (error) {
-      console.error('Error loading fuel cards:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -71,8 +71,8 @@ const FuelCardsPage: React.FC = () => {
     try {
       const stats = await getFuelStatistics(tenantId!);
       setStatsData(stats);
-    } catch (error) {
-      console.error('Error loading statistics:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -99,7 +99,6 @@ const FuelCardsPage: React.FC = () => {
       await loadFuelCards();
       await loadStatistics();
     } catch (error) {
-      console.error('Error saving fuel card:', error);
       throw error;
     }
   };
@@ -112,8 +111,8 @@ const FuelCardsPage: React.FC = () => {
         await updateFuelCard(tenantId!, cardId, { status: newStatus });
         await loadFuelCards();
       }
-    } catch (error) {
-      console.error('Error toggling card status:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -130,7 +129,6 @@ const FuelCardsPage: React.FC = () => {
       await loadFuelCards();
       await loadStatistics();
     } catch (error) {
-      console.error('Error saving fuel transaction:', error);
       throw error;
     }
   };
@@ -156,7 +154,6 @@ const FuelCardsPage: React.FC = () => {
         setShowArchiveModal(false);
         setArchivingCard(null);
       } catch (error) {
-        console.error('Error archiving fuel card:', error);
         throw error;
       }
     }
@@ -167,8 +164,8 @@ const FuelCardsPage: React.FC = () => {
       await unarchiveFuelCard(tenantId!, cardId);
       await loadFuelCards();
       await loadStatistics();
-    } catch (error) {
-      console.error('Error unarchiving fuel card:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

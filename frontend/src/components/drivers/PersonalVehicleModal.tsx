@@ -75,7 +75,6 @@ function PersonalVehicleModal({ driver, onClose }: PersonalVehicleModalProps) {
       await vehicleApi.createVehicle(tenantId, vehicleData);
       onClose(true);
     } catch (err: any) {
-      console.error('Error creating personal vehicle:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to create personal vehicle'));
     } finally {
       setLoading(false);

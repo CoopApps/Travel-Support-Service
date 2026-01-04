@@ -44,8 +44,8 @@ function PassengerClassPage() {
       setClasses(classesData);
       setStandardDefs(standardDefsData);
       setOrgPermits(permitsData.section19); // Only Section 19 permits use passenger classes
-    } catch (error) {
-      console.error('Error fetching passenger classes:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -61,8 +61,8 @@ function PassengerClassPage() {
         await passengerClassApi.activateClass(tenantId, classId);
       }
       await fetchData();
-    } catch (error) {
-      console.error('Error toggling class status:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

@@ -47,8 +47,8 @@ function Layout() {
         const customerMessages = customerResponse.data.messages || [];
         const unreadCustomerCount = customerMessages.filter((m: any) => !m.read_at).length;
         setCustomerMessageCount(unreadCustomerCount);
-      } catch (err) {
-        console.error('Failed to fetch message counts:', err);
+      } catch {
+        // Error handled silently
       }
     };
 

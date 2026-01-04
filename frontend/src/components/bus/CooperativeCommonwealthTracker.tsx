@@ -64,7 +64,6 @@ export default function CooperativeCommonwealthTracker() {
         setRecentContributions(data.recentContributions || []);
         setStats(data.stats);
       } catch (err: any) {
-        console.error('Error fetching commonwealth fund:', err);
         setError(err.message);
       } finally {
         setLoading(false);

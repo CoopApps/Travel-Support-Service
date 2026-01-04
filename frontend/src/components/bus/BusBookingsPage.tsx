@@ -66,7 +66,6 @@ export default function BusBookingsPage() {
         setBookings(filter === 'today' ? todaysData : upcomingData);
         setTimetables(timetablesData);
       } catch (err: any) {
-        console.error('Failed to load bookings:', err);
         setError(err.message || 'Failed to load bookings');
       } finally {
         setLoading(false);
@@ -174,7 +173,6 @@ export default function BusBookingsPage() {
       const data = await response.json();
       setFareQuote(data.fareQuote);
     } catch (err: any) {
-      console.error('Error calculating fare:', err);
       toast.error('Failed to calculate fare');
     } finally {
       setCalculatingFare(false);
@@ -245,7 +243,6 @@ export default function BusBookingsPage() {
 
       toast.success('Booking created successfully');
     } catch (err: any) {
-      console.error('Error creating booking:', err);
       toast.error(err.message || 'Failed to create booking');
     } finally {
       setSubmitting(false);

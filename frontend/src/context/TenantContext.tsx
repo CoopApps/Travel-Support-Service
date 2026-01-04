@@ -59,7 +59,6 @@ export function TenantProvider({ children }: TenantProviderProps) {
 
       setTenant(response.data);
     } catch (err: any) {
-      console.error('Error fetching tenant:', err);
       setError(err.response?.data?.error?.message || 'Failed to load tenant');
     } finally {
       setLoading(false);

@@ -23,8 +23,8 @@ const ReconciliationDashboard: React.FC = () => {
         end_date: endDate || undefined,
       });
       setData(result);
-    } catch (error) {
-      console.error('Error loading reconciliation data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

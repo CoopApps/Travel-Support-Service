@@ -40,7 +40,6 @@ function DriverLogin() {
       // Navigate to driver dashboard
       navigate('/driver/dashboard');
     } catch (err: any) {
-      console.error('Login error:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Invalid username or password'));
     } finally {
       setLoading(false);

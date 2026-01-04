@@ -47,8 +47,8 @@ function SafeguardingPage() {
       setLoading(true);
       const data = await safeguardingApi.getReports(tenantId);
       setReports(data.reports || []);
-    } catch (err) {
-      console.error('Error fetching safeguarding reports:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -176,7 +176,6 @@ function SafeguardingPage() {
       });
       fetchReports();
     } catch (err) {
-      console.error('Error archiving report:', err);
       alert('Failed to archive report. Please try again.');
     }
   };

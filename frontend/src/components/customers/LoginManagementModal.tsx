@@ -57,8 +57,8 @@ function LoginManagementModal({ customer, tenantId, onClose }: LoginManagementMo
           const details = await customerApi.getLoginDetails(tenantId, customer.id);
           setLoginDetails(details);
           setNewUsername(details.username || '');
-        } catch (err) {
-          console.error('Error loading login details:', err);
+        } catch {
+          // Error handled silently
         } finally {
           setLoadingDetails(false);
         }
@@ -165,7 +165,6 @@ function LoginManagementModal({ customer, tenantId, onClose }: LoginManagementMo
       setLoginHistory(response.history || []);
       setShowHistory(true);
     } catch (err) {
-      console.error('Error loading login history:', err);
       setError('Failed to load login history');
     } finally {
       setLoadingHistory(false);

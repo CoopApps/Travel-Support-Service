@@ -63,8 +63,8 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
     try {
       const result = await driverApi.getDrivers(tenantId);
       setDrivers(result.filter((d: any) => d.is_active));
-    } catch (err) {
-      console.error('Error fetching drivers:', err);
+    } catch {
+      // Error handled silently
     }
   };
 

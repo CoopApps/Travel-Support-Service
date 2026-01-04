@@ -45,7 +45,6 @@ function EfficiencyReport({ startDate, endDate }: EfficiencyReportProps) {
 
       setReport(response);
     } catch (err: any) {
-      console.error('Failed to fetch efficiency report:', err);
       setError(err.response?.data?.message || 'Failed to load efficiency report');
     } finally {
       setLoading(false);

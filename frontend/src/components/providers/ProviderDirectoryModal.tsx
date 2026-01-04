@@ -80,8 +80,7 @@ function ProviderDirectoryModal({
 
       onRefresh();
       onClose();
-    } catch (error) {
-      console.error('Error saving provider:', error);
+    } catch {
       alert('Failed to save provider');
     } finally {
       setLoading(false);

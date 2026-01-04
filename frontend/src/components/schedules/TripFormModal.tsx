@@ -173,9 +173,8 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
           setConflicts([]);
           setShowConflictWarning(false);
         }
-      } catch (err) {
-        console.error('Error checking conflicts:', err);
-        // Don't block form submission on conflict check errors
+      } catch {
+        // Error handled silently - don't block form submission on conflict check errors
       } finally {
         setCheckingConflicts(false);
       }
@@ -208,8 +207,8 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
         });
 
         setDriverSuggestions(response.recommendations || []);
-      } catch (err: any) {
-        console.error('Failed to fetch driver suggestions:', err);
+      } catch {
+        // Error handled silently
         setDriverSuggestions([]);
       } finally {
         setLoadingSuggestions(false);
@@ -241,8 +240,8 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
             const data = await response.json();
             setReminderHistory(data.history || []);
           }
-        } catch (err) {
-          console.error('Failed to load reminder history:', err);
+        } catch {
+          // Error handled silently
         }
       }
     };
@@ -437,7 +436,6 @@ function TripFormModal({ trip, tenantId, customers, drivers, serverTime, onClose
 
       onClose(true); // Close and refresh
     } catch (err: any) {
-      console.error('Error saving trip:', err);
       const errorMessage = err.response?.data?.error
         || err.response?.data?.message
         || err.message

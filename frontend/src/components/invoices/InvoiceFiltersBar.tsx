@@ -23,8 +23,8 @@ export const InvoiceFiltersBar: React.FC<Props> = ({ filters, onFilterChange, te
     try {
       const data = await invoiceApi.getPaymentProviders(tenantId);
       setProviders(data);
-    } catch (err) {
-      console.error('Failed to load providers:', err);
+    } catch {
+      // Error handled silently
     }
   };
 

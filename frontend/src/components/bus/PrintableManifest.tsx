@@ -62,7 +62,6 @@ export default function PrintableManifest({
       setPassengers(passengersData);
       setRosterEntry(rosterData.length > 0 ? rosterData[0] : null);
     } catch (err: any) {
-      console.error('Failed to load manifest data:', err);
       setError(err.message || 'Failed to load manifest');
     } finally {
       setLoading(false);

@@ -188,7 +188,6 @@ function TenantFormModal({ tenant, onClose }: TenantFormModalProps) {
 
       onClose(true);
     } catch (err: any) {
-      console.error('Error saving tenant:', err);
       setError(err.response?.data?.error?.message || 'Failed to save tenant');
     } finally {
       setLoading(false);

@@ -59,8 +59,8 @@ export const InvoicesPage: React.FC = () => {
     try {
       const data = await invoiceApi.getStats(tenantId);
       setStats(data);
-    } catch (err: any) {
-      console.error('Failed to fetch invoice stats:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -83,7 +83,6 @@ export const InvoicesPage: React.FC = () => {
       setInvoices(data);
       setFilteredInvoices(data);
     } catch (err: any) {
-      console.error('Failed to fetch invoices:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load invoices'));
     } finally {
       setLoading(false);

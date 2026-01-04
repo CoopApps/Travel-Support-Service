@@ -75,7 +75,6 @@ function PassengerRecommendations({
 
       setRecommendations(response.recommendations || []);
     } catch (err: any) {
-      console.error('Failed to fetch recommendations:', err);
       setError(err.response?.data?.message || 'Failed to load recommendations');
     } finally {
       setLoading(false);

@@ -62,8 +62,8 @@ function AssessmentModal({ customer, tenantId, onClose }: AssessmentModalProps) 
         if (response.assessment) {
           setAssessment(response.assessment);
         }
-      } catch (err: any) {
-        console.error('Error loading assessment:', err);
+      } catch {
+        // Error handled silently
       } finally {
         setLoadingData(false);
       }

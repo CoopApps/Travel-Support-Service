@@ -102,7 +102,6 @@ function CustomerListPage() {
       setTotal(response.total);
       setTotalPages(response.totalPages);
     } catch (err: any) {
-      console.error('Error fetching customers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load customers');
       toast.error(err.response?.data?.error?.message || 'Failed to load customers');
     } finally {

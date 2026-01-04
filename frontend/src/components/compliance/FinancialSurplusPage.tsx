@@ -40,8 +40,8 @@ function FinancialSurplusPage() {
 
       setSurplusRecords(recordsData);
       setSummary(summaryData);
-    } catch (error) {
-      console.error('Error fetching financial surplus data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -61,8 +61,8 @@ function FinancialSurplusPage() {
         review_notes: reviewNotes || undefined,
       });
       await fetchData();
-    } catch (error) {
-      console.error('Error reviewing surplus record:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

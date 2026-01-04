@@ -62,7 +62,6 @@ function DriverAssignmentModal({ outing, onClose }: DriverAssignmentModalProps) 
       const driversWithVehicles = driversData.drivers || driversData;
       setDrivers(driversWithVehicles);
     } catch (err) {
-      console.error('Error fetching data:', err);
       setError('Failed to load driver assignments');
     } finally {
       setLoading(false);
@@ -90,9 +89,8 @@ function DriverAssignmentModal({ outing, onClose }: DriverAssignmentModalProps) 
         outing.departure_time
       );
       setAvailabilityCheck(availability);
-    } catch (err) {
-      console.error('Error checking availability:', err);
-      setAvailabilityCheck(null);
+    } catch {
+      // Error handled silently
     } finally {
       setCheckingAvailability(false);
     }
@@ -118,7 +116,6 @@ function DriverAssignmentModal({ outing, onClose }: DriverAssignmentModalProps) 
       // Refresh data
       fetchData();
     } catch (err: any) {
-      console.error('Error assigning driver:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to assign driver'));
     } finally {
       setSubmitting(false);

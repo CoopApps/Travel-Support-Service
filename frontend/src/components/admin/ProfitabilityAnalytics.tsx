@@ -56,7 +56,6 @@ const ProfitabilityAnalytics: React.FC = () => {
         setDashboardData(data);
       }
     } catch (err: any) {
-      console.error('Error loading profitability data:', err);
       if (err.response?.status === 404) {
         setError('Profitability analytics endpoints are not yet available. The backend implementation is pending.');
       } else {

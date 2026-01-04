@@ -153,7 +153,6 @@ function DriverListPage() {
       setTotal(response.total || 0);
       setTotalPages(response.totalPages || 0);
     } catch (err: any) {
-      console.error('Error fetching drivers:', err);
       setError(err.response?.data?.error?.message || 'Failed to load drivers');
     } finally {
       setLoading(false);

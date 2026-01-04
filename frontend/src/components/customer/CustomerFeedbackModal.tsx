@@ -38,8 +38,8 @@ function CustomerFeedbackModal({ isOpen, onClose, onSubmitted }: CustomerFeedbac
       setLoadingFeedback(true);
       const data = await feedbackApi.getCustomerFeedback(tenantId!, customerId);
       setMyFeedback(data || []);
-    } catch (err) {
-      console.error('Error loading feedback:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoadingFeedback(false);
     }
@@ -85,7 +85,6 @@ function CustomerFeedbackModal({ isOpen, onClose, onSubmitted }: CustomerFeedbac
         setSuccess(false);
       }, 3000);
     } catch (err: any) {
-      console.error('Error submitting feedback:', err);
       setError(err.response?.data?.message || err.response?.data?.error || 'Failed to submit feedback');
     } finally {
       setSubmitting(false);

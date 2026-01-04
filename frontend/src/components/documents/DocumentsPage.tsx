@@ -24,8 +24,8 @@ export function DocumentsPage() {
     try {
       const statsData = await documentApi.getDocumentStats(tenantId);
       setStats(statsData);
-    } catch (error) {
-      console.error('Error fetching document stats:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -48,8 +48,8 @@ export function DocumentsPage() {
 
       const data = await documentApi.getAllDocuments(tenantId, params);
       setDocuments(data);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,6 @@ export function DocumentsPage() {
         documentApi.triggerDownload(blob, doc.original_filename);
       }
     } catch (error) {
-      console.error('Error downloading document:', error);
       alert('Failed to download document');
     }
   };
@@ -91,7 +90,6 @@ export function DocumentsPage() {
       fetchStats();
       alert('Document archived successfully');
     } catch (error) {
-      console.error('Error deleting document:', error);
       alert('Failed to archive document');
     }
   };

@@ -37,8 +37,8 @@ const MeetingManagement: React.FC<MeetingManagementProps> = ({ tenantId }) => {
         meeting_type: filterType || undefined,
       });
       setMeetings(data);
-    } catch (error) {
-      console.error('Error loading meetings:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,6 @@ const MeetingManagement: React.FC<MeetingManagementProps> = ({ tenantId }) => {
       handleCloseModal();
       loadMeetings();
     } catch (error) {
-      console.error('Error saving meeting:', error);
       alert('Failed to save meeting');
     }
   };
@@ -117,7 +116,6 @@ const MeetingManagement: React.FC<MeetingManagementProps> = ({ tenantId }) => {
       await cooperativeApi.deleteMeeting(tenantId, meetingId);
       loadMeetings();
     } catch (error) {
-      console.error('Error deleting meeting:', error);
       alert('Failed to delete meeting');
     }
   };

@@ -42,7 +42,6 @@ function isTokenExpired(token: string): boolean {
     // Check if token has expired (exp is in seconds, Date.now() is in milliseconds)
     return payload.exp * 1000 < Date.now();
   } catch (err) {
-    console.error('Failed to decode token:', err);
     return true; // If we can't decode it, consider it expired
   }
 }
@@ -61,7 +60,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (storedToken && storedUser) {
       // Check if token is expired
       if (isTokenExpired(storedToken)) {
-        console.log('Token expired on load, clearing localStorage');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setLoading(false);
@@ -74,7 +72,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Set default authorization header for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
       } catch (err) {
-        console.error('Failed to parse stored user:', err);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
@@ -105,7 +102,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Set default authorization header for future requests
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     } catch (err: any) {
-      console.error('Login error:', err);
       const errorMessage = err.response?.data?.error || 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -132,7 +128,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const checkTokenExpiration = () => {
       const storedToken = localStorage.getItem('token');
       if (storedToken && isTokenExpired(storedToken)) {
-        console.log('Token expired during session, logging out');
         logout();
       }
     };
@@ -171,7 +166,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout();
       }
     } catch (err) {
-      console.error('Token verification failed:', err);
       logout();
     } finally {
       setLoading(false);

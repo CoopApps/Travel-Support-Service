@@ -24,8 +24,8 @@ export function ServiceToggle() {
 
       // Navigate to dashboard (now service-aware)
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Failed to switch service:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setIsToggling(false);
     }

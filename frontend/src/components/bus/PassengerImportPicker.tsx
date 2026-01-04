@@ -44,8 +44,8 @@ export default function PassengerImportPicker({ isOpen, onClose, onImport }: Pas
       const response = await customerApi.getCustomers(tenant.tenant_id, { limit: 500 });
       const customerList = Array.isArray(response) ? response : response.customers || [];
       setPassengers(customerList);
-    } catch (err) {
-      console.error('Failed to load passengers:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

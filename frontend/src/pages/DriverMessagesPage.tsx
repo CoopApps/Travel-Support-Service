@@ -94,7 +94,6 @@ function DriverMessagesPage() {
       const response = await apiClient.get(`/tenants/${tenantId}/drivers`);
       setDrivers(response.data.drivers || []);
     } catch (err: any) {
-      console.error('Error loading drivers:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load drivers';
       setError(errorMessage);
     } finally {
@@ -114,8 +113,8 @@ function DriverMessagesPage() {
       );
 
       setMessages(driverMessages);
-    } catch (err: any) {
-      console.error('Error loading messages:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoadingMessages(false);
     }
@@ -146,7 +145,6 @@ function DriverMessagesPage() {
         setAllMessages(messages);
       }
     } catch (err: any) {
-      console.error('Error loading all messages:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load messages';
       setError(errorMessage);
     } finally {
@@ -224,7 +222,6 @@ function DriverMessagesPage() {
         loadMessagesForDriver(selectedDriver.driver_id);
       }
     } catch (err: any) {
-      console.error('Error sending message:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to send message';
       setError(errorMessage);
     } finally {
@@ -243,7 +240,6 @@ function DriverMessagesPage() {
         loadMessagesForDriver(selectedDriver.driver_id);
       }
     } catch (err: any) {
-      console.error('Error deleting message:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to delete message';
       alert(errorMessage);
     }

@@ -44,8 +44,8 @@ function ComplianceAlertsPage() {
 
       setAlerts(alertsData);
       setSummary(summaryData);
-    } catch (error) {
-      console.error('Error fetching compliance alerts:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -58,8 +58,8 @@ function ComplianceAlertsPage() {
       setGenerating(true);
       await complianceAlertsApi.generateAlerts(tenantId);
       await fetchData();
-    } catch (error) {
-      console.error('Error generating alerts:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setGenerating(false);
     }
@@ -71,8 +71,8 @@ function ComplianceAlertsPage() {
     try {
       await complianceAlertsApi.acknowledgeAlert(tenantId, alertId, {});
       await fetchData();
-    } catch (error) {
-      console.error('Error acknowledging alert:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -82,8 +82,8 @@ function ComplianceAlertsPage() {
     try {
       await complianceAlertsApi.resolveAlert(tenantId, alertId, { resolution_notes: notes });
       await fetchData();
-    } catch (error) {
-      console.error('Error resolving alert:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -95,8 +95,8 @@ function ComplianceAlertsPage() {
     try {
       await complianceAlertsApi.dismissAlert(tenantId, alertId, {});
       await fetchData();
-    } catch (error) {
-      console.error('Error dismissing alert:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

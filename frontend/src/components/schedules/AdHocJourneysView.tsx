@@ -75,8 +75,8 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
       setTrips(tripsData.trips || []);
       setCustomers(customersData.customers || []);
       setDrivers(driversData.drivers || []);
-    } catch (err) {
-      console.error('Error fetching ad-hoc journeys:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -106,8 +106,8 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
         const data = await response.json();
         setOptimizationScores(data.scores || []);
       }
-    } catch (err) {
-      console.error('Error fetching optimization scores:', err);
+    } catch {
+      // Error handled silently
     }
   };
 

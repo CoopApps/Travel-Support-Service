@@ -37,8 +37,8 @@ const MembershipManagement: React.FC<MembershipManagementProps> = ({ tenantId })
       });
       setMembers(data);
       setStats(statsData);
-    } catch (error) {
-      console.error('Error loading membership:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,6 @@ const MembershipManagement: React.FC<MembershipManagementProps> = ({ tenantId })
       handleCloseModal();
       loadMembership();
     } catch (error) {
-      console.error('Error saving member:', error);
       alert('Failed to save member');
     }
   };
@@ -111,7 +110,6 @@ const MembershipManagement: React.FC<MembershipManagementProps> = ({ tenantId })
       await cooperativeApi.removeMember(tenantId, membershipId);
       loadMembership();
     } catch (error) {
-      console.error('Error removing member:', error);
       alert('Failed to remove member');
     }
   };

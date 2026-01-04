@@ -17,8 +17,8 @@ const BudgetDashboard: React.FC = () => {
       setLoading(true);
       const result = await getFuelSpendingAnalysis(tenantId!);
       setData(result);
-    } catch (error) {
-      console.error('Error loading spending analysis:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

@@ -66,7 +66,6 @@ const VehicleFinancialSummary: React.FC<VehicleFinancialSummaryProps> = ({
       const data = await vehicleApi.getVehicleFinancialSummary(tenantId, vehicleId);
       setFinancialData(data);
     } catch (err: any) {
-      console.error('Error loading financial data:', err);
       setError(err.message || 'Failed to load financial data');
     } finally {
       setLoading(false);

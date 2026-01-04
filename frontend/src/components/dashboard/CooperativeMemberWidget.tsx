@@ -49,8 +49,8 @@ const CooperativeMemberWidget: React.FC<CooperativeMemberWidgetProps> = ({ tenan
       setActiveProposals(proposalsData.proposals || []);
       setMyDistributions(distributionsData.distributions || []);
       setMyVotes(votesData.votes || []);
-    } catch (error) {
-      console.error('Error loading cooperative data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

@@ -39,8 +39,8 @@ function ScheduleManagementModal({ customer, tenantId, onClose }: ScheduleManage
       try {
         const response = await driverApi.getDrivers(tenantId, { limit: 100 });
         setDrivers(response.drivers || []);
-      } catch (err) {
-        console.error('Error fetching drivers:', err);
+      } catch {
+        // Error handled silently
       }
     };
     fetchDrivers();

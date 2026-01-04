@@ -29,8 +29,7 @@ function DriverRolesModal({ driver, currentRoles, onClose, onSuccess }: DriverRo
       setSaving(true);
       await permitsApi.updateDriverRoles(tenantId, driver.driver_id, roles);
       onSuccess();
-    } catch (error) {
-      console.error('Error updating roles:', error);
+    } catch {
       alert('Failed to update driver roles');
     } finally {
       setSaving(false);

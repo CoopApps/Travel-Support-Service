@@ -106,7 +106,6 @@ export default function Section22CompliancePage() {
         const data = await response.json();
         setCompliance(data.compliance);
       } catch (err: any) {
-        console.error('Error fetching compliance status:', err);
         setError(err.message || 'Failed to load compliance data');
         toast.error('Failed to load compliance data');
       } finally {

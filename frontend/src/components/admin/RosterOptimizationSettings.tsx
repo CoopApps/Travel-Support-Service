@@ -51,7 +51,6 @@ function RosterOptimizationSettings() {
         setSettings(data);
       }
     } catch (err: any) {
-      console.error('Failed to load settings:', err);
       // Use defaults if no settings exist yet
       if (err.response?.status !== 404) {
         setError(err.response?.data?.message || 'Failed to load settings');
@@ -73,7 +72,6 @@ function RosterOptimizationSettings() {
       setSuccess('Settings saved successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
-      console.error('Failed to save settings:', err);
       setError(err.response?.data?.message || 'Failed to save settings');
     } finally {
       setSaving(false);

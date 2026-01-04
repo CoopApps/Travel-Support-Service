@@ -25,8 +25,8 @@ function CustomerAssignmentDisplay({ driver, tenantId }: CustomerAssignmentDispl
       setLoading(true);
       const data = await driverApi.getCustomerAssignments(tenantId, driver.driver_id);
       setAssignments(data);
-    } catch (err) {
-      console.error('Error fetching customer assignments:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

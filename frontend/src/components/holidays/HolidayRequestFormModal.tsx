@@ -65,7 +65,6 @@ const HolidayRequestFormModal: React.FC<HolidayRequestFormModalProps> = ({
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving holiday request:', error);
       alert('Failed to save holiday request. Please try again.');
     } finally {
       setLoading(false);

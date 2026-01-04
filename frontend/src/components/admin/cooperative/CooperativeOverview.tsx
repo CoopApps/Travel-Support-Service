@@ -18,8 +18,8 @@ const CooperativeOverview: React.FC<CooperativeOverviewProps> = ({ tenantId }) =
       setLoading(true);
       const data = await cooperativeApi.getOverview(tenantId);
       setOverview(data);
-    } catch (error) {
-      console.error('Error loading cooperative overview:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

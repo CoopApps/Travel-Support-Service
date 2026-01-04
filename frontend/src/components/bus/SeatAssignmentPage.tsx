@@ -153,7 +153,6 @@ export default function SeatAssignmentPage() {
       const response = await apiClient.get(`/tenants/${tenant!.tenant_id}/bus/timetables`);
       setTimetables(response.data || []);
     } catch (err: any) {
-      console.error('Error loading timetables:', err);
       toast.error('Failed to load services');
     }
   };
@@ -177,7 +176,6 @@ export default function SeatAssignmentPage() {
       // Update seats with booking information
       updateSeatsWithBookings(loadedBookings);
     } catch (err: any) {
-      console.error('Error loading bookings:', err);
       toast.error('Failed to load passenger bookings');
     } finally {
       setLoading(false);
@@ -305,7 +303,6 @@ export default function SeatAssignmentPage() {
 
       toast.success(`${draggedPassenger.passenger_name} assigned to seat ${seat.seat_number}`);
     } catch (err: any) {
-      console.error('Error assigning seat:', err);
       toast.error('Failed to assign seat. Please try again.');
     }
 
@@ -343,7 +340,6 @@ export default function SeatAssignmentPage() {
 
       toast.success('Seat assignment cleared');
     } catch (err: any) {
-      console.error('Error clearing seat:', err);
       toast.error('Failed to clear seat assignment');
     }
   };

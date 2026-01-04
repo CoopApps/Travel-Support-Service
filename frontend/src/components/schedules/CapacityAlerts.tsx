@@ -98,7 +98,6 @@ function CapacityAlerts({ date, driverId, onAddPassenger }: CapacityAlertsProps)
       setAlerts(response.alerts || []);
       setSummary(response.summary);
     } catch (err: any) {
-      console.error('Failed to fetch capacity alerts:', err);
       setError(err.response?.data?.message || 'Failed to load capacity alerts');
     } finally {
       setLoading(false);

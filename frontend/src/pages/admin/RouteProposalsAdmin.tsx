@@ -97,8 +97,8 @@ const RouteProposalsAdmin: React.FC = () => {
         const data = await response.json();
         setProposals(data);
       }
-    } catch (error) {
-      console.error('Failed to load proposals:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -121,8 +121,8 @@ const RouteProposalsAdmin: React.FC = () => {
         const data = await response.json();
         setPledgedCustomers(data);
       }
-    } catch (error) {
-      console.error('Failed to load pledges:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

@@ -42,7 +42,6 @@ function LoginPage() {
     } catch (err: any) {
       const errorMessage = err.response?.data?.error?.message || 'Login failed. Please try again.';
       setError(errorMessage);
-      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }

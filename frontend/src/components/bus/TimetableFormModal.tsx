@@ -190,7 +190,6 @@ export default function TimetableFormModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Failed to save timetable:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save timetable'));
     } finally {
       setSaving(false);

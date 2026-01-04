@@ -55,7 +55,6 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
       setOpportunities(response.opportunities || []);
       setSummary(response.summary || null);
     } catch (err: any) {
-      console.error('Failed to fetch combination opportunities:', err);
       setError(err.response?.data?.message || 'Failed to load opportunities');
     } finally {
       setLoading(false);

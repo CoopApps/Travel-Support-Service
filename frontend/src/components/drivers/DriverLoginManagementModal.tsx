@@ -51,8 +51,8 @@ function DriverLoginManagementModal({ driver, tenantId, onClose }: DriverLoginMa
             lastLogin: details.last_login || null,
           });
           setNewUsername(details.username || '');
-        } catch (err) {
-          console.error('Error loading login details:', err);
+        } catch {
+          // Error handled silently
         } finally {
           setLoadingDetails(false);
         }

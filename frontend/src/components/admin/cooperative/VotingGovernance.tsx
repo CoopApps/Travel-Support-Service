@@ -48,8 +48,8 @@ const VotingGovernance: React.FC<VotingGovernanceProps> = ({ tenantId }) => {
         proposal_type: filterType || undefined,
       });
       setProposals(data);
-    } catch (error) {
-      console.error('Error loading proposals:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

@@ -36,8 +36,8 @@ function ProviderDetailsModal({
       setLoading(true);
       const data = await providersApi.getProviderDetails(tenantId, providerName);
       setDetails(data);
-    } catch (error) {
-      console.error('Error loading provider details:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

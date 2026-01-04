@@ -28,7 +28,6 @@ function PlatformAdminLogin() {
       setAdmin(response.admin, response.token);
       navigate('/platform-admin/dashboard');
     } catch (err: any) {
-      console.error('Login error:', err);
       setError(err.response?.data?.error?.message || 'Invalid credentials');
     } finally {
       setLoading(false);

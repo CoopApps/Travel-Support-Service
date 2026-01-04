@@ -71,7 +71,6 @@ function TimesheetApprovalPage() {
       setTimesheets(pendingData);
       setSummary(summaryData);
     } catch (err: any) {
-      console.error('Error loading timesheets:', err);
       setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load timesheets');
     } finally {
       setLoading(false);
@@ -110,7 +109,6 @@ function TimesheetApprovalPage() {
       setApprovalNotes('');
       await loadData();
     } catch (err: any) {
-      console.error('Error approving timesheet:', err);
       alert(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to approve timesheet');
     } finally {
       setProcessing(false);
@@ -136,7 +134,6 @@ function TimesheetApprovalPage() {
       setRejectionReason('');
       await loadData();
     } catch (err: any) {
-      console.error('Error rejecting timesheet:', err);
       alert(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to reject timesheet');
     } finally {
       setProcessing(false);

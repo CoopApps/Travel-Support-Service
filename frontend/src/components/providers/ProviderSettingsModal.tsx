@@ -85,8 +85,7 @@ function ProviderSettingsModal({
       await providersApi.updateProvider(tenantId, providerId, settings);
       onRefresh();
       onClose();
-    } catch (error) {
-      console.error('Error updating provider settings:', error);
+    } catch {
       alert('Failed to update provider settings');
     } finally {
       setLoading(false);

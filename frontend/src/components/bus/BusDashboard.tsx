@@ -138,8 +138,8 @@ export default function BusDashboard() {
           if (analyticsRes.ok) {
             setAnalytics(await analyticsRes.json());
           }
-        } catch (err) {
-          console.log('Bus analytics not available');
+        } catch {
+          // Bus analytics endpoint not available
         }
 
         // Fetch surplus pool balance
@@ -152,8 +152,8 @@ export default function BusDashboard() {
             const totalSurplus = pools.reduce((sum: number, p: any) => sum + (parseFloat(p.accumulated_surplus) || 0), 0);
             setSurplusBalance(totalSurplus);
           }
-        } catch (err) {
-          console.log('Surplus pool data not available');
+        } catch {
+          // Surplus pool endpoint not available
         }
 
         // Set compliance data from main dashboard
@@ -178,8 +178,8 @@ export default function BusDashboard() {
               timetable.timetable_id,
               selectedDate
             );
-          } catch (err) {
-            console.error(`Failed to load passengers for timetable ${timetable.timetable_id}:`, err);
+          } catch {
+            // Error handled silently
           }
 
           const rosterEntry = rosterData.find((r: any) =>
@@ -314,7 +314,6 @@ export default function BusDashboard() {
           pendingBookings
         });
       } catch (err: any) {
-        console.error('Failed to load dashboard data:', err);
         setError(err.message || 'Failed to load dashboard data');
       } finally {
         setLoading(false);

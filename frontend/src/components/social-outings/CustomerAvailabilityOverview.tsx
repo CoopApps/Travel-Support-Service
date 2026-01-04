@@ -67,8 +67,8 @@ function CustomerAvailabilityOverview({ isVisible, onClose }: CustomerAvailabili
 
       const data = await response.json();
       setCustomers(data.customers || []);
-    } catch (error) {
-      console.error('Error loading customers:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

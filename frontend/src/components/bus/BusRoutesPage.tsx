@@ -42,7 +42,6 @@ export default function BusRoutesPage() {
       const data = await busRoutesApi.getRoutes(tenant.tenant_id, params);
       setRoutes(data);
     } catch (err: any) {
-      console.error('Failed to load routes:', err);
       setError(err.message || 'Failed to load routes');
     } finally {
       setLoading(false);
@@ -68,8 +67,8 @@ export default function BusRoutesPage() {
           p.status === 'open' || p.status === 'threshold_met'
         ));
       }
-    } catch (error) {
-      console.error('Failed to load proposals:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -101,7 +100,6 @@ export default function BusRoutesPage() {
       await busRoutesApi.deleteRoute(tenant.tenant_id, route.route_id);
       fetchRoutes();
     } catch (err: any) {
-      console.error('Failed to delete route:', err);
       alert(err.response?.data?.error || 'Failed to delete route. It may have active timetables.');
     }
   };

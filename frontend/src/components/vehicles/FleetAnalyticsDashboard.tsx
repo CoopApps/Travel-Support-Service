@@ -21,7 +21,6 @@ const FleetAnalyticsDashboard: React.FC<FleetAnalyticsDashboardProps> = ({ tenan
       const data = await vehicleApi.getEnhancedStats(tenantId);
       setStats(data);
     } catch (err: any) {
-      console.error('Error loading fleet analytics:', err);
       setError(err.message || 'Failed to load analytics');
     } finally {
       setLoading(false);

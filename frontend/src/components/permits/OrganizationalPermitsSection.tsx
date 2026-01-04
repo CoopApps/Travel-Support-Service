@@ -37,8 +37,7 @@ function OrganizationalPermitsSection({ permits, onRefresh }: OrganizationalPerm
     try {
       await permitsApi.deleteOrganizationalPermit(tenantId, permit.id || permit.permit_id!);
       onRefresh();
-    } catch (error) {
-      console.error('Error deleting permit:', error);
+    } catch {
       alert('Failed to delete permit');
     }
   };

@@ -46,8 +46,6 @@ function UnifiedLogin() {
           break;
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-
       // Handle different error response formats and ensure we always get a string
       let errorMessage = 'Invalid username or password';
 

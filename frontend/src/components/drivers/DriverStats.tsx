@@ -50,8 +50,8 @@ function DriverStats({ tenantId, onStatsLoaded }: DriverStatsProps) {
         if (onStatsLoaded) {
           onStatsLoaded(data);
         }
-      } catch (error) {
-        console.error('Error fetching driver stats:', error);
+      } catch {
+        // Error handled silently
       }
     };
     fetchStats();

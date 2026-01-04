@@ -51,7 +51,6 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
       const customers = 'customers' in customersData ? customersData.customers : customersData;
       setCustomers(customers || []);
     } catch (err) {
-      console.error('Error fetching data:', err);
       setError('Failed to load bookings');
     } finally {
       setLoading(false);
@@ -78,9 +77,8 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
         outing.outing_date
       );
       setAvailabilityCheck(availability);
-    } catch (err) {
-      console.error('Error checking availability:', err);
-      setAvailabilityCheck(null);
+    } catch {
+      // Error handled silently
     } finally {
       setCheckingAvailability(false);
     }
@@ -109,7 +107,6 @@ function BookingManagementModal({ outing, onClose }: BookingManagementModalProps
       // Refresh bookings
       fetchData();
     } catch (err: any) {
-      console.error('Error adding booking:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to add booking'));
     } finally {
       setSubmitting(false);

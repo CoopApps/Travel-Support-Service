@@ -41,7 +41,6 @@ const IdleVehiclesReport: React.FC<IdleVehiclesReportProps> = ({ tenantId }) => 
       const data = await vehicleApi.getIdleReport(tenantId, daysThreshold);
       setIdleData(data);
     } catch (err: any) {
-      console.error('Error loading idle vehicles report:', err);
       setError(err.message || 'Failed to load idle vehicles report');
     } finally {
       setLoading(false);
@@ -59,7 +58,6 @@ const IdleVehiclesReport: React.FC<IdleVehiclesReportProps> = ({ tenantId }) => 
       loadIdleReport();
       setActionModalOpen(false);
     } catch (err: any) {
-      console.error('Error archiving vehicle:', err);
       alert('Failed to archive vehicle: ' + err.message);
     }
   };

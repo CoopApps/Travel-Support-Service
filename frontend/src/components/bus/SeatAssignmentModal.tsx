@@ -114,8 +114,8 @@ export default function SeatAssignmentModal({
         }
         return { ...seat, occupant: undefined };
       }));
-    } catch (err) {
-      console.error('Failed to load data:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -213,7 +213,6 @@ export default function SeatAssignmentModal({
         s.seatNumber === seatNumber ? { ...s, occupant: newOccupant } : s
       ));
     } catch (err: any) {
-      console.error('Failed to create booking:', err);
       alert(err.response?.data?.error || 'Failed to assign seat');
     } finally {
       setSaving(false);
@@ -247,7 +246,6 @@ export default function SeatAssignmentModal({
         s.occupant?.booking_id === occupant.booking_id ? { ...s, occupant: undefined } : s
       ));
     } catch (err: any) {
-      console.error('Failed to remove booking:', err);
       alert(err.response?.data?.error || 'Failed to remove booking');
     } finally {
       setSaving(false);

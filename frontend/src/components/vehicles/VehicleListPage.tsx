@@ -63,8 +63,8 @@ function VehicleListPage() {
 
       setVehicles(vehiclesData);
       setDrivers(driversData.drivers || driversData);
-    } catch (err) {
-      console.error('Error fetching data:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

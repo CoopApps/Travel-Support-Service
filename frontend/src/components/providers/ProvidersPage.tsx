@@ -45,8 +45,8 @@ function ProvidersPage() {
       ]);
       setStatsData(stats);
       setDirectory(dir);
-    } catch (error) {
-      console.error('Error loading provider data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,6 @@ function ProvidersPage() {
       invoiceWindow.document.close();
       setTimeout(() => invoiceWindow.print(), 500);
     } catch (error) {
-      console.error('Error generating invoice:', error);
       toast.error('Failed to generate invoice');
     }
   };
@@ -321,7 +320,6 @@ function ProvidersPage() {
                               loadData();
                               toast.success('Provider deleted successfully');
                             } catch (error) {
-                              console.error('Error deleting provider:', error);
                               toast.error('Failed to delete provider');
                             }
                           }}

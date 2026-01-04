@@ -96,11 +96,8 @@ function DriverDashboard() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw-driver.js')
-        .then((registration) => {
-          console.log('[PWA] Service Worker registered:', registration);
-        })
-        .catch((error) => {
-          console.error('[PWA] Service Worker registration failed:', error);
+        .catch(() => {
+          // Service worker registration failed silently
         });
     }
   }, []);
@@ -109,8 +106,8 @@ function DriverDashboard() {
     try {
       const data = await driverDashboardApi.getUnreadMessageCount(tenantId!, driverId);
       setUnreadMessageCount(data.unreadCount || 0);
-    } catch (err) {
-      console.error('Failed to load unread message count:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -149,7 +146,6 @@ function DriverDashboard() {
       // Load unread message count
       await loadUnreadMessageCount();
     } catch (err: any) {
-      console.error('Dashboard load error:', err);
       const errorMessage = err.response?.data?.error?.message
         || err.response?.data?.message
         || err.message

@@ -64,8 +64,8 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
       try {
         const directory = await providersApi.getProviderDirectory(tenantId);
         setProviderDirectory(directory);
-      } catch (err) {
-        console.error('Error loading provider directory:', err);
+      } catch {
+        // Error handled silently
       } finally {
         setLoadingProviders(false);
       }
@@ -215,7 +215,6 @@ function CustomerFormModal({ customer, onClose, tenantId }: CustomerFormModalPro
 
       onClose(true); // Close and refresh the list
     } catch (err: any) {
-      console.error('Error saving customer:', err);
       setError(err.response?.data?.error?.message || 'Failed to save customer');
     } finally {
       setLoading(false);

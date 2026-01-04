@@ -67,8 +67,8 @@ function PermitsPage() {
       setDriverRoles(permitsData.driverRoles || {});
       setStats(statsData);
       setOrgPermits(orgPermitsData);
-    } catch (error) {
-      console.error('Error fetching permits data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

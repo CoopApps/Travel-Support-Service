@@ -41,8 +41,8 @@ const ProfitDistribution: React.FC<ProfitDistributionProps> = ({ tenantId }) => 
         period_type: filterType || undefined,
       });
       setPeriods(data);
-    } catch (error) {
-      console.error('Error loading distribution periods:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

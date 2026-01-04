@@ -89,8 +89,8 @@ const CreateProposalModal: React.FC<CreateProposalModalProps> = ({ onClose, onCr
           setStep('privacy');
         }
       }
-    } catch (error) {
-      console.error('Failed to load privacy settings:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

@@ -83,7 +83,6 @@ export const RosterOptimizationDashboard: React.FC = () => {
         conflicts: response.data.conflicts.summary
       });
     } catch (err: any) {
-      console.error('Error fetching roster dashboard:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load roster dashboard'));
     } finally {
       setLoading(false);
@@ -115,7 +114,6 @@ export const RosterOptimizationDashboard: React.FC = () => {
         fetchDashboardData();
       }
     } catch (err: any) {
-      console.error('Error in auto-assignment:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to auto-assign drivers'));
     } finally {
       setAutoAssigning(false);

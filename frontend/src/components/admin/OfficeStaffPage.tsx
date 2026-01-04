@@ -73,7 +73,6 @@ function OfficeStaffPage() {
       setStaff(staffData);
       setSummary(summaryData);
     } catch (err: any) {
-      console.error('Error loading office staff:', err);
       setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load office staff');
     } finally {
       setLoading(false);
@@ -150,7 +149,6 @@ function OfficeStaffPage() {
       resetForm();
       await loadData();
     } catch (err: any) {
-      console.error('Error creating staff member:', err);
       alert(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to create staff member');
     } finally {
       setSaving(false);

@@ -35,8 +35,8 @@ const ReportsManagement: React.FC<ReportsManagementProps> = ({ tenantId }) => {
         year: filterYear,
       });
       setReports(data);
-    } catch (error) {
-      console.error('Error loading reports:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,6 @@ const ReportsManagement: React.FC<ReportsManagementProps> = ({ tenantId }) => {
       handleCloseModal();
       loadReports();
     } catch (error) {
-      console.error('Error creating report:', error);
       alert('Failed to create report');
     }
   };
@@ -90,7 +89,6 @@ const ReportsManagement: React.FC<ReportsManagementProps> = ({ tenantId }) => {
       });
       loadReports();
     } catch (error) {
-      console.error('Error updating report status:', error);
       alert('Failed to update report status');
     }
   };

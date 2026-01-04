@@ -48,7 +48,6 @@ export default function CustomerBusServicesModal({
       setServices(servicesData || []);
       setAbsences(absencesData || []);
     } catch (err: any) {
-      console.error('Failed to load bus services:', err);
       setError('Failed to load your bus services. Please try again.');
     } finally {
       setLoading(false);
@@ -82,7 +81,6 @@ export default function CustomerBusServicesModal({
       setAbsenceServiceId('');
       loadData();
     } catch (err: any) {
-      console.error('Failed to report absence:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to report absence. Please try again.'));
     } finally {
       setSubmitting(false);
@@ -99,7 +97,6 @@ export default function CustomerBusServicesModal({
       setSuccess('Absence cancelled. You are now expected on the bus.');
       loadData();
     } catch (err: any) {
-      console.error('Failed to cancel absence:', err);
       setError('Failed to cancel absence. Please try again.');
     }
   };

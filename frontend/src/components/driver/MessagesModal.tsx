@@ -61,7 +61,6 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       const data = await driverDashboardApi.getMessages(tenantId, driverId);
       setMessages(data.messages || []);
     } catch (err: any) {
-      console.error('Error loading messages:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load messages'));
     } finally {
       setLoading(false);
@@ -75,7 +74,6 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       const data = await driverDashboardApi.getMessagesToOffice(tenantId, driverId);
       setMessagesToOffice(data.messages || []);
     } catch (err: any) {
-      console.error('Error loading sent messages:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load sent messages'));
     } finally {
       setLoading(false);
@@ -101,7 +99,6 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       // Reload messages
       loadMessagesToOffice();
     } catch (err: any) {
-      console.error('Error sending message:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to send message'));
     } finally {
       setSending(false);
@@ -117,8 +114,8 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
         setMessages(messages.map(m =>
           m.message_id === message.message_id ? { ...m, read: true } : m
         ));
-      } catch (err) {
-        console.error('Error marking message as read:', err);
+      } catch {
+        // Error handled silently
       }
     }
   };

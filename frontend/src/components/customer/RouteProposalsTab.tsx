@@ -94,8 +94,8 @@ const RouteProposalsTab: React.FC = () => {
         const data = await response.json();
         setProposals(data);
       }
-    } catch (error) {
-      console.error('Failed to load proposals:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -118,8 +118,8 @@ const RouteProposalsTab: React.FC = () => {
         const data = await response.json();
         setInvitations(data);
       }
-    } catch (error) {
-      console.error('Failed to load invitations:', error);
+    } catch {
+      // Error handled silently
     }
   };
 

@@ -76,7 +76,6 @@ export default function RegularPassengersPage() {
       const customers = 'customers' in customersData ? customersData.customers : customersData;
       setCustomers(customers || []);
     } catch (err: any) {
-      console.error('Failed to load data:', err);
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
@@ -88,8 +87,8 @@ export default function RegularPassengersPage() {
     try {
       const routeData = await busRoutesApi.getRoute(tenant.tenant_id, routeId);
       setRouteStops(routeData.stops || []);
-    } catch (err) {
-      console.error('Failed to load route stops:', err);
+    } catch {
+      // Error handled silently
       setRouteStops([]);
     }
   };
@@ -205,7 +204,6 @@ export default function RegularPassengersPage() {
       handleCloseModal();
       loadData();
     } catch (err: any) {
-      console.error('Failed to save:', err);
       alert(err.response?.data?.error || 'Failed to save regular passenger');
     } finally {
       setSaving(false);
@@ -220,7 +218,6 @@ export default function RegularPassengersPage() {
       await regularPassengersApi.deleteRegularPassenger(tenant.tenant_id, passenger.regular_id);
       loadData();
     } catch (err: any) {
-      console.error('Failed to delete:', err);
       alert(err.response?.data?.error || 'Failed to remove regular passenger');
     }
   };
@@ -238,7 +235,6 @@ export default function RegularPassengersPage() {
       });
       loadData();
     } catch (err: any) {
-      console.error('Failed to update status:', err);
       alert(err.response?.data?.error || `Failed to ${action}`);
     }
   };

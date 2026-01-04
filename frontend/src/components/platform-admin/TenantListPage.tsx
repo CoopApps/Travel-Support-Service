@@ -72,7 +72,6 @@ function TenantListPage() {
       setTotal(response.total);
       setTotalPages(response.totalPages);
     } catch (err: any) {
-      console.error('Error fetching tenants:', err);
       setError(err.response?.data?.error?.message || 'Failed to load tenants');
     } finally {
       setLoading(false);

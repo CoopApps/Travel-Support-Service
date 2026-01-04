@@ -32,8 +32,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
     try {
       const data = await getHolidayCalendar(tenantId, currentYear, currentMonth + 1);
       setHolidays((data as any).holidays || data || []);
-    } catch (error) {
-      console.error('Error loading calendar data:', error);
+    } catch {
       setHolidays([]);
     } finally {
       setLoading(false);

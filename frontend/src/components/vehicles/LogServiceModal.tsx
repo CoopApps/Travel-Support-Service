@@ -75,7 +75,6 @@ function LogServiceModal({ vehicles, preselectedVehicleId, onClose }: LogService
       await maintenanceApi.createRecord(tenantId, data);
       onClose(true);
     } catch (err: any) {
-      console.error('Error logging service:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to log service'));
     } finally {
       setLoading(false);

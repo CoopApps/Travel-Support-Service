@@ -87,7 +87,6 @@ function FeedbackPage() {
       setFeedbackList(response.feedback || []);
       setTotalPages(response.pagination?.totalPages || 1);
     } catch (err: any) {
-      console.error('Error loading feedback:', err);
       const errorMessage = err.response?.data?.error?.message
         || err.response?.data?.message
         || err.response?.data?.error

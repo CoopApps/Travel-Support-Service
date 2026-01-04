@@ -82,7 +82,6 @@ function DashboardPage() {
       const data = await dashboardApi.getOverview(user.tenantId);
       setDashboard(data);
     } catch (err: any) {
-      console.error('Error loading dashboard:', err);
       setError(err.response?.data?.error?.message || 'Failed to load dashboard');
     } finally {
       setLoading(false);
@@ -103,9 +102,8 @@ function DashboardPage() {
         endDate
       });
       setProfitability(data);
-    } catch (err: any) {
-      console.error('Error loading profitability:', err);
-      // Don't set error state - profitability is optional
+    } catch {
+      // Error handled silently
     } finally {
       setLoadingProfitability(false);
     }
@@ -151,8 +149,7 @@ function DashboardPage() {
       } else {
         setScheduleData(data);
       }
-    } catch (err) {
-      console.error('Error loading schedule:', err);
+    } catch {
       setScheduleData(null);
     } finally {
       setLoadingSchedule(false);
@@ -179,8 +176,8 @@ function DashboardPage() {
       setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
       setDrivers(Array.isArray(driversResponse) ? driversResponse : (driversResponse?.drivers || []));
       setShowIncidentModal(true);
-    } catch (err) {
-      console.error('Error loading incident form data:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -197,8 +194,8 @@ function DashboardPage() {
       setDrivers(Array.isArray(driversResponse) ? driversResponse : (driversResponse?.drivers || []));
       setCustomers(Array.isArray(customersResponse) ? customersResponse : (customersResponse?.customers || []));
       setShowSafeguardingModal(true);
-    } catch (err) {
-      console.error('Error loading safeguarding form data:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -210,8 +207,8 @@ function DashboardPage() {
       // Customers API returns { customers: [...], total, page, etc }
       setCustomers(Array.isArray(customersResponse) ? customersResponse : (customersResponse?.customers || []));
       setShowLateArrivalModal(true);
-    } catch (err) {
-      console.error('Error loading customers:', err);
+    } catch {
+      // Error handled silently
     }
   };
 

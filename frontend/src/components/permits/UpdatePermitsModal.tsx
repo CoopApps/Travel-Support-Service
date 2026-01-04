@@ -41,8 +41,7 @@ function UpdatePermitsModal({ driver, currentPermits, onClose, onSuccess }: Upda
       setSaving(true);
       await permitsApi.updateDriverPermits(tenantId, driver.driver_id, permits);
       onSuccess();
-    } catch (error) {
-      console.error('Error updating permits:', error);
+    } catch {
       alert('Failed to update permits');
     } finally {
       setSaving(false);

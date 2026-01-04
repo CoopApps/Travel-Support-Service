@@ -28,8 +28,8 @@ function NotificationBell() {
     try {
       const data = await dashboardApi.getOverview(tenantId);
       setDashboard(data);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

@@ -42,8 +42,8 @@ const HolidaySettingsTab: React.FC<HolidaySettingsTabProps> = ({
       setHasChanges(false);
       setSavedMessage(true);
       setTimeout(() => setSavedMessage(false), 3000);
-    } catch (error) {
-      console.error('Error saving settings:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setSaving(false);
     }

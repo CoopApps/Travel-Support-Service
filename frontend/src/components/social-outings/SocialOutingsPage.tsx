@@ -45,8 +45,8 @@ function SocialOutingsPage() {
       setLoading(true);
       const data = await socialOutingsApi.getOutings(tenantId);
       setOutings(data);
-    } catch (err) {
-      console.error('Error fetching outings:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

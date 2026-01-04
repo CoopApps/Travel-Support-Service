@@ -92,7 +92,6 @@ function CustomerDashboard() {
       const profileData = await customerDashboardApi.getProfile(tenantId!, customerId);
       setProfile(profileData);
     } catch (err: any) {
-      console.error('Dashboard load error:', err);
       const errorMessage =
         err.response?.data?.error?.message || err.response?.data?.error || err.message || 'Failed to load dashboard';
       setError(errorMessage);

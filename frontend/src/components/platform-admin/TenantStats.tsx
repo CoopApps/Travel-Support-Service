@@ -24,7 +24,6 @@ function TenantStats() {
       const data = await tenantApi.getStats();
       setStats(data);
     } catch (err: any) {
-      console.error('Error loading stats:', err);
       setError(err.response?.data?.error?.message || 'Failed to load statistics');
     } finally {
       setLoading(false);

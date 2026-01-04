@@ -55,7 +55,6 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
         onStatsLoaded(data);
       }
     } catch (err: any) {
-      console.error('Error fetching outing stats:', err);
       setError(err.response?.data?.error?.message || 'Failed to load statistics');
     } finally {
       setLoading(false);

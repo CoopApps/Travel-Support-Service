@@ -159,7 +159,6 @@ export default function BusCustomersPage() {
         totalAssignments: totalAssignmentsCount,
       });
     } catch (err: any) {
-      console.error('Failed to load data:', err);
       setError(err.message || 'Failed to load data');
       toast.error('Failed to load bus customers');
     } finally {

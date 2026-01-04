@@ -119,7 +119,6 @@ export default function BusAnalyticsPage() {
       setDemographics(demoData);
       setEfficiencyMetrics(effData);
     } catch (err: any) {
-      console.error('Error loading analytics:', err);
       toast.error('Failed to load analytics');
     } finally {
       setLoading(false);

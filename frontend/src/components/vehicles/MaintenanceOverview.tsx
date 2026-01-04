@@ -34,8 +34,8 @@ function MaintenanceOverview({ onLogService }: MaintenanceOverviewProps) {
 
       setOverview(overviewData);
       setHistory(historyData);
-    } catch (err) {
-      console.error('Error fetching maintenance data:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

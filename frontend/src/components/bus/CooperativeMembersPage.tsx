@@ -116,8 +116,8 @@ const CooperativeMembersPage: React.FC = () => {
           const data = await response.json();
           setCustomers(data);
         }
-      } catch (err) {
-        console.error('Failed to fetch customers:', err);
+      } catch {
+        // Error handled silently
       }
     };
 

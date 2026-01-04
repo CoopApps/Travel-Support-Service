@@ -47,8 +47,8 @@ function ServiceRegistrationsPage() {
       setRegistrations(regsData);
       setOrgPermits([...permitsData.section19, ...permitsData.section22]);
       setCompliance(complianceData);
-    } catch (error) {
-      console.error('Error fetching service registrations:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

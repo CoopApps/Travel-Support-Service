@@ -79,8 +79,8 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
       setTrips(tripsData.trips || []);
       setCustomers(customersData.customers || []);
       setDrivers(driversData.drivers || []);
-    } catch (err) {
-      console.error('Error fetching scheduled appointments:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -110,8 +110,8 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
         const data = await response.json();
         setOptimizationScores(data.scores || []);
       }
-    } catch (err) {
-      console.error('Error fetching optimization scores:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -300,7 +300,6 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
       // Refresh trip data to show newly created assignments
       await fetchData();
     } catch (error: any) {
-      console.error('Error auto-assigning customers:', error);
       alert(error.response?.data?.message || 'Error occurred during auto-assignment');
     } finally {
       setLoading(false);

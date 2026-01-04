@@ -71,8 +71,8 @@ const FuelCardFormModal: React.FC<FuelCardFormModalProps> = ({
       ]);
       setDrivers(driversData);
       setVehicles(vehiclesData);
-    } catch (error) {
-      console.error('Error loading drivers and vehicles:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -83,8 +83,8 @@ const FuelCardFormModal: React.FC<FuelCardFormModalProps> = ({
     try {
       await onSave(formData);
       onClose();
-    } catch (error) {
-      console.error('Error saving fuel card:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

@@ -195,7 +195,6 @@ function SchedulePage() {
       // Refresh the view
       window.location.reload();
     } catch (error) {
-      console.error('Error generating trips:', error);
       alert('Failed to generate trips. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -240,7 +239,6 @@ function SchedulePage() {
       setCopyWeekResult(result);
       setShowCopyWeekModal(true);
     } catch (error) {
-      console.error('Error copying week:', error);
       alert('Failed to copy week. Please try again.');
     } finally {
       setIsCopying(false);

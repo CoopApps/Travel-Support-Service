@@ -61,7 +61,6 @@ export const usePlatformAdminStore = create<PlatformAdminState>()(
       // Check token expiration on hydration
       onRehydrateStorage: () => (state) => {
         if (state?.token && isTokenExpired(state.token)) {
-          console.log('Platform admin token expired on rehydration, clearing auth state');
           state.logout();
         }
       },
@@ -74,7 +73,6 @@ if (typeof window !== 'undefined') {
   setInterval(() => {
     const state = usePlatformAdminStore.getState();
     if (state.token && isTokenExpired(state.token)) {
-      console.log('Platform admin token expired during session, logging out');
       state.logout();
     }
   }, 60000); // Check every 60 seconds

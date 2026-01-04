@@ -36,7 +36,6 @@ function AssignDriverModal({ vehicle, drivers, onClose }: AssignDriverModalProps
 
       onClose(true);
     } catch (err: any) {
-      console.error('Error assigning driver:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to assign driver'));
     } finally {
       setLoading(false);

@@ -64,7 +64,6 @@ function AnalyticsDashboard({ tenantId }: AnalyticsDashboardProps) {
       const result = await response.json();
       setData(result);
     } catch (err: any) {
-      console.error('Error fetching analytics:', err);
       setError(err.message);
     } finally {
       setLoading(false);

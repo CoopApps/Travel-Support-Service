@@ -89,7 +89,6 @@ function SafeguardingFormModal({ drivers, customers, onClose }: SafeguardingForm
       await safeguardingApi.submitReport(tenantId, data);
       onClose(true);
     } catch (err: any) {
-      console.error('Error submitting safeguarding report:', err);
       setError(err.response?.data?.message || err.response?.data?.error || 'Failed to submit report');
     } finally {
       setSubmitting(false);

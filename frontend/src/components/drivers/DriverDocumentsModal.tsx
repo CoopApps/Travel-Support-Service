@@ -40,8 +40,8 @@ export function DriverDocumentsModal({ driverId, driverName, onClose }: DriverDo
         active: true
       });
       setDocuments(response.documents);
-    } catch (error) {
-      console.error('Error fetching driver documents:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -61,8 +61,8 @@ export function DriverDocumentsModal({ driverId, driverName, onClose }: DriverDo
       });
 
       setDocuments(allDocs);
-    } catch (error) {
-      console.error('Error fetching all driver documents:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,6 @@ export function DriverDocumentsModal({ driverId, driverName, onClose }: DriverDo
         documentApi.triggerDownload(blob, doc.original_filename);
       }
     } catch (error) {
-      console.error('Error downloading document:', error);
       alert('Failed to download document');
     }
   };
@@ -111,7 +110,6 @@ export function DriverDocumentsModal({ driverId, driverName, onClose }: DriverDo
       fetchDocuments();
       alert('Document archived successfully');
     } catch (error) {
-      console.error('Error deleting document:', error);
       alert('Failed to archive document');
     }
   };

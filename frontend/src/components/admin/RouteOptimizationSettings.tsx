@@ -45,7 +45,6 @@ function RouteOptimizationSettings() {
       const data = await tenantSettingsApi.getRouteOptimizationSettings(tenant.tenant_id);
       setSettings(data);
     } catch (err: any) {
-      console.error('Failed to load settings:', err);
       setError(err.response?.data?.message || 'Failed to load settings');
     } finally {
       setLoading(false);
@@ -64,7 +63,6 @@ function RouteOptimizationSettings() {
       setSuccess('Settings saved successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
-      console.error('Failed to save settings:', err);
       setError(err.response?.data?.message || 'Failed to save settings');
     } finally {
       setSaving(false);

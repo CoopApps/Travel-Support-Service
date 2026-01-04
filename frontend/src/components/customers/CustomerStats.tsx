@@ -36,8 +36,8 @@ function CustomerStats({ tenantId }: CustomerStatsProps) {
         const { customerApi } = await import('../../services/api');
         const data = await customerApi.getStats(tenantId);
         setStats(data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
+      } catch {
+        // Error handled silently
       }
     };
     fetchStats();

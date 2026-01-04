@@ -149,8 +149,8 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       if (routeData.stops) {
         setStops(routeData.stops);
       }
-    } catch (err) {
-      console.error('Failed to load stops:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -261,7 +261,6 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Failed to save route:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save route'));
     } finally {
       setSaving(false);
@@ -346,7 +345,6 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
         longitude: ''
       });
     } catch (err: any) {
-      console.error('Failed to save stop:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save stop'));
     } finally {
       setSaving(false);
@@ -380,7 +378,6 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
       await busRoutesApi.deleteStop(tenant.tenant_id, route.route_id, stopId);
       await loadStops(route.route_id);
     } catch (err: any) {
-      console.error('Failed to delete stop:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to delete stop'));
     } finally {
       setSaving(false);
@@ -949,7 +946,6 @@ export default function RouteFormModal({ isOpen, onClose, onSuccess, route }: Ro
               // Reload stops
               await loadStops(route.route_id);
             } catch (err: any) {
-              console.error('Failed to import passengers:', err);
               setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to import passengers'));
             } finally {
               setSaving(false);

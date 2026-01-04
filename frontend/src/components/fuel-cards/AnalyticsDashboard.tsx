@@ -24,8 +24,8 @@ const AnalyticsDashboard: React.FC = () => {
       setLoading(true);
       const result = await getFuelAnalytics(tenantId!, period);
       setData(result);
-    } catch (error) {
-      console.error('Error loading analytics:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

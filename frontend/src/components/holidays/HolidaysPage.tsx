@@ -63,8 +63,8 @@ const HolidaysPage: React.FC = () => {
         loadBalances(),
         loadSettings()
       ]);
-    } catch (error) {
-      console.error('Error loading holiday data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -74,8 +74,8 @@ const HolidaysPage: React.FC = () => {
     try {
       const data = await getHolidayOverview(tenantId!);
       setOverview(data);
-    } catch (error) {
-      console.error('Error loading overview:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -84,8 +84,8 @@ const HolidaysPage: React.FC = () => {
       const filters = statusFilter !== 'all' ? { status: statusFilter } : undefined;
       const data = await getHolidayRequests(tenantId!, filters);
       setRequests(data);
-    } catch (error) {
-      console.error('Error loading requests:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -93,8 +93,8 @@ const HolidaysPage: React.FC = () => {
     try {
       const data = await getHolidayBalances(tenantId!);
       setBalances(data);
-    } catch (error) {
-      console.error('Error loading balances:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -102,8 +102,8 @@ const HolidaysPage: React.FC = () => {
     try {
       const data = await getHolidaySettings(tenantId!);
       setSettings(data);
-    } catch (error) {
-      console.error('Error loading settings:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -126,7 +126,6 @@ const HolidaysPage: React.FC = () => {
       await loadRequests();
       await loadOverview();
     } catch (error) {
-      console.error('Error creating request:', error);
       throw error;
     }
   };
@@ -137,8 +136,8 @@ const HolidaysPage: React.FC = () => {
       await loadRequests();
       await loadOverview();
       await loadBalances();
-    } catch (error) {
-      console.error('Error approving request:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -150,8 +149,8 @@ const HolidaysPage: React.FC = () => {
       });
       await loadRequests();
       await loadOverview();
-    } catch (error) {
-      console.error('Error rejecting request:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -160,7 +159,6 @@ const HolidaysPage: React.FC = () => {
       const updated = await updateHolidaySettings(tenantId!, newSettings);
       setSettings(updated);
     } catch (error) {
-      console.error('Error updating settings:', error);
       throw error;
     }
   };
@@ -179,7 +177,6 @@ const HolidaysPage: React.FC = () => {
       await loadBalances();
       await loadOverview();
     } catch (error) {
-      console.error('Error adjusting balance:', error);
       throw error;
     }
   };

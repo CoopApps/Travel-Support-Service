@@ -48,8 +48,7 @@ function OrganizationalPermitModal({ permit, permitType, onClose, onSuccess }: O
       }
 
       onSuccess();
-    } catch (error) {
-      console.error('Error saving permit:', error);
+    } catch {
       alert('Failed to save permit');
     } finally {
       setSaving(false);

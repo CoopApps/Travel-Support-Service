@@ -54,7 +54,6 @@ const ReminderSettingsPage: React.FC = () => {
         setSettings(response.data.settings || {});
       }
     } catch (error: any) {
-      console.error('Failed to load settings:', error);
       setMessage({ type: 'error', text: 'Failed to load settings' });
     } finally {
       setLoading(false);
@@ -108,7 +107,6 @@ const ReminderSettingsPage: React.FC = () => {
         await loadSettings();
       }
     } catch (error: any) {
-      console.error('Failed to save settings:', error);
       setMessage({
         type: 'error',
         text: error.response?.data?.error || 'Failed to save settings'
@@ -148,7 +146,6 @@ const ReminderSettingsPage: React.FC = () => {
         });
       }
     } catch (error: any) {
-      console.error('Connection test failed:', error);
       setMessage({
         type: 'error',
         text: error.response?.data?.error || `${type === 'twilio' ? 'Twilio' : 'SendGrid'} connection failed`

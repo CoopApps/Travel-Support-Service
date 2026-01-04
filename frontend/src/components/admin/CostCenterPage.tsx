@@ -73,7 +73,6 @@ function CostCenterPage() {
       setUtilization(utilizationData);
       setSummary(summaryData);
     } catch (err: any) {
-      console.error('Error loading cost centers:', err);
       setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load cost centers');
     } finally {
       setLoading(false);
@@ -161,7 +160,6 @@ function CostCenterPage() {
       resetForm();
       await loadData();
     } catch (err: any) {
-      console.error('Error creating cost centre:', err);
       alert(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to create cost centre');
     } finally {
       setSaving(false);

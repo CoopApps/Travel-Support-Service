@@ -82,7 +82,6 @@ function VehicleFormModal({ vehicle, drivers, onClose }: VehicleFormModalProps) 
 
       onClose(true);
     } catch (err: any) {
-      console.error('Error saving vehicle:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to save vehicle'));
     } finally {
       setLoading(false);

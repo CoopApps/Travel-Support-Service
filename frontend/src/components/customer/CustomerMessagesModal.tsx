@@ -60,7 +60,6 @@ function CustomerMessagesModal({ tenantId, customerId, onClose }: CustomerMessag
       const data = await customerDashboardApi.getMessages(tenantId, customerId);
       setMessages(data.messages || []);
     } catch (err: any) {
-      console.error('Error loading messages:', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load messages';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -75,7 +74,6 @@ function CustomerMessagesModal({ tenantId, customerId, onClose }: CustomerMessag
       const data = await customerDashboardApi.getMessagesToOffice(tenantId, customerId);
       setMessagesToOffice(data.messages || []);
     } catch (err: any) {
-      console.error('Error loading sent messages:', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load sent messages';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -102,7 +100,6 @@ function CustomerMessagesModal({ tenantId, customerId, onClose }: CustomerMessag
       // Reload messages
       loadMessagesToOffice();
     } catch (err: any) {
-      console.error('Error sending message:', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to send message';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -119,8 +116,8 @@ function CustomerMessagesModal({ tenantId, customerId, onClose }: CustomerMessag
         setMessages(messages.map(m =>
           m.message_id === message.message_id ? { ...m, read: true } : m
         ));
-      } catch (err) {
-        console.error('Error marking message as read:', err);
+      } catch {
+        // Error handled silently
       }
     }
   };

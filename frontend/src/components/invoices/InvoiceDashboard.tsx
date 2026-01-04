@@ -75,8 +75,8 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
         ).slice(0, 5)
       );
 
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,6 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to download PDF:', error);
       alert('Failed to download PDF');
     }
   };

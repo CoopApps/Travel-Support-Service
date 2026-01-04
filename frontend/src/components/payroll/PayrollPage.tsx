@@ -154,8 +154,8 @@ const PayrollPage: React.FC = () => {
     try {
       const data = await payrollApi.getStats(tenantId!);
       setStats(data);
-    } catch (err: any) {
-      console.error('Error loading payroll stats:', err);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -166,7 +166,6 @@ const PayrollPage: React.FC = () => {
       const data = await payrollApi.getPeriods(tenantId!);
       setPeriods(data.periods || []);
     } catch (err: any) {
-      console.error('Error loading periods:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load payroll periods'));
     } finally {
       setLoading(false);
@@ -185,7 +184,6 @@ const PayrollPage: React.FC = () => {
       setFreelanceSubmissions(freelanceData);
       setSummary(summaryData);
     } catch (err: any) {
-      console.error('Error loading period details:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load period details'));
     }
   };

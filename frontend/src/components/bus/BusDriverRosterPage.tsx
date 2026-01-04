@@ -93,7 +93,6 @@ export default function BusDriverRosterPage() {
 
       setAssignments(assignmentsData);
     } catch (error) {
-      console.error('Error loading roster:', error);
       toast.error('Failed to load driver roster');
     } finally {
       setLoading(false);

@@ -46,7 +46,6 @@ function TenantUserManagementModal({ tenantId, companyName, onClose }: TenantUse
       const data = await tenantApi.getTenantUsers(tenantId);
       setUsers(data);
     } catch (err: any) {
-      console.error('Error loading users:', err);
       setError(err.response?.data?.error?.message || 'Failed to load users');
     } finally {
       setLoading(false);

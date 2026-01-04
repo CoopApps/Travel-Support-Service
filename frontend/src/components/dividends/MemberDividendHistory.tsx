@@ -82,7 +82,6 @@ export const MemberDividendHistory: React.FC<MemberDividendHistoryProps> = ({
       setDividends(response.data.dividends || []);
       setSummary(response.data.summary || null);
     } catch (err: any) {
-      console.error('Error fetching dividend history:', err);
       setError(typeof err.response?.data?.error === 'string' ? err.response.data.error : (err.response?.data?.error?.message || err.message || 'Failed to load dividend history'));
     } finally {
       setLoading(false);

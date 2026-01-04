@@ -109,7 +109,6 @@ export default function BusTimetablesPage() {
       setVehicles(vehiclesData || []);
       setDrivers(driversData?.drivers || driversData || []);
     } catch (err: any) {
-      console.error('Failed to load timetables:', err);
       setError(err.message || 'Failed to load timetables');
     } finally {
       setLoading(false);
@@ -147,7 +146,6 @@ export default function BusTimetablesPage() {
         loadingDrivers: false
       }));
     } catch (err) {
-      console.error('Failed to fetch driver availability:', err);
       setContextMenu(prev => ({ ...prev, loadingDrivers: false }));
     }
   };
@@ -163,7 +161,6 @@ export default function BusTimetablesPage() {
       fetchData();
       setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false }));
     } catch (err: any) {
-      console.error('Failed to assign vehicle:', err);
       alert(err.response?.data?.error || 'Failed to assign vehicle');
     }
   };
@@ -195,7 +192,6 @@ export default function BusTimetablesPage() {
       fetchData();
       setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false, driverAvailability: [], loadingDrivers: false }));
     } catch (err: any) {
-      console.error('Failed to assign driver:', err);
       // If conflict error, show details
       if (err.response?.status === 409 && err.response?.data?.conflicts) {
         const conflicts = err.response.data.conflicts;
@@ -222,7 +218,6 @@ export default function BusTimetablesPage() {
       fetchData();
       setContextMenu(prev => ({ ...prev, visible: false, showVehicleSubmenu: false, showDriverSubmenu: false, driverAvailability: [], loadingDrivers: false }));
     } catch (err: any) {
-      console.error('Failed to unassign driver:', err);
       alert(err.response?.data?.error || 'Failed to unassign driver');
     }
   };
@@ -246,7 +241,6 @@ export default function BusTimetablesPage() {
       await busTimetablesApi.deleteTimetable(tenant.tenant_id, timetable.timetable_id);
       fetchData();
     } catch (err: any) {
-      console.error('Failed to delete timetable:', err);
       alert(err.response?.data?.error || 'Failed to delete timetable');
     }
   };
@@ -452,7 +446,6 @@ export default function BusTimetablesPage() {
       // Refresh to show the new service
       fetchData();
     } catch (err: any) {
-      console.error('Failed to create return journey:', err);
       alert(err.response?.data?.error || 'Failed to create return journey');
     }
   };
@@ -490,7 +483,6 @@ export default function BusTimetablesPage() {
       // Refresh to show the new service
       fetchData();
     } catch (err: any) {
-      console.error('Failed to duplicate service:', err);
       alert(err.response?.data?.error || 'Failed to duplicate service');
     }
   };

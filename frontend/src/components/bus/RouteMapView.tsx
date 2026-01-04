@@ -222,8 +222,8 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
       lat: parseFloat(data[0].lat),
       lng: parseFloat(data[0].lon)
     };
-  } catch (error) {
-    console.error('Geocoding error:', error);
+  } catch {
+    // Error handled silently
     return null;
   }
 }

@@ -56,7 +56,6 @@ const AddTrainingTypeModal: React.FC<AddTrainingTypeModalProps> = ({
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving training type:', error);
       toast.error('Failed to create training type. Please try again.');
     } finally {
       setLoading(false);

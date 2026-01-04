@@ -128,7 +128,6 @@ const DividendManagementPage: React.FC = () => {
       const data = await response.json();
       setDistributions(data);
     } catch (error) {
-      console.error('Error fetching distributions:', error);
       alert('Failed to load distribution history');
     } finally {
       setLoading(false);
@@ -150,8 +149,8 @@ const DividendManagementPage: React.FC = () => {
 
       const data = await response.json();
       setSchedulerSettings(data);
-    } catch (error) {
-      console.error('Error fetching scheduler settings:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -181,7 +180,6 @@ const DividendManagementPage: React.FC = () => {
       alert('Automation settings updated successfully!');
       setShowSchedulerSettings(false);
     } catch (error: any) {
-      console.error('Error updating scheduler settings:', error);
       alert(error.message || 'Failed to update settings');
     } finally {
       setSavingSchedulerSettings(false);
@@ -246,7 +244,6 @@ const DividendManagementPage: React.FC = () => {
         setShowPreviewDialog(true);
       }
     } catch (error: any) {
-      console.error('Error calculating dividends:', error);
       alert(error.message || 'Failed to calculate dividends');
     } finally {
       setCalculating(false);
@@ -285,7 +282,6 @@ const DividendManagementPage: React.FC = () => {
       setPreviewCalculation(null);
       fetchDistributions();
     } catch (error) {
-      console.error('Error saving distribution:', error);
       alert('Failed to save distribution');
     } finally {
       setSaving(false);
@@ -317,7 +313,6 @@ const DividendManagementPage: React.FC = () => {
       alert('Distribution marked as paid!');
       fetchDistributions();
     } catch (error) {
-      console.error('Error marking distribution paid:', error);
       alert('Failed to mark as paid');
     }
   };

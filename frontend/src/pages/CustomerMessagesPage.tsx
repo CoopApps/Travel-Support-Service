@@ -126,7 +126,6 @@ function CustomerMessagesPage() {
       const response = await apiClient.get(`/tenants/${tenantId}/customers`);
       setCustomers(response.data.customers || []);
     } catch (err: any) {
-      console.error('Error loading customers:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load customers';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -158,8 +157,8 @@ function CustomerMessagesPage() {
 
         setAllMessages(messages);
       }
-    } catch (err: any) {
-      console.error('Error loading messages:', err);
+    } catch {
+      // Error loading messages handled silently
     } finally {
       setLoadingMessages(false);
     }
@@ -198,8 +197,8 @@ function CustomerMessagesPage() {
 
         setSentMessages(messages);
       }
-    } catch (err: any) {
-      console.error('Error loading messages:', err);
+    } catch {
+      // Error loading messages handled silently
     } finally {
       setLoadingMessages(false);
     }
@@ -269,7 +268,6 @@ function CustomerMessagesPage() {
         loadMessagesForCustomer(selectedCustomer.customer_id);
       }
     } catch (err: any) {
-      console.error('Error sending message:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to send message';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -284,7 +282,6 @@ function CustomerMessagesPage() {
         loadMessagesForCustomer(selectedCustomer.customer_id);
       }
     } catch (err: any) {
-      console.error('Error marking message as read:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to mark as read';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     }
@@ -315,7 +312,6 @@ function CustomerMessagesPage() {
         loadMessagesForCustomer(selectedCustomer.customer_id);
       }
     } catch (err: any) {
-      console.error('Error sending reply:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to send reply';
       setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
@@ -334,7 +330,6 @@ function CustomerMessagesPage() {
         loadMessagesForCustomer(selectedCustomer.customer_id);
       }
     } catch (err: any) {
-      console.error('Error deleting message:', err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to delete message';
       alert(errorMessage);
     }

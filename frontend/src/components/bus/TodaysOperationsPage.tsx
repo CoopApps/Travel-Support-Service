@@ -102,8 +102,8 @@ export default function TodaysOperationsPage() {
             timetable.timetable_id,
             selectedDate
           );
-        } catch (err) {
-          console.error(`Failed to load passengers for timetable ${timetable.timetable_id}:`, err);
+        } catch {
+          // Error handled silently
         }
 
         // Find roster entry for this service
@@ -177,7 +177,6 @@ export default function TodaysOperationsPage() {
 
       setAlerts(newAlerts);
     } catch (err: any) {
-      console.error('Failed to load operations:', err);
       setError(err.message || 'Failed to load today\'s operations');
     } finally {
       setLoading(false);

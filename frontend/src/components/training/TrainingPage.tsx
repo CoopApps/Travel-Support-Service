@@ -80,7 +80,6 @@ function TrainingPage() {
       setTotalPages(recordsData.totalPages || 0);
       setDrivers(driversData.drivers || driversData || []);
     } catch (error) {
-      console.error('Error fetching training data:', error);
       toast.error('Failed to load training data');
     } finally {
       setLoading(false);
@@ -100,7 +99,6 @@ function TrainingPage() {
       await trainingApi.createTrainingType(tenantId, data);
       await fetchData(); // Refresh all data
     } catch (error) {
-      console.error('Error creating training type:', error);
       throw error;
     }
   };
@@ -113,7 +111,6 @@ function TrainingPage() {
       await trainingApi.createTrainingRecord(tenantId, data);
       await fetchData(); // Refresh all data
     } catch (error) {
-      console.error('Error creating training record:', error);
       throw error;
     }
   };
@@ -154,7 +151,6 @@ function TrainingPage() {
 
       toast.success('Training records exported successfully');
     } catch (error) {
-      console.error('Error exporting training records:', error);
       toast.error('Failed to export training records');
     }
   };

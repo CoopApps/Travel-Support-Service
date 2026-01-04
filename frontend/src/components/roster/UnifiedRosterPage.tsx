@@ -121,8 +121,8 @@ export default function UnifiedRosterPage() {
               });
             }
           });
-        } catch (err) {
-          console.warn('Could not load transport trips:', err);
+        } catch {
+          // Error handled silently
         }
       }
 
@@ -157,8 +157,8 @@ export default function UnifiedRosterPage() {
               }
             });
           });
-        } catch (err) {
-          console.warn('Could not load bus roster:', err);
+        } catch {
+          // Error handled silently
         }
       }
 
@@ -171,7 +171,6 @@ export default function UnifiedRosterPage() {
 
       setEntries(allEntries);
     } catch (err: any) {
-      console.error('Failed to load roster:', err);
       setError(err.message || 'Failed to load roster data');
     } finally {
       setLoading(false);

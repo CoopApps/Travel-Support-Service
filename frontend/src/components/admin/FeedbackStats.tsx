@@ -38,8 +38,8 @@ function FeedbackStats() {
       setLoading(true);
       const data = await feedbackApi.getStats(tenantId);
       setStats(data);
-    } catch (err) {
-      console.error('Error fetching feedback stats:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

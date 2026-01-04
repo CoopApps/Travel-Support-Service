@@ -54,7 +54,6 @@ function ProfitabilityAnalyticsPage() {
       setDriverProfitability(driverData);
       setTripProfitability(tripData);
     } catch (err: any) {
-      console.error('Error loading profitability data:', err);
       setError(err.response?.data?.message || 'Failed to load profitability data');
     } finally {
       setLoading(false);

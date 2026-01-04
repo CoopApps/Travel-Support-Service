@@ -88,7 +88,6 @@ function DriverFormModal({ driver, onClose }: DriverFormModalProps) {
 
       onClose(true); // Close and refresh
     } catch (err: any) {
-      console.error('Error saving driver:', err);
       setError(err.response?.data?.error?.message || 'Failed to save driver');
     } finally {
       setLoading(false);
