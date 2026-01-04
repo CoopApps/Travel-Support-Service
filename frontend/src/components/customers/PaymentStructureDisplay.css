@@ -1,38 +1,40 @@
-/* Payment Structure Display - Professional */
+/**
+ * Payment Structure Display - Design System 2026
+ */
 
 .payment-structure {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .payment-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2-5);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
   width: fit-content;
 }
 
 .split-payment {
-  background: #f3e5f5;
-  color: #7b1fa2;
-  border: 1px solid #e1bee7;
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
+  border: 1px solid var(--color-purple-200);
 }
 
 .self-pay {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: var(--color-warning-100);
+  color: var(--color-warning-700);
+  border: 1px solid var(--color-warning-200);
 }
 
 .single-provider {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+  border: 1px solid var(--color-brand-200);
 }
 
 .payment-providers {
@@ -44,6 +46,6 @@
 
 .payment-provider-item {
   font-size: 10px;
-  color: var(--gray-600);
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }

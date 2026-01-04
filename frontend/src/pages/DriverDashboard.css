@@ -1,50 +1,52 @@
-/* Driver Dashboard - Clean Professional Design */
+/**
+ * Driver Dashboard - Design System 2026
+ */
 
 /* Trip Card */
 .trip-card {
-  background: white;
-  border: 1px solid var(--gray-200);
-  borderRadius: 8px;
-  padding: 1rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   cursor: context-menu;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .trip-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--gray-300);
+  border-color: var(--color-gray-300);
 }
 
 .trip-customer-name {
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--gray-900);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--gray-200);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .trip-detail {
-  font-size: 13px;
-  color: var(--gray-700);
-  margin-bottom: 6px;
-  line-height: 1.4;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1-5);
+  line-height: var(--line-height-relaxed);
 }
 
 /* Trip Notes */
 .trip-notes {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 6px;
-  font-size: 12px;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-warning-50);
+  border: 1px solid var(--color-warning-200);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
 }
 
 .note-item {
-  color: #92400e;
-  margin-bottom: 4px;
-  line-height: 1.4;
+  color: var(--color-warning-700);
+  margin-bottom: var(--space-1);
+  line-height: var(--line-height-relaxed);
 }
 
 .note-item:last-child {
@@ -52,116 +54,116 @@
 }
 
 .note-item strong {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Navigate Button */
 .btn-navigate {
   display: inline-block;
-  margin-top: 0.75rem;
-  padding: 6px 12px;
-  background: var(--primary);
+  margin-top: var(--space-3);
+  padding: var(--space-1-5) var(--space-3);
+  background: var(--color-brand-500);
   color: white;
   text-decoration: none;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .btn-navigate:hover {
-  background: var(--primary-dark);
+  background: var(--color-brand-600);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 6px rgb(59 130 246 / 0.3);
 }
 
 .trip-hint {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--gray-200);
-  font-size: 11px;
-  color: var(--gray-500);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--surface-border);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
   font-style: italic;
 }
 
 /* Quick Action Button */
-.quick-action-btn {
-  background: white;
-  border: 2px solid var(--primary);
-  color: var(--primary);
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  font-size: 15px;
-  font-weight: 600;
+.driver-dashboard .quick-action-btn {
+  background: var(--surface-card);
+  border: 2px solid var(--color-brand-500);
+  color: var(--color-brand-500);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
-.quick-action-btn:hover {
-  background: var(--primary);
+.driver-dashboard .quick-action-btn:hover {
+  background: var(--color-brand-500);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 4px 12px rgb(59 130 246 / 0.3);
 }
 
-.quick-action-btn svg {
+.driver-dashboard .quick-action-btn svg {
   width: 20px;
   height: 20px;
 }
 
 /* Alert Items */
 .alert-item {
-  padding: 0.75rem;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
   border-left: 3px solid;
 }
 
-.alert-success {
-  background: #f0fdf4;
-  border-color: #10b981;
-  color: #065f46;
+.driver-dashboard .alert-success {
+  background: var(--color-success-50);
+  border-color: var(--color-success-500);
+  color: var(--color-success-700);
 }
 
-.alert-warning {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  color: #92400e;
+.driver-dashboard .alert-warning {
+  background: var(--color-warning-50);
+  border-color: var(--color-warning-500);
+  color: var(--color-warning-700);
 }
 
-.alert-info {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1e40af;
+.driver-dashboard .alert-info {
+  background: var(--color-brand-50);
+  border-color: var(--color-brand-500);
+  color: var(--color-brand-700);
 }
 
 /* Company Header */
 .driver-header {
-  background: var(--primary);
+  background: var(--color-brand-500);
   color: white;
-  padding: 1rem 1.5rem;
+  padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .driver-header-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .driver-header-icon {
   width: 36px;
   height: 36px;
-  background: var(--primary-accent);
-  border-radius: 6px;
+  background: var(--color-brand-600);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,32 +171,32 @@
 }
 
 .driver-header-title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
 }
 
 .driver-header-subtitle {
-  font-size: 11px;
-  color: var(--gray-400);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-200);
   margin-top: 2px;
 }
 
 .driver-header-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .driver-header-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .driver-header-btn:hover {
@@ -203,19 +205,16 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  /* Stack today/tomorrow on mobile */
   div[style*="grid-template-columns: 1fr 1fr"] {
     grid-template-columns: 1fr !important;
   }
 
-  /* Adjust weekly overview for mobile */
   div[style*="gridTemplateColumns: repeat(7, 1fr)"] {
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important;
   }
 
-  /* Mobile header adjustments */
   .driver-header {
-    padding: 0.75rem 1rem;
+    padding: var(--space-3) var(--space-4);
   }
 
   .driver-header-icon {
@@ -224,7 +223,7 @@
   }
 
   .driver-header-title {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   .driver-header-subtitle {
@@ -232,19 +231,18 @@
   }
 
   .driver-header-actions {
-    gap: 0.375rem;
+    gap: var(--space-1-5);
   }
 
   .driver-header-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 13px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
   }
 }
 
 @media (max-width: 480px) {
-  /* Very small screens - hide button text, show icons only or abbreviate */
   .driver-header-logo {
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .driver-header-icon {
@@ -257,7 +255,7 @@
   }
 
   .driver-header-btn {
-    padding: 0.375rem 0.625rem;
-    font-size: 12px;
+    padding: var(--space-1-5) var(--space-2-5);
+    font-size: var(--font-size-xs);
   }
 }

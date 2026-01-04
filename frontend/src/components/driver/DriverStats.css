@@ -1,61 +1,69 @@
-/* Driver Stats - Matching Customer Stats Design */
+/**
+ * Driver Stats - Design System 2026
+ */
 
 .driver-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
-.stat-card {
-  padding: 15px;
-  border-radius: 8px;
+.driver-stats-grid .stat-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   text-align: center;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 5px 0;
+.driver-stats-grid .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.driver-stats-grid .stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-1) 0;
   color: inherit;
 }
 
-.stat-label {
-  font-size: 11px;
-  font-weight: 600;
+.driver-stats-grid .stat-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--letter-spacing-wide);
   display: block;
   color: inherit;
 }
 
-/* Theme Colors - Matching Legacy */
-.stat-card-blue {
-  background: #e3f2fd;
-  color: #1976d2;
+/* Theme Colors */
+.driver-stats-grid .stat-card-blue {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
-.stat-card-green {
-  background: #e8f5e9;
-  color: #388e3c;
+.driver-stats-grid .stat-card-green {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
-.stat-card-orange {
-  background: #fff3e0;
-  color: #f57c00;
+.driver-stats-grid .stat-card-orange {
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
-.stat-card-purple {
-  background: #f3e5f5;
-  color: #7b1fa2;
+.driver-stats-grid .stat-card-purple {
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
 }
 
-.stat-card-teal {
-  background: #e0f2f1;
-  color: #00695c;
+.driver-stats-grid .stat-card-teal {
+  background: var(--color-teal-100);
+  color: var(--color-teal-700);
 }
 
-.stat-card-indigo {
-  background: #e8eaf6;
-  color: #3f51b5;
+.driver-stats-grid .stat-card-indigo {
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
 }

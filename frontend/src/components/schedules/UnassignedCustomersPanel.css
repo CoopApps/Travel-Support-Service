@@ -1,4 +1,8 @@
+/**
+ * Unassigned Customers Panel - Design System 2026
+ */
+
 .unassigned-customers-panel {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   overflow-x: auto;
 }
