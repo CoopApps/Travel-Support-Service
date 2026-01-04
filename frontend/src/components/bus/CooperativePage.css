@@ -1,56 +1,62 @@
+/**
+ * Cooperative Page - Design System 2026
+ */
+
 .cooperative-page {
   padding: 0;
 }
 
 .cooperative-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
 }
 
 .cooperative-header h1 {
   margin: 0;
-  font-size: 1.75rem;
-  color: var(--gray-900);
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-bold);
 }
 
 .cooperative-subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--gray-600);
-  font-size: 0.875rem;
+  margin: var(--space-1) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 /* Tab Navigation */
 .cooperative-tabs {
   display: flex;
-  gap: 0.25rem;
-  border-bottom: 2px solid var(--gray-200);
-  margin-bottom: 1.5rem;
+  gap: var(--space-1);
+  border-bottom: 2px solid var(--surface-border);
+  margin-bottom: var(--space-5);
 }
 
 .cooperative-tab {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
-  color: var(--gray-600);
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .cooperative-tab:hover {
-  color: var(--gray-900);
-  background: var(--gray-50);
+  color: var(--text-primary);
+  background: var(--surface-section);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .cooperative-tab.active {
-  color: #10b981;
-  border-bottom-color: #10b981;
-  font-weight: 600;
+  color: var(--color-success-600);
+  border-bottom-color: var(--color-success-600);
+  font-weight: var(--font-weight-semibold);
 }
 
 .cooperative-tab svg {
@@ -75,8 +81,9 @@
   }
 
   .cooperative-tab {
-    padding: 0.625rem 1rem;
+    padding: var(--space-2-5) var(--space-4);
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .cooperative-tab span {

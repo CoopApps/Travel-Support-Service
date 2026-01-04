@@ -1,84 +1,94 @@
+/**
+ * Bus Customers Page - Design System 2026
+ */
+
 .bus-customers-page {
   padding: 0;
   max-width: 100%;
   margin: 0;
 }
 
-/* Statistics Cards - Match CustomerStats */
+/* Statistics Cards */
 .bus-customers-page .customer-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .bus-customers-page .stat-card {
-  padding: 15px;
-  border-radius: 8px;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   text-align: center;
+  transition: all var(--transition-fast) var(--ease-default);
+}
+
+.bus-customers-page .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .bus-customers-page .stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 5px 0;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-1) 0;
   color: inherit;
 }
 
 .bus-customers-page .stat-label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--letter-spacing-wide);
   display: block;
   color: inherit;
 }
 
-/* Theme Colors - Matching CustomerStats */
+/* Theme Colors */
 .bus-customers-page .stat-card-blue {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
 .bus-customers-page .stat-card-green {
-  background: #e8f5e9;
-  color: #388e3c;
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
 .bus-customers-page .stat-card-orange {
-  background: #fff3e0;
-  color: #f57c00;
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
 .bus-customers-page .stat-card-purple {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
 }
 
 .bus-customers-page .stat-card-teal {
-  background: #e0f2f1;
-  color: #00695c;
+  background: var(--color-teal-100);
+  color: var(--color-teal-700);
 }
 
 .bus-customers-page .stat-card-indigo {
-  background: #e8eaf6;
-  color: #3f51b5;
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
 }
 
 /* Loading & Error */
 .bus-customers-page .loading-state {
   text-align: center;
-  padding: 4rem 2rem;
-  color: var(--gray-600);
+  padding: var(--space-16) var(--space-6);
+  color: var(--text-secondary);
 }
 
 .bus-customers-page .error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  background: var(--color-danger-50);
+  border: 1px solid var(--color-danger-200);
+  color: var(--color-danger-600);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,52 +96,52 @@
 
 .bus-customers-page .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
-  background: var(--gray-50);
-  border-radius: 12px;
+  padding: var(--space-16) var(--space-6);
+  background: var(--surface-section);
+  border-radius: var(--radius-xl);
 }
 
 .bus-customers-page .empty-state h2 {
-  margin: 1rem 0 0.5rem;
-  color: var(--gray-900);
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--text-primary);
 }
 
 .bus-customers-page .empty-state p {
-  color: var(--gray-600);
-  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-5);
 }
 
 /* Customer List */
 .bus-customers-page .customers-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .bus-customers-page .customer-card {
-  background: white;
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: box-shadow 0.2s;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-fast) var(--ease-default);
 }
 
 .bus-customers-page .customer-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .bus-customers-page .customer-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .bus-customers-page .customer-avatar {
   width: 48px;
   height: 48px;
-  background: var(--gray-100);
-  border-radius: 50%;
+  background: var(--color-gray-100);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,58 +152,58 @@
 }
 
 .bus-customers-page .customer-name {
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--gray-900);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
 }
 
 .bus-customers-page .customer-contact {
   display: flex;
-  gap: 1rem;
-  color: var(--gray-600);
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
+  gap: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-1);
 }
 
 .bus-customers-page .customer-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 /* Assignments Section */
 .bus-customers-page .assignments-section {
-  background: var(--gray-50);
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--surface-section);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
 }
 
 .bus-customers-page .assignments-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gray-700);
-  margin-bottom: 0.75rem;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
 }
 
 .bus-customers-page .no-assignments {
-  color: var(--gray-500);
-  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
   font-style: italic;
 }
 
 .bus-customers-page .assignments-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .bus-customers-page .assignment-card {
-  background: white;
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
-  padding: 0.75rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -201,153 +211,72 @@
 
 .bus-customers-page .assignment-card.suspended {
   opacity: 0.6;
-  background: #fef3c7;
+  background: var(--color-warning-50);
 }
 
 .bus-customers-page .assignment-main {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .bus-customers-page .assignment-service {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .bus-customers-page .route-badge {
-  background: #10b981;
+  background: var(--color-success-500);
   color: white;
-  padding: 0.125rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.75rem;
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
 }
 
 .bus-customers-page .service-time {
-  font-weight: 600;
-  color: var(--gray-900);
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
 }
 
 .bus-customers-page .service-name {
-  color: var(--gray-600);
-  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
 }
 
 .bus-customers-page .assignment-details {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.75rem;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
 }
 
 .bus-customers-page .seat-badge {
-  background: #3b82f6;
+  background: var(--color-brand-500);
   color: white;
-  padding: 0.125rem 0.375rem;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .bus-customers-page .days {
-  color: var(--gray-600);
+  color: var(--text-secondary);
 }
 
 .bus-customers-page .status-badge.suspended {
-  background: #f59e0b;
+  background: var(--color-warning-500);
   color: white;
-  padding: 0.125rem 0.375rem;
-  border-radius: 4px;
-  font-size: 0.625rem;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
   text-transform: uppercase;
 }
 
 .bus-customers-page .assignment-actions {
   display: flex;
-  gap: 0.25rem;
-}
-
-/* Buttons */
-.bus-customers-page .btn-primary {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.bus-customers-page .btn-primary:hover {
-  background: #059669;
-}
-
-.bus-customers-page .btn-secondary {
-  background: white;
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.bus-customers-page .btn-secondary:hover {
-  background: var(--gray-50);
-}
-
-.bus-customers-page .btn-sm {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  border-radius: 4px;
-  border: 1px solid var(--gray-300);
-  background: white;
-  cursor: pointer;
-}
-
-.bus-customers-page .btn-sm:hover {
-  background: var(--gray-50);
-}
-
-.bus-customers-page .btn-sm.btn-primary {
-  background: #10b981;
-  border-color: #10b981;
-  color: white;
-}
-
-.bus-customers-page .btn-sm.btn-warning {
-  background: #f59e0b;
-  border-color: #f59e0b;
-  color: white;
-}
-
-.bus-customers-page .btn-sm.btn-success {
-  background: #22c55e;
-  border-color: #22c55e;
-  color: white;
-}
-
-.bus-customers-page .btn-xs {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.6875rem;
-  border-radius: 4px;
-  border: 1px solid var(--gray-300);
-  background: white;
-  cursor: pointer;
-}
-
-.bus-customers-page .btn-xs:hover {
-  background: var(--gray-50);
-}
-
-.bus-customers-page .btn-xs.btn-danger {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: white;
+  gap: var(--space-1);
 }
 
 /* Pagination */
@@ -355,19 +284,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--gray-200);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--surface-border);
 }
 
 .bus-customers-page .page-info {
-  color: var(--gray-600);
-  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .bus-customers-page .page-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 /* Modal */
@@ -381,108 +310,125 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal-backdrop);
 }
 
 .bus-customers-page .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: var(--shadow-xl);
 }
 
 .bus-customers-page .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--gray-200);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .bus-customers-page .modal-header h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .bus-customers-page .close-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
-  color: var(--gray-500);
+  color: var(--text-muted);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast) var(--ease-default);
+}
+
+.bus-customers-page .close-btn:hover {
+  background: var(--surface-section);
+  color: var(--text-primary);
 }
 
 .bus-customers-page .modal-customer-info {
-  padding: 0.75rem 1.5rem;
-  background: #f0fdf4;
-  border-bottom: 1px solid #dcfce7;
-  font-size: 0.875rem;
-  color: #166534;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-success-50);
+  border-bottom: 1px solid var(--color-success-100);
+  font-size: var(--font-size-sm);
+  color: var(--color-success-800);
 }
 
 .bus-customers-page .modal-body {
-  padding: 1.5rem;
+  padding: var(--space-5);
 }
 
 .bus-customers-page .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--gray-200);
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--surface-border);
 }
 
 /* Form */
 .bus-customers-page .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .bus-customers-page .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .bus-customers-page .form-group label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--gray-700);
-  margin-bottom: 0.375rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1-5);
 }
 
 .bus-customers-page .form-group input,
 .bus-customers-page .form-group select {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--gray-300);
-  border-radius: 6px;
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.bus-customers-page .form-group input:focus,
+.bus-customers-page .form-group select:focus {
+  outline: none;
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
 
 .bus-customers-page .days-grid {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
 .bus-customers-page .day-checkbox {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--gray-100);
-  border-radius: 6px;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-gray-100);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 0.8rem;
-  transition: background 0.2s;
+  font-size: var(--font-size-xs);
+  transition: background var(--transition-fast) var(--ease-default);
 }
 
 .bus-customers-page .day-checkbox:hover {
-  background: var(--gray-200);
+  background: var(--color-gray-200);
 }
 
 .bus-customers-page .day-checkbox input {
@@ -490,6 +436,27 @@
 }
 
 .bus-customers-page .day-checkbox input:checked + span {
-  font-weight: 600;
-  color: #10b981;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success-600);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bus-customers-page .customer-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bus-customers-page .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bus-customers-page .customer-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bus-customers-page .customer-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
