@@ -1,57 +1,61 @@
+/**
+ * Bus Timetables Page - Design System 2026
+ */
+
 .bus-timetables-page {
-  padding: 24px;
+  padding: var(--space-6);
 }
 
 /* Route Palette */
 .route-palette {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .palette-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .palette-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .palette-hint {
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
 .palette-routes {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: var(--space-2);
 }
 
 .palette-route {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #f8fafc;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
+  gap: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3-5);
+  background: var(--surface-section);
+  border: 2px dashed var(--color-gray-300);
+  border-radius: var(--radius-lg);
   cursor: grab;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
   flex-shrink: 0;
 }
 
 .palette-route:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: var(--color-brand-500);
+  background: var(--color-brand-50);
 }
 
 .palette-route:active {
@@ -59,12 +63,12 @@
 }
 
 .palette-route-number {
-  background: #3b82f6;
+  background: var(--color-brand-500);
   color: white;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-1) var(--space-2-5);
+  border-radius: var(--radius-sm);
   min-width: 36px;
   text-align: center;
 }
@@ -72,19 +76,19 @@
 .palette-route-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
 }
 
 .palette-route-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
   white-space: nowrap;
 }
 
 .palette-route-journey {
-  font-size: 11px;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -93,135 +97,135 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  gap: 16px;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
   flex-wrap: wrap;
 }
 
 .view-toggle {
   display: flex;
-  background: #f3f4f6;
-  border-radius: 8px;
-  padding: 4px;
+  background: var(--color-gray-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
 }
 
 .toggle-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--space-1-5);
+  padding: var(--space-2) var(--space-4);
   border: none;
   background: transparent;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b7280;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .toggle-btn:hover {
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .toggle-btn.active {
-  background: white;
-  color: #3b82f6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--surface-card);
+  color: var(--color-brand-600);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Filters */
-.filter-group {
+.bus-timetables-page .filter-group {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .route-filter {
-  padding: 8px 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  background: white;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  background: var(--surface-card);
   cursor: pointer;
   min-width: 250px;
 }
 
 .route-filter:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-brand-500);
 }
 
 /* Calendar View */
 .calendar-view {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   overflow: hidden;
 }
 
 .calendar-view.dragging {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2);
 }
 
 .calendar-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .nav-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid #e5e7eb;
-  background: white;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .nav-btn:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
 }
 
 .week-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .week-display h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .today-btn {
-  padding: 4px 12px;
-  border: 1px solid #3b82f6;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-brand-500);
   background: transparent;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #3b82f6;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-600);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .today-btn:hover {
-  background: #3b82f6;
+  background: var(--color-brand-500);
   color: white;
 }
 
@@ -233,18 +237,18 @@
 .calendar-header {
   display: grid;
   grid-template-columns: 80px repeat(7, 1fr);
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .time-column-header {
-  padding: 12px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
@@ -252,29 +256,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 8px;
-  border-left: 1px solid #e5e7eb;
+  padding: var(--space-3) var(--space-2);
+  border-left: 1px solid var(--surface-border);
 }
 
 .day-header.today {
-  background: #eff6ff;
+  background: var(--color-brand-50);
 }
 
 .day-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
 .day-date {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .day-header.today .day-date {
-  color: #3b82f6;
+  color: var(--color-brand-600);
 }
 
 /* Calendar Body */
@@ -287,41 +291,41 @@
   display: grid;
   grid-template-columns: 80px repeat(7, 1fr);
   min-height: 60px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--color-gray-100);
 }
 
 .time-row:hover {
-  background: #fafafa;
+  background: var(--surface-section);
 }
 
 .time-label {
-  padding: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
-  border-right: 1px solid #e5e7eb;
+  padding: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  border-right: 1px solid var(--surface-border);
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
 }
 
 .day-cell {
-  padding: 4px;
-  border-left: 1px solid #f3f4f6;
+  padding: var(--space-1);
+  border-left: 1px solid var(--color-gray-100);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   min-height: 56px;
-  transition: background 0.2s;
+  transition: background var(--transition-fast) var(--ease-default);
 }
 
 .day-cell.today {
-  background: #fafbff;
+  background: var(--color-brand-50);
 }
 
 .day-cell.drop-target {
-  background: #eff6ff;
-  border: 2px dashed #3b82f6;
+  background: var(--color-brand-50);
+  border: 2px dashed var(--color-brand-500);
   margin: -2px;
 }
 
@@ -329,99 +333,99 @@
 .service-chip {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 11px;
+  gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: all 0.2s;
-  background: #e0e7ff;
-  border: 1px solid #c7d2fe;
+  transition: all var(--transition-fast) var(--ease-default);
+  background: var(--color-brand-100);
+  border: 1px solid var(--color-brand-200);
 }
 
 .service-chip:hover {
   transform: scale(1.02);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .service-chip.status-active {
-  background: #dcfce7;
-  border-color: #86efac;
+  background: var(--color-success-100);
+  border-color: var(--color-success-200);
 }
 
 .service-chip.status-scheduled {
-  background: #e0e7ff;
-  border-color: #c7d2fe;
+  background: var(--color-brand-100);
+  border-color: var(--color-brand-200);
 }
 
 .service-chip.status-cancelled {
-  background: #fee2e2;
-  border-color: #fecaca;
+  background: var(--color-danger-100);
+  border-color: var(--color-danger-200);
   opacity: 0.6;
 }
 
 .chip-route {
-  font-weight: 700;
-  color: #1e40af;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-brand-800);
 }
 
 .service-chip.status-active .chip-route {
-  color: #166534;
+  color: var(--color-success-700);
 }
 
 .chip-time {
-  font-weight: 500;
-  color: #4b5563;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
 }
 
 .chip-direction {
   margin-left: auto;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 /* Context Menu */
 .context-menu {
   position: fixed;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  padding: 6px 0;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1-5) 0;
   min-width: 180px;
-  z-index: 1000;
+  z-index: var(--z-dropdown);
 }
 
 .context-menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2-5);
   width: 100%;
-  padding: 10px 16px;
+  padding: var(--space-2-5) var(--space-4);
   border: none;
   background: none;
-  font-size: 13px;
-  color: #374151;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s;
+  transition: background var(--transition-fast) var(--ease-default);
 }
 
 .context-menu-item:hover {
-  background: #f3f4f6;
+  background: var(--color-gray-100);
 }
 
 .context-menu-item.danger {
-  color: #dc2626;
+  color: var(--color-danger-600);
 }
 
 .context-menu-item.danger:hover {
-  background: #fef2f2;
+  background: var(--color-danger-50);
 }
 
 .context-menu-divider {
   height: 1px;
-  background: #e5e7eb;
-  margin: 6px 0;
+  background: var(--surface-border);
+  margin: var(--space-1-5) 0;
 }
 
 /* Context Submenu */
@@ -433,99 +437,99 @@
 
 .submenu-arrow {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .context-submenu {
   position: absolute;
   left: 100%;
   top: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  padding: 6px 0;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1-5) 0;
   min-width: 220px;
   max-height: 300px;
   overflow-y: auto;
 }
 
 .context-submenu .context-menu-item {
-  font-size: 12px;
-  padding: 8px 12px;
+  font-size: var(--font-size-xs);
+  padding: var(--space-2) var(--space-3);
 }
 
 .context-submenu .context-menu-item.active {
-  background: #eff6ff;
-  color: #3b82f6;
+  background: var(--color-brand-50);
+  color: var(--color-brand-600);
 }
 
 .context-submenu .context-menu-item.active::before {
-  content: '✓ ';
+  content: 'Check ';
 }
 
 /* Driver Availability Indicators */
 .availability-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: inline-block;
-  margin-right: 8px;
+  margin-right: var(--space-2);
   flex-shrink: 0;
 }
 
 .availability-dot.available {
-  background: #22c55e;
+  background: var(--color-success-500);
 }
 
 .availability-dot.busy {
-  background: #ef4444;
+  background: var(--color-danger-500);
 }
 
 .context-menu-item.unavailable {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .conflict-badge {
   margin-left: auto;
   font-size: 10px;
-  padding: 2px 6px;
-  background: #fee2e2;
-  color: #dc2626;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: var(--space-0-5) var(--space-1-5);
+  background: var(--color-danger-100);
+  color: var(--color-danger-600);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .warning-badge {
   margin-left: auto;
   font-size: 10px;
-  padding: 2px 6px;
-  background: #fef3c7;
-  color: #d97706;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: var(--space-0-5) var(--space-1-5);
+  background: var(--color-warning-100);
+  color: var(--color-warning-600);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Timetables Grid (List View) */
 .timetables-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .timetable-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  transition: all 0.2s ease;
+  gap: var(--space-5);
+  transition: all var(--transition-fast) var(--ease-default);
 }
 
 .timetable-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -534,23 +538,23 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .route-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   flex: 1;
 }
 
-.route-badge {
-  background: #3b82f6;
+.bus-timetables-page .route-badge {
+  background: var(--color-brand-500);
   color: white;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-1-5) var(--space-3);
+  border-radius: var(--radius-md);
   min-width: 50px;
   text-align: center;
   flex-shrink: 0;
@@ -559,59 +563,59 @@
 .route-details {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
 .route-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .service-name {
-  font-size: 13px;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+.bus-timetables-page .status-badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: capitalize;
   flex-shrink: 0;
 }
 
-.status-active {
-  background: #dcfce7;
-  color: #166534;
+.bus-timetables-page .status-active {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
-.status-scheduled {
-  background: #e0e7ff;
-  color: #3730a3;
+.bus-timetables-page .status-scheduled {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
-.status-cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+.bus-timetables-page .status-cancelled {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
 }
 
-.status-completed {
-  background: #f3f4f6;
-  color: #4b5563;
+.bus-timetables-page .status-completed {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
 }
 
 /* Time Display */
 .timetable-time {
-  background: #f9fafb;
-  padding: 16px;
-  border-radius: 8px;
+  background: var(--surface-section);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   text-align: center;
 }
 
@@ -619,26 +623,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .time-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-none);
 }
 
 .direction-indicator {
-  font-size: 28px;
-  color: #3b82f6;
+  font-size: var(--font-size-3xl);
+  color: var(--color-brand-500);
 }
 
 .direction-label {
-  font-size: 13px;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
   text-transform: capitalize;
 }
 
@@ -646,71 +650,71 @@
 .timetable-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .detail-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: #6b7280;
+  gap: var(--space-2-5);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .detail-icon {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
 .detail-text {
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
 }
 
 /* Capacity Info */
 .capacity-info {
   display: flex;
-  gap: 20px;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
+  gap: var(--space-5);
+  padding: var(--space-4);
+  background: var(--surface-section);
+  border-radius: var(--radius-lg);
 }
 
 .capacity-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .capacity-icon {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
 }
 
 .capacity-details {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
 }
 
 .capacity-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-none);
 }
 
 .capacity-label {
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 /* Actions */
 .timetable-actions {
   display: flex;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--surface-border);
 }
 
 /* Responsive Design */
@@ -722,7 +726,7 @@
 
   .service-chip {
     font-size: 10px;
-    padding: 4px 6px;
+    padding: var(--space-1) var(--space-1-5);
   }
 
   .palette-routes {
@@ -732,7 +736,7 @@
 
 @media (max-width: 768px) {
   .bus-timetables-page {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .page-controls {
@@ -746,7 +750,7 @@
 
   .calendar-navigation {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-3);
   }
 
   .nav-btn {
@@ -759,11 +763,11 @@
   }
 
   .time-value {
-    font-size: 28px;
+    font-size: var(--font-size-3xl);
   }
 
   .capacity-info {
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-4);
   }
 }
