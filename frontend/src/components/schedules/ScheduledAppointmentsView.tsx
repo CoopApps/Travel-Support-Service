@@ -31,6 +31,7 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
   const [selectedDriver, setSelectedDriver] = useState<string>('');
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Modal state
   const [showFormModal, setShowFormModal] = useState(false);
@@ -336,7 +337,7 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
         flexWrap: 'wrap'
       }}>
         {/* Title */}
-        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600, whiteSpace: 'nowrap' }}>
           Scheduled Appointments
         </h3>
 
@@ -353,6 +354,38 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
             {urgentCount} urgent
           </span>
         )}
+
+        {/* Search */}
+        <div style={{ position: 'relative', width: '180px' }}>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9ca3af"
+            strokeWidth="2"
+            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '5px 8px 5px 28px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '13px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+          />
+        </div>
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -525,6 +558,7 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
         weekDays={weekDays}
         serverTime={serverTime}
         tenantId={tenantId}
+        searchQuery={searchQuery}
         onEditTrip={handleEdit}
         onCreateTrip={(driverId, dayIndex) => {
           // Convert day index to date

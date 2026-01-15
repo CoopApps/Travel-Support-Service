@@ -15,6 +15,7 @@ interface ScheduledTripsGridProps {
   viewType?: 'regular' | 'adhoc'; // To apply different colors based on view
   optimizationScores?: any[]; // Optimization scores for each driver-date combination
   onOptimizeDriver?: (driverId: number, date: string) => void; // Callback to open optimization panel
+  searchQuery?: string; // External search query
 }
 
 /**
@@ -34,7 +35,8 @@ function ScheduledTripsGrid({
   onRefresh,
   viewType = 'regular',
   optimizationScores,
-  onOptimizeDriver
+  onOptimizeDriver,
+  searchQuery: externalSearchQuery = ''
 }: ScheduledTripsGridProps) {
 
   // Context menu state
@@ -58,8 +60,9 @@ function ScheduledTripsGrid({
   // Keyboard shortcuts help state
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('');
+  // Search state - use external if provided, otherwise internal
+  const [internalSearchQuery, setInternalSearchQuery] = useState('');
+  const searchQuery = externalSearchQuery || internalSearchQuery;
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   // Responsive state
@@ -465,65 +468,6 @@ function ScheduledTripsGrid({
 
   return (
     <>
-      {/* Search Bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        marginBottom: '12px'
-      }}>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '280px' }}>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#9ca3af"
-            strokeWidth="2"
-            style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}
-          >
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '6px 10px 6px 32px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              fontSize: '13px',
-              outline: 'none'
-            }}
-            onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-            onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
-          />
-        </div>
-        {searchQuery && (
-          <span style={{ fontSize: '12px', color: '#6b7280' }}>
-            {filteredTrips.length}/{trips.length}
-          </span>
-        )}
-        <div style={{ flex: 1 }} />
-        <button
-          onClick={() => setShowKeyboardHelp(prev => !prev)}
-          style={{
-            padding: '4px 8px',
-            background: 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '12px',
-            cursor: 'pointer',
-            color: '#9ca3af'
-          }}
-          title="Keyboard shortcuts (?)"
-        >
-          ?
-        </button>
-      </div>
 
       {/* Bulk Actions Toolbar */}
       {showBulkActions && (
