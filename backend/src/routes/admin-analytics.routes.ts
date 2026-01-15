@@ -78,7 +78,7 @@ router.get(
         COALESCE(SUM(cost), 0) as total_fuel_cost,
         COUNT(*) as fuel_entries
       FROM tenant_driver_fuel
-      WHERE tenant_id = $1 ${dateFilter.replace(/t\.trip_date/g, 'purchase_date')}
+      WHERE tenant_id = $1 ${dateFilter.replace(/t\.trip_date/g, 'date')}
       GROUP BY driver_id
     `, params);
 
@@ -439,7 +439,7 @@ router.get(
     const fuelCosts = await queryOne<{ total_fuel: string }>(`
       SELECT COALESCE(SUM(cost), 0) as total_fuel
       FROM tenant_driver_fuel
-      WHERE tenant_id = $1 ${dateFilter.replace(/trip_date/g, 'purchase_date')}
+      WHERE tenant_id = $1 ${dateFilter.replace(/trip_date/g, 'date')}
     `, params);
 
     const vehicleCosts = await queryOne<any>(`
