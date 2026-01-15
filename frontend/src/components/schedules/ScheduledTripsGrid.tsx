@@ -465,59 +465,63 @@ function ScheduledTripsGrid({
 
   return (
     <>
-      {/* Search Bar and Shortcuts Button */}
+      {/* Search Bar */}
       <div style={{
         display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-between',
-        alignItems: isMobile ? 'stretch' : 'center',
-        marginBottom: '12px',
-        gap: '12px'
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '12px'
       }}>
-        <div style={{ flex: 1, maxWidth: isMobile ? '100%' : '500px' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '280px' }}>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9ca3af"
+            strokeWidth="2"
+            style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
           <input
             type="text"
-            placeholder={isMobile ? "Search trips..." : "Search trips by customer, address, destination, driver, or status..."}
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: isMobile ? '10px 14px' : '8px 12px',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              fontSize: isMobile ? '14px' : '13px',
+              padding: '6px 10px 6px 32px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '13px',
               outline: 'none'
             }}
             onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-            onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
           />
-          {searchQuery && (
-            <div style={{ marginTop: '4px', fontSize: isMobile ? '13px' : '12px', color: '#64748b' }}>
-              Showing {filteredTrips.length} of {trips.length} trip{trips.length !== 1 ? 's' : ''}
-              {filteredTrips.length === 0 && <span style={{ color: '#ef4444', marginLeft: '4px' }}>- No matches found</span>}
-            </div>
-          )}
         </div>
+        {searchQuery && (
+          <span style={{ fontSize: '12px', color: '#6b7280' }}>
+            {filteredTrips.length}/{trips.length}
+          </span>
+        )}
+        <div style={{ flex: 1 }} />
         <button
           onClick={() => setShowKeyboardHelp(prev => !prev)}
           style={{
-            padding: isMobile ? '10px 14px' : '6px 12px',
-            background: 'white',
-            border: '1px solid #cbd5e1',
+            padding: '4px 8px',
+            background: 'transparent',
+            border: 'none',
             borderRadius: '4px',
-            fontSize: isMobile ? '14px' : '12px',
+            fontSize: '12px',
             cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            color: '#64748b',
-            whiteSpace: 'nowrap'
+            color: '#9ca3af'
           }}
-          title="Show keyboard shortcuts (press ? key)"
+          title="Keyboard shortcuts (?)"
         >
-          <span style={{ fontSize: isMobile ? '16px' : '14px', fontWeight: 600 }}>?</span>
-          <span>Shortcuts</span>
+          ?
         </button>
       </div>
 
