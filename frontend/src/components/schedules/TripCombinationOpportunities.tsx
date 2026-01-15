@@ -1,8 +1,8 @@
 /**
  * Trip Combination Opportunities Component
  *
- * Displays proactive suggestions for combining trips to maximize vehicle utilization
- * Shows drivers with empty seats and compatible customers with similar destinations
+ * Subtle insights widget showing opportunities to combine trips
+ * Collapsed by default, expands to show compact table view
  */
 
 import { useState, useEffect } from 'react';
@@ -22,7 +22,8 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
   const [summary, setSummary] = useState<any>(null);
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [collapsed, setCollapsed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (tenantId) {
@@ -36,7 +37,7 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
 
     const interval = setInterval(() => {
       fetchOpportunities();
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [autoRefresh, tenantId, selectedDate]);
@@ -55,31 +56,9 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
       setOpportunities(response.opportunities || []);
       setSummary(response.summary || null);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load opportunities');
+      setError(err.response?.data?.message || 'Failed to load');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getRecommendationColor = (recommendation: string) => {
-    switch (recommendation) {
-      case 'highly_recommended':
-        return { bg: '#d1fae5', border: '#10b981', text: '#065f46', badge: '#10b981' };
-      case 'recommended':
-        return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af', badge: '#3b82f6' };
-      case 'acceptable':
-        return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e', badge: '#f59e0b' };
-      default:
-        return { bg: '#f3f4f6', border: '#9ca3af', text: '#4b5563', badge: '#9ca3af' };
-    }
-  };
-
-  const getRecommendationLabel = (recommendation: string) => {
-    switch (recommendation) {
-      case 'highly_recommended': return '⭐ Highly Recommended';
-      case 'recommended': return '✓ Recommended';
-      case 'acceptable': return '○ Acceptable';
-      default: return '';
     }
   };
 
@@ -89,242 +68,169 @@ function TripCombinationOpportunities({ onAddToTrip, autoRefresh = true }: TripC
     }
   };
 
-  if (!tenantId) return null;
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    return time.substring(0, 5);
+  };
+
+  // Don't render if dismissed or no tenant
+  if (!tenantId || dismissed) return null;
+
+  // Don't render if no opportunities and not loading
+  if (!loading && opportunities.length === 0 && !error) return null;
+
+  const totalRevenue = summary?.total_potential_revenue || '0.00';
+  const count = opportunities.length;
 
   return (
-    <div className="trip-combination-opportunities">
-      {/* Header */}
-      <div className="opportunities-header">
-        <div className="header-left">
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="collapse-button"
-            title={collapsed ? 'Expand' : 'Collapse'}
-          >
-            {collapsed ? '▶' : '▼'}
-          </button>
-          <div>
-            <h3>🚗 Trip Combination Opportunities</h3>
-            <p className="header-subtitle">
-              Maximize revenue by filling empty seats with compatible customers
-            </p>
-          </div>
+    <div className="tco-widget">
+      {/* Collapsed View - Single Line */}
+      <div className="tco-header" onClick={() => setExpanded(!expanded)}>
+        <div className="tco-indicator">
+          <span className={`tco-dot ${count > 0 ? 'active' : ''}`} />
+          <span className="tco-summary">
+            {loading ? (
+              'Checking opportunities...'
+            ) : error ? (
+              <span className="tco-error">Unable to load opportunities</span>
+            ) : (
+              <>
+                <strong>{count}</strong> combination {count === 1 ? 'opportunity' : 'opportunities'}
+                {count > 0 && (
+                  <span className="tco-revenue">+£{totalRevenue}</span>
+                )}
+              </>
+            )}
+          </span>
         </div>
 
-        <div className="header-actions">
+        <div className="tco-actions">
           <input
             type="date"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="date-input"
+            onChange={(e) => {
+              e.stopPropagation();
+              setSelectedDate(e.target.value);
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="tco-date-input"
           />
           <button
-            onClick={fetchOpportunities}
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchOpportunities();
+            }}
             disabled={loading}
-            className="refresh-button"
-            title="Refresh opportunities"
+            className="tco-refresh"
+            title="Refresh"
           >
-            {loading ? '⟳' : '↻'}
+            {loading ? '...' : '↻'}
+          </button>
+          <button
+            className="tco-expand"
+            title={expanded ? 'Collapse' : 'Expand'}
+          >
+            {expanded ? '▲' : '▼'}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setDismissed(true);
+            }}
+            className="tco-dismiss"
+            title="Dismiss for now"
+          >
+            ×
           </button>
         </div>
       </div>
 
-      {!collapsed && (
-        <>
-          {/* Summary Stats */}
-          {summary && opportunities.length > 0 && (
-            <div className="summary-stats">
-              <div className="stat-card">
-                <div className="stat-icon">📊</div>
-                <div className="stat-content">
-                  <div className="stat-label">Total Opportunities</div>
-                  <div className="stat-value">{summary.total_opportunities}</div>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">⭐</div>
-                <div className="stat-content">
-                  <div className="stat-label">Highly Recommended</div>
-                  <div className="stat-value">{summary.highly_recommended}</div>
-                </div>
-              </div>
-
-              <div className="stat-card highlight">
-                <div className="stat-icon">💰</div>
-                <div className="stat-content">
-                  <div className="stat-label">Potential Revenue</div>
-                  <div className="stat-value">£{summary.total_potential_revenue}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Opportunities List */}
-          <div className="opportunities-content">
-            {loading && opportunities.length === 0 ? (
-              <div className="loading-state">
-                <div className="spinner"></div>
-                <p>Finding combination opportunities...</p>
-              </div>
-            ) : error ? (
-              <div className="error-state">
-                <p>⚠️ {error}</p>
-                <button onClick={fetchOpportunities} className="retry-button">
-                  Try Again
-                </button>
-              </div>
-            ) : opportunities.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">✅</div>
-                <h4>All vehicles fully utilized!</h4>
-                <p>No combination opportunities found for {selectedDate}</p>
-                <p className="empty-hint">
-                  Try selecting a different date or check back later.
-                </p>
-              </div>
-            ) : (
-              <div className="opportunities-list">
-                {opportunities.map((opportunity, index) => {
-                  const colors = getRecommendationColor(opportunity.recommendation);
-
-                  return (
-                    <div
-                      key={index}
-                      className="opportunity-card"
-                      style={{
-                        borderLeft: `4px solid ${colors.border}`,
-                        background: colors.bg
-                      }}
-                    >
-                      {/* Recommendation Badge */}
-                      <div className="recommendation-badge" style={{ background: colors.badge }}>
-                        {getRecommendationLabel(opportunity.recommendation)}
-                      </div>
-
-                      {/* Current Trip Info */}
-                      <div className="opportunity-section">
-                        <h4 className="section-title">Current Trip</h4>
-                        <div className="trip-info">
-                          <div className="info-row">
-                            <span className="info-icon">👤</span>
-                            <span className="info-label">Driver:</span>
-                            <span className="info-value">{opportunity.driver.name}</span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">🚗</span>
-                            <span className="info-label">Vehicle:</span>
-                            <span className="info-value">
-                              {opportunity.vehicle.make} {opportunity.vehicle.model} ({opportunity.vehicle.registration})
-                            </span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">💺</span>
-                            <span className="info-label">Capacity:</span>
-                            <span className="info-value">
-                              {opportunity.vehicle.occupied_seats}/{opportunity.vehicle.capacity} seats used
-                              <span className="available-seats">
-                                {' '}({opportunity.vehicle.available_seats} available)
-                              </span>
-                            </span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">👥</span>
-                            <span className="info-label">Customer:</span>
-                            <span className="info-value">{opportunity.current_trip.customer_name}</span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">📍</span>
-                            <span className="info-label">Pickup:</span>
-                            <span className="info-value">
-                              {opportunity.current_trip.pickup_location} ({opportunity.pickup_time})
-                            </span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">🎯</span>
-                            <span className="info-label">Destination:</span>
-                            <span className="info-value">{opportunity.current_trip.destination}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Compatible Customer Info */}
-                      <div className="opportunity-section">
-                        <h4 className="section-title">Compatible Customer</h4>
-                        <div className="customer-info">
-                          <div className="info-row">
-                            <span className="info-icon">👤</span>
-                            <span className="info-label">Name:</span>
-                            <span className="info-value">{opportunity.compatible_customer.name}</span>
-                          </div>
-                          <div className="info-row">
-                            <span className="info-icon">🏠</span>
-                            <span className="info-label">Address:</span>
-                            <span className="info-value">
-                              {opportunity.compatible_customer.address || 'N/A'}
-                              {opportunity.compatible_customer.postcode && `, ${opportunity.compatible_customer.postcode}`}
-                            </span>
-                          </div>
-                          {opportunity.compatible_customer.phone && (
-                            <div className="info-row">
-                              <span className="info-icon">📞</span>
-                              <span className="info-label">Phone:</span>
-                              <span className="info-value">{opportunity.compatible_customer.phone}</span>
-                            </div>
-                          )}
-                          {opportunity.compatible_customer.similar_destination_trips > 0 && (
-                            <div className="info-row">
-                              <span className="info-icon">🎯</span>
-                              <span className="info-label">Similar trips:</span>
-                              <span className="info-value">
-                                {opportunity.compatible_customer.similar_destination_trips} times to similar destination
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Revenue Potential */}
-                      <div className="opportunity-section revenue-section">
-                        <div className="revenue-highlight">
-                          <span className="revenue-label">Potential Additional Revenue:</span>
-                          <span className="revenue-value">
-                            £{opportunity.potential_additional_revenue.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="compatibility-score">
-                          Compatibility Score: {opportunity.compatibility_score}/100
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="opportunity-actions">
-                        <button
-                          onClick={() => handleAddToTrip(opportunity)}
-                          className="add-button"
+      {/* Expanded View - Table */}
+      {expanded && count > 0 && (
+        <div className="tco-table-container">
+          <table className="tco-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Driver</th>
+                <th>Vehicle</th>
+                <th>Seats</th>
+                <th>Destination</th>
+                <th>Add Customer</th>
+                <th>Revenue</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {opportunities.map((opp, index) => (
+                <tr key={index} className={`tco-row tco-row--${opp.recommendation}`}>
+                  <td className="tco-cell-time">{formatTime(opp.pickup_time)}</td>
+                  <td className="tco-cell-driver">{opp.driver.name}</td>
+                  <td className="tco-cell-vehicle">{opp.vehicle.registration}</td>
+                  <td className="tco-cell-seats">
+                    <span className="tco-seats-badge">
+                      {opp.vehicle.available_seats} free
+                    </span>
+                  </td>
+                  <td className="tco-cell-destination" title={opp.current_trip.destination}>
+                    {opp.current_trip.destination?.substring(0, 25)}
+                    {opp.current_trip.destination?.length > 25 ? '...' : ''}
+                  </td>
+                  <td className="tco-cell-customer">
+                    <div className="tco-customer-info">
+                      <span className="tco-customer-name">{opp.compatible_customer.name}</span>
+                      {opp.compatible_customer.phone && (
+                        <a
+                          href={`tel:${opp.compatible_customer.phone}`}
+                          className="tco-phone-link"
+                          onClick={(e) => e.stopPropagation()}
+                          title={opp.compatible_customer.phone}
                         >
-                          ➕ Add to Trip
-                        </button>
-                        {opportunity.compatible_customer.phone ? (
-                          <a
-                            href={`tel:${opportunity.compatible_customer.phone}`}
-                            className="call-button"
-                          >
-                            📞 Call Customer
-                          </a>
-                        ) : (
-                          <span className="call-button" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                            📞 Call Customer
-                          </span>
-                        )}
-                      </div>
+                          ☎
+                        </a>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  </td>
+                  <td className="tco-cell-revenue">
+                    +£{opp.potential_additional_revenue.toFixed(2)}
+                  </td>
+                  <td className="tco-cell-action">
+                    <button
+                      onClick={() => handleAddToTrip(opp)}
+                      className="tco-add-btn"
+                      title="Add customer to this trip"
+                    >
+                      Add
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Footer summary */}
+          <div className="tco-footer">
+            <span className="tco-footer-text">
+              {summary?.highly_recommended || 0} highly recommended
+            </span>
+            <span className="tco-footer-total">
+              Total potential: <strong>£{totalRevenue}</strong>
+            </span>
           </div>
-        </>
+        </div>
+      )}
+
+      {/* Expanded but empty/error */}
+      {expanded && count === 0 && !loading && (
+        <div className="tco-empty">
+          {error ? (
+            <button onClick={fetchOpportunities} className="tco-retry">
+              Retry
+            </button>
+          ) : (
+            <span>No opportunities for this date</span>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,419 +1,328 @@
 /**
- * Trip Combination Opportunities - Design System 2026
+ * Trip Combination Opportunities - Subtle Widget Style
+ * Minimal, professional design that doesn't demand attention
  */
 
-.trip-combination-opportunities {
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-6);
-  overflow: hidden;
+.tco-widget {
+  background: var(--surface-card, #fff);
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
 }
 
-.opportunities-header {
+/* Header - Single Line */
+.tco-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-5) var(--space-6);
-  background: linear-gradient(135deg, var(--color-purple-500) 0%, var(--color-purple-700) 100%);
-  color: white;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
 }
 
-.header-left {
+.tco-header:hover {
+  background: var(--surface-hover, #f9fafb);
+}
+
+.tco-indicator {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 10px;
 }
 
-.collapse-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  transition: background var(--transition-fast) var(--ease-default);
-}
-
-.collapse-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.opportunities-header h3 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-}
-
-.header-subtitle {
-  margin: var(--space-1) 0 0 0;
-  font-size: var(--font-size-sm);
-  opacity: 0.9;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.date-input {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.95);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.refresh-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  transition: all var(--transition-fast) var(--ease-default);
-}
-
-.refresh-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.refresh-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Summary Stats */
-.summary-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-4);
-  padding: var(--space-6);
-  background: var(--surface-section);
-  border-bottom: 1px solid var(--surface-border);
-}
-
-.trip-combination-opportunities .stat-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--surface-card);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xs);
-}
-
-.trip-combination-opportunities .stat-card.highlight {
-  background: linear-gradient(135deg, var(--color-warning-50) 0%, var(--color-warning-100) 100%);
-  border: 2px solid var(--color-warning-400);
-}
-
-.stat-icon {
-  font-size: var(--font-size-4xl);
-  line-height: 1;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.trip-combination-opportunities .stat-label {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: 2px;
-}
-
-.trip-combination-opportunities .stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-}
-
-.trip-combination-opportunities .stat-card.highlight .stat-value {
-  color: var(--color-warning-700);
-}
-
-/* Opportunities Content */
-.opportunities-content {
-  padding: var(--space-6);
-}
-
-.loading-state,
-.error-state,
-.empty-state {
-  text-align: center;
-  padding: var(--space-12) var(--space-6);
-}
-
-.loading-state .spinner {
-  width: 3rem;
-  height: 3rem;
-  margin: 0 auto var(--space-4);
-  border: 3px solid var(--surface-border);
-  border-top-color: var(--color-purple-500);
-  border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-state p,
-.error-state p,
-.empty-state p {
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.empty-state {
-  background: var(--surface-section);
-  border-radius: var(--radius-lg);
-  border: 2px dashed var(--surface-border);
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: var(--space-4);
-}
-
-.empty-state h4 {
-  color: var(--text-primary);
-  margin: 0 0 var(--space-2) 0;
-  font-size: var(--font-size-lg);
-}
-
-.empty-hint {
-  font-size: var(--font-size-sm) !important;
-  color: var(--text-muted) !important;
-  margin-top: var(--space-2) !important;
-}
-
-.retry-button {
-  margin-top: var(--space-4);
-  padding: var(--space-2) var(--space-6);
-  background: var(--color-purple-500);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  transition: background var(--transition-fast) var(--ease-default);
-}
-
-.retry-button:hover {
-  background: var(--color-purple-600);
-}
-
-/* Opportunities List */
-.opportunities-list {
-  display: grid;
-  gap: var(--space-6);
-}
-
-.opportunity-card {
-  position: relative;
-  padding: var(--space-6);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--surface-border);
-  transition: all var(--transition-fast) var(--ease-default);
-}
-
-.opportunity-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.recommendation-badge {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
-  padding: var(--space-1-5) var(--space-3);
-  color: white;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.opportunity-section {
-  margin-bottom: var(--space-6);
-}
-
-.opportunity-section:last-of-type {
-  margin-bottom: var(--space-4);
-}
-
-.trip-combination-opportunities .section-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-secondary);
-  margin: 0 0 var(--space-3) 0;
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.trip-info,
-.customer-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.info-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-}
-
-.info-icon {
-  font-size: var(--font-size-base);
-  line-height: 1.5;
+.tco-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-gray-300, #d1d5db);
   flex-shrink: 0;
 }
 
-.info-label {
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-  min-width: 100px;
-  flex-shrink: 0;
+.tco-dot.active {
+  background: var(--color-success-500, #22c55e);
 }
 
-.info-value {
-  color: var(--text-primary);
-  flex: 1;
+.tco-summary {
+  color: var(--text-secondary, #6b7280);
 }
 
-.available-seats {
-  color: var(--color-success-600);
-  font-weight: var(--font-weight-semibold);
+.tco-summary strong {
+  color: var(--text-primary, #111827);
+  font-weight: 600;
 }
 
-.revenue-section {
-  padding: var(--space-4);
-  background: rgba(16, 185, 129, 0.05);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+.tco-revenue {
+  margin-left: 8px;
+  color: var(--color-success-600, #16a34a);
+  font-weight: 500;
 }
 
-.revenue-highlight {
+.tco-error {
+  color: var(--color-danger-500, #ef4444);
+}
+
+/* Actions */
+.tco-actions {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-2);
+  gap: 6px;
 }
 
-.revenue-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-success-700);
+.tco-date-input {
+  padding: 4px 8px;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-primary, #111827);
+  background: var(--surface-card, #fff);
 }
 
-.revenue-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-success-500);
+.tco-date-input:focus {
+  outline: none;
+  border-color: var(--color-brand-500, #3b82f6);
 }
 
-.compatibility-score {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  text-align: right;
-}
-
-.opportunity-actions {
-  display: flex;
-  gap: var(--space-3);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--surface-border);
-}
-
-.add-button,
-.call-button {
-  flex: 1;
-  padding: var(--space-3) var(--space-6);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--ease-default);
-  text-decoration: none;
+.tco-refresh,
+.tco-expand,
+.tco-dismiss {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #9ca3af);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.15s ease;
 }
 
-.add-button {
-  background: var(--color-success-500);
-  color: white;
+.tco-refresh:hover,
+.tco-expand:hover {
+  background: var(--surface-hover, #f3f4f6);
+  color: var(--text-secondary, #6b7280);
 }
 
-.add-button:hover {
-  background: var(--color-success-600);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgb(16 185 129 / 0.3);
+.tco-dismiss:hover {
+  background: var(--color-danger-50, #fef2f2);
+  color: var(--color-danger-500, #ef4444);
 }
 
-.call-button {
-  background: var(--color-brand-500);
-  color: white;
-}
-
-.call-button:hover:not([disabled]) {
-  background: var(--color-brand-600);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgb(59 130 246 / 0.3);
-}
-
-.call-button[disabled] {
-  background: var(--color-gray-400);
+.tco-refresh:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  opacity: 0.6;
+}
+
+/* Table Container */
+.tco-table-container {
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+  overflow-x: auto;
+}
+
+.tco-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tco-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 500;
+  color: var(--text-muted, #9ca3af);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--surface-section, #f9fafb);
+  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.tco-table td {
+  padding: 10px 12px;
+  color: var(--text-primary, #111827);
+  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+  vertical-align: middle;
+}
+
+.tco-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Row highlight based on recommendation */
+.tco-row--highly_recommended {
+  background: var(--color-success-50, #f0fdf4);
+}
+
+.tco-row--recommended {
+  background: var(--surface-card, #fff);
+}
+
+.tco-row--acceptable {
+  background: var(--surface-card, #fff);
+}
+
+.tco-row:hover {
+  background: var(--surface-hover, #f9fafb);
+}
+
+.tco-row--highly_recommended:hover {
+  background: var(--color-success-100, #dcfce7);
+}
+
+/* Cell styles */
+.tco-cell-time {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tco-cell-driver {
+  font-weight: 500;
+}
+
+.tco-cell-vehicle {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-secondary, #6b7280);
+}
+
+.tco-seats-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--color-success-100, #dcfce7);
+  color: var(--color-success-700, #15803d);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tco-cell-destination {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary, #6b7280);
+}
+
+.tco-customer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tco-customer-name {
+  font-weight: 500;
+}
+
+.tco-phone-link {
+  color: var(--color-brand-500, #3b82f6);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.tco-phone-link:hover {
+  color: var(--color-brand-600, #2563eb);
+}
+
+.tco-cell-revenue {
+  color: var(--color-success-600, #16a34a);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tco-add-btn {
+  padding: 4px 12px;
+  background: var(--color-brand-500, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tco-add-btn:hover {
+  background: var(--color-brand-600, #2563eb);
+}
+
+/* Footer */
+.tco-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-section, #f9fafb);
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+  font-size: 12px;
+}
+
+.tco-footer-text {
+  color: var(--text-muted, #9ca3af);
+}
+
+.tco-footer-total {
+  color: var(--text-secondary, #6b7280);
+}
+
+.tco-footer-total strong {
+  color: var(--color-success-600, #16a34a);
+}
+
+/* Empty/Error State */
+.tco-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted, #9ca3af);
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.tco-retry {
+  padding: 6px 16px;
+  background: var(--surface-card, #fff);
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 4px;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tco-retry:hover {
+  background: var(--surface-hover, #f9fafb);
+  border-color: var(--color-brand-500, #3b82f6);
+  color: var(--color-brand-500, #3b82f6);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .opportunities-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
+  .tco-header {
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  .header-actions {
+  .tco-actions {
     width: 100%;
+    justify-content: flex-end;
   }
 
-  .date-input {
+  .tco-date-input {
     flex: 1;
+    max-width: 140px;
   }
 
-  .summary-stats {
-    grid-template-columns: 1fr;
+  .tco-table {
+    font-size: 12px;
   }
 
-  .recommendation-badge {
-    position: static;
-    display: inline-block;
-    margin-bottom: var(--space-4);
+  .tco-table th,
+  .tco-table td {
+    padding: 8px 10px;
   }
 
-  .opportunity-actions {
-    flex-direction: column;
-  }
-
-  .add-button,
-  .call-button {
-    width: 100%;
+  .tco-cell-destination {
+    max-width: 120px;
   }
 }
