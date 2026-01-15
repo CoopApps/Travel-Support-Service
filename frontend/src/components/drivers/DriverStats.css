@@ -1,54 +1,43 @@
 /**
- * Driver Stats - Design System 2026
+ * Driver Stats - Compact Design
  */
 
 .driver-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .driver-stats-grid .stat-card {
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
+  padding: 8px 10px;
+  border-radius: 4px;
   text-align: center;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all var(--transition-fast) var(--ease-default);
-}
-
-.driver-stats-grid .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .driver-stats-grid .stat-value {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 18px;
+  font-weight: 700;
   margin: 0;
-  line-height: var(--line-height-none);
+  line-height: 1.2;
   color: inherit;
 }
 
 .driver-stats-grid .stat-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.3px;
   display: block;
-  margin: var(--space-1-5) 0 0 0;
+  margin-top: 2px;
   color: inherit;
 }
 
 .driver-stats-grid .stat-subtitle {
-  font-size: var(--font-size-xs);
+  font-size: 9px;
   opacity: 0.75;
-  margin: var(--space-1) 0 0 0;
-  line-height: var(--line-height-snug);
+  margin-top: 2px;
+  line-height: 1.2;
   color: inherit;
 }
 

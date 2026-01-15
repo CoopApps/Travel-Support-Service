@@ -342,84 +342,91 @@ function DriverListPage() {
 
   return (
     <div>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Driver Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-secondary" onClick={handleExportCSV}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+      {/* Page Header - Compact */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Drivers</h2>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Export to CSV"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            Export CSV
+            Export
           </button>
-          <button className="btn btn-secondary" onClick={fetchDrivers}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-            </svg>
-            Refresh
-          </button>
-          <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          <button
+            onClick={handleCreate}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             Add Driver
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        borderBottom: '2px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        gap: '0.5rem'
-      }}>
+      {/* Tabs - Compact */}
+      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', width: 'fit-content', marginBottom: '1rem' }}>
         <button
-          onClick={() => {
-            setActiveTab('active');
-            setPage(1);
-          }}
+          onClick={() => { setActiveTab('active'); setPage(1); }}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'active' ? 'white' : 'transparent',
+            color: activeTab === 'active' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'active' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'active' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'active' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Active Drivers
+          Active
         </button>
         <button
-          onClick={() => {
-            setActiveTab('archive');
-            setPage(1);
-          }}
+          onClick={() => { setActiveTab('archive'); setPage(1); }}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'archive' ? 'white' : 'transparent',
+            color: activeTab === 'archive' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'archive' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'archive' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'archive' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Archive
+          Archived
         </button>
       </div>
 
@@ -431,74 +438,80 @@ function DriverListPage() {
         <FleetOperationsOverview stats={enhancedStats.fleet} />
       )}
 
-      {/* Toolbar */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        {/* Search Form */}
-        <form onSubmit={handleSearch} style={{ flex: '1', minWidth: '300px' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+      {/* Toolbar - Compact */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Search */}
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ position: 'relative' }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="2"
+              style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+            >
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search drivers..."
-              style={{ flex: '1' }}
+              placeholder="Search..."
+              style={{
+                width: '160px',
+                padding: '6px 8px 6px 28px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '12px'
+              }}
             />
-            <select
-              value={employmentTypeFilter}
-              onChange={(e) => {
-                setEmploymentTypeFilter(e.target.value);
-                setPage(1);
-              }}
-              style={{ minWidth: '150px' }}
-            >
-              <option value="">All Types</option>
-              <option value="contracted">Contracted</option>
-              <option value="freelance">Freelance</option>
-              <option value="employed">Employed</option>
-            </select>
-            <select
-              value={licenseFilter}
-              onChange={(e) => {
-                setLicenseFilter(e.target.value as any);
-                setPage(1);
-              }}
-              style={{ minWidth: '180px' }}
-              title="Filter drivers by license qualification"
-            >
-              <option value="all">All Licenses</option>
-              {activeService === 'bus' && (
-                <option value="section22_qualified">✓ Section 22 Qualified</option>
-              )}
-              <option value="pcv_only">PCV License Only</option>
-              <option value="car_only">Car License Only</option>
-            </select>
-            <button type="submit" className="btn btn-secondary">
-              Search
-            </button>
-            {(search || employmentTypeFilter || licenseFilter !== 'all') && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  setSearchInput('');
-                  setSearch('');
-                  setEmploymentTypeFilter('');
-                  setLicenseFilter('all');
-                  setPage(1);
-                }}
-              >
-                Clear
-              </button>
-            )}
           </div>
         </form>
+
+        {/* Filters */}
+        <select
+          value={employmentTypeFilter}
+          onChange={(e) => { setEmploymentTypeFilter(e.target.value); setPage(1); }}
+          style={{ padding: '6px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '100px' }}
+        >
+          <option value="">All Types</option>
+          <option value="contracted">Contracted</option>
+          <option value="freelance">Freelance</option>
+          <option value="employed">Employed</option>
+        </select>
+        <select
+          value={licenseFilter}
+          onChange={(e) => { setLicenseFilter(e.target.value as any); setPage(1); }}
+          style={{ padding: '6px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '120px' }}
+          title="Filter by license"
+        >
+          <option value="all">All Licenses</option>
+          {activeService === 'bus' && (
+            <option value="section22_qualified">S22 Qualified</option>
+          )}
+          <option value="pcv_only">PCV Only</option>
+          <option value="car_only">Car Only</option>
+        </select>
+        {(search || employmentTypeFilter || licenseFilter !== 'all') && (
+          <button
+            type="button"
+            onClick={() => { setSearchInput(''); setSearch(''); setEmploymentTypeFilter(''); setLicenseFilter('all'); setPage(1); }}
+            style={{
+              padding: '6px 10px',
+              background: '#f3f4f6',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              color: '#6b7280'
+            }}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Error Message */}
@@ -700,44 +713,80 @@ function DriverListPage() {
 
                       {/* Actions */}
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                           <button
-                            className="btn btn-sm btn-primary"
                             onClick={() => handleEdit(driver)}
-                            style={{ fontSize: '11px', padding: '4px 8px' }}
+                            title="Edit"
+                            style={{ padding: '4px 6px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            Edit Driver
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
                           </button>
                           <button
-                            className="btn btn-sm btn-secondary"
-                            style={{ fontSize: '11px', padding: '4px 8px' }}
-                            title="View full driver details"
-                          >
-                            Full Details
-                          </button>
-                          <button
-                            className="btn btn-sm"
                             onClick={() => handleDocuments(driver)}
-                            style={{ fontSize: '11px', padding: '4px 8px', background: '#6366f1', borderColor: '#6366f1', color: 'white' }}
-                            title="View and manage driver documents"
+                            title="Documents"
+                            style={{ padding: '4px 6px', background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            📄 Documents
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                              <line x1="16" y1="13" x2="8" y2="13"/>
+                              <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleVehicle(driver)}
+                            title="Vehicle"
+                            style={{ padding: '4px 6px', background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+                              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.6-1.2-.7-2-.7H5c-.8 0-1.5.4-2 1L1 12v4c0 .6.4 1 1 1h2"/>
+                              <circle cx="7" cy="17" r="2"/>
+                              <circle cx="17" cy="17" r="2"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleLogin(driver)}
+                            title={driver.dashboard_access ? 'Manage Login' : 'Enable Portal'}
+                            style={{
+                              padding: '4px 6px',
+                              background: driver.dashboard_access ? '#d1fae5' : '#f3f4f6',
+                              border: driver.dashboard_access ? '1px solid #6ee7b7' : '1px solid #e5e7eb',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={driver.dashboard_access ? '#059669' : '#6b7280'} strokeWidth="2">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                              <circle cx="12" cy="7" r="4"/>
+                            </svg>
                           </button>
                           {activeTab === 'active' ? (
                             <button
-                              className="btn btn-sm"
                               onClick={() => handleArchive(driver)}
-                              style={{ fontSize: '11px', padding: '4px 8px', background: '#f59e0b', borderColor: '#f59e0b', color: 'white' }}
+                              title="Archive"
+                              style={{ padding: '4px 6px', background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              Archive
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+                                <polyline points="21 8 21 21 3 21 3 8"/>
+                                <rect x="1" y="3" width="22" height="5"/>
+                                <line x1="10" y1="12" x2="14" y2="12"/>
+                              </svg>
                             </button>
                           ) : (
                             <button
-                              className="btn btn-sm"
                               onClick={() => handleReactivate(driver)}
-                              style={{ fontSize: '11px', padding: '4px 8px', background: '#22c55e', borderColor: '#22c55e', color: 'white' }}
+                              title="Reactivate"
+                              style={{ padding: '4px 6px', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              Reactivate
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                              </svg>
                             </button>
                           )}
                         </div>
