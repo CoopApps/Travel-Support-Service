@@ -47,6 +47,12 @@ function SchedulePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
 
+  // Shared filter state (persists across tab switches)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDriver, setSelectedDriver] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+
   /**
    * Format date with ordinal suffix (1st, 2nd, 3rd, etc.)
    */
@@ -595,6 +601,168 @@ function SchedulePage() {
         </div>
       </div>
 
+      {/* Shared Toolbar for Scheduled/Ad-hoc views */}
+      {(viewMode === 'scheduled' || viewMode === 'adhoc') && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '12px',
+          flexWrap: 'wrap'
+        }}>
+          {/* Search */}
+          <div style={{ position: 'relative', width: '200px' }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="2"
+              style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+            >
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '5px 8px 5px 28px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '13px',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Filter button with popover */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => {
+                const el = document.getElementById('schedule-filter-popover');
+                if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+              }}
+              style={{
+                padding: '6px 10px',
+                fontSize: '13px',
+                background: (selectedDriver || selectedCustomer || selectedStatus) ? '#eff6ff' : 'white',
+                border: (selectedDriver || selectedCustomer || selectedStatus) ? '1px solid #3b82f6' : '1px solid #d1d5db',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                color: (selectedDriver || selectedCustomer || selectedStatus) ? '#1d4ed8' : '#374151'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              Filter
+              {(selectedDriver || selectedCustomer || selectedStatus) && (
+                <span style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  fontSize: '10px',
+                  padding: '1px 5px',
+                  borderRadius: '8px',
+                  marginLeft: '2px'
+                }}>
+                  {[selectedDriver, selectedCustomer, selectedStatus].filter(Boolean).length}
+                </span>
+              )}
+            </button>
+
+            {/* Filter Popover */}
+            <div
+              id="schedule-filter-popover"
+              style={{
+                display: 'none',
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '4px',
+                background: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                padding: '12px',
+                zIndex: 100,
+                minWidth: '200px'
+              }}
+            >
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Driver</label>
+                <select
+                  value={selectedDriver}
+                  onChange={(e) => setSelectedDriver(e.target.value)}
+                  style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+                >
+                  <option value="">All</option>
+                  {/* Drivers will be loaded by child components */}
+                </select>
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Customer</label>
+                <select
+                  value={selectedCustomer}
+                  onChange={(e) => setSelectedCustomer(e.target.value)}
+                  style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+                >
+                  <option value="">All</option>
+                  {/* Customers will be loaded by child components */}
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Status</label>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+                >
+                  <option value="">All</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              {(selectedDriver || selectedCustomer || selectedStatus) && (
+                <button
+                  onClick={() => {
+                    setSelectedDriver('');
+                    setSelectedCustomer('');
+                    setSelectedStatus('');
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '6px',
+                    fontSize: '12px',
+                    background: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    color: '#374151'
+                  }}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Trip Combination Opportunities Widget */}
       <TripCombinationOpportunities
         onAddToTrip={(tripId, customerId) => {
@@ -612,6 +780,10 @@ function SchedulePage() {
           serverTime={{ formatted_date: getCurrentDate() } as ServerTime}
           customStartDate={startDate}
           customEndDate={endDate}
+          searchQuery={searchQuery}
+          selectedDriver={selectedDriver}
+          selectedCustomer={selectedCustomer}
+          selectedStatus={selectedStatus}
         />
       )}
 
@@ -621,6 +793,10 @@ function SchedulePage() {
           serverTime={{ formatted_date: getCurrentDate() } as ServerTime}
           customStartDate={startDate}
           customEndDate={endDate}
+          searchQuery={searchQuery}
+          selectedDriver={selectedDriver}
+          selectedCustomer={selectedCustomer}
+          selectedStatus={selectedStatus}
         />
       )}
 
