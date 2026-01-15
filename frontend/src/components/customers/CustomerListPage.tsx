@@ -327,126 +327,144 @@ function CustomerListPage() {
 
   return (
     <div>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Customers Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              Section 19 Transport Service Customers
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-secondary" onClick={handleExportCSV}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+      {/* Page Header - Compact */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Customers</h2>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Export to CSV"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            Export CSV
+            Export
           </button>
-          <button className="btn btn-secondary" onClick={fetchCustomers}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-            </svg>
-            Refresh
-          </button>
-          <button className="btn btn-primary" onClick={handleCreate} style={{ background: '#28a745' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          <button
+            onClick={handleCreate}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             Add Customer
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        borderBottom: '2px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        gap: '0.5rem'
-      }}>
+      {/* Tabs - Compact */}
+      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', width: 'fit-content', marginBottom: '1rem' }}>
         <button
-          onClick={() => {
-            setActiveTab('active');
-            setPage(1);
-          }}
+          onClick={() => { setActiveTab('active'); setPage(1); }}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'active' ? 'white' : 'transparent',
+            color: activeTab === 'active' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'active' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'active' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'active' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Active Customers
+          Active
         </button>
         <button
-          onClick={() => {
-            setActiveTab('archive');
-            setPage(1);
-          }}
+          onClick={() => { setActiveTab('archive'); setPage(1); }}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'archive' ? 'white' : 'transparent',
+            color: activeTab === 'archive' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'archive' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'archive' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'archive' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Archived Customers
+          Archived
         </button>
       </div>
 
       {/* Statistics Cards */}
       <CustomerStats tenantId={tenantId} />
 
-      {/* Toolbar */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        {/* Search Form */}
-        <form onSubmit={handleSearch} style={{ flex: '1', minWidth: '300px' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+      {/* Search - Compact */}
+      <div style={{ marginBottom: '12px' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', maxWidth: '320px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="2"
+              style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+            >
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search customers..."
-              style={{ flex: '1' }}
+              style={{
+                width: '100%',
+                padding: '6px 8px 6px 28px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
             />
-            <button type="submit" className="btn btn-secondary">
-              Search
-            </button>
-            {search && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  setSearchInput('');
-                  setSearch('');
-                  setPage(1);
-                }}
-              >
-                Clear
-              </button>
-            )}
           </div>
+          {search && (
+            <button
+              type="button"
+              onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
+              style={{
+                padding: '6px 10px',
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              Clear
+            </button>
+          )}
         </form>
       </div>
 
@@ -523,7 +541,10 @@ function CustomerListPage() {
                                 alignItems: 'center',
                                 gap: '3px'
                               }}>
-                                🚗 Section 19
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                                </svg>
+                                S19
                               </span>
                             )}
                             {customer.section_22_eligible && (
@@ -540,7 +561,10 @@ function CustomerListPage() {
                                 alignItems: 'center',
                                 gap: '3px'
                               }}>
-                                🚌 Section 22
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                                </svg>
+                                S22
                               </span>
                             )}
                           </div>
@@ -598,110 +622,102 @@ function CustomerListPage() {
                         £{calculateWeeklyCost(customer).toFixed(2)}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', maxWidth: '280px' }}>
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                           <button
-                            className="btn btn-action btn-edit"
                             onClick={() => handleEdit(customer)}
-                            title="Edit customer details"
+                            title="Edit"
+                            style={{ padding: '4px 6px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
-                            Edit
                           </button>
                           <button
-                            className="btn btn-action btn-schedule"
                             onClick={() => handleSchedule(customer)}
-                            title="Manage weekly schedule"
+                            title="Schedule"
+                            style={{ padding: '4px 6px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                              <line x1="16" y1="2" x2="16" y2="6"></line>
-                              <line x1="8" y1="2" x2="8" y2="6"></line>
-                              <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                              <line x1="16" y1="2" x2="16" y2="6"/>
+                              <line x1="8" y1="2" x2="8" y2="6"/>
+                              <line x1="3" y1="10" x2="21" y2="10"/>
                             </svg>
-                            Schedule
                           </button>
                           <button
-                            className="btn btn-action btn-times"
                             onClick={() => handleTimes(customer)}
-                            title="Set pickup/return times"
+                            title="Times"
+                            style={{ padding: '4px 6px', background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <polyline points="12 6 12 12 16 14"></polyline>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10"/>
+                              <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            Times
                           </button>
                           <button
-                            className={`btn btn-action ${customer.is_login_enabled ? 'btn-login-enabled' : 'btn-login-disabled'}`}
                             onClick={() => handleLogin(customer)}
-                            title={customer.is_login_enabled ? 'Manage login' : 'Enable portal access'}
+                            title={customer.is_login_enabled ? 'Manage Login' : 'Enable Portal'}
+                            style={{
+                              padding: '4px 6px',
+                              background: customer.is_login_enabled ? '#d1fae5' : '#f3f4f6',
+                              border: customer.is_login_enabled ? '1px solid #6ee7b7' : '1px solid #e5e7eb',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
                           >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                              <circle cx="12" cy="7" r="4"></circle>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={customer.is_login_enabled ? '#059669' : '#6b7280'} strokeWidth="2">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                              <circle cx="12" cy="7" r="4"/>
                             </svg>
-                            {customer.is_login_enabled ? 'Login' : 'Enable'}
                           </button>
                           <button
-                            className="btn btn-action btn-assessment"
                             onClick={() => handleAssessment(customer)}
-                            title="Risk assessment"
+                            title="Assessment"
+                            style={{ padding: '4px 6px', background: '#fae8ff', border: '1px solid #e879f9', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                              <polyline points="14 2 14 8 20 8"></polyline>
-                              <line x1="16" y1="13" x2="8" y2="13"></line>
-                              <line x1="16" y1="17" x2="8" y2="17"></line>
-                              <polyline points="10 9 9 9 8 9"></polyline>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                              <line x1="16" y1="13" x2="8" y2="13"/>
+                              <line x1="16" y1="17" x2="8" y2="17"/>
                             </svg>
-                            Assess
                           </button>
-                          {/* Copy to Bus - only show if bus service enabled and customer not already eligible */}
                           {busEnabled && !customer.section_22_eligible && (
                             <button
-                              className="btn btn-action"
                               onClick={() => handleCopyToBus(customer)}
-                              title="Make eligible for bus service"
-                              style={{ background: '#10b981', borderColor: '#10b981', color: 'white' }}
+                              title="Add to Bus Service"
+                              style={{ padding: '4px 6px', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="1" y="3" width="15" height="13"></rect>
-                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10z"/>
                               </svg>
-                              + Bus
                             </button>
                           )}
                           {activeTab === 'active' ? (
                             <button
-                              className="btn btn-action btn-archive"
                               onClick={() => handleArchive(customer)}
-                              title="Archive customer"
-                              style={{ background: '#f59e0b', borderColor: '#f59e0b' }}
+                              title="Archive"
+                              style={{ padding: '4px 6px', background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                <rect x="1" y="3" width="22" height="5"></rect>
-                                <line x1="10" y1="12" x2="14" y2="12"></line>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+                                <polyline points="21 8 21 21 3 21 3 8"/>
+                                <rect x="1" y="3" width="22" height="5"/>
+                                <line x1="10" y1="12" x2="14" y2="12"/>
                               </svg>
-                              Archive
                             </button>
                           ) : (
                             <button
-                              className="btn btn-action btn-reactivate"
                               onClick={() => handleReactivate(customer)}
-                              title="Reactivate customer"
-                              style={{ background: '#22c55e', borderColor: '#22c55e' }}
+                              title="Reactivate"
+                              style={{ padding: '4px 6px', background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 3v18h18"></path>
-                                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                               </svg>
-                              Reactivate
                             </button>
                           )}
                         </div>

@@ -1,42 +1,37 @@
 /**
- * Customer Stats - Design System 2026
+ * Customer Stats - Compact Design
  */
 
 .customer-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .customer-stats-grid .stat-card {
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
+  padding: 8px 10px;
+  border-radius: 4px;
   text-align: center;
-  transition: all var(--transition-fast) var(--ease-default);
-}
-
-.customer-stats-grid .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .customer-stats-grid .stat-value {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  margin: 0 0 var(--space-1) 0;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
   color: inherit;
-  line-height: var(--line-height-none);
+  line-height: 1.2;
 }
 
 .customer-stats-grid .stat-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.3px;
   display: block;
   color: inherit;
   opacity: 0.85;
+  margin-top: 2px;
 }
 
 /* Theme Colors - Using Design System tokens */

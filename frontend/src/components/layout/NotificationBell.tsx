@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
+import { tripApi } from '../../services/api';
 
 /**
  * Notification Bell Component
@@ -9,15 +10,23 @@ import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
  * Shows all actionable tasks and critical alerts
  */
 
+interface CapacityAlertSummary {
+  total_alerts: number;
+  total_empty_seats: number;
+  total_potential_revenue: number;
+}
+
 function NotificationBell() {
   const { tenantId } = useTenant();
   const [isOpen, setIsOpen] = useState(false);
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
+  const [capacityAlerts, setCapacityAlerts] = useState<CapacityAlertSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const count = dashboard?.summary?.totalTasks || 0;
+  const capacityCount = capacityAlerts?.total_alerts || 0;
+  const count = (dashboard?.summary?.totalTasks || 0) + capacityCount;
   const hasCritical = (dashboard?.summary?.criticalTasks || 0) > 0;
 
   // Fetch notifications - memoized to prevent recreating on every render
@@ -26,8 +35,14 @@ function NotificationBell() {
 
     setLoading(true);
     try {
-      const data = await dashboardApi.getOverview(tenantId);
-      setDashboard(data);
+      // Fetch dashboard and capacity alerts in parallel
+      const today = new Date().toISOString().split('T')[0];
+      const [dashboardData, capacityData] = await Promise.all([
+        dashboardApi.getOverview(tenantId),
+        tripApi.getCapacityAlerts(tenantId, { date: today }).catch(() => ({ summary: null }))
+      ]);
+      setDashboard(dashboardData);
+      setCapacityAlerts(capacityData.summary || null);
     } catch {
       // Error handled silently
     } finally {
@@ -227,6 +242,29 @@ function NotificationBell() {
                     <div className="notification-content">
                       <div className="notification-type">Unassigned Journeys</div>
                       <div className="notification-message">{dashboard.tasks.unassignedJourneys.count} customer{dashboard.tasks.unassignedJourneys.count !== 1 ? 's' : ''} need driver assignment</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Capacity Alerts - Revenue Opportunities */}
+                {capacityAlerts && capacityAlerts.total_alerts > 0 && (
+                  <div className="notification-item notification-warning">
+                    <div className="notification-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-type">Capacity Opportunities</div>
+                      <div className="notification-message">
+                        {capacityAlerts.total_empty_seats} empty seat{capacityAlerts.total_empty_seats !== 1 ? 's' : ''} today
+                        {capacityAlerts.total_potential_revenue > 0 && (
+                          <span style={{ color: '#10b981', fontWeight: 600 }}> (+£{capacityAlerts.total_potential_revenue.toFixed(0)})</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

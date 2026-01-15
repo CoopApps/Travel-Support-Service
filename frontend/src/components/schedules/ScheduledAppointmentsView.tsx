@@ -6,7 +6,6 @@ import ScheduledTripsGrid from './ScheduledTripsGrid';
 import TripFormModal from './TripFormModal';
 import UnassignedCustomersPanel from './UnassignedCustomersPanel';
 import FailedAssignmentModal from './FailedAssignmentModal';
-import CapacityAlerts from './CapacityAlerts';
 import RouteOptimizationPanel from './RouteOptimizationPanel';
 
 interface ScheduledAppointmentsViewProps {
@@ -357,12 +356,6 @@ function ScheduledAppointmentsView({
         viewType="regular"
         optimizationScores={optimizationScores}
         onOptimizeDriver={handleOptimizeDriver}
-      />
-
-      {/* Capacity Alerts - Show revenue opportunities */}
-      <CapacityAlerts
-        date={serverTime?.formatted_date || new Date().toISOString().split('T')[0]}
-        driverId={selectedDriver ? Number(selectedDriver) : undefined}
       />
 
       {/* Unassigned Customers Panel */}
