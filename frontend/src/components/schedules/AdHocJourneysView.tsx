@@ -30,6 +30,7 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
   const [selectedDriver, setSelectedDriver] = useState<string>('');
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Modal state
   const [showFormModal, setShowFormModal] = useState(false);
@@ -241,98 +242,207 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
     ? drivers.filter(d => d.driver_id.toString() === selectedDriver)
     : drivers;
 
+  const urgentCount = trips.filter(t => t.urgent).length;
+  const hasActiveFilters = selectedDriver || selectedCustomer || selectedStatus;
+
   return (
     <div>
-      {/* Toolbar - All on one line */}
+      {/* Compact Toolbar */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        marginBottom: '1rem',
-        gap: '1rem',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '12px',
         flexWrap: 'wrap'
       }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flex: 1 }}>
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>
-            Ad-hoc Journeys ({trips.length})
-          </h3>
+        {/* Search */}
+        <div style={{ position: 'relative', width: '200px' }}>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9ca3af"
+            strokeWidth="2"
+            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '5px 8px 5px 28px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '13px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+          />
+        </div>
 
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Driver
-            </label>
-            <select
-              value={selectedDriver}
-              onChange={(e) => setSelectedDriver(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Drivers</option>
-              {drivers.map(driver => (
-                <option key={driver.driver_id} value={driver.driver_id}>
-                  {driver.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Urgent badge - only if > 0 */}
+        {urgentCount > 0 && (
+          <span style={{
+            fontSize: '11px',
+            padding: '2px 8px',
+            background: '#fef3c7',
+            color: '#b45309',
+            borderRadius: '10px',
+            fontWeight: 500
+          }}>
+            {urgentCount} urgent
+          </span>
+        )}
 
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Customer
-            </label>
-            <select
-              value={selectedCustomer}
-              onChange={(e) => setSelectedCustomer(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Customers</option>
-              {customers.map(customer => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
 
-          <div style={{ minWidth: '130px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
+        {/* Filter button with popover */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => {
+              const el = document.getElementById('adhoc-filter-popover');
+              if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }}
+            style={{
+              padding: '6px 10px',
+              fontSize: '13px',
+              background: hasActiveFilters ? '#eff6ff' : 'white',
+              border: hasActiveFilters ? '1px solid #3b82f6' : '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: hasActiveFilters ? '#1d4ed8' : '#374151'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filter
+            {hasActiveFilters && (
+              <span style={{
+                background: '#3b82f6',
+                color: 'white',
+                fontSize: '10px',
+                padding: '1px 5px',
+                borderRadius: '8px',
+                marginLeft: '2px'
+              }}>
+                {[selectedDriver, selectedCustomer, selectedStatus].filter(Boolean).length}
+              </span>
+            )}
+          </button>
 
-          {/* Summary Stats - Compact */}
-          <div style={{ display: 'flex', gap: '8px', fontSize: '11px', marginLeft: 'auto' }}>
-            <div style={{ padding: '6px 10px', background: '#e8f5e9', borderRadius: '4px' }}>
-              <div style={{ color: '#28a745', fontWeight: 600 }}>Total: {trips.length}</div>
+          {/* Filter Popover */}
+          <div
+            id="adhoc-filter-popover"
+            style={{
+              display: 'none',
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: '4px',
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              padding: '12px',
+              zIndex: 100,
+              minWidth: '200px'
+            }}
+          >
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Driver</label>
+              <select
+                value={selectedDriver}
+                onChange={(e) => setSelectedDriver(e.target.value)}
+                style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+              >
+                <option value="">All</option>
+                {drivers.map(driver => (
+                  <option key={driver.driver_id} value={driver.driver_id}>{driver.name}</option>
+                ))}
+              </select>
             </div>
-            <div style={{ padding: '6px 10px', background: '#fff3e0', borderRadius: '4px' }}>
-              <div style={{ color: '#ff9800', fontWeight: 600 }}>
-                Urgent: {trips.filter(t => t.urgent).length}
-              </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Customer</label>
+              <select
+                value={selectedCustomer}
+                onChange={(e) => setSelectedCustomer(e.target.value)}
+                style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+              >
+                <option value="">All</option>
+                {customers.map(customer => (
+                  <option key={customer.id} value={customer.id}>{customer.name}</option>
+                ))}
+              </select>
             </div>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '4px', color: '#6b7280' }}>Status</label>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
+              >
+                <option value="">All</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={() => {
+                  setSelectedDriver('');
+                  setSelectedCustomer('');
+                  setSelectedStatus('');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '6px',
+                  fontSize: '12px',
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  color: '#374151'
+                }}
+              >
+                Clear all
+              </button>
+            )}
           </div>
         </div>
 
+        {/* Refresh - icon only */}
         <button
-          className="btn btn-secondary"
           onClick={fetchData}
-          style={{ fontSize: '13px' }}
+          style={{
+            padding: '6px',
+            background: 'white',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          title="Refresh"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
             <polyline points="23 4 23 10 17 10"/>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
           </svg>
-          Refresh
         </button>
       </div>
 
@@ -343,6 +453,7 @@ function AdHocJourneysView({ tenantId, serverTime, customStartDate, customEndDat
         weekDays={weekDays}
         serverTime={serverTime}
         tenantId={tenantId}
+        searchQuery={searchQuery}
         onEditTrip={handleEdit}
         onCreateTrip={(driverId, dayIndex) => {
           // Convert day index to date
