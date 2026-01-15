@@ -158,87 +158,62 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
 
   return (
     <div>
-      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-          <line x1="8" y1="2" x2="8" y2="18"/>
-          <line x1="16" y1="6" x2="16" y2="22"/>
-        </svg>
-        Route Optimizer
-      </h3>
-
-      {/* Driver and Date Selection */}
+      {/* Compact Selection Row */}
       <div style={{
-        background: 'white',
-        padding: '1.5rem',
-        borderRadius: '8px',
-        border: '1px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '1rem',
+        flexWrap: 'wrap'
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>
-              Select Driver
-            </label>
-            <select
-              value={selectedDriverId || ''}
-              onChange={(e) => setSelectedDriverId(Number(e.target.value))}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid var(--gray-300)',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
-            >
-              <option value="">Choose a driver...</option>
-              {drivers.map(driver => (
-                <option key={driver.driver_id} value={driver.driver_id}>
-                  {driver.first_name} {driver.last_name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <select
+          value={selectedDriverId || ''}
+          onChange={(e) => setSelectedDriverId(Number(e.target.value))}
+          style={{
+            padding: '6px 10px',
+            border: '1px solid #e5e7eb',
+            borderRadius: '4px',
+            fontSize: '13px',
+            minWidth: '180px'
+          }}
+        >
+          <option value="">Select driver...</option>
+          {drivers.map(driver => (
+            <option key={driver.driver_id} value={driver.driver_id}>
+              {driver.first_name} {driver.last_name}
+            </option>
+          ))}
+        </select>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>
-              Select Date
-            </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid var(--gray-300)',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-        </div>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            border: '1px solid #e5e7eb',
+            borderRadius: '4px',
+            fontSize: '13px'
+          }}
+        />
 
-        {selectedDriverId && selectedDate && (
+        {selectedDriverId && selectedDate && trips.length >= 2 && (
           <button
             onClick={optimizeRoute}
-            disabled={loading || optimizing || trips.length < 2}
+            disabled={loading || optimizing}
             style={{
-              marginTop: '1rem',
-              padding: '10px 20px',
-              background: trips.length < 2 ? 'var(--gray-300)' : 'var(--primary)',
+              padding: '6px 12px',
+              background: '#3b82f6',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: trips.length < 2 ? 'not-allowed' : 'pointer',
+              borderRadius: '4px',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
               opacity: optimizing ? 0.7 : 1
             }}
-            title={trips.length < 2 ? 'Need at least 2 trips to optimize' : ''}
           >
-            {optimizing ? 'Optimizing...' : 'Optimize Route'}
+            {optimizing ? 'Optimizing...' : 'Optimize'}
           </button>
         )}
       </div>
@@ -256,65 +231,109 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
         </div>
       )}
 
+      {/* Initial state - no driver selected */}
+      {!selectedDriverId && (
+        <div style={{
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#6b7280'
+        }}>
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d1d5db"
+            strokeWidth="1.5"
+            style={{ margin: '0 auto 12px' }}
+          >
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+          <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+            Select a driver to optimize their route
+          </div>
+          <div style={{ fontSize: '13px' }}>
+            Reorder trips to minimize travel time and distance
+          </div>
+        </div>
+      )}
+
       {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-600)' }}>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontSize: '13px' }}>
           Loading trips...
         </div>
       )}
 
       {!loading && selectedDriverId && selectedDate && trips.length === 0 && (
         <div style={{
-          background: '#fef3c7',
-          border: '1px solid #f59e0b',
-          color: '#92400e',
-          padding: '1.5rem',
-          borderRadius: '6px',
-          textAlign: 'center'
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#6b7280'
         }}>
-          No trips found for {selectedDriver?.first_name} {selectedDriver?.last_name} on {selectedDate}
+          <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+            No trips found
+          </div>
+          <div style={{ fontSize: '13px' }}>
+            {selectedDriver?.first_name} {selectedDriver?.last_name} has no trips on {new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+          </div>
+        </div>
+      )}
+
+      {!loading && selectedDriverId && selectedDate && trips.length === 1 && (
+        <div style={{
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#6b7280'
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+            Only 1 trip scheduled
+          </div>
+          <div style={{ fontSize: '13px' }}>
+            Need at least 2 trips to optimize a route
+          </div>
         </div>
       )}
 
       {/* Current Trips List */}
-      {trips.length > 0 && !optimizationResult && (
+      {trips.length > 1 && !optimizationResult && (
         <div style={{
           background: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          border: '1px solid var(--gray-200)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          padding: '12px',
+          borderRadius: '6px',
+          border: '1px solid #e5e7eb'
         }}>
-          <h4 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 700 }}>
+          <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600, color: '#374151' }}>
             Current Schedule ({trips.length} trips)
           </h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {trips.map((trip, index) => (
               <div key={trip.trip_id} style={{
-                padding: '12px',
-                background: 'var(--gray-50)',
-                borderRadius: '6px',
-                border: '1px solid var(--gray-200)'
+                padding: '8px',
+                background: '#f9fafb',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{
-                    minWidth: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    background: 'var(--primary)',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700
-                  }}>
-                    {index + 1}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, marginBottom: '4px' }}>{trip.customer_name}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>
-                      {trip.pickup_time} • {trip.pickup_location} → {trip.destination}
-                    </div>
-                  </div>
+                <div style={{
+                  minWidth: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  background: '#3b82f6',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 600,
+                  fontSize: '11px'
+                }}>
+                  {index + 1}
+                </div>
+                <div style={{ flex: 1, fontSize: '12px' }}>
+                  <span style={{ fontWeight: 500, color: '#374151' }}>{trip.customer_name}</span>
+                  <span style={{ color: '#6b7280' }}> • {trip.pickup_time} • {trip.pickup_location} → {trip.destination}</span>
                 </div>
               </div>
             ))}
@@ -324,142 +343,110 @@ function RouteOptimizer({ tenantId }: RouteOptimizerProps) {
 
       {/* Optimization Result */}
       {optimizationResult && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <div>
           {/* Method Badge */}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <div style={{
+          <div style={{ marginBottom: '12px' }}>
+            <span style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
+              gap: '6px',
+              padding: '4px 10px',
               background: optimizationResult.reliable ? '#d1fae5' : '#fed7aa',
               color: optimizationResult.reliable ? '#065f46' : '#92400e',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 600
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: 500
             }}>
-              {optimizationResult.method === 'google' && (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  Optimized with Google Maps
-                </>
-              )}
-              {optimizationResult.method === 'haversine' && (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                  Optimized with estimated distances
-                </>
-              )}
-              {optimizationResult.method === 'manual' && (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
-                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
-                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
-                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-                  </svg>
-                  Manual reordering required
-                </>
-              )}
-              {optimizationResult.warning && (
-                <span style={{ marginLeft: '8px', fontWeight: 400 }}>- {optimizationResult.warning}</span>
-              )}
+              {optimizationResult.method === 'google' && 'Google Maps'}
+              {optimizationResult.method === 'haversine' && 'Estimated distances'}
+              {optimizationResult.method === 'manual' && 'Manual reorder needed'}
+              {optimizationResult.warning && ` - ${optimizationResult.warning}`}
+            </span>
+          </div>
+
+          {/* Before/After Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            {/* Before */}
+            <div style={{
+              background: 'white',
+              padding: '12px',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#dc2626' }}>
+                Before
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {optimizationResult.originalOrder.map((trip, index) => (
+                  <div key={trip.trip_id} style={{
+                    padding: '6px 8px',
+                    background: '#fef2f2',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}>
+                    <strong>{index + 1}.</strong> {trip.customer_name} • {trip.pickup_location}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* After */}
+            <div style={{
+              background: 'white',
+              padding: '12px',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#16a34a' }}>
+                After
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {optimizationResult.optimizedOrder.map((trip, index) => (
+                  <div key={trip.trip_id} style={{
+                    padding: '6px 8px',
+                    background: '#f0fdf4',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}>
+                    <strong>{index + 1}.</strong> {trip.customer_name} • {trip.pickup_location}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Before */}
-          <div style={{
-            background: 'white',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid var(--gray-200)',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <h4 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 700, color: '#dc2626' }}>
-              Before Optimization
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {optimizationResult.originalOrder.map((trip, index) => (
-                <div key={trip.trip_id} style={{
-                  padding: '10px',
-                  background: '#fef2f2',
-                  borderRadius: '4px',
-                  fontSize: '13px'
-                }}>
-                  <strong>{index + 1}.</strong> {trip.customer_name} • {trip.pickup_location} → {trip.destination}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* After */}
-          <div style={{
-            background: 'white',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid var(--gray-200)',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <h4 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 700, color: '#16a34a' }}>
-              After Optimization
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {optimizationResult.optimizedOrder.map((trip, index) => (
-                <div key={trip.trip_id} style={{
-                  padding: '10px',
-                  background: '#f0fdf4',
-                  borderRadius: '4px',
-                  fontSize: '13px'
-                }}>
-                  <strong>{index + 1}.</strong> {trip.customer_name} • {trip.pickup_location} → {trip.destination}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Savings Display */}
+          {/* Savings & Apply */}
           {optimizationResult.savings && (
             <div style={{
-              gridColumn: '1 / -1',
-              background: '#dbeafe',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              border: '2px solid #3b82f6',
+              background: '#eff6ff',
+              padding: '10px 12px',
+              borderRadius: '6px',
+              border: '1px solid #3b82f6',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <div>
-                <div style={{ fontSize: '18px', fontWeight: 700, color: '#1e40af', marginBottom: '4px' }}>
-                  Estimated Savings
-                </div>
-                <div style={{ fontSize: '14px', color: '#1e3a8a' }}>
-                  {optimizationResult.savings.distance && `${optimizationResult.savings.distance.toFixed(1)} miles saved`}
-                  {optimizationResult.savings.time && optimizationResult.savings.distance && ' • '}
-                  {optimizationResult.savings.time && `${optimizationResult.savings.time} minutes saved`}
-                </div>
+              <div style={{ fontSize: '12px', color: '#1e40af' }}>
+                <span style={{ fontWeight: 600 }}>Savings: </span>
+                {optimizationResult.savings.distance && `${optimizationResult.savings.distance.toFixed(1)} miles`}
+                {optimizationResult.savings.time && optimizationResult.savings.distance && ' • '}
+                {optimizationResult.savings.time && `${optimizationResult.savings.time} min`}
               </div>
               <button
                 onClick={applyOptimization}
                 disabled={loading}
                 style={{
-                  padding: '12px 24px',
+                  padding: '6px 12px',
                   background: '#10b981',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: 600,
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 500,
                   cursor: 'pointer'
                 }}
               >
-                Apply Changes
+                Apply
               </button>
             </div>
           )}
