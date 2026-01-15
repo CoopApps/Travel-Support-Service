@@ -322,110 +322,126 @@ function ScheduledAppointmentsView({ tenantId, serverTime, customStartDate, cust
     ? drivers.filter(d => d.driver_id.toString() === selectedDriver)
     : drivers;
 
+  const urgentCount = trips.filter(t => t.urgent).length;
+
   return (
     <div>
-      {/* Toolbar - All on one line */}
+      {/* Header Row */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        marginBottom: '1rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
+        alignItems: 'center',
+        marginBottom: '12px'
       }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flex: 1 }}>
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>
-            Scheduled Appointments ({trips.length})
-          </h3>
+        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          Scheduled Appointments
+          {urgentCount > 0 && (
+            <span style={{
+              fontSize: '11px',
+              padding: '2px 8px',
+              background: '#fff3e0',
+              color: '#e65100',
+              borderRadius: '10px',
+              fontWeight: 500
+            }}>
+              {urgentCount} urgent
+            </span>
+          )}
+        </h3>
 
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Driver
-            </label>
-            <select
-              value={selectedDriver}
-              onChange={(e) => setSelectedDriver(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Drivers</option>
-              {drivers.map(driver => (
-                <option key={driver.driver_id} value={driver.driver_id}>
-                  {driver.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Customer
-            </label>
-            <select
-              value={selectedCustomer}
-              onChange={(e) => setSelectedCustomer(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Customers</option>
-              {customers.map(customer => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ minWidth: '130px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '3px', color: 'var(--gray-700)' }}>
-              Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              style={{ width: '100%', fontSize: '13px', padding: '6px 8px' }}
-            >
-              <option value="">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-
-          {/* Summary Stats - Compact */}
-          <div style={{ display: 'flex', gap: '8px', fontSize: '11px', marginLeft: 'auto' }}>
-            <div style={{ padding: '6px 10px', background: '#e8f5e9', borderRadius: '4px' }}>
-              <div style={{ color: '#28a745', fontWeight: 600 }}>Total: {trips.length}</div>
-            </div>
-            <div style={{ padding: '6px 10px', background: '#fff3e0', borderRadius: '4px' }}>
-              <div style={{ color: '#ff9800', fontWeight: 600 }}>
-                Urgent: {trips.filter(t => t.urgent).length}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             className="btn btn-success"
             onClick={handleAutoAssign}
             disabled={drivers.length === 0}
-            style={{ fontSize: '13px', cursor: drivers.length === 0 ? 'not-allowed' : 'pointer' }}
+            style={{ fontSize: '13px', padding: '6px 12px' }}
           >
-            Assign Customers to Regular Drivers
+            Auto-Assign
           </button>
-
           <button
             className="btn btn-secondary"
             onClick={fetchData}
-            style={{ fontSize: '13px' }}
+            style={{ fontSize: '13px', padding: '6px 10px' }}
+            title="Refresh"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="23 4 23 10 17 10"/>
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </svg>
-            Refresh
           </button>
         </div>
+      </div>
+
+      {/* Filters Row */}
+      <div style={{
+        display: 'flex',
+        gap: '10px',
+        alignItems: 'center',
+        marginBottom: '16px',
+        flexWrap: 'wrap'
+      }}>
+        <select
+          value={selectedDriver}
+          onChange={(e) => setSelectedDriver(e.target.value)}
+          style={{ fontSize: '13px', padding: '6px 10px', minWidth: '140px' }}
+        >
+          <option value="">All Drivers</option>
+          {drivers.map(driver => (
+            <option key={driver.driver_id} value={driver.driver_id}>
+              {driver.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedCustomer}
+          onChange={(e) => setSelectedCustomer(e.target.value)}
+          style={{ fontSize: '13px', padding: '6px 10px', minWidth: '140px' }}
+        >
+          <option value="">All Customers</option>
+          {customers.map(customer => (
+            <option key={customer.id} value={customer.id}>
+              {customer.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+          style={{ fontSize: '13px', padding: '6px 10px', minWidth: '120px' }}
+        >
+          <option value="">All Statuses</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+
+        {(selectedDriver || selectedCustomer || selectedStatus) && (
+          <button
+            onClick={() => {
+              setSelectedDriver('');
+              setSelectedCustomer('');
+              setSelectedStatus('');
+            }}
+            style={{
+              fontSize: '12px',
+              padding: '4px 8px',
+              background: 'transparent',
+              border: '1px solid var(--gray-300)',
+              borderRadius: '4px',
+              color: 'var(--gray-600)',
+              cursor: 'pointer'
+            }}
+          >
+            Clear filters
+          </button>
+        )}
+
+        <span style={{ marginLeft: 'auto', fontSize: '13px', color: 'var(--gray-500)' }}>
+          {trips.length} appointment{trips.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       {/* Weekly Schedule Grid */}
