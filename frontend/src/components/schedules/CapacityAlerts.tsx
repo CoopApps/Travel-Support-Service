@@ -165,7 +165,31 @@ function CapacityAlerts({ date, driverId, onAddPassenger }: CapacityAlertsProps)
   }
 
   if (!alerts || alerts.length === 0) {
-    return null; // Don't show if no alerts
+    return (
+      <div style={{
+        padding: '2rem',
+        textAlign: 'center',
+        color: '#6b7280'
+      }}>
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#d1d5db"
+          strokeWidth="1.5"
+          style={{ margin: '0 auto 12px' }}
+        >
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+          No capacity alerts
+        </div>
+        <div style={{ fontSize: '13px' }}>
+          All vehicles are well-utilized for {new Date(date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -184,12 +208,12 @@ function CapacityAlerts({ date, driverId, onAddPassenger }: CapacityAlertsProps)
         marginBottom: '1rem'
       }}>
         <h3 style={{
-          fontSize: '1rem',
+          fontSize: '14px',
           fontWeight: 600,
           margin: 0,
           color: '#92400e'
         }}>
-          💰 Revenue Opportunity Alerts
+          Revenue Opportunities
         </h3>
       </div>
 
@@ -401,7 +425,7 @@ function CapacityAlerts({ date, driverId, onAddPassenger }: CapacityAlertsProps)
                         marginBottom: '6px',
                         color: 'var(--gray-700)'
                       }}>
-                        💡 Recommended Passengers ({alert.recommended_passengers.length})
+                        Recommended Passengers ({alert.recommended_passengers.length})
                       </div>
                       <div style={{
                         display: 'flex',
