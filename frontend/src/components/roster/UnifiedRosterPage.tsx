@@ -259,7 +259,7 @@ export default function UnifiedRosterPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
           <div className="spinner" style={{ width: '32px', height: '32px', margin: '0 auto 1rem' }}></div>
           <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Loading roster...</p>
@@ -269,7 +269,7 @@ export default function UnifiedRosterPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+    <div>
       {/* Header - Compact */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '12px' }}>
         {/* View Toggle - Pill Style */}
