@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { OutingStats as OutingStatsType } from '../../types';
 import socialOutingsApi from '../../services/socialOutingsApi';
-import './OutingStats.css';
 
 interface OutingStatsProps {
   tenantId: number;
@@ -12,15 +11,15 @@ interface StatCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
+  color: string;
 }
 
-function StatCard({ label, value, subtitle, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, color }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
+    <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+      <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
+      <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
+      {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}
     </div>
   );
 }
@@ -63,10 +62,10 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
 
   if (loading) {
     return (
-      <div className="outing-stats-grid">
-        <div className="stat-card stat-card-blue" style={{ opacity: 0.5 }}>
-          <div className="stat-value">...</div>
-          <div className="stat-label">Loading...</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
+        <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb', opacity: 0.5 }}>
+          <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>...</div>
+          <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, textTransform: 'uppercase' }}>Loading...</div>
         </div>
       </div>
     );
@@ -74,37 +73,37 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
 
   if (error) {
     return (
-      <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>
+      <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
         {error}
       </div>
     );
   }
 
   return (
-    <div className="outing-stats-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
       <StatCard
         label="Total Outings"
         value={stats.total.toString()}
         subtitle={`${stats.upcoming} Upcoming • ${stats.past} Past`}
-        theme="blue"
+        color="#2563eb"
       />
       <StatCard
         label="Upcoming"
         value={stats.upcoming.toString()}
         subtitle="Scheduled outings"
-        theme="green"
+        color="#16a34a"
       />
       <StatCard
         label="Total Bookings"
         value={stats.total_bookings.toString()}
         subtitle="All confirmed bookings"
-        theme="orange"
+        color="#ea580c"
       />
       <StatCard
         label="Wheelchair Users"
         value={stats.wheelchair_users.toString()}
         subtitle="Require accessible vehicles"
-        theme="purple"
+        color="#9333ea"
       />
     </div>
   );

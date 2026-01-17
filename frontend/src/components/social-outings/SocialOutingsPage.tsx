@@ -135,16 +135,8 @@ function SocialOutingsPage() {
 
   return (
     <div>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Social Outings</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
             className="btn btn-outline"
@@ -185,25 +177,20 @@ function SocialOutingsPage() {
         onClose={() => setShowAvailability(false)}
       />
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        marginBottom: '1.5rem',
-        borderBottom: '1px solid var(--gray-200)',
-        paddingBottom: '0'
-      }}>
+      {/* View Toggle - Pill Style */}
+      <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px', width: 'fit-content', marginBottom: '1rem' }}>
         <button
           onClick={() => setActiveTab('upcoming')}
           style={{
-            padding: '12px 24px',
-            background: 'none',
+            padding: '5px 12px',
+            background: activeTab === 'upcoming' ? 'white' : 'transparent',
+            color: activeTab === 'upcoming' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'upcoming' ? '2px solid var(--primary-500)' : '2px solid transparent',
-            color: activeTab === 'upcoming' ? 'var(--primary-600)' : 'var(--gray-600)',
-            fontWeight: activeTab === 'upcoming' ? 600 : 400,
+            borderRadius: '3px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'upcoming' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
           Upcoming
@@ -211,14 +198,15 @@ function SocialOutingsPage() {
         <button
           onClick={() => setActiveTab('past')}
           style={{
-            padding: '12px 24px',
-            background: 'none',
+            padding: '5px 12px',
+            background: activeTab === 'past' ? 'white' : 'transparent',
+            color: activeTab === 'past' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'past' ? '2px solid var(--primary-500)' : '2px solid transparent',
-            color: activeTab === 'past' ? 'var(--primary-600)' : 'var(--gray-600)',
-            fontWeight: activeTab === 'past' ? 600 : 400,
+            borderRadius: '3px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'past' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
           Past
@@ -226,14 +214,15 @@ function SocialOutingsPage() {
         <button
           onClick={() => setActiveTab('all')}
           style={{
-            padding: '12px 24px',
-            background: 'none',
+            padding: '5px 12px',
+            background: activeTab === 'all' ? 'white' : 'transparent',
+            color: activeTab === 'all' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'all' ? '2px solid var(--primary-500)' : '2px solid transparent',
-            color: activeTab === 'all' ? 'var(--primary-600)' : 'var(--gray-600)',
-            fontWeight: activeTab === 'all' ? 600 : 400,
+            borderRadius: '3px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
           All
