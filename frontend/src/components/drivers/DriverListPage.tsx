@@ -414,8 +414,45 @@ function DriverListPage() {
 
   return (
     <div>
-      {/* Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+      {/* Action Buttons and Tabs */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        {/* Tabs - Compact */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
+          <button
+            onClick={() => { setActiveTab('active'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'active' ? 'white' : 'transparent',
+              color: activeTab === 'active' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => { setActiveTab('archive'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'archive' ? 'white' : 'transparent',
+              color: activeTab === 'archive' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Archived
+          </button>
+        </div>
+
+        {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={handleExportCSV}
@@ -463,42 +500,6 @@ function DriverListPage() {
             Add Driver
           </button>
         </div>
-      </div>
-
-      {/* Tabs - Compact */}
-      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', width: 'fit-content', marginBottom: '1rem' }}>
-        <button
-          onClick={() => { setActiveTab('active'); setPage(1); }}
-          style={{
-            padding: '5px 12px',
-            background: activeTab === 'active' ? 'white' : 'transparent',
-            color: activeTab === 'active' ? '#111827' : '#6b7280',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '12px',
-            boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-          }}
-        >
-          Active
-        </button>
-        <button
-          onClick={() => { setActiveTab('archive'); setPage(1); }}
-          style={{
-            padding: '5px 12px',
-            background: activeTab === 'archive' ? 'white' : 'transparent',
-            color: activeTab === 'archive' ? '#111827' : '#6b7280',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '12px',
-            boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-          }}
-        >
-          Archived
-        </button>
       </div>
 
       {/* Statistics Cards */}
