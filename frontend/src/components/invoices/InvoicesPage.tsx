@@ -233,10 +233,22 @@ export const InvoicesPage: React.FC = () => {
     <div className="invoices-page">
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <button
-          className="btn btn-success"
           onClick={() => setShowBulkGenerateModal(true)}
+          style={{
+            padding: '6px 12px',
+            background: '#10b981',
+            border: 'none',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            fontWeight: 500
+          }}
         >
-          <PlusIcon size={16} />
+          <PlusIcon size={14} />
           Generate Invoices
         </button>
       </div>
