@@ -248,8 +248,33 @@ function VehicleListPage() {
 
   return (
     <div>
-      {/* Page Header - Compact */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+      {/* Tab Navigation and Action Button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        {/* Tabs - Compact */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
+          {(['overview', 'maintenance', 'incidents', 'analytics'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: '5px 12px',
+                background: activeTab === tab ? 'white' : 'transparent',
+                color: activeTab === tab ? '#111827' : '#6b7280',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontWeight: 500,
+                fontSize: '12px',
+                boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                textTransform: 'capitalize'
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Action Button */}
         <button
           onClick={handleAddVehicle}
           style={{
@@ -276,30 +301,6 @@ function VehicleListPage() {
 
       {/* Statistics Cards */}
       <VehicleStats stats={stats} loading={loading} />
-
-      {/* Tab Navigation - Compact */}
-      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', width: 'fit-content', marginBottom: '1rem' }}>
-        {(['overview', 'maintenance', 'incidents', 'analytics'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              padding: '5px 12px',
-              background: activeTab === tab ? 'white' : 'transparent',
-              color: activeTab === tab ? '#111827' : '#6b7280',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontWeight: 500,
-              fontSize: '12px',
-              boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
-              textTransform: 'capitalize'
-            }}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
