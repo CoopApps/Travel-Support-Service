@@ -46,11 +46,62 @@ function VehicleListPage() {
   const [showLogService, setShowLogService] = useState(false);
   const [showIncidentForm, setShowIncidentForm] = useState(false);
 
+  // Bulk selection state
+  const [selectedVehicles, setSelectedVehicles] = useState<Set<number>>(new Set());
+
   useEffect(() => {
     if (tenantId) {
       fetchData();
     }
   }, [tenantId]);
+
+  /**
+   * Toggle selection of a vehicle
+   */
+  const toggleVehicleSelection = (vehicleId: number) => {
+    setSelectedVehicles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(vehicleId)) {
+        newSet.delete(vehicleId);
+      } else {
+        newSet.add(vehicleId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Toggle all vehicles on current page
+   */
+  const toggleAllVehicles = () => {
+    const currentVehicles = getFilteredVehicles();
+    if (selectedVehicles.size === currentVehicles.length) {
+      setSelectedVehicles(new Set());
+    } else {
+      setSelectedVehicles(new Set(currentVehicles.map(v => v.vehicle_id)));
+    }
+  };
+
+  /**
+   * Bulk archive selected vehicles
+   */
+  const handleBulkArchive = async () => {
+    if (!tenantId || selectedVehicles.size === 0) return;
+    if (!confirm(`Archive ${selectedVehicles.size} vehicle${selectedVehicles.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedVehicles).map(id =>
+          vehicleApi.updateVehicle(tenantId, id, { is_active: false })
+        )
+      );
+      alert(`Archived ${selectedVehicles.size} vehicle${selectedVehicles.size !== 1 ? 's' : ''}`);
+      setSelectedVehicles(new Set());
+      fetchData();
+    } catch (err: any) {
+      alert(`Failed to archive vehicles: ${err.message}`);
+    }
+  };
 
   const fetchData = async () => {
     if (!tenantId) return;
@@ -307,6 +358,27 @@ function VehicleListPage() {
                 </span>
               )}
             </div>
+
+            {/* Bulk Actions */}
+            {selectedVehicles.size > 0 && (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                <span style={{ fontSize: '12px', color: '#1e40af', fontWeight: 500 }}>
+                  {selectedVehicles.size} selected
+                </span>
+                <button
+                  onClick={handleBulkArchive}
+                  style={{ padding: '4px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+                >
+                  Archive
+                </button>
+                <button
+                  onClick={() => setSelectedVehicles(new Set())}
+                  style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Vehicle Grid */}
@@ -335,29 +407,76 @@ function VehicleListPage() {
               )}
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-              gap: '1.25rem'
-            }}>
-              {filteredVehicles.map(vehicle => {
-                const vehicleType = getVehicleType(vehicle);
-                const section22Suitable = isSection22Suitable(vehicle);
-
-                return (
-                  <VehicleCard
-                    key={vehicle.vehicle_id}
-                    vehicle={vehicle}
-                    onEdit={handleEditVehicle}
-                    onAssignDriver={handleAssignDriver}
-                    onDelete={handleDeleteVehicle}
-                    vehicleType={vehicleType}
-                    section22Suitable={section22Suitable}
-                    showBusInfo={activeService === 'bus'}
+            <>
+              {/* Select All Button */}
+              <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={toggleAllVehicles}
+                  style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedVehicles.size === filteredVehicles.length && filteredVehicles.length > 0}
+                    readOnly
+                    style={{ width: '12px', height: '12px', pointerEvents: 'none' }}
                   />
-                );
-              })}
-            </div>
+                  <span>Select All</span>
+                </button>
+                {selectedVehicles.size > 0 && (
+                  <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                    {selectedVehicles.size} of {filteredVehicles.length} selected
+                  </span>
+                )}
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                gap: '1.25rem'
+              }}>
+                {filteredVehicles.map(vehicle => {
+                  const vehicleType = getVehicleType(vehicle);
+                  const section22Suitable = isSection22Suitable(vehicle);
+                  const isSelected = selectedVehicles.has(vehicle.vehicle_id);
+
+                  return (
+                    <div
+                      key={vehicle.vehicle_id}
+                      style={{ position: 'relative' }}
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type === 'checkbox') {
+                          return;
+                        }
+                        if ((e.target as HTMLElement).closest('button')) {
+                          return;
+                        }
+                      }}
+                    >
+                      {/* Checkbox Overlay */}
+                      <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleVehicleSelection(vehicle.vehicle_id)}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                      </div>
+
+                      <VehicleCard
+                        vehicle={vehicle}
+                        onEdit={handleEditVehicle}
+                        onAssignDriver={handleAssignDriver}
+                        onDelete={handleDeleteVehicle}
+                        vehicleType={vehicleType}
+                        section22Suitable={section22Suitable}
+                        showBusInfo={activeService === 'bus'}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </>
       )}

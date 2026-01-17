@@ -75,6 +75,9 @@ function DriverListPage() {
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [documentsDriver, setDocumentsDriver] = useState<Driver | null>(null);
 
+  // Bulk selection state
+  const [selectedDrivers, setSelectedDrivers] = useState<Set<number>>(new Set());
+
   /**
    * Check if driver is qualified for Section 22 bus operations
    */
@@ -132,6 +135,75 @@ function DriverListPage() {
   /**
    * Fetch drivers from API
    */
+  /**
+   * Toggle selection of a driver
+   */
+  const toggleDriverSelection = (driverId: number) => {
+    setSelectedDrivers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(driverId)) {
+        newSet.delete(driverId);
+      } else {
+        newSet.add(driverId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Toggle all drivers on current page
+   */
+  const toggleAllDrivers = () => {
+    const currentDrivers = drivers.filter(d => activeTab === 'active' ? d.employment_status === 'active' : d.employment_status === 'archived');
+    if (selectedDrivers.size === currentDrivers.length) {
+      setSelectedDrivers(new Set());
+    } else {
+      setSelectedDrivers(new Set(currentDrivers.map(d => d.driver_id)));
+    }
+  };
+
+  /**
+   * Bulk archive selected drivers
+   */
+  const handleBulkArchive = async () => {
+    if (selectedDrivers.size === 0) return;
+    if (!confirm(`Archive ${selectedDrivers.size} driver${selectedDrivers.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedDrivers).map(id =>
+          driverApi.updateDriver(tenantId, id, { employment_status: 'archived' })
+        )
+      );
+      toast.success(`Archived ${selectedDrivers.size} driver${selectedDrivers.size !== 1 ? 's' : ''}`);
+      setSelectedDrivers(new Set());
+      fetchDrivers();
+    } catch (err: any) {
+      toast.error(`Failed to archive drivers: ${err.message}`);
+    }
+  };
+
+  /**
+   * Bulk unarchive selected drivers
+   */
+  const handleBulkUnarchive = async () => {
+    if (selectedDrivers.size === 0) return;
+    if (!confirm(`Unarchive ${selectedDrivers.size} driver${selectedDrivers.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedDrivers).map(id =>
+          driverApi.updateDriver(tenantId, id, { employment_status: 'active' })
+        )
+      );
+      toast.success(`Unarchived ${selectedDrivers.size} driver${selectedDrivers.size !== 1 ? 's' : ''}`);
+      setSelectedDrivers(new Set());
+      fetchDrivers();
+    } catch (err: any) {
+      toast.error(`Failed to unarchive drivers: ${err.message}`);
+    }
+  };
+
   const fetchDrivers = async () => {
     try {
       setLoading(true);
@@ -439,9 +511,10 @@ function DriverListPage() {
       )}
 
       {/* Toolbar - Compact */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-        {/* Search */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px' }}>
           <div style={{ position: 'relative' }}>
             <svg
               width="14"
@@ -512,6 +585,37 @@ function DriverListPage() {
             Clear
           </button>
         )}
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedDrivers.size > 0 && (
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+            <span style={{ fontSize: '12px', color: '#1e40af', fontWeight: 500 }}>
+              {selectedDrivers.size} selected
+            </span>
+            {activeTab === 'active' ? (
+              <button
+                onClick={handleBulkArchive}
+                style={{ padding: '4px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Archive
+              </button>
+            ) : (
+              <button
+                onClick={handleBulkUnarchive}
+                style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Unarchive
+              </button>
+            )}
+            <button
+              onClick={() => setSelectedDrivers(new Set())}
+              style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Error Message */}
@@ -552,6 +656,14 @@ function DriverListPage() {
             <table>
               <thead>
                 <tr>
+                  <th style={{ width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedDrivers.size === drivers.filter(d => activeTab === 'active' ? d.employment_status === 'active' : d.employment_status === 'archived').length && drivers.length > 0}
+                      onChange={toggleAllDrivers}
+                      style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                    />
+                  </th>
                   <th>Driver Details</th>
                   <th>License & Contact</th>
                   <th>Vehicle Assignment</th>
@@ -569,6 +681,14 @@ function DriverListPage() {
 
                   return (
                     <tr key={driver.driver_id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedDrivers.has(driver.driver_id)}
+                          onChange={() => toggleDriverSelection(driver.driver_id)}
+                          style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                        />
+                      </td>
                       {/* Driver Details */}
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
