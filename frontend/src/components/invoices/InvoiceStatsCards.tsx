@@ -9,15 +9,15 @@ interface StatCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
+  color: string;
 }
 
-function StatCard({ label, value, subtitle, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, color }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
+    <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+      <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
+      <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
+      {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}
     </div>
   );
 }
@@ -35,42 +35,42 @@ export const InvoiceStatsCards: React.FC<Props> = ({ stats }) => {
   };
 
   return (
-    <div className="stats-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px', marginBottom: '1rem' }}>
       <StatCard
         label="Total Invoices"
         value={stats.totalInvoices.toString()}
-        theme="blue"
+        color="#2563eb"
       />
 
       <StatCard
         label="Total Paid"
         value={formatCurrency(stats.totalPaid)}
-        theme="green"
+        color="#16a34a"
       />
 
       <StatCard
         label="Total Pending"
         value={formatCurrency(stats.totalPending)}
-        theme="orange"
+        color="#ea580c"
       />
 
       <StatCard
         label="Overdue"
         value={stats.totalOverdue.toString()}
         subtitle={stats.totalOverdue > 0 ? 'Requires attention' : undefined}
-        theme="purple"
+        color="#9333ea"
       />
 
       <StatCard
         label="Collection Rate"
         value={`${stats.collectionRate}%`}
-        theme="indigo"
+        color="#7c3aed"
       />
 
       <StatCard
         label="Avg Days to Pay"
         value={`${stats.avgDaysToPay} days`}
-        theme="teal"
+        color="#0891b2"
       />
     </div>
   );

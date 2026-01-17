@@ -231,15 +231,7 @@ export const InvoicesPage: React.FC = () => {
 
   return (
     <div className="invoices-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Invoice Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <button
           className="btn btn-success"
           onClick={() => setShowBulkGenerateModal(true)}
@@ -249,33 +241,66 @@ export const InvoicesPage: React.FC = () => {
         </button>
       </div>
 
-      {/* View Toggle Tabs */}
-      <div className="tabs-container">
-        <div className="tabs">
+      {/* View Toggle - Pill Style */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
-            className={`tab ${viewMode === 'dashboard' ? 'active' : ''}`}
             onClick={() => setViewMode('dashboard')}
+            style={{
+              padding: '5px 12px',
+              background: viewMode === 'dashboard' ? 'white' : 'transparent',
+              color: viewMode === 'dashboard' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: viewMode === 'dashboard' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
           >
-            <span style={{ marginRight: '6px', display: 'inline-flex' }}><FileTextIcon size={14} /></span>
+            <FileTextIcon size={14} />
             Dashboard
           </button>
           <button
-            className={`tab ${viewMode === 'archive' ? 'active' : ''}`}
             onClick={() => setViewMode('archive')}
+            style={{
+              padding: '5px 12px',
+              background: viewMode === 'archive' ? 'white' : 'transparent',
+              color: viewMode === 'archive' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: viewMode === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
           >
-            <span style={{ marginRight: '6px', display: 'inline-flex' }}><FileTextIcon size={14} /></span>
+            <FileTextIcon size={14} />
             Archive
           </button>
         </div>
         {viewMode === 'archive' && (
-          <div className="tab-actions">
-            <button
-              className={`btn btn-sm ${showArchived ? 'btn-secondary' : 'btn-outline'}`}
-              onClick={() => setShowArchived(!showArchived)}
-            >
-              {showArchived ? 'Show Active' : 'Show Archived'}
-            </button>
-          </div>
+          <button
+            onClick={() => setShowArchived(!showArchived)}
+            style={{
+              padding: '5px 10px',
+              background: showArchived ? '#3b82f6' : 'white',
+              color: showArchived ? 'white' : '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            {showArchived ? 'Show Active' : 'Show Archived'}
+          </button>
         )}
       </div>
 

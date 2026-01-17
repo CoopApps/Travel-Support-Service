@@ -132,24 +132,24 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
     <div className="invoice-dashboard">
       {/* Key Stats */}
       {stats && (
-        <div className="stats-grid">
-          <div className="stat-card stat-card-blue">
-            <h4 className="stat-value">{stats.totalInvoices}</h4>
-            <small className="stat-label">Total Invoices</small>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb', marginBottom: '4px' }}>{stats.totalInvoices}</div>
+            <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Invoices</div>
           </div>
-          <div className="stat-card stat-card-green">
-            <h4 className="stat-value">{formatCurrency(stats.totalPaid)}</h4>
-            <small className="stat-label">Paid</small>
+          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: '#16a34a', marginBottom: '4px' }}>{formatCurrency(stats.totalPaid)}</div>
+            <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Paid</div>
           </div>
-          <div className="stat-card stat-card-orange">
-            <h4 className="stat-value">{formatCurrency(stats.totalPending)}</h4>
-            <small className="stat-label">Pending</small>
+          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: '#ea580c', marginBottom: '4px' }}>{formatCurrency(stats.totalPending)}</div>
+            <div style={{ fontSize: '11px', color: '#ea580c', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
           </div>
-          <div className="stat-card stat-card-purple">
-            <h4 className="stat-value">{formatCurrency(stats.totalOverdue)}</h4>
-            <small className="stat-label">Overdue</small>
+          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: '#9333ea', marginBottom: '4px' }}>{formatCurrency(stats.totalOverdue)}</div>
+            <div style={{ fontSize: '11px', color: '#9333ea', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Overdue</div>
             {stats.totalOverdue > 0 && (
-              <div className="stat-subtitle">Requires attention</div>
+              <div style={{ fontSize: '10px', color: '#6b7280' }}>Requires attention</div>
             )}
           </div>
         </div>
