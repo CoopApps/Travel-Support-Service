@@ -124,35 +124,15 @@ const IdleVehiclesReport: React.FC<IdleVehiclesReportProps> = ({ tenantId }) => 
   const { summary, never_used, idle_vehicles } = idleData;
 
   return (
-    <div style={{ padding: '1.5rem' }}>
-      {/* Header with Threshold Selector */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        gap: '1rem'
-      }}>
-        <div>
-          <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.5rem' }}>Idle Vehicles Report</h2>
-          <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>
-            Identify underutilized vehicles and optimize fleet costs
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.9rem', color: 'var(--gray-700)' }}>
-            Idle Threshold (days):
-          </label>
+    <div>
+      {/* Header with Threshold Selector - Compact */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12px', color: '#6b7280' }}>Idle threshold:</span>
           <select
             value={daysThreshold}
             onChange={(e) => setDaysThreshold(Number(e.target.value))}
-            style={{
-              padding: '0.5rem',
-              border: '1px solid var(--gray-300)',
-              borderRadius: '4px',
-              fontSize: '0.9rem'
-            }}
+            style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px' }}
           >
             <option value={7}>7 days</option>
             <option value={14}>14 days</option>
@@ -163,79 +143,23 @@ const IdleVehiclesReport: React.FC<IdleVehiclesReportProps> = ({ tenantId }) => 
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          border: '1px solid var(--gray-200)',
-          borderRadius: '8px',
-          padding: '1rem'
-        }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
-            Never Used
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--danger)' }}>
-            {summary.never_used_count}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-            0 trips recorded
-          </div>
+      {/* Summary Cards - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>{summary.never_used_count}</div>
+          <div style={{ fontSize: '10px', color: '#dc2626', fontWeight: 500, textTransform: 'uppercase' }}>Never Used</div>
         </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          border: '1px solid var(--gray-200)',
-          borderRadius: '8px',
-          padding: '1rem'
-        }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
-            Idle Vehicles
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--warning)' }}>
-            {summary.idle_count}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-            No trips in {daysThreshold}+ days
-          </div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#f59e0b' }}>{summary.idle_count}</div>
+          <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 500, textTransform: 'uppercase' }}>Idle ({daysThreshold}d+)</div>
         </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          border: '1px solid var(--gray-200)',
-          borderRadius: '8px',
-          padding: '1rem'
-        }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
-            Total Idle Vehicles
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--gray-700)' }}>
-            {summary.total_idle}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-            {((summary.total_idle / summary.total_vehicles) * 100).toFixed(1)}% of fleet
-          </div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#6b7280' }}>{summary.total_idle}</div>
+          <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 500, textTransform: 'uppercase' }}>Total Idle</div>
         </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          border: '1px solid var(--gray-200)',
-          borderRadius: '8px',
-          padding: '1rem'
-        }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
-            Potential Monthly Savings
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--success)' }}>
-            £{summary.potential_monthly_savings.toFixed(2)}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-            If idle vehicles archived
-          </div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: '#16a34a' }}>£{summary.potential_monthly_savings.toFixed(0)}</div>
+          <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, textTransform: 'uppercase' }}>Savings/mo</div>
         </div>
       </div>
 
@@ -515,18 +439,12 @@ const IdleVehiclesReport: React.FC<IdleVehiclesReportProps> = ({ tenantId }) => 
 
       {/* Empty State */}
       {(!never_used || never_used.length === 0) && (!idle_vehicles || idle_vehicles.length === 0) && (
-        <div style={{
-          padding: '3rem',
-          textAlign: 'center',
-          backgroundColor: 'white',
-          border: '1px solid var(--gray-200)',
-          borderRadius: '8px'
-        }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--success)' }}>Great News!</h3>
-          <p style={{ margin: 0, color: 'var(--gray-600)' }}>
-            No idle vehicles found. Your fleet is fully utilized!
-          </p>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" style={{ margin: '0 auto 12px' }}>
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px', color: '#16a34a' }}>Fleet Fully Utilized</div>
+          <div style={{ fontSize: '13px' }}>No idle vehicles found</div>
         </div>
       )}
 

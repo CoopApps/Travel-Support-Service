@@ -70,61 +70,53 @@ function MaintenanceOverview({ onLogService }: MaintenanceOverviewProps) {
 
   return (
     <div>
-      {/* Quick Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ background: '#fef2f2', padding: '1rem', borderRadius: '8px', border: '1px solid #fecaca' }}>
-          <div style={{ fontSize: '0.875rem', color: '#991b1b', marginBottom: '4px' }}>Overdue</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#dc2626' }}>{overview.overdue_count}</div>
+      {/* Quick Stats - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>{overview.overdue_count}</div>
+          <div style={{ fontSize: '10px', color: '#dc2626', fontWeight: 500, textTransform: 'uppercase' }}>Overdue</div>
         </div>
-        <div style={{ background: '#fef3c7', padding: '1rem', borderRadius: '8px', border: '1px solid #fde68a' }}>
-          <div style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '4px' }}>Due Soon (≤7 days)</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f59e0b' }}>{overview.due_soon_count}</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#f59e0b' }}>{overview.due_soon_count}</div>
+          <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 500, textTransform: 'uppercase' }}>Due Soon</div>
         </div>
-        <div style={{ background: '#fef9c3', padding: '1rem', borderRadius: '8px', border: '1px solid #fef08a' }}>
-          <div style={{ fontSize: '0.875rem', color: '#713f12', marginBottom: '4px' }}>Due This Month</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#eab308' }}>{overview.due_this_month_count}</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#eab308' }}>{overview.due_this_month_count}</div>
+          <div style={{ fontSize: '10px', color: '#eab308', fontWeight: 500, textTransform: 'uppercase' }}>This Month</div>
         </div>
-        <div style={{ background: '#dcfce7', padding: '1rem', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-          <div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '4px' }}>Up to Date</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#22c55e' }}>{overview.up_to_date_count}</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#22c55e' }}>{overview.up_to_date_count}</div>
+          <div style={{ fontSize: '10px', color: '#22c55e', fontWeight: 500, textTransform: 'uppercase' }}>Up to Date</div>
         </div>
       </div>
 
-      {/* Costs Analysis */}
-      <div style={{ background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 600 }}>Cost Analysis</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+      {/* Costs Analysis - Compact */}
+      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '10px', marginBottom: '12px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600, color: '#374151' }}>Cost Analysis</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--gray-600)', marginBottom: '4px' }}>This Month</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--gray-900)' }}>
-              {formatCurrency(overview.recent_costs?.this_month)}
-            </div>
+            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', textTransform: 'uppercase' }}>This Month</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{formatCurrency(overview.recent_costs?.this_month)}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--gray-600)', marginBottom: '4px' }}>Last 3 Months</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--gray-900)' }}>
-              {formatCurrency(overview.recent_costs?.last_3_months)}
-            </div>
+            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', textTransform: 'uppercase' }}>Last 3 Months</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{formatCurrency(overview.recent_costs?.last_3_months)}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--gray-600)', marginBottom: '4px' }}>Year to Date</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--gray-900)' }}>
-              {formatCurrency(overview.recent_costs?.year_to_date)}
-            </div>
+            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', textTransform: 'uppercase' }}>Year to Date</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{formatCurrency(overview.recent_costs?.year_to_date)}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--gray-600)', marginBottom: '4px' }}>Avg per Vehicle</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--gray-900)' }}>
-              {formatCurrency(overview.recent_costs?.avg_per_vehicle)}
-            </div>
+            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', textTransform: 'uppercase' }}>Avg/Vehicle</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{formatCurrency(overview.recent_costs?.avg_per_vehicle)}</div>
           </div>
         </div>
       </div>
 
-      {/* Upcoming Services */}
+      {/* Upcoming Services - Compact */}
       {overview.upcoming_services?.length > 0 && (
-        <div style={{ background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 600 }}>Upcoming Services (Next 60 Days)</h3>
+        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '10px', marginBottom: '12px' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600, color: '#374151' }}>Upcoming Services (60 Days)</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: '0.875rem' }}>
               <thead>
@@ -163,11 +155,14 @@ function MaintenanceOverview({ onLogService }: MaintenanceOverviewProps) {
         </div>
       )}
 
-      {/* Recent Service History */}
-      <div style={{ background: 'white', border: '1px solid var(--gray-200)', borderRadius: '8px', padding: '1.25rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>Recent Service History</h3>
-          <button onClick={onLogService} className="btn btn-primary" style={{ fontSize: '0.875rem' }}>
+      {/* Recent Service History - Compact */}
+      <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#374151' }}>Recent Service History</h3>
+          <button
+            onClick={onLogService}
+            style={{ padding: '4px 10px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+          >
             Log Service
           </button>
         </div>

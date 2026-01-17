@@ -136,73 +136,55 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
 
   return (
     <div>
-      {/* Statistics Cards */}
+      {/* Statistics Cards - Compact */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <div className="stat-card">
-            <div className="stat-label">Total Incidents</div>
-            <div className="stat-value">{stats.total_incidents}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '12px' }}>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#2563eb' }}>{stats.total_incidents}</div>
+            <div style={{ fontSize: '10px', color: '#2563eb', fontWeight: 500, textTransform: 'uppercase' }}>Total</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Active Cases</div>
-            <div className="stat-value" style={{ color: 'var(--warning)' }}>
-              {stats.reported_count + stats.investigating_count}
-            </div>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#f59e0b' }}>{stats.reported_count + stats.investigating_count}</div>
+            <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 500, textTransform: 'uppercase' }}>Active</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Accidents</div>
-            <div className="stat-value" style={{ color: 'var(--danger)' }}>{stats.accidents}</div>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>{stats.accidents}</div>
+            <div style={{ fontSize: '10px', color: '#dc2626', fontWeight: 500, textTransform: 'uppercase' }}>Accidents</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">With Injuries</div>
-            <div className="stat-value" style={{ color: stats.injuries_count > 0 ? 'var(--danger)' : 'var(--success)' }}>
-              {stats.injuries_count}
-            </div>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: stats.injuries_count > 0 ? '#dc2626' : '#16a34a' }}>{stats.injuries_count}</div>
+            <div style={{ fontSize: '10px', color: stats.injuries_count > 0 ? '#dc2626' : '#16a34a', fontWeight: 500, textTransform: 'uppercase' }}>Injuries</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Estimated Costs</div>
-            <div className="stat-value" style={{ fontSize: '1.25rem' }}>
-              {formatCurrency(stats.total_estimated_cost)}
-            </div>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#9333ea' }}>{formatCurrency(stats.total_estimated_cost)}</div>
+            <div style={{ fontSize: '10px', color: '#9333ea', fontWeight: 500, textTransform: 'uppercase' }}>Est. Cost</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Actual Costs</div>
-            <div className="stat-value" style={{ fontSize: '1.25rem' }}>
-              {formatCurrency(stats.total_actual_cost)}
-            </div>
+          <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#0d9488' }}>{formatCurrency(stats.total_actual_cost)}</div>
+            <div style={{ fontSize: '10px', color: '#0d9488', fontWeight: 500, textTransform: 'uppercase' }}>Actual</div>
           </div>
         </div>
       )}
 
-      {/* Toolbar */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        gap: '1rem'
-      }}>
+      {/* Toolbar - Compact */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="btn btn-secondary"
-            style={{ minWidth: '150px' }}
+            style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '110px' }}
           >
-            <option value="">All Statuses</option>
+            <option value="">All Status</option>
             <option value="reported">Reported</option>
-            <option value="under_investigation">Under Investigation</option>
+            <option value="under_investigation">Investigating</option>
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="btn btn-secondary"
-            style={{ minWidth: '150px' }}
+            style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '100px' }}
           >
             <option value="">All Types</option>
             <option value="accident">Accident</option>
@@ -213,14 +195,12 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
             <option value="vandalism">Vandalism</option>
             <option value="other">Other</option>
           </select>
-
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="btn btn-secondary"
-            style={{ minWidth: '150px' }}
+            style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '100px' }}
           >
-            <option value="">All Severities</option>
+            <option value="">All Severity</option>
             <option value="minor">Minor</option>
             <option value="moderate">Moderate</option>
             <option value="serious">Serious</option>
@@ -228,25 +208,17 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
           </select>
         </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button
-            onClick={() => fetchData()}
-            className="btn btn-secondary"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
-              <polyline points="23 4 23 10 17 10"/>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-            Refresh
-          </button>
-          <button
-            onClick={onReportIncident}
-            className="btn btn-primary"
-          >
-            + Report Incident
-          </button>
-        </div>
+        {/* Report Button */}
+        <button
+          onClick={onReportIncident}
+          style={{ padding: '6px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Report
+        </button>
       </div>
 
       {/* Incidents Table */}
@@ -311,8 +283,8 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
                     </span>
                     {incident.injuries_occurred && (
                       <div style={{ marginTop: '0.25rem' }}>
-                        <span className="badge bg-red-100 text-red-800" style={{ fontSize: '0.75rem' }}>
-                          ⚠️ Injury
+                        <span style={{ fontSize: '10px', padding: '2px 6px', background: '#fee2e2', color: '#dc2626', borderRadius: '3px', fontWeight: 600 }}>
+                          INJURY
                         </span>
                       </div>
                     )}
@@ -325,8 +297,8 @@ function IncidentsTab({ onReportIncident }: IncidentsTabProps) {
                       }
                     </div>
                     {incident.location && (
-                      <div style={{ fontSize: '0.875rem', color: 'var(--gray-600)', marginTop: '0.25rem' }}>
-                        📍 {incident.location}
+                      <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+                        {incident.location}
                       </div>
                     )}
                   </td>

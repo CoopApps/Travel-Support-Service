@@ -68,223 +68,114 @@ const FleetAnalyticsDashboard: React.FC<FleetAnalyticsDashboardProps> = ({ tenan
   const { summary, composition, utilization, financial, performance, topPerformers, underutilized } = stats;
 
   return (
-    <div style={{ padding: '1.5rem' }}>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '20px', fontWeight: 700, color: 'var(--gray-900)' }}>
-          Fleet Analytics Dashboard
-        </h2>
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--gray-600)' }}>
-          Comprehensive fleet performance and financial analysis
-        </p>
-      </div>
+    <div>
 
-      {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.25rem' }}>
-            {summary.totalVehicles}
-          </div>
-          <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>Total Vehicles</div>
+      {/* Summary Cards - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#2563eb' }}>{summary.totalVehicles}</div>
+          <div style={{ fontSize: '10px', color: '#2563eb', fontWeight: 500, textTransform: 'uppercase' }}>Total</div>
         </div>
-
-        <div className="card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981', marginBottom: '0.25rem' }}>
-            {summary.activeVehicles}
-          </div>
-          <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>Active</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>{summary.activeVehicles}</div>
+          <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, textTransform: 'uppercase' }}>Active</div>
         </div>
-
-        <div className="card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#6b7280', marginBottom: '0.25rem' }}>
-            {summary.archivedVehicles}
-          </div>
-          <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>Archived</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#6b7280' }}>{summary.archivedVehicles}</div>
+          <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 500, textTransform: 'uppercase' }}>Archived</div>
         </div>
       </div>
 
-      {/* Fleet Composition & Utilization */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      {/* Fleet Composition, Utilization & Financial - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '12px' }}>
         {/* Fleet Composition */}
-        <div className="card">
-          <div style={{ padding: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-              Fleet Composition
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Owned</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#3b82f6' }}>{composition.owned}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Leased</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#8b5cf6' }}>{composition.leased}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Personal</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#10b981' }}>{composition.personal}</span>
-              </div>
-            </div>
+        <div style={{ background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>Composition</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Owned</span><span style={{ fontWeight: 600, color: '#3b82f6' }}>{composition.owned}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Leased</span><span style={{ fontWeight: 600, color: '#8b5cf6' }}>{composition.leased}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Personal</span><span style={{ fontWeight: 600, color: '#10b981' }}>{composition.personal}</span></div>
           </div>
         </div>
 
         {/* Utilization */}
-        <div className="card">
-          <div style={{ padding: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-              Fleet Utilization
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Assigned</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#10b981' }}>{utilization.assigned}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Unassigned</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#f59e0b' }}>{utilization.unassigned}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Wheelchair Accessible</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#3b82f6' }}>{utilization.wheelchairAccessible}</span>
-              </div>
-            </div>
+        <div style={{ background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>Utilization</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Assigned</span><span style={{ fontWeight: 600, color: '#10b981' }}>{utilization.assigned}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Unassigned</span><span style={{ fontWeight: 600, color: '#f59e0b' }}>{utilization.unassigned}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Accessible</span><span style={{ fontWeight: 600, color: '#3b82f6' }}>{utilization.wheelchairAccessible}</span></div>
           </div>
         </div>
 
         {/* Financial Overview */}
-        <div className="card">
-          <div style={{ padding: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-              Financial Overview
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Monthly Lease</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)' }}>£{parseFloat(financial.totalMonthlyLease).toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Monthly Insurance</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)' }}>£{parseFloat(financial.totalMonthlyInsurance).toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--gray-700)' }}>Total Mileage</span>
-                <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)' }}>
-                  {financial.totalMileage.toLocaleString()} mi
-                </span>
-              </div>
-            </div>
+        <div style={{ background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>Financial</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Lease/mo</span><span style={{ fontWeight: 600 }}>£{parseFloat(financial.totalMonthlyLease).toFixed(0)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Insurance/mo</span><span style={{ fontWeight: 600 }}>£{parseFloat(financial.totalMonthlyInsurance).toFixed(0)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#6b7280' }}>Total Miles</span><span style={{ fontWeight: 600 }}>{financial.totalMileage.toLocaleString()}</span></div>
           </div>
         </div>
       </div>
 
-      {/* Performance Metrics */}
-      <div className="card" style={{ marginBottom: '2rem' }}>
-        <div style={{ padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-            Performance Metrics
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#3b82f6', marginBottom: '0.25rem' }}>
-                {performance.totalTrips}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Total Trips</div>
-            </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#10b981', marginBottom: '0.25rem' }}>
-                £{parseFloat(performance.totalRevenue).toFixed(2)}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Total Revenue</div>
-            </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#ef4444', marginBottom: '0.25rem' }}>
-                £{parseFloat(performance.totalMaintenanceCost).toFixed(2)}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Maintenance Cost</div>
-            </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#8b5cf6', marginBottom: '0.25rem' }}>
-                {parseFloat(performance.averageTripsPerVehicle).toFixed(1)}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Avg Trips/Vehicle</div>
-            </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', marginBottom: '0.25rem' }}>
-                £{parseFloat(performance.averageRevenuePerVehicle).toFixed(2)}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Avg Revenue/Vehicle</div>
-            </div>
-
-            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--gray-50)', borderRadius: '6px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: performance.netRevenue && parseFloat(performance.netRevenue) >= 0 ? '#10b981' : '#ef4444', marginBottom: '0.25rem' }}>
-                £{parseFloat(performance.netRevenue).toFixed(2)}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Net Revenue</div>
-            </div>
+      {/* Performance Metrics - Compact */}
+      <div style={{ background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #e5e7eb', marginBottom: '12px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>Performance Metrics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#3b82f6' }}>{performance.totalTrips}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Trips</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#10b981' }}>£{parseFloat(performance.totalRevenue).toFixed(0)}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Revenue</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#ef4444' }}>£{parseFloat(performance.totalMaintenanceCost).toFixed(0)}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Maint.</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#8b5cf6' }}>{parseFloat(performance.averageTripsPerVehicle).toFixed(1)}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Avg/Veh</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#f59e0b' }}>£{parseFloat(performance.averageRevenuePerVehicle).toFixed(0)}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Rev/Veh</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '6px', background: '#f9fafb', borderRadius: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: performance.netRevenue && parseFloat(performance.netRevenue) >= 0 ? '#10b981' : '#ef4444' }}>£{parseFloat(performance.netRevenue).toFixed(0)}</div>
+            <div style={{ fontSize: '9px', color: '#6b7280', textTransform: 'uppercase' }}>Net</div>
           </div>
         </div>
       </div>
 
-      {/* Fleet Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '0.25rem' }}>
-            {financial.averageMileagePerVehicle.toLocaleString()} mi
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Avg Mileage/Vehicle</div>
+      {/* Fleet Stats Row - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>{financial.averageMileagePerVehicle.toLocaleString()} mi</div>
+          <div style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase' }}>Avg Miles/Vehicle</div>
         </div>
-
-        <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '0.25rem' }}>
-            {financial.averageAge.toFixed(1)} years
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Average Fleet Age</div>
+        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>{financial.averageAge.toFixed(1)} yrs</div>
+          <div style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase' }}>Fleet Age</div>
         </div>
       </div>
 
-      {/* Top Performers & Underutilized */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+      {/* Top Performers & Underutilized - Compact */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
         {/* Top Performers */}
         {topPerformers && topPerformers.length > 0 && (
-          <div className="card">
-            <div style={{ padding: '1.5rem' }}>
-              <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-                🏆 Top Performers
+          <div style={{ background: 'white', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+            <div style={{ padding: '10px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>
+                Top Performers
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {topPerformers.map((vehicle: any, index: number) => (
-                  <div
-                    key={vehicle.vehicle_id}
-                    style={{
-                      padding: '1rem',
-                      background: '#f0fdf4',
-                      border: '1px solid #10b981',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                      <div>
-                        <div style={{ fontWeight: 600, color: 'var(--gray-900)' }}>
-                          {index + 1}. {vehicle.registration}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
-                          {vehicle.make} {vehicle.model}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#10b981' }}>
-                          {vehicle.total_trips} trips
-                        </div>
-                      </div>
-                    </div>
-                    {vehicle.driver_name && (
-                      <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
-                        Driver: {vehicle.driver_name}
-                      </div>
-                    )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {topPerformers.slice(0, 3).map((vehicle: any, index: number) => (
+                  <div key={vehicle.vehicle_id} style={{ padding: '6px 8px', background: '#f0fdf4', borderRadius: '3px', fontSize: '11px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span><strong>{index + 1}.</strong> {vehicle.registration} - {vehicle.make}</span>
+                    <span style={{ fontWeight: 600, color: '#10b981' }}>{vehicle.total_trips}</span>
                   </div>
                 ))}
               </div>
@@ -294,46 +185,16 @@ const FleetAnalyticsDashboard: React.FC<FleetAnalyticsDashboardProps> = ({ tenan
 
         {/* Underutilized */}
         {underutilized && underutilized.length > 0 && (
-          <div className="card">
-            <div style={{ padding: '1.5rem' }}>
-              <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)' }}>
-                ⚠️ Underutilized Vehicles
+          <div style={{ background: 'white', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+            <div style={{ padding: '10px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 600, color: '#374151' }}>
+                Underutilized
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {underutilized.map((vehicle: any) => (
-                  <div
-                    key={vehicle.vehicle_id}
-                    style={{
-                      padding: '1rem',
-                      background: '#fffbeb',
-                      border: '1px solid #f59e0b',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                      <div>
-                        <div style={{ fontWeight: 600, color: 'var(--gray-900)' }}>
-                          {vehicle.registration}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
-                          {vehicle.make} {vehicle.model}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#f59e0b' }}>
-                          {vehicle.total_trips || 0} trips
-                        </div>
-                      </div>
-                    </div>
-                    {vehicle.driver_name ? (
-                      <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
-                        Driver: {vehicle.driver_name}
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 500 }}>
-                        No driver assigned
-                      </div>
-                    )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {underutilized.slice(0, 3).map((vehicle: any) => (
+                  <div key={vehicle.vehicle_id} style={{ padding: '6px 8px', background: '#fffbeb', borderRadius: '3px', fontSize: '11px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>{vehicle.registration} - {vehicle.make}</span>
+                    <span style={{ fontWeight: 600, color: '#f59e0b' }}>{vehicle.total_trips || 0}</span>
                   </div>
                 ))}
               </div>
