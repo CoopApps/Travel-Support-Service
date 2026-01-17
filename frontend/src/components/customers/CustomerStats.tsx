@@ -14,11 +14,6 @@ interface CustomerStatsProps {
   tenantId: number;
 }
 
-/**
- * Customer Statistics Cards - Matching Legacy Design
- *
- * Displays 6 stat cards with color-coded themes
- */
 function CustomerStats({ tenantId }: CustomerStatsProps) {
   const [stats, setStats] = useState<CustomerStats>({
     total: 0,
@@ -29,7 +24,6 @@ function CustomerStats({ tenantId }: CustomerStatsProps) {
     loginEnabled: 0,
   });
 
-  // Fetch real stats from API
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -48,31 +42,37 @@ function CustomerStats({ tenantId }: CustomerStatsProps) {
       <StatCard
         label="Total Customers"
         value={stats.total}
+        subtitle="All registered customers"
         theme="blue"
       />
       <StatCard
         label="Active Customers"
         value={stats.active}
+        subtitle="Currently using service"
         theme="green"
       />
       <StatCard
         label="Destinations"
         value={stats.destinations}
+        subtitle="Unique destination addresses"
         theme="orange"
       />
       <StatCard
-        label="Split Payment Customers"
+        label="Split Payment"
         value={stats.splitPayment}
+        subtitle="Multiple payers configured"
         theme="purple"
       />
       <StatCard
-        label="Customers with Times Set"
+        label="Times Set"
         value={stats.withTimes}
+        subtitle="Specific pickup/drop-off times"
         theme="teal"
       />
       <StatCard
         label="Login Enabled"
         value={stats.loginEnabled}
+        subtitle="Portal access granted"
         theme="indigo"
       />
     </div>
@@ -82,14 +82,16 @@ function CustomerStats({ tenantId }: CustomerStatsProps) {
 interface StatCardProps {
   label: string;
   value: number;
+  subtitle: string;
   theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
 }
 
-function StatCard({ label, value, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
+    <div className={'stat-card stat-card-' + theme}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
     </div>
   );
 }

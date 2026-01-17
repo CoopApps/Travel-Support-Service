@@ -82,3 +82,11 @@
   color: #d97706;
   border: 1px solid #e5e7eb;
 }
+
+.customer-stats-grid .stat-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  color: #6b7280;
+  display: block;
+  line-height: 1.3;
+}

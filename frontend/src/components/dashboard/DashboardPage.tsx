@@ -542,42 +542,42 @@ function DashboardPage() {
         <div className="stats-grid" style={{ marginBottom: '0.75rem' }}>
           <div className="stat-card stat-card-purple" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Revenue This Week</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Revenue This Week</div>
           </div>
 
           <div className="stat-card stat-card-blue" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.journeysThisWeek || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Journeys This Week</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Journeys This Week</div>
           </div>
 
           <div className="stat-card stat-card-green" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.activeCustomers || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Active Customers</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Active Customers</div>
           </div>
 
           <div className="stat-card stat-card-orange" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.activeDrivers || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Active Drivers</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Active Drivers</div>
           </div>
 
           <div className="stat-card stat-card-teal" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.journeysToday || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Journeys Today</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Journeys Today</div>
           </div>
 
           <div className="stat-card stat-card-indigo" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.pendingApprovals || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Approvals</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Approvals</div>
           </div>
 
           <div className="stat-card stat-card-red" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.summary?.criticalTasks || 0}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Active Issues</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Active Issues</div>
           </div>
 
           <div className="stat-card stat-card-amber" style={{ padding: '0.75rem' }}>
             <div className="stat-value" style={{ fontSize: '20px' }}>£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
-            <div className="stat-label" style={{ fontSize: '12px' }}>Pending Payments</div>
+            <div className="stat-label" style={{ fontSize: '11px' }}>Pending Payments</div>
           </div>
         </div>
       )}
@@ -1196,7 +1196,7 @@ function ScheduleModal({ title, date, data, loading, onClose }: ScheduleModalPro
                         {journey.pickup_time || 'Not set'}
                       </div>
                       {journey.return_time && (
-                        <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '2px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginTop: '2px' }}>
                           Return: {journey.return_time}
                         </div>
                       )}
@@ -1211,7 +1211,7 @@ function ScheduleModal({ title, date, data, loading, onClose }: ScheduleModalPro
                         {journey.pickup_address || 'Address not set'} → {journey.destination || 'Destination not set'}
                       </div>
                       {journey.special_requirements && (
-                        <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '4px' }}>
+                        <div style={{ fontSize: '11px', color: '#f59e0b', marginTop: '4px' }}>
                           Note: {journey.special_requirements}
                         </div>
                       )}
@@ -1225,7 +1225,7 @@ function ScheduleModal({ title, date, data, loading, onClose }: ScheduleModalPro
                             {journey.driver_name}
                           </div>
                           {journey.vehicle_registration && (
-                            <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '2px' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginTop: '2px' }}>
                               {journey.vehicle_registration}
                             </div>
                           )}
@@ -1240,7 +1240,7 @@ function ScheduleModal({ title, date, data, loading, onClose }: ScheduleModalPro
                     {/* Status */}
                     <div>
                       <div style={{
-                        fontSize: '12px',
+                        fontSize: '11px',
                         padding: '6px 12px',
                         borderRadius: '4px',
                         background: journey.driver_name ? '#e8f5e9' : '#ffebee',

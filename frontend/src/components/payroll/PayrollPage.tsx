@@ -623,8 +623,8 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, theme }) => {
   return (
     <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
       {subtitle && <div className="stat-subtitle">{subtitle}</div>}
     </div>
   );
@@ -803,7 +803,7 @@ const JoinersLeaversTab: React.FC<JoinersLeaversTabProps> = ({
   return (
     <div className="joiners-leavers-container">
       <div className="joiners-section">
-        <h4>New Joiners</h4>
+        <h4>New Joiners</div>
         {joiners.length === 0 ? (
           <p className="empty-message">No new joiners in this period</p>
         ) : (
@@ -835,7 +835,7 @@ const JoinersLeaversTab: React.FC<JoinersLeaversTabProps> = ({
       </div>
 
       <div className="leavers-section">
-        <h4>Leavers</h4>
+        <h4>Leavers</div>
         {leavers.length === 0 ? (
           <p className="empty-message">No leavers in this period</p>
         ) : (
@@ -892,7 +892,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
     <div className="summary-container">
       <div className="summary-grid">
         <div className="summary-card">
-          <h4>Period Information</h4>
+          <h4>Period Information</div>
           <div className="info-row">
             <span className="info-label">Period:</span>
             <span className="info-value">
@@ -910,7 +910,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         </div>
 
         <div className="summary-card">
-          <h4>Employee Count</h4>
+          <h4>Employee Count</div>
           <div className="info-row">
             <span className="info-label">Contracted:</span>
             <span className="info-value">{summary.contracted_count}</span>
@@ -930,7 +930,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         </div>
 
         <div className="summary-card summary-totals">
-          <h4>Period Totals</h4>
+          <h4>Period Totals</div>
           <div className="info-row">
             <span className="info-label">Total Gross:</span>
             <span className="info-value"><strong>{formatCurrency(summary.total_gross)}</strong></span>
@@ -954,7 +954,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         </div>
 
         <div className="summary-card hmrc-card">
-          <h4>HMRC Payment</h4>
+          <h4>HMRC Payment</div>
           <div className="info-row">
             <span className="info-label">Amount Due:</span>
             <span className="info-value">

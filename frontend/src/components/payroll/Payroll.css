@@ -601,3 +601,12 @@
     min-width: 120px;
   }
 }
+
+.payroll-page .stat-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  color: #6b7280;
+  display: block;
+  line-height: 1.3;
+  margin-top: 4px;
+}
