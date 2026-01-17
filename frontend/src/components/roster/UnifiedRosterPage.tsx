@@ -270,8 +270,17 @@ export default function UnifiedRosterPage() {
 
   return (
     <div>
-      {/* Header - Compact */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '12px' }}>
+      {error && (
+        <div style={{ padding: '8px 12px', background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '4px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', color: '#dc2626' }}>{error}</span>
+          <button onClick={loadRosterData} style={{ padding: '4px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* View Toggle and Date Navigation */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* View Toggle - Pill Style */}
         <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
@@ -307,21 +316,9 @@ export default function UnifiedRosterPage() {
             Week
           </button>
         </div>
-      </div>
 
-      {error && (
-        <div style={{ padding: '8px 12px', background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '4px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: '#dc2626' }}>{error}</span>
-          <button onClick={loadRosterData} style={{ padding: '4px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}>
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Navigation & Filters - Compact */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {/* Date Navigation */}
+        {/* Date Navigation */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => navigateDate('prev')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', border: '1px solid #e5e7eb', background: 'white', borderRadius: '4px', cursor: 'pointer' }}>
             <ArrowLeftIcon size={16} />
           </button>
@@ -332,14 +329,20 @@ export default function UnifiedRosterPage() {
             <ArrowRightIcon size={16} />
           </button>
           <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827', padding: '0 8px', minWidth: '180px' }}>{getDateRangeDisplay()}</span>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', background: 'white', cursor: 'pointer' }}
-          />
         </div>
+      </div>
 
+      {/* Calendar and Filters */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Date Picker */}
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={e => setSelectedDate(e.target.value)}
+          style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', background: 'white', cursor: 'pointer' }}
+        />
+
+        {/* Search and Driver Filter */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {/* Search */}
           <div style={{ position: 'relative' }}>
