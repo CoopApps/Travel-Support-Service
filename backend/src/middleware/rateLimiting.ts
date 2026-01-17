@@ -33,11 +33,11 @@ function rateLimitHandler(_req: Request, res: Response) {
  * General API rate limiter
  * Applied to all /api/* routes
  *
- * Allows 100 requests per 15 minutes per IP
+ * Allows 1000 requests per 15 minutes per IP
  */
 export const apiRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 1000, // Limit each IP to 1000 requests per window
   message: 'Too many requests from this IP, please try again later',
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
@@ -52,12 +52,12 @@ export const apiRateLimiter: RateLimitRequestHandler = rateLimit({
  * Strict rate limiter for authentication endpoints
  * Applied to login, register, password reset, etc.
  *
- * Allows only 5 requests per 15 minutes per IP
- * Prevents brute force password attacks
+ * Allows 20 requests per 15 minutes per IP
+ * Prevents brute force password attacks while allowing reasonable usage
  */
 export const authRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 login attempts per window
+  max: 20, // Limit each IP to 20 login attempts per window
   message: 'Too many login attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
@@ -70,11 +70,11 @@ export const authRateLimiter: RateLimitRequestHandler = rateLimit({
  * Moderate rate limiter for write operations
  * Applied to POST, PUT, DELETE routes
  *
- * Allows 30 requests per 15 minutes per IP
+ * Allows 300 requests per 15 minutes per IP
  */
 export const writeRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit write operations
+  max: 300, // Limit write operations
   message: 'Too many write requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
@@ -87,11 +87,11 @@ export const writeRateLimiter: RateLimitRequestHandler = rateLimit({
  * Lenient rate limiter for read operations
  * Applied to GET routes
  *
- * Allows 200 requests per 15 minutes per IP
+ * Allows 2000 requests per 15 minutes per IP
  */
 export const readRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Higher limit for read operations
+  max: 2000, // Higher limit for read operations
   message: 'Too many requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
@@ -101,14 +101,14 @@ export const readRateLimiter: RateLimitRequestHandler = rateLimit({
 });
 
 /**
- * Very strict rate limiter for expensive operations
+ * Rate limiter for expensive operations
  * Applied to report generation, exports, bulk operations
  *
- * Allows only 3 requests per hour per IP
+ * Allows 30 requests per hour per IP
  */
 export const expensiveOperationLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // Very limited
+  max: 30, // Reasonable limit for exports/reports
   message: 'This operation is rate limited. Please try again later',
   standardHeaders: true,
   legacyHeaders: false,
