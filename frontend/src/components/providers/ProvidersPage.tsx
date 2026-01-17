@@ -183,29 +183,47 @@ function ProvidersPage() {
     <div className="providers-container">
       {/* Header */}
       <div className="providers-header">
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Provider Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
         <div className="providers-header-buttons">
           <button
-            className="btn btn-primary"
             onClick={() => setShowDirectoryModal(true)}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
             Add Provider
           </button>
-          <button className="btn btn-secondary" onClick={loadData}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          <button
+            onClick={loadData}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Refresh"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
-            Refresh
           </button>
         </div>
       </div>
