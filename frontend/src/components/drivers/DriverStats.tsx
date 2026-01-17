@@ -62,30 +62,30 @@ function DriverStats({ tenantId, onStatsLoaded }: DriverStatsProps) {
   };
 
   return (
-    <div className="driver-stats-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
       <StatCard
         label="Total Drivers"
         value={stats.summary.total.toString()}
         subtitle={`${stats.summary.contracted} Contracted • ${stats.summary.freelance} Freelance`}
-        theme="blue"
+        color="#2563eb"
       />
       <StatCard
         label="Contracted Weekly"
         value={formatCurrency(stats.financial.contractedWeekly)}
         subtitle="Fixed + allowances"
-        theme="green"
+        color="#16a34a"
       />
       <StatCard
         label="Freelance Est."
         value={formatCurrency(stats.financial.freelanceEst)}
         subtitle={stats.summary.freelance === 0 ? 'No freelance' : 'Estimated weekly'}
-        theme="orange"
+        color="#ea580c"
       />
       <StatCard
         label="Fuel Costs"
         value={formatCurrency(stats.financial.fuelCosts)}
         subtitle="Allowances + cards"
-        theme="purple"
+        color="#9333ea"
       />
     </div>
   );
@@ -95,15 +95,15 @@ interface StatCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
+  color: string;
 }
 
-function StatCard({ label, value, subtitle, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, color }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
+    <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+      <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
+      <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
+      {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}
     </div>
   );
 }
