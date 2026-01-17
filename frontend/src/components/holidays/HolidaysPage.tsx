@@ -194,16 +194,103 @@ const HolidaysPage: React.FC = () => {
 
   return (
     <div className="holidays-page">
-      <div className="page-header">
-        <div>
-          <h1>Holiday Management</h1>
-          <p className="page-description">
-            Manage driver holidays and customer absences
-          </p>
+      {overview && <HolidayStats overview={overview} />}
+
+      {/* Tab Toggle and Action Button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'calendar' ? 'white' : 'transparent',
+              color: activeTab === 'calendar' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'calendar' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Calendar
+          </button>
+          <button
+            onClick={() => setActiveTab('requests')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'requests' ? 'white' : 'transparent',
+              color: activeTab === 'requests' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'requests' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            Requests
+            {overview && overview.requests?.pending > 0 && (
+              <span style={{ background: '#f59e0b', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', fontWeight: 600 }}>
+                {overview.requests.pending}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('balances')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'balances' ? 'white' : 'transparent',
+              color: activeTab === 'balances' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'balances' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Balances
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'settings' ? 'white' : 'transparent',
+              color: activeTab === 'settings' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'settings' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Settings
+          </button>
         </div>
+
         {(activeTab === 'requests' || activeTab === 'calendar') && (
-          <button className="btn btn-primary" onClick={handleAddRequest}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <button
+            onClick={handleAddRequest}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
             New Request
@@ -211,41 +298,7 @@ const HolidaysPage: React.FC = () => {
         )}
       </div>
 
-      {overview && <HolidayStats overview={overview} />}
-
       <div className="tabs-container">
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === 'calendar' ? 'active' : ''}`}
-            onClick={() => setActiveTab('calendar')}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px' }}>
-              <path d="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18"/>
-            </svg>
-            Calendar
-          </button>
-          <button
-            className={`tab ${activeTab === 'requests' ? 'active' : ''}`}
-            onClick={() => setActiveTab('requests')}
-          >
-            Requests
-            {overview && overview.requests?.pending > 0 && (
-              <span className="badge badge-warning">{overview.requests.pending}</span>
-            )}
-          </button>
-          <button
-            className={`tab ${activeTab === 'balances' ? 'active' : ''}`}
-            onClick={() => setActiveTab('balances')}
-          >
-            Balances
-          </button>
-          <button
-            className={`tab ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            Settings
-          </button>
-        </div>
 
         <div className="tab-content">
           {activeTab === 'calendar' && (
