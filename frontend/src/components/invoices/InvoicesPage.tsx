@@ -231,29 +231,7 @@ export const InvoicesPage: React.FC = () => {
 
   return (
     <div className="invoices-page">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
-        <button
-          onClick={() => setShowBulkGenerateModal(true)}
-          style={{
-            padding: '6px 12px',
-            background: '#10b981',
-            border: 'none',
-            borderRadius: '4px',
-            color: 'white',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '12px',
-            fontWeight: 500
-          }}
-        >
-          <PlusIcon size={14} />
-          Generate Invoices
-        </button>
-      </div>
-
-      {/* View Toggle - Pill Style */}
+      {/* View Toggle and Action Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
@@ -297,23 +275,45 @@ export const InvoicesPage: React.FC = () => {
             Archive
           </button>
         </div>
-        {viewMode === 'archive' && (
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {viewMode === 'archive' && (
+            <button
+              onClick={() => setShowArchived(!showArchived)}
+              style={{
+                padding: '5px 10px',
+                background: showArchived ? '#3b82f6' : 'white',
+                color: showArchived ? 'white' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 500
+              }}
+            >
+              {showArchived ? 'Show Active' : 'Show Archived'}
+            </button>
+          )}
           <button
-            onClick={() => setShowArchived(!showArchived)}
+            onClick={() => setShowBulkGenerateModal(true)}
             style={{
-              padding: '5px 10px',
-              background: showArchived ? '#3b82f6' : 'white',
-              color: showArchived ? 'white' : '#374151',
-              border: '1px solid #d1d5db',
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
               borderRadius: '4px',
+              color: 'white',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
               fontSize: '12px',
               fontWeight: 500
             }}
           >
-            {showArchived ? 'Show Active' : 'Show Archived'}
+            <PlusIcon size={14} />
+            Generate Invoices
           </button>
-        )}
+        </div>
       </div>
 
       {/* Tab Content */}

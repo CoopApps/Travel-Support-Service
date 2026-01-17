@@ -135,8 +135,61 @@ function SocialOutingsPage() {
 
   return (
     <div>
-      {/* Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+      {/* View Toggle and Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        {/* View Toggle - Pill Style */}
+        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'upcoming' ? 'white' : 'transparent',
+              color: activeTab === 'upcoming' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'upcoming' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Upcoming
+          </button>
+          <button
+            onClick={() => setActiveTab('past')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'past' ? 'white' : 'transparent',
+              color: activeTab === 'past' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'past' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Past
+          </button>
+          <button
+            onClick={() => setActiveTab('all')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'all' ? 'white' : 'transparent',
+              color: activeTab === 'all' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            All
+          </button>
+        </div>
+
+        {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
             className="btn btn-outline"
@@ -176,58 +229,6 @@ function SocialOutingsPage() {
         isVisible={showAvailability}
         onClose={() => setShowAvailability(false)}
       />
-
-      {/* View Toggle - Pill Style */}
-      <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px', width: 'fit-content', marginBottom: '1rem' }}>
-        <button
-          onClick={() => setActiveTab('upcoming')}
-          style={{
-            padding: '5px 12px',
-            background: activeTab === 'upcoming' ? 'white' : 'transparent',
-            color: activeTab === 'upcoming' ? '#111827' : '#6b7280',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '12px',
-            boxShadow: activeTab === 'upcoming' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-          }}
-        >
-          Upcoming
-        </button>
-        <button
-          onClick={() => setActiveTab('past')}
-          style={{
-            padding: '5px 12px',
-            background: activeTab === 'past' ? 'white' : 'transparent',
-            color: activeTab === 'past' ? '#111827' : '#6b7280',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '12px',
-            boxShadow: activeTab === 'past' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-          }}
-        >
-          Past
-        </button>
-        <button
-          onClick={() => setActiveTab('all')}
-          style={{
-            padding: '5px 12px',
-            background: activeTab === 'all' ? 'white' : 'transparent',
-            color: activeTab === 'all' ? '#111827' : '#6b7280',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '12px',
-            boxShadow: activeTab === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-          }}
-        >
-          All
-        </button>
-      </div>
 
       {/* Outings List */}
       {loading ? (
