@@ -186,203 +186,99 @@ function VehicleListPage() {
 
   return (
     <div>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Fleet Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
-        <button className="btn btn-primary" onClick={handleAddVehicle}>
-          + Add Vehicle
+      {/* Page Header - Compact */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Vehicles</h2>
+        <button
+          onClick={handleAddVehicle}
+          style={{
+            padding: '6px 12px',
+            background: '#10b981',
+            border: 'none',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            fontWeight: 500
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Vehicle
         </button>
       </div>
 
       {/* Statistics Cards */}
       <VehicleStats stats={stats} loading={loading} />
 
-      {/* Tab Navigation */}
-      <div style={{
-        borderBottom: '2px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        gap: '2rem'
-      }}>
-        <button
-          onClick={() => setActiveTab('overview')}
-          style={{
-            padding: '0.75rem 0',
-            border: 'none',
-            background: 'none',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: activeTab === 'overview' ? 'var(--primary)' : 'var(--gray-600)',
-            borderBottom: activeTab === 'overview' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => setActiveTab('maintenance')}
-          style={{
-            padding: '0.75rem 0',
-            border: 'none',
-            background: 'none',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: activeTab === 'maintenance' ? 'var(--primary)' : 'var(--gray-600)',
-            borderBottom: activeTab === 'maintenance' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Maintenance
-        </button>
-        <button
-          onClick={() => setActiveTab('incidents')}
-          style={{
-            padding: '0.75rem 0',
-            border: 'none',
-            background: 'none',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: activeTab === 'incidents' ? 'var(--primary)' : 'var(--gray-600)',
-            borderBottom: activeTab === 'incidents' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Incidents
-        </button>
-        <button
-          onClick={() => setActiveTab('analytics')}
-          style={{
-            padding: '0.75rem 0',
-            border: 'none',
-            background: 'none',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: activeTab === 'analytics' ? 'var(--primary)' : 'var(--gray-600)',
-            borderBottom: activeTab === 'analytics' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Analytics
-        </button>
+      {/* Tab Navigation - Compact */}
+      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', width: 'fit-content', marginBottom: '1rem' }}>
+        {(['overview', 'maintenance', 'incidents', 'analytics'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === tab ? 'white' : 'transparent',
+              color: activeTab === tab ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+              textTransform: 'capitalize'
+            }}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
 
-          {/* Toolbar */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
+          {/* Toolbar - Compact */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             {/* Filter Toggles */}
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--gray-700)' }}>
-                Show:
-              </span>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={showOwned}
-                  onChange={(e) => setShowOwned(e.target.checked)}
-                />
-                <span style={{ color: '#166534', fontWeight: 500 }}>Owned ({stats.owned})</span>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                <input type="checkbox" checked={showOwned} onChange={(e) => setShowOwned(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                <span style={{ color: '#166534', fontWeight: 500 }}>Owned</span>
               </label>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={showLeased}
-                  onChange={(e) => setShowLeased(e.target.checked)}
-                />
-                <span style={{ color: '#92400e', fontWeight: 500 }}>Leased ({stats.leased})</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                <input type="checkbox" checked={showLeased} onChange={(e) => setShowLeased(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                <span style={{ color: '#92400e', fontWeight: 500 }}>Leased</span>
               </label>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={showPersonal}
-                  onChange={(e) => setShowPersonal(e.target.checked)}
-                />
-                <span style={{ color: '#831843', fontWeight: 500 }}>Personal ({stats.personal})</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                <input type="checkbox" checked={showPersonal} onChange={(e) => setShowPersonal(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                <span style={{ color: '#831843', fontWeight: 500 }}>Personal</span>
               </label>
             </div>
 
             {/* Vehicle Type Filter */}
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <select
-                value={vehicleTypeFilter}
-                onChange={(e) => setVehicleTypeFilter(e.target.value as any)}
-                style={{ minWidth: '150px', fontSize: '0.875rem' }}
-                title="Filter by vehicle type"
-              >
-                <option value="all">All Types</option>
-                <option value="bus">🚌 Bus (17+ seats)</option>
-                <option value="minibus">🚐 Minibus (9-16 seats)</option>
-                <option value="car">🚗 Car (1-8 seats)</option>
-              </select>
-
-              {activeService === 'bus' && (
-                <span style={{
-                  fontSize: '0.75rem',
-                  color: '#10b981',
-                  fontWeight: 500,
-                  backgroundColor: '#10b98110',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  whiteSpace: 'nowrap'
-                }}>
-                  ✓ Bus mode: Showing vehicles 9+ seats only
-                </span>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <button
-              onClick={() => fetchData()}
-              className="btn btn-secondary"
+            <select
+              value={vehicleTypeFilter}
+              onChange={(e) => setVehicleTypeFilter(e.target.value as any)}
+              style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '130px' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
-                <polyline points="23 4 23 10 17 10"/>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-              </svg>
-              Refresh
-            </button>
+              <option value="all">All Types</option>
+              <option value="bus">Bus (17+)</option>
+              <option value="minibus">Minibus (9-16)</option>
+              <option value="car">Car (1-8)</option>
+            </select>
+
+            {activeService === 'bus' && (
+              <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 500, backgroundColor: '#d1fae5', padding: '3px 6px', borderRadius: '3px' }}>
+                S22 Mode: 9+ seats
+              </span>
+            )}
           </div>
 
           {/* Vehicle Grid */}

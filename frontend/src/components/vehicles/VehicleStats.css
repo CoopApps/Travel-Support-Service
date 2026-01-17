@@ -1,86 +1,91 @@
 /**
- * Vehicle Stats - Design System 2026
+ * Vehicle Stats - Compact Design
  */
 
 .vehicle-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .vehicle-stats-grid .stat-card {
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
+  padding: 8px 10px;
+  border-radius: 4px;
   text-align: center;
-  transition: all var(--transition-fast) var(--ease-default);
-}
-
-.vehicle-stats-grid .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .vehicle-stats-grid .stat-value {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  margin: 0 0 var(--space-1) 0;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
   color: inherit;
-  line-height: var(--line-height-none);
+  line-height: 1.2;
 }
 
 .vehicle-stats-grid .stat-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.3px;
   display: block;
   color: inherit;
+  opacity: 0.85;
+  margin-top: 2px;
 }
 
 /* Loading State */
 .stat-card-loading {
-  background: var(--surface-section);
-  color: var(--text-muted);
+  background: #f9fafb;
+  color: #9ca3af;
+  border: 1px solid #e5e7eb;
 }
 
-/* Theme Colors - Using Design System tokens */
+/* Theme Colors - White background with colored text */
 .stat-card-blue {
-  background: var(--color-brand-100);
-  color: var(--color-brand-700);
+  background: white;
+  color: #2563eb;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-green {
-  background: var(--color-success-100);
-  color: var(--color-success-700);
+  background: white;
+  color: #16a34a;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-orange {
-  background: var(--color-orange-100);
-  color: var(--color-orange-700);
+  background: white;
+  color: #ea580c;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-purple {
-  background: var(--color-purple-100);
-  color: var(--color-purple-700);
+  background: white;
+  color: #9333ea;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-teal {
-  background: var(--color-teal-100);
-  color: var(--color-teal-700);
+  background: white;
+  color: #0d9488;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-indigo {
-  background: var(--color-brand-100);
-  color: var(--color-brand-800);
+  background: white;
+  color: #4f46e5;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-red {
-  background: var(--color-danger-100);
-  color: var(--color-danger-700);
+  background: white;
+  color: #dc2626;
+  border: 1px solid #e5e7eb;
 }
 
 .stat-card-amber {
-  background: var(--color-warning-100);
-  color: var(--color-warning-700);
+  background: white;
+  color: #d97706;
+  border: 1px solid #e5e7eb;
 }
