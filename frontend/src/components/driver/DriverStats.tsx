@@ -69,8 +69,8 @@ interface StatCardProps {
 function StatCard({ label, value, theme }: StatCardProps) {
   return (
     <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
     </div>
   );
 }
