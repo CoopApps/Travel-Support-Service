@@ -414,9 +414,8 @@ function DriverListPage() {
 
   return (
     <div>
-      {/* Page Header - Compact */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Drivers</h2>
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={handleExportCSV}
