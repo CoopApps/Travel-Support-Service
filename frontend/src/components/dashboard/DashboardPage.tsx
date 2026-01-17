@@ -515,21 +515,26 @@ function DashboardPage() {
     <div style={{ padding: '0.75rem' }}>
       {/* Header - Compact */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Dashboard</h2>
-          {tenant && (
-            <p style={{ margin: '2px 0 0 0', color: 'var(--gray-600)', fontSize: '13px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
+        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Dashboard</h2>
         <button
           onClick={loadDashboard}
-          className="btn btn-secondary"
           disabled={loading}
-          style={{ padding: '0.5rem 1rem', fontSize: '13px' }}
+          title="Refresh"
+          style={{
+            padding: '6px 8px',
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '4px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            opacity: loading ? 0.6 : 1
+          }}
         >
-          Refresh
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
         </button>
       </div>
 
@@ -588,7 +593,7 @@ function DashboardPage() {
             marginBottom: '0.5rem'
           }}>
             <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
-              💰 Financial Performance (Last 30 Days)
+              Financial Performance (Last 30 Days)
             </h3>
             <button
               onClick={() => navigate('/admin')}
@@ -610,80 +615,74 @@ function DashboardPage() {
           <div className="dashboard-financial-row">
             {/* Total Revenue */}
             <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'white',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              background: 'white',
+              borderRadius: '4px',
+              padding: '10px',
+              border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
-                Total Revenue
+              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
+                Revenue
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#9333ea' }}>
                 £{profitability.overview.totalRevenue.toLocaleString()}
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
-                {profitability.trips.completed} completed trips
+              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
+                {profitability.trips.completed} trips
               </div>
             </div>
 
             {/* Total Costs */}
             <div style={{
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'white',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              background: 'white',
+              borderRadius: '4px',
+              padding: '10px',
+              border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
-                Total Costs
+              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
+                Costs
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>
                 £{profitability.overview.totalCosts.toLocaleString()}
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
                 Wages: {profitability.costPercentages.wages}%
               </div>
             </div>
 
             {/* Net Profit */}
             <div style={{
-              background: profitability.overview.profitable
-                ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
-                : 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'white',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              background: 'white',
+              borderRadius: '4px',
+              padding: '10px',
+              border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
                 Net Profit
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: profitability.overview.profitable ? '#16a34a' : '#dc2626' }}>
                 {profitability.overview.profitable ? '£' : '-£'}
                 {Math.abs(profitability.overview.netProfit).toLocaleString()}
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
                 {profitability.overview.profitable ? 'Profitable' : 'Loss'}
               </div>
             </div>
 
             {/* Profit Margin */}
             <div style={{
-              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'white',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              background: 'white',
+              borderRadius: '4px',
+              padding: '10px',
+              border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '4px', fontWeight: 500 }}>
-                Profit Margin
+              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
+                Margin
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700 }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#2563eb' }}>
                 {profitability.overview.profitMargin.toFixed(1)}%
               </div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
-                Avg: £{profitability.trips.averageRevenue} per trip
+              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
+                £{profitability.trips.averageRevenue}/trip
               </div>
             </div>
           </div>

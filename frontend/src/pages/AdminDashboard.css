@@ -1,128 +1,76 @@
-/* Admin Dashboard Stats - Matching Legacy Design */
+/* Admin Dashboard Stats - Compact Design */
 
 .admin-stats-grid,
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .stat-card {
-  padding: 20px;
-  border-radius: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
   text-align: center;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
 }
 
 .stat-value {
-  font-size: 32px;
+  font-size: 20px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  color: white;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   display: block;
-  color: white;
-  opacity: 0.9;
-  margin-bottom: 4px;
+  opacity: 0.85;
+  margin-top: 2px;
 }
 
-.stat-card small.stat-label {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 4px;
-}
-
-/* Theme Colors - Pastel (No Gradients) */
+/* Theme Colors - White background with colored text */
 .stat-card-purple {
-  background: #e6e6fa; /* Lavender */
-  color: #4b0082;
-}
-
-.stat-card-purple .stat-value,
-.stat-card-purple .stat-label {
-  color: #4b0082;
+  background: white;
+  color: #9333ea;
 }
 
 .stat-card-blue {
-  background: #b0e0e6; /* Powder Blue */
-  color: #003d5c;
-}
-
-.stat-card-blue .stat-value,
-.stat-card-blue .stat-label {
-  color: #003d5c;
+  background: white;
+  color: #2563eb;
 }
 
 .stat-card-green {
-  background: #d4edda; /* Mint Green */
-  color: #155724;
-}
-
-.stat-card-green .stat-value,
-.stat-card-green .stat-label {
-  color: #155724;
+  background: white;
+  color: #16a34a;
 }
 
 .stat-card-orange {
-  background: #ffe4b5; /* Moccasin */
-  color: #8B4513;
-}
-
-.stat-card-orange .stat-value,
-.stat-card-orange .stat-label {
-  color: #8B4513;
+  background: white;
+  color: #ea580c;
 }
 
 .stat-card-teal {
-  background: #afeeee; /* Pale Turquoise */
-  color: #006064;
-}
-
-.stat-card-teal .stat-value,
-.stat-card-teal .stat-label {
-  color: #006064;
+  background: white;
+  color: #0d9488;
 }
 
 .stat-card-indigo {
-  background: #d8bfd8; /* Thistle */
-  color: #3f007f;
-}
-
-.stat-card-indigo .stat-value,
-.stat-card-indigo .stat-label {
-  color: #3f007f;
+  background: white;
+  color: #4f46e5;
 }
 
 .stat-card-red {
-  background: #ffcccb; /* Light Coral */
-  color: #8B0000;
-}
-
-.stat-card-red .stat-value,
-.stat-card-red .stat-label {
-  color: #8B0000;
+  background: white;
+  color: #dc2626;
 }
 
 .stat-card-amber {
-  background: #f5deb3; /* Wheat */
-  color: #8B6508;
-}
-
-.stat-card-amber .stat-value,
-.stat-card-amber .stat-label {
-  color: #8B6508;
+  background: white;
+  color: #d97706;
 }
 
 /* ============================================================================
@@ -163,6 +111,13 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1400px) {
+  .admin-stats-grid,
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @media (max-width: 1200px) {
   .dashboard-main-grid {
     grid-template-columns: 1fr 1fr;
@@ -178,56 +133,38 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-financial-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .admin-stats-grid,
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-  }
-
-  .stat-card {
-    padding: 14px;
-  }
-
-  .stat-value {
-    font-size: 24px;
-  }
-
-  .stat-label {
-    font-size: 12px;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 640px) {
   .dashboard-financial-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .dashboard-mini-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .admin-stats-grid,
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .stat-card {
-    padding: 12px;
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
 
 @media (max-width: 480px) {
   .admin-stats-grid,
   .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-financial-row {
     grid-template-columns: 1fr;
   }
 }
