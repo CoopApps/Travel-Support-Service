@@ -249,8 +249,7 @@ function VehicleListPage() {
   return (
     <div>
       {/* Page Header - Compact */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Vehicles</h2>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <button
           onClick={handleAddVehicle}
           style={{
