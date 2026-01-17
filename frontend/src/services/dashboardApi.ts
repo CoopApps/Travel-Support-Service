@@ -69,6 +69,10 @@ export interface DashboardTasks {
   driverMessages: TaskItem;
   customerMessages: TaskItem;
   expiringDocuments: TaskItem;
+  expiringLicenses: TaskItem;
+  expiredLicenses: TaskItem;
+  expiringInsurance: TaskItem;
+  expiredInsurance: TaskItem;
 }
 
 export interface DashboardStats {

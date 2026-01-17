@@ -36,6 +36,7 @@ function VehicleListPage() {
   const [showLeased, setShowLeased] = useState(true);
   const [showPersonal, setShowPersonal] = useState(true);
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState<'all' | 'bus' | 'minibus' | 'car'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Modal state
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -92,6 +93,16 @@ function VehicleListPage() {
   // Filter vehicles based on service and type
   const getFilteredVehicles = () => {
     let filtered = vehicles;
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(v =>
+        v.registration?.toLowerCase().includes(term) ||
+        v.make?.toLowerCase().includes(term) ||
+        v.model?.toLowerCase().includes(term)
+      );
+    }
 
     // When bus service is active, only show buses/minibuses (9+ seats)
     if (activeService === 'bus') {
@@ -245,40 +256,57 @@ function VehicleListPage() {
         <>
 
           {/* Toolbar - Compact */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Filter Toggles */}
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
-                <input type="checkbox" checked={showOwned} onChange={(e) => setShowOwned(e.target.checked)} style={{ width: '12px', height: '12px' }} />
-                <span style={{ color: '#166534', fontWeight: 500 }}>Owned</span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
-                <input type="checkbox" checked={showLeased} onChange={(e) => setShowLeased(e.target.checked)} style={{ width: '12px', height: '12px' }} />
-                <span style={{ color: '#92400e', fontWeight: 500 }}>Leased</span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
-                <input type="checkbox" checked={showPersonal} onChange={(e) => setShowPersonal(e.target.checked)} style={{ width: '12px', height: '12px' }} />
-                <span style={{ color: '#831843', fontWeight: 500 }}>Personal</span>
-              </label>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Search */}
+              <div style={{ position: 'relative' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}>
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search registration, make, model..."
+                  style={{ paddingLeft: '28px', padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '220px' }}
+                />
+              </div>
+
+              {/* Filter Toggles */}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                  <input type="checkbox" checked={showOwned} onChange={(e) => setShowOwned(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                  <span style={{ color: '#166534', fontWeight: 500 }}>Owned</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                  <input type="checkbox" checked={showLeased} onChange={(e) => setShowLeased(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                  <span style={{ color: '#92400e', fontWeight: 500 }}>Leased</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px' }}>
+                  <input type="checkbox" checked={showPersonal} onChange={(e) => setShowPersonal(e.target.checked)} style={{ width: '12px', height: '12px' }} />
+                  <span style={{ color: '#831843', fontWeight: 500 }}>Personal</span>
+                </label>
+              </div>
+
+              {/* Vehicle Type Filter */}
+              <select
+                value={vehicleTypeFilter}
+                onChange={(e) => setVehicleTypeFilter(e.target.value as any)}
+                style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '130px' }}
+              >
+                <option value="all">All Types</option>
+                <option value="bus">Bus (17+)</option>
+                <option value="minibus">Minibus (9-16)</option>
+                <option value="car">Car (1-8)</option>
+              </select>
+
+              {activeService === 'bus' && (
+                <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 500, backgroundColor: '#d1fae5', padding: '3px 6px', borderRadius: '3px' }}>
+                  S22 Mode: 9+ seats
+                </span>
+              )}
             </div>
-
-            {/* Vehicle Type Filter */}
-            <select
-              value={vehicleTypeFilter}
-              onChange={(e) => setVehicleTypeFilter(e.target.value as any)}
-              style={{ padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: '4px', fontSize: '12px', minWidth: '130px' }}
-            >
-              <option value="all">All Types</option>
-              <option value="bus">Bus (17+)</option>
-              <option value="minibus">Minibus (9-16)</option>
-              <option value="car">Car (1-8)</option>
-            </select>
-
-            {activeService === 'bus' && (
-              <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 500, backgroundColor: '#d1fae5', padding: '3px 6px', borderRadius: '3px' }}>
-                S22 Mode: 9+ seats
-              </span>
-            )}
           </div>
 
           {/* Vehicle Grid */}

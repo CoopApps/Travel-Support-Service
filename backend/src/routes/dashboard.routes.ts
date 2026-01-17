@@ -559,6 +559,84 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         LIMIT 50
       `, [tenantId]);
 
+      // 14. Expiring Driver Licenses (within 30 days)
+      const expiringLicensesResult = await pool.query(`
+        SELECT
+          driver_id,
+          name,
+          phone,
+          license_number,
+          license_expiry,
+          ($2::date - license_expiry::date) as days_until_expiry
+        FROM tenant_drivers
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND license_expiry IS NOT NULL
+          AND license_expiry <= $2
+          AND license_expiry >= $3
+        ORDER BY license_expiry ASC
+        LIMIT 50
+      `, [tenantId, warningDateStr, todayStr]);
+
+      // 15. Expired Driver Licenses
+      const expiredLicensesResult = await pool.query(`
+        SELECT
+          driver_id,
+          name,
+          phone,
+          license_number,
+          license_expiry,
+          ($2::date - license_expiry::date) as days_expired
+        FROM tenant_drivers
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND license_expiry IS NOT NULL
+          AND license_expiry < $2
+        ORDER BY license_expiry ASC
+        LIMIT 50
+      `, [tenantId, todayStr]);
+
+      // 16. Expiring Vehicle Insurance (within 30 days)
+      const expiringInsuranceResult = await pool.query(`
+        SELECT
+          vehicle_id,
+          registration,
+          make,
+          model,
+          insurance_expiry,
+          ($2::date - insurance_expiry::date) as days_until_expiry,
+          driver_id,
+          (SELECT name FROM tenant_drivers WHERE driver_id = v.driver_id AND tenant_id = v.tenant_id) as driver_name
+        FROM tenant_vehicles v
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND insurance_expiry IS NOT NULL
+          AND insurance_expiry <= $2
+          AND insurance_expiry >= $3
+        ORDER BY insurance_expiry ASC
+        LIMIT 50
+      `, [tenantId, warningDateStr, todayStr]);
+
+      // 17. Expired Vehicle Insurance
+      const expiredInsuranceResult = await pool.query(`
+        SELECT
+          vehicle_id,
+          registration,
+          make,
+          model,
+          insurance_expiry,
+          ($2::date - insurance_expiry::date) as days_expired,
+          driver_id,
+          (SELECT name FROM tenant_drivers WHERE driver_id = v.driver_id AND tenant_id = v.tenant_id) as driver_name
+        FROM tenant_vehicles v
+        WHERE tenant_id = $1
+          AND is_active = true
+          AND insurance_expiry IS NOT NULL
+          AND insurance_expiry < $2
+        ORDER BY insurance_expiry ASC
+        LIMIT 50
+      `, [tenantId, todayStr]);
+
       // ===== STATS =====
 
       // Journeys this week (estimated from active customer schedules)
@@ -948,13 +1026,19 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
         outingSuggestionsResult.rows.length +
         driverMessagesResult.rows.length +
         customerMessagesResult.rows.length +
-        documentsWithNames.length;
+        documentsWithNames.length +
+        expiringLicensesResult.rows.length +
+        expiredLicensesResult.rows.length +
+        expiringInsuranceResult.rows.length +
+        expiredInsuranceResult.rows.length;
 
       const criticalTasks =
         expiredMotsResult.rows.length +
         safeguardingReportsResult.rows.filter((r: any) => r.severity === 'high' || r.severity === 'critical').length +
         overdueInvoicesResult.rows.filter((r: any) => r.days_overdue > 7).length +
-        documentsWithNames.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length;
+        documentsWithNames.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length +
+        expiredLicensesResult.rows.length +
+        expiredInsuranceResult.rows.length;
 
       res.json({
         tasks: {
@@ -1013,6 +1097,22 @@ router.get('/tenants/:tenantId/dashboard/overview', verifyTenantAccess, async (r
           expiringDocuments: {
             count: documentsWithNames.length,
             items: documentsWithNames
+          },
+          expiringLicenses: {
+            count: expiringLicensesResult.rows.length,
+            items: expiringLicensesResult.rows
+          },
+          expiredLicenses: {
+            count: expiredLicensesResult.rows.length,
+            items: expiredLicensesResult.rows
+          },
+          expiringInsurance: {
+            count: expiringInsuranceResult.rows.length,
+            items: expiringInsuranceResult.rows
+          },
+          expiredInsurance: {
+            count: expiredInsuranceResult.rows.length,
+            items: expiredInsuranceResult.rows
           }
         },
         stats: {

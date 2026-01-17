@@ -79,6 +79,78 @@ function CustomerListPage() {
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [assessmentCustomer, setAssessmentCustomer] = useState<Customer | null>(null);
 
+  // Bulk selection state
+  const [selectedCustomers, setSelectedCustomers] = useState<Set<number>>(new Set());
+
+  /**
+   * Toggle selection of a customer
+   */
+  const toggleCustomerSelection = (customerId: number) => {
+    setSelectedCustomers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(customerId)) {
+        newSet.delete(customerId);
+      } else {
+        newSet.add(customerId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Toggle all customers on current page
+   */
+  const toggleAllCustomers = () => {
+    const currentCustomers = getFilteredCustomers();
+    if (selectedCustomers.size === currentCustomers.length) {
+      setSelectedCustomers(new Set());
+    } else {
+      setSelectedCustomers(new Set(currentCustomers.map(c => c.id)));
+    }
+  };
+
+  /**
+   * Bulk archive selected customers
+   */
+  const handleBulkArchive = async () => {
+    if (selectedCustomers.size === 0) return;
+    if (!confirm(`Archive ${selectedCustomers.size} customer${selectedCustomers.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedCustomers).map(id =>
+          customerApi.updateCustomer(tenantId, id, { archived: true })
+        )
+      );
+      toast.success(`Archived ${selectedCustomers.size} customer${selectedCustomers.size !== 1 ? 's' : ''}`);
+      setSelectedCustomers(new Set());
+      fetchCustomers();
+    } catch (err: any) {
+      toast.error(`Failed to archive customers: ${err.message}`);
+    }
+  };
+
+  /**
+   * Bulk unarchive selected customers
+   */
+  const handleBulkUnarchive = async () => {
+    if (selectedCustomers.size === 0) return;
+    if (!confirm(`Unarchive ${selectedCustomers.size} customer${selectedCustomers.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedCustomers).map(id =>
+          customerApi.updateCustomer(tenantId, id, { archived: false })
+        )
+      );
+      toast.success(`Unarchived ${selectedCustomers.size} customer${selectedCustomers.size !== 1 ? 's' : ''}`);
+      setSelectedCustomers(new Set());
+      fetchCustomers();
+    } catch (err: any) {
+      toast.error(`Failed to unarchive customers: ${err.message}`);
+    }
+  };
+
   /**
    * Fetch customers from API
    */
@@ -418,8 +490,8 @@ function CustomerListPage() {
       {/* Statistics Cards */}
       <CustomerStats tenantId={tenantId} />
 
-      {/* Search - Compact */}
-      <div style={{ marginBottom: '12px' }}>
+      {/* Search & Bulk Actions - Compact */}
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', maxWidth: '320px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
             <svg
@@ -466,6 +538,36 @@ function CustomerListPage() {
             </button>
           )}
         </form>
+
+        {/* Bulk Actions */}
+        {selectedCustomers.size > 0 && (
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+            <span style={{ fontSize: '12px', color: '#1e40af', fontWeight: 500 }}>
+              {selectedCustomers.size} selected
+            </span>
+            {activeTab === 'active' ? (
+              <button
+                onClick={handleBulkArchive}
+                style={{ padding: '4px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Archive
+              </button>
+            ) : (
+              <button
+                onClick={handleBulkUnarchive}
+                style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Unarchive
+              </button>
+            )}
+            <button
+              onClick={() => setSelectedCustomers(new Set())}
+              style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Error Message */}
@@ -508,6 +610,14 @@ function CustomerListPage() {
             <table>
               <thead>
                 <tr>
+                  <th style={{ width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedCustomers.size === getFilteredCustomers().length && getFilteredCustomers().length > 0}
+                      onChange={toggleAllCustomers}
+                      style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                    />
+                  </th>
                   <th>Name</th>
                   <th>Contact</th>
                   <th>Login Status</th>
@@ -520,6 +630,14 @@ function CustomerListPage() {
               <tbody>
                   {getFilteredCustomers().map((customer) => (
                     <tr key={customer.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedCustomers.has(customer.id)}
+                          onChange={() => toggleCustomerSelection(customer.id)}
+                          style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                        />
+                      </td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <div style={{ fontWeight: 600, color: 'var(--gray-900)', fontSize: '14px' }}>
