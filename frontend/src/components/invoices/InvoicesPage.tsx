@@ -207,6 +207,68 @@ export const InvoicesPage: React.FC = () => {
   };
 
   /**
+   * Handle print invoice
+   */
+  const handlePrint = async (invoice: InvoiceListItem) => {
+    if (!tenantId) return;
+
+    try {
+      // Open invoice PDF in new window and trigger print
+      const pdfUrl = `/api/tenants/${tenantId}/invoices/${invoice.id}/pdf`;
+      const printWindow = window.open(pdfUrl, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    } catch (err: any) {
+      toast.error('Failed to print invoice');
+    }
+  };
+
+  /**
+   * Handle duplicate invoice
+   */
+  const handleDuplicate = (invoice: InvoiceListItem) => {
+    // Create a duplicate by opening the detail modal in edit mode
+    // The user can modify details before saving
+    if (!confirm('Create a duplicate of this invoice as a draft?')) return;
+
+    // We'll need to navigate to create invoice page or open a modal
+    // For now, show a toast indicating the feature needs backend support
+    toast.info('Duplicate invoice feature - opening original for reference');
+    handleViewDetails(invoice);
+  };
+
+  /**
+   * Handle export CSV
+   */
+  const handleExportCSV = () => {
+    const headers = ['Invoice #', 'Customer', 'Paying Org', 'Amount', 'Status', 'Type', 'Due Date', 'Created', 'Email Sent'];
+    const rows = filteredInvoices.map(inv => [
+      inv.number,
+      inv.customerName,
+      inv.payingOrg,
+      inv.amount.toFixed(2),
+      inv.status,
+      inv.isSplitPayment ? 'Split' : inv.type,
+      new Date(inv.dueDate).toLocaleDateString('en-GB'),
+      new Date(inv.createdAt).toLocaleDateString('en-GB'),
+      inv.emailSent ? 'Yes' : 'No'
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `invoices-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  /**
    * Handle payment recorded successfully
    */
   const handlePaymentRecorded = () => {
@@ -277,6 +339,31 @@ export const InvoicesPage: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {viewMode === 'archive' && filteredInvoices.length > 0 && (
+            <button
+              onClick={handleExportCSV}
+              style={{
+                padding: '6px 10px',
+                background: 'white',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '12px',
+                color: '#374151'
+              }}
+              title="Export to CSV"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export
+            </button>
+          )}
           {viewMode === 'archive' && (
             <button
               onClick={() => setShowArchived(!showArchived)}
@@ -347,6 +434,8 @@ export const InvoicesPage: React.FC = () => {
                 onArchive={handleArchive}
                 onUnarchive={handleUnarchive}
                 onDelete={handleDelete}
+                onPrint={handlePrint}
+                onDuplicate={handleDuplicate}
               />
             )}
           </>

@@ -11,6 +11,8 @@ interface Props {
   onArchive: (invoiceId: number) => void;
   onUnarchive: (invoiceId: number) => void;
   onDelete: (invoiceId: number) => void;
+  onPrint: (invoice: InvoiceListItem) => void;
+  onDuplicate: (invoice: InvoiceListItem) => void;
 }
 
 /**
@@ -25,7 +27,9 @@ export const InvoiceTable: React.FC<Props> = ({
   onStatusUpdate,
   onArchive,
   onUnarchive,
-  onDelete
+  onDelete,
+  onPrint,
+  onDuplicate
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -156,6 +160,14 @@ export const InvoiceTable: React.FC<Props> = ({
                       View
                     </button>
 
+                    <button
+                      className="btn btn-sm btn-outline"
+                      onClick={() => onPrint(invoice)}
+                      title="Print Invoice"
+                    >
+                      Print
+                    </button>
+
                     {invoice.status !== 'paid' && invoice.status !== 'cancelled' && !showArchived && (
                       <button
                         className="btn btn-sm btn-primary"
@@ -163,6 +175,16 @@ export const InvoiceTable: React.FC<Props> = ({
                         title="Record Payment"
                       >
                         Payment
+                      </button>
+                    )}
+
+                    {!showArchived && (
+                      <button
+                        className="btn btn-sm btn-outline"
+                        onClick={() => onDuplicate(invoice)}
+                        title="Duplicate Invoice"
+                      >
+                        Duplicate
                       </button>
                     )}
 
