@@ -19,7 +19,7 @@
 
 .payroll-page .page-header h2 {
   margin: 0 0 var(--space-2) 0;
-  font-size: var(--font-size-3xl);
+  font-size: 20px;
   color: var(--text-primary);
 }
 
@@ -43,7 +43,7 @@
 .payroll-page .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   min-height: 100px;
   display: flex;
   flex-direction: column;
@@ -58,7 +58,7 @@
 }
 
 .payroll-page .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin: 0;
   line-height: var(--line-height-none);
@@ -389,7 +389,7 @@
 
 .empty-message {
   padding: var(--space-8);
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   background: var(--surface-section);
   border-radius: var(--radius-lg);
@@ -480,7 +480,7 @@
   background: var(--surface-section);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -502,7 +502,7 @@
 
 .payroll-page .loading-state {
   padding: var(--space-12);
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-size: var(--font-size-base);
 }
@@ -518,7 +518,7 @@
 }
 
 .payroll-page .empty-state {
-  text-align: center;
+  text-align: left;
   padding: var(--space-16) var(--space-8);
   color: var(--text-secondary);
 }

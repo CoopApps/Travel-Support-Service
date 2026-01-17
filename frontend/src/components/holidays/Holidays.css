@@ -282,7 +282,7 @@
 
 /* Empty State */
 .holidays-page .empty-state {
-  text-align: center;
+  text-align: left;
   padding: var(--space-10) var(--space-5);
   color: var(--text-secondary);
 }
@@ -433,7 +433,7 @@
 }
 
 .summary-card {
-  text-align: center;
+  text-align: left;
 }
 
 .summary-label {
@@ -528,7 +528,7 @@
 .balances-footer {
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--surface-border);
-  text-align: center;
+  text-align: left;
 }
 
 .balances-footer p {
@@ -841,7 +841,7 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   width: 85px;
-  text-align: center;
+  text-align: left;
   border: 2px solid var(--surface-border);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast) var(--ease-default);

@@ -12,7 +12,7 @@
 .fuel-card-stats-grid .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   min-height: 95px;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@
 }
 
 .fuel-card-stats-grid .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin: 0;
   line-height: var(--line-height-none);

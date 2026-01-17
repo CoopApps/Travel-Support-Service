@@ -19,7 +19,7 @@
 
 .invoices-page .page-header h1 {
   margin: 0 0 var(--space-2) 0;
-  font-size: var(--font-size-3xl);
+  font-size: 20px;
   color: var(--text-primary);
 }
 
@@ -105,7 +105,7 @@
 .invoices-page .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   min-height: 100px;
   display: flex;
   flex-direction: column;
@@ -120,7 +120,7 @@
 }
 
 .invoices-page .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin: 0;
   line-height: var(--line-height-none);
@@ -451,7 +451,7 @@
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
 }
 
 .date-box label {
@@ -587,7 +587,7 @@
 
 .invoices-page .loading-state {
   padding: var(--space-12);
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-size: var(--font-size-base);
 }
@@ -603,7 +603,7 @@
 }
 
 .invoices-page .empty-state {
-  text-align: center;
+  text-align: left;
   padding: var(--space-16) var(--space-8);
   color: var(--text-secondary);
 }

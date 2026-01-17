@@ -12,7 +12,7 @@
 }
 
 .dashboard-header h1 {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin-bottom: var(--space-2);
@@ -129,7 +129,7 @@
 }
 
 .quick-actions h2 {
-  font-size: var(--font-size-3xl);
+  font-size: 20px;
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin-bottom: var(--space-6);
@@ -162,7 +162,7 @@
 }
 
 .action-icon {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   margin-bottom: var(--space-1);
 }
 
@@ -184,11 +184,11 @@
   color: white;
   border-radius: var(--radius-xl);
   padding: var(--space-12);
-  text-align: center;
+  text-align: left;
 }
 
 .welcome-message h2 {
-  font-size: var(--font-size-3xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-4);
 }
@@ -223,7 +223,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  text-align: center;
+  text-align: left;
 }
 
 .loading-state .spinner {
@@ -251,7 +251,7 @@
   }
 
   .dashboard-header h1 {
-    font-size: var(--font-size-3xl);
+    font-size: 20px;
   }
 
   .stats-grid {

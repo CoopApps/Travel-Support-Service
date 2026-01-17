@@ -326,7 +326,7 @@
 }
 
 .sidebar-empty {
-  text-align: center;
+  text-align: left;
   padding: var(--space-6) var(--space-4);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
@@ -426,7 +426,7 @@
 
 .sidebar-more {
   margin-top: var(--space-3);
-  text-align: center;
+  text-align: left;
 }
 
 .sidebar-more a {
@@ -441,7 +441,7 @@
 
 /* Empty State */
 .bus-routes-page .empty-state {
-  text-align: center;
+  text-align: left;
   padding: var(--space-12) var(--space-6);
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
@@ -474,7 +474,7 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  text-align: center;
+  text-align: left;
 }
 
 .bus-routes-page .spinner {

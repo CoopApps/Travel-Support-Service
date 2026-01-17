@@ -32,7 +32,7 @@
 .training-stats-grid .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   min-height: 95px;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@
 }
 
 .training-stats-grid .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin: 0;
   line-height: var(--line-height-none);
@@ -170,7 +170,7 @@
 }
 
 .training-table th.center {
-  text-align: center;
+  text-align: left;
 }
 
 .training-table td {
@@ -181,7 +181,7 @@
 }
 
 .training-table td.center {
-  text-align: center;
+  text-align: left;
 }
 
 .training-table tbody tr:last-child td {
@@ -199,7 +199,7 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   display: inline-block;
-  text-align: center;
+  text-align: left;
 }
 
 .training-page .status-badge.valid {
@@ -234,7 +234,7 @@
 
 /* Empty State */
 .training-page .empty-state {
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   padding: var(--space-8);
 }
@@ -271,7 +271,7 @@
 }
 
 .compliance-table th.center {
-  text-align: center;
+  text-align: left;
 }
 
 .compliance-table td {
@@ -281,7 +281,7 @@
 }
 
 .compliance-table td.center {
-  text-align: center;
+  text-align: left;
 }
 
 .compliance-table tbody tr:last-child td {

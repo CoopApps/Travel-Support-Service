@@ -34,7 +34,7 @@
 }
 
 .summary-cards .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   line-height: var(--line-height-none);
@@ -113,7 +113,7 @@
 
 /* Empty State */
 .compliance-empty-state {
-  text-align: center;
+  text-align: left;
   padding: var(--space-16) var(--space-8);
   background: var(--surface-card);
   border: 2px dashed var(--surface-border);

@@ -513,9 +513,8 @@ function DashboardPage() {
 
   return (
     <div style={{ padding: '0.75rem' }}>
-      {/* Header - Compact */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <h2 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '20px' }}>Dashboard</h2>
+      {/* Refresh Button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
         <button
           onClick={loadDashboard}
           disabled={loading}

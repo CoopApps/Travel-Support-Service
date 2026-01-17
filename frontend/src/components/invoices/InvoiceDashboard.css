@@ -17,7 +17,7 @@
 .invoice-dashboard .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
   min-height: 95px;
   display: flex;
   flex-direction: column;
@@ -32,7 +32,7 @@
 }
 
 .invoice-dashboard .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: 20px;
   font-weight: var(--font-weight-bold);
   margin: 0;
   line-height: var(--line-height-none);
@@ -449,7 +449,7 @@
 /* Loading State */
 .invoice-dashboard .loading-state {
   padding: var(--space-16);
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-size: var(--font-size-lg);
 }

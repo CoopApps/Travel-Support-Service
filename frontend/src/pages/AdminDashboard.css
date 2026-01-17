@@ -11,7 +11,7 @@
 .stat-card {
   padding: 8px 10px;
   border-radius: 4px;
-  text-align: center;
+  text-align: left;
   border: 1px solid #e5e7eb;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .stat-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.3px;

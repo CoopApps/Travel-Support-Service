@@ -70,7 +70,7 @@
   padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-sm);
   min-width: 36px;
-  text-align: center;
+  text-align: left;
 }
 
 .palette-route-info {
@@ -556,7 +556,7 @@
   padding: var(--space-1-5) var(--space-3);
   border-radius: var(--radius-md);
   min-width: 50px;
-  text-align: center;
+  text-align: left;
   flex-shrink: 0;
 }
 
@@ -616,7 +616,7 @@
   background: var(--surface-section);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  text-align: center;
+  text-align: left;
 }
 
 .time-display {
