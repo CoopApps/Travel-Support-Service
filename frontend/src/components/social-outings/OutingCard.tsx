@@ -6,6 +6,7 @@ interface OutingCardProps {
   onDelete: (outing: SocialOuting) => void;
   onManageBookings: (outing: SocialOuting) => void;
   onAssignDrivers: (outing: SocialOuting) => void;
+  onDuplicate: (outing: SocialOuting) => void;
 }
 
 /**
@@ -13,7 +14,7 @@ interface OutingCardProps {
  *
  * Displays a single social outing with details and action buttons
  */
-function OutingCard({ outing, onEdit, onDelete, onManageBookings, onAssignDrivers }: OutingCardProps) {
+function OutingCard({ outing, onEdit, onDelete, onManageBookings, onAssignDrivers, onDuplicate }: OutingCardProps) {
   const outingDate = new Date(outing.outing_date);
   const isPast = outingDate < new Date();
 
@@ -204,6 +205,18 @@ function OutingCard({ outing, onEdit, onDelete, onManageBookings, onAssignDriver
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
           Edit
+        </button>
+
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={() => onDuplicate(outing)}
+          title="Duplicate outing"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Duplicate
         </button>
 
         <button

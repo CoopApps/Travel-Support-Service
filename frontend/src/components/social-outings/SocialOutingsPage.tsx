@@ -23,6 +23,8 @@ function SocialOutingsPage() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   const [showAvailability, setShowAvailability] = useState(false);
   const [showAccessibilityModal, setShowAccessibilityModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<'all' | 'transport' | 'bus'>('all');
 
   // Modal state
   const [showOutingForm, setShowOutingForm] = useState(false);
@@ -52,17 +54,31 @@ function SocialOutingsPage() {
     }
   };
 
-  // Filter outings based on active tab
+  // Filter outings based on active tab, search, and service type
   const filteredOutings = outings.filter(outing => {
     const outingDate = new Date(outing.outing_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (activeTab === 'upcoming') {
-      return outingDate >= today;
-    } else if (activeTab === 'past') {
-      return outingDate < today;
+    // Date filter
+    if (activeTab === 'upcoming' && outingDate < today) return false;
+    if (activeTab === 'past' && outingDate >= today) return false;
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      if (!outing.name.toLowerCase().includes(search) &&
+          !outing.destination.toLowerCase().includes(search)) {
+        return false;
+      }
     }
+
+    // Service type filter
+    if (serviceTypeFilter !== 'all') {
+      if (serviceTypeFilter === 'bus' && outing.service_type !== 'bus') return false;
+      if (serviceTypeFilter === 'transport' && outing.service_type === 'bus') return false;
+    }
+
     return true;
   }).sort((a, b) => {
     // Sort by date: upcoming ascending, past descending
@@ -122,6 +138,42 @@ function SocialOutingsPage() {
     if (shouldRefresh) {
       fetchOutings();
     }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Name', 'Destination', 'Date', 'Departure Time', 'Return Time', 'Service Type', 'Max Passengers', 'Bookings', 'Wheelchair Users'];
+    const rows = filteredOutings.map(o => [
+      o.name,
+      o.destination,
+      new Date(o.outing_date).toLocaleDateString('en-GB'),
+      o.departure_time,
+      o.return_time || '',
+      o.service_type === 'bus' ? 'Bus' : 'Transport',
+      o.max_passengers,
+      o.booking_count || 0,
+      o.wheelchair_users || 0
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `outings-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  const handleDuplicateOuting = (outing: SocialOuting) => {
+    const duplicated = {
+      ...outing,
+      name: `${outing.name} (Copy)`,
+      booking_count: 0,
+      wheelchair_users: 0
+    };
+    setEditingOuting(duplicated as SocialOuting);
+    setShowOutingForm(true);
   };
 
   if (!tenantId) {
@@ -192,6 +244,29 @@ function SocialOutingsPage() {
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Export to CSV"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+          <button
             className="btn btn-outline"
             onClick={() => setShowAccessibilityModal(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -200,7 +275,7 @@ function SocialOutingsPage() {
               <circle cx="12" cy="4" r="2"/>
               <path d="M19 13v-2c-1.54.02-3.09-.75-4.07-1.83l-1.29-1.43c-.17-.19-.38-.34-.61-.45-.01 0-.01-.01-.02-.01H13c-.35-.2-.75-.3-1.19-.26C10.76 7.11 10 8.04 10 9.09V15c0 1.1.9 2 2 2h5v5h2v-5.5c0-1.1-.9-2-2-2h-3v-3.45c1.29 1.07 3.25 1.94 5 1.95zm-6.17 5c-.41 1.16-1.52 2-2.83 2-1.66 0-3-1.34-3-3 0-1.31.84-2.41 2-2.83V12.1c-2.28.46-4 2.48-4 4.9 0 2.76 2.24 5 5 5 2.42 0 4.44-1.72 4.9-4h-2.07z"/>
             </svg>
-            Accessibility Overview
+            Accessibility
           </button>
           <button
             className="btn btn-outline"
@@ -213,7 +288,7 @@ function SocialOutingsPage() {
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            Customer Availability
+            Availability
           </button>
           <button
             onClick={handleAddOuting}
@@ -238,6 +313,51 @@ function SocialOutingsPage() {
             Create Outing
           </button>
         </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', alignItems: 'center' }}>
+        {/* Search */}
+        <div style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}>
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search outings..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            style={{
+              paddingLeft: '32px',
+              padding: '6px 10px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              fontSize: '12px',
+              width: '100%',
+              outline: 'none'
+            }}
+          />
+        </div>
+
+        {/* Service Type Filter */}
+        <select
+          value={serviceTypeFilter}
+          onChange={e => setServiceTypeFilter(e.target.value as 'all' | 'transport' | 'bus')}
+          style={{
+            padding: '6px 10px',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            fontSize: '12px',
+            background: 'white',
+            cursor: 'pointer',
+            outline: 'none'
+          }}
+        >
+          <option value="all">All Services</option>
+          <option value="transport">Transport Only</option>
+          <option value="bus">Bus Only</option>
+        </select>
       </div>
 
       {/* Stats */}
@@ -283,6 +403,7 @@ function SocialOutingsPage() {
               onDelete={handleDeleteOuting}
               onManageBookings={handleManageBookings}
               onAssignDrivers={handleAssignDrivers}
+              onDuplicate={handleDuplicateOuting}
             />
           ))}
         </div>
