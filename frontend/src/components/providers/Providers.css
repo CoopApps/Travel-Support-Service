@@ -57,33 +57,28 @@
 
 /* Theme Colors */
 .providers-container .stat-card-blue {
-  background: white;
-  color: #2563eb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
 .providers-container .stat-card-purple {
-  background: white;
-  color: #9333ea;
-  border: 1px solid #e5e7eb;
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
 }
 
 .providers-container .stat-card-green {
-  background: white;
-  color: #16a34a;
-  border: 1px solid #e5e7eb;
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
 .providers-container .stat-card-orange {
-  background: white;
-  color: #ea580c;
-  border: 1px solid #e5e7eb;
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
 .providers-container .stat-card-gold {
-  background: white;
-  color: #d97706;
-  border: 1px solid #e5e7eb;
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
 /* Wrapper with defined column structure */
