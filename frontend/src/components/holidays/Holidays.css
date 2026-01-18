@@ -3,14 +3,14 @@
  */
 
 .holidays-page {
-  padding: var(--space-5);
+  padding: var(--space-4);
 }
 
 .holidays-page .page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .holidays-page .page-header h1 {
@@ -26,13 +26,73 @@
   font-size: var(--font-size-sm);
 }
 
-/* Stats Grid */
-.holidays-page .stats-grid {
+/* Statistics Grid */
+.holiday-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
 }
+
+.holiday-stats-grid .stat-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  transition: all var(--transition-fast) var(--ease-default);
+}
+
+.holiday-stats-grid .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.holiday-stats-grid .stat-value {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-none);
+  color: inherit;
+}
+
+.holiday-stats-grid .stat-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  display: block;
+  margin: var(--space-1-5) 0 0 0;
+  color: inherit;
+}
+
+/* Theme Colors */
+.holidays-page .stat-card-blue {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+}
+
+.holidays-page .stat-card-green {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.holidays-page .stat-card-orange {
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
+}
+
+.holidays-page .stat-card-purple {
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
+}
+
+
+
 
 /* Tabs */
 .tabs-container {
@@ -80,14 +140,14 @@
 }
 
 .tab-content {
-  padding: var(--space-5);
+  padding: var(--space-4);
 }
 
 /* Filters Bar */
 .filters-bar {
   display: flex;
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   padding: var(--space-4);
   background: var(--surface-section);
   border-radius: var(--radius-md);
@@ -334,7 +394,7 @@
 }
 
 .form-section {
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .form-section h4 {
@@ -393,14 +453,14 @@
 }
 
 .balances-header {
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .balances-controls {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
 }
 
@@ -545,7 +605,7 @@
   padding: var(--space-4);
   background: var(--surface-section);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .driver-info-panel h4 {
@@ -668,7 +728,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   padding-bottom: var(--space-4);
   border-bottom: 2px solid var(--surface-border);
 }
@@ -1022,13 +1082,14 @@
   color: var(--color-brand-900);
 }
 
+
 /* Responsive */
 @media (max-width: 768px) {
   .holidays-page {
     padding: var(--space-4);
   }
 
-  .holidays-page .stats-grid {
+  .holiday-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 

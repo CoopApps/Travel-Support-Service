@@ -84,12 +84,12 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
     return colors[status] || { bg: '#6c757d', text: '#fff' };
   };
 
-  const getStatusIcon = (status: string): string => {
+  const getStatusIcon = (status: string): JSX.Element => {
     const icons: Record<string, string> = {
-      approved: '✓',
-      pending: '⏳',
-      cancelled: '✕',
-      rejected: '✗'
+      approved: '',
+      pending: '',
+      cancelled: '',
+      rejected: ''
     };
     return icons[status] || '•';
   };
@@ -266,7 +266,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
               borderRadius: '2px'
             }}
           ></span>
-          <span>✓ Approved</span>
+          <span>Approved</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span
@@ -279,7 +279,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
               borderRadius: '2px'
             }}
           ></span>
-          <span>⏳ Pending</span>
+          <span>Pending</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span
@@ -292,7 +292,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
               borderRadius: '2px'
             }}
           ></span>
-          <span>✕ Cancelled</span>
+          <span>Cancelled</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span
@@ -305,7 +305,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
               borderRadius: '2px'
             }}
           ></span>
-          <span>✗ Declined</span>
+          <span>Declined</span>
         </div>
       </div>
 

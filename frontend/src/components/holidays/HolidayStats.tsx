@@ -7,29 +7,25 @@ interface HolidayStatsProps {
 
 const HolidayStats: React.FC<HolidayStatsProps> = ({ overview }) => {
   return (
-    <div className="stats-grid">
+    <div className="holiday-stats-grid">
       <div className="stat-card stat-card-blue">
-        <div className="stat-value">{overview.requests?.total || 0}</div>
-        <div className="stat-label">Total Requests</div>
-        <div className="stat-subtitle">All time</div>
+        <h4 className="stat-value">{overview.requests?.total || 0}</h4>
+        <small className="stat-label">Total Requests</small>
       </div>
 
       <div className="stat-card stat-card-orange">
-        <div className="stat-value">{overview.requests?.pending || 0}</div>
-        <div className="stat-label">Pending Approval</div>
-        <div className="stat-subtitle">Awaiting review</div>
+        <h4 className="stat-value">{overview.requests?.pending || 0}</h4>
+        <small className="stat-label">Pending Approval</small>
       </div>
 
       <div className="stat-card stat-card-green">
-        <div className="stat-value">{overview.requests?.currentHolidays || 0}</div>
-        <div className="stat-label">Current Holidays</div>
-        <div className="stat-subtitle">Active today</div>
+        <h4 className="stat-value">{overview.requests?.currentHolidays || 0}</h4>
+        <small className="stat-label">Current Holidays</small>
       </div>
 
       <div className="stat-card stat-card-purple">
-        <div className="stat-value">{overview.balances?.driversUsingAnnualLeave || 0}</div>
-        <div className="stat-label">Drivers Using Leave</div>
-        <div className="stat-subtitle">This year</div>
+        <h4 className="stat-value">{overview.balances?.driversUsingAnnualLeave || 0}</h4>
+        <small className="stat-label">Drivers Using Leave</small>
       </div>
     </div>
   );

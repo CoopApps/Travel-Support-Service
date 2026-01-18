@@ -133,14 +133,14 @@ const HolidayRequestsTable: React.FC<HolidayRequestsTableProps> = ({
                             disabled={!rejectionReason.trim()}
                             title="Confirm rejection"
                           >
-                            ✓
+                            
                           </button>
                           <button
                             className="btn btn-sm btn-secondary"
                             onClick={handleRejectCancel}
                             title="Cancel"
                           >
-                            ✗
+                            
                           </button>
                         </div>
                       ) : (

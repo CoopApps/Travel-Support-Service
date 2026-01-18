@@ -194,9 +194,7 @@ const HolidaysPage: React.FC = () => {
 
   return (
     <div className="holidays-page">
-      {overview && <HolidayStats overview={overview} />}
-
-      {/* Tab Toggle and Action Button */}
+      {/* Tab Toggle, Status Indicators, and Action Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
@@ -226,18 +224,10 @@ const HolidaysPage: React.FC = () => {
               cursor: 'pointer',
               fontWeight: 500,
               fontSize: '12px',
-              boxShadow: activeTab === 'requests' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              boxShadow: activeTab === 'requests' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
             }}
           >
             Requests
-            {overview && overview.requests?.pending > 0 && (
-              <span style={{ background: '#f59e0b', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', fontWeight: 600 }}>
-                {overview.requests.pending}
-              </span>
-            )}
           </button>
           <button
             onClick={() => setActiveTab('balances')}
@@ -273,6 +263,24 @@ const HolidaysPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Status Indicators */}
+        {overview && (
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 500 }}>
+              Approved {overview.requests?.approved || 0}
+            </span>
+            <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 500 }}>
+              Pending {overview.requests?.pending || 0}
+            </span>
+            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 500 }}>
+              Cancelled {overview.requests?.cancelled || 0}
+            </span>
+            <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
+              Declined {overview.requests?.rejected || 0}
+            </span>
+          </div>
+        )}
+
         {(activeTab === 'requests' || activeTab === 'calendar') && (
           <button
             onClick={handleAddRequest}
@@ -297,6 +305,8 @@ const HolidaysPage: React.FC = () => {
           </button>
         )}
       </div>
+
+      {overview && <HolidayStats overview={overview} />}
 
       <div className="tabs-container">
 
