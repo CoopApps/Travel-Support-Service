@@ -38,7 +38,7 @@
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   text-align: center;
-  min-height: 80px;
+  min-height: 95px;
   display: flex;
   flex-direction: column;
   justify-content: center;

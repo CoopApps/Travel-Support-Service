@@ -110,7 +110,7 @@ function getBackgroundColor(color: string): string {
 
 function StatCard({ label, value, subtitle, color }: StatCardProps) {
   return (
-    <div style={{ padding: '12px', borderRadius: '6px', background: getBackgroundColor(color) }}>
+    <div style={{ padding: '12px', borderRadius: '6px', background: getBackgroundColor(color), minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
       <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
       {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}

@@ -29,6 +29,7 @@
 .providers-container .stat-card {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
+  min-height: 95px;
   text-align: left;
   transition: all var(--transition-fast) var(--ease-default);
 }
