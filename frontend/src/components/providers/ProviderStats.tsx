@@ -27,24 +27,28 @@ function ProviderStatsComponent({ stats }: ProviderStatsProps) {
       <div className="stat-card stat-card-blue">
         <h4 className="stat-value">{stats.totalProviders || 0}</h4>
         <small className="stat-label">Active Providers</small>
+        <div className="stat-subtitle">External funding sources</div>
       </div>
 
       {/* Card 2: Funded Customers */}
       <div className="stat-card stat-card-purple">
         <h4 className="stat-value">{stats.totalCustomers || 0}</h4>
         <small className="stat-label">Funded Customers</small>
+        <div className="stat-subtitle">Receiving external support</div>
       </div>
 
       {/* Card 3: Weekly Revenue */}
       <div className="stat-card stat-card-green">
         <h4 className="stat-value">{formatCurrency(stats.totalWeeklyRevenue || 0)}</h4>
         <small className="stat-label">Weekly Revenue</small>
+        <div className="stat-subtitle">From all providers</div>
       </div>
 
       {/* Card 4: Monthly Revenue */}
       <div className="stat-card stat-card-orange">
         <h4 className="stat-value">{formatCurrency(stats.totalMonthlyRevenue || 0)}</h4>
         <small className="stat-label">Monthly Revenue</small>
+        <div className="stat-subtitle">Estimated total</div>
       </div>
 
       {/* Card 5: Largest Provider */}
@@ -53,6 +57,7 @@ function ProviderStatsComponent({ stats }: ProviderStatsProps) {
           {formatProviderName(stats.largestProvider)}
         </h4>
         <small className="stat-label">Largest Provider</small>
+        <div className="stat-subtitle">By customer count</div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { HolidayOverview } from '../../types/holiday.types';
+import './HolidayStats.css';
 
 interface HolidayStatsProps {
   overview: HolidayOverview;

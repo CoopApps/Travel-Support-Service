@@ -36,31 +36,37 @@ function VehicleStats({ stats, loading }: VehicleStatsProps) {
       <StatCard
         label="Total Vehicles"
         value={stats.total}
+        subtitle={`${stats.owned} Owned • ${stats.leased} Leased • ${stats.personal} Driver`}
         theme="blue"
       />
       <StatCard
         label="Company Owned"
         value={stats.owned}
+        subtitle="Organization assets"
         theme="green"
       />
       <StatCard
         label="Company Leased"
         value={stats.leased}
+        subtitle="Rental agreements"
         theme="orange"
       />
       <StatCard
         label="Driver Owned"
         value={stats.personal}
+        subtitle="Personal vehicles"
         theme="purple"
       />
       <StatCard
         label="Wheelchair Accessible"
         value={stats.wheelchair_accessible}
+        subtitle="WAV equipped"
         theme="teal"
       />
       <StatCard
         label="Monthly Costs"
         value={formatCurrency(stats.total_monthly_costs)}
+        subtitle="Leases + insurance"
         theme="indigo"
       />
     </div>
@@ -70,14 +76,16 @@ function VehicleStats({ stats, loading }: VehicleStatsProps) {
 interface StatCardProps {
   label: string;
   value: number | string;
+  subtitle?: string;
   theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
 }
 
-function StatCard({ label, value, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
     <div className={`stat-card stat-card-${theme}`}>
       <h4 className="stat-value">{value}</h4>
       <small className="stat-label">{label}</small>
+      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
     </div>
   );
 }

@@ -1,10 +1,10 @@
-/* Vehicle Stats - Legacy Design */
+/* Bus Driver Roster Page Styles */
 
-.vehicle-stats-grid {
+.roster-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
@@ -44,13 +44,7 @@
   color: inherit;
 }
 
-/* Loading State */
-.stat-card-loading {
-  background: #f5f5f5;
-  color: #999;
-}
-
-/* Theme Colors - Matching Legacy */
+/* Theme Colors - Matching Other Modules */
 .stat-card-blue {
   background: #e3f2fd;
   color: #1976d2;

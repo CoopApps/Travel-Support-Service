@@ -4,6 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { busTimetablesApi } from '../../services/busApi';
 import { driverApi } from '../../services/api';
 import { BusIcon, ArrowLeftIcon, ArrowRightIcon, RefreshIcon } from '../icons/BusIcons';
+import './BusDriverRosterPage.css';
 
 interface DriverAssignment {
   driver_id: number;
@@ -182,45 +183,29 @@ export default function BusDriverRosterPage() {
       </div>
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem'
-        }}>
-          <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '0.5rem' }}>Total Drivers</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#1f2937' }}>{drivers.length}</div>
+      <div className="roster-stats-grid">
+        <div className="stat-card stat-card-blue">
+          <h4 className="stat-value">{drivers.length}</h4>
+          <small className="stat-label">Total Drivers</small>
+          <div className="stat-subtitle">{driversWithAssignments} Assigned • {driversAvailable} Available</div>
         </div>
 
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem'
-        }}>
-          <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '0.5rem' }}>Assigned</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981' }}>{driversWithAssignments}</div>
+        <div className="stat-card stat-card-green">
+          <h4 className="stat-value">{driversWithAssignments}</h4>
+          <small className="stat-label">Assigned</small>
+          <div className="stat-subtitle">Active on roster</div>
         </div>
 
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem'
-        }}>
-          <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '0.5rem' }}>Available</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#f59e0b' }}>{driversAvailable}</div>
+        <div className="stat-card stat-card-orange">
+          <h4 className="stat-value">{driversAvailable}</h4>
+          <small className="stat-label">Available</small>
+          <div className="stat-subtitle">Not yet assigned</div>
         </div>
 
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem'
-        }}>
-          <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '0.5rem' }}>Total Services</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#3b82f6' }}>{totalAssignments}</div>
+        <div className="stat-card stat-card-purple">
+          <h4 className="stat-value">{totalAssignments}</h4>
+          <small className="stat-label">Total Services</small>
+          <div className="stat-subtitle">Scheduled routes</div>
         </div>
       </div>
 

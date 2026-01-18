@@ -39,37 +39,42 @@ export const InvoiceStatsCards: React.FC<Props> = ({ stats }) => {
       <StatCard
         label="Total Invoices"
         value={stats.totalInvoices.toString()}
+        subtitle="All time records"
         theme="blue"
       />
 
       <StatCard
         label="Total Paid"
         value={formatCurrency(stats.totalPaid)}
+        subtitle="Collected revenue"
         theme="green"
       />
 
       <StatCard
         label="Total Pending"
         value={formatCurrency(stats.totalPending)}
+        subtitle="Awaiting payment"
         theme="orange"
       />
 
       <StatCard
         label="Overdue"
         value={stats.totalOverdue.toString()}
-        subtitle={stats.totalOverdue > 0 ? 'Requires attention' : undefined}
+        subtitle={stats.totalOverdue > 0 ? 'Requires attention' : 'No overdue invoices'}
         theme="purple"
       />
 
       <StatCard
         label="Collection Rate"
         value={`${stats.collectionRate}%`}
+        subtitle="Payment success rate"
         theme="indigo"
       />
 
       <StatCard
         label="Avg Days to Pay"
         value={`${stats.avgDaysToPay} days`}
+        subtitle="Average collection time"
         theme="teal"
       />
     </div>
