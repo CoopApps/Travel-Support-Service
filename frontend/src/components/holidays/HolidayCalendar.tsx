@@ -244,74 +244,7 @@ const HolidayCalendar: React.FC<HolidayCalendarProps> = ({ onViewRequest }) => {
         {renderCalendarGrid()}
       </div>
 
-      {/* Legend */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '20px',
-          marginTop: '15px',
-          justifyContent: 'center',
-          fontSize: '14px',
-          flexWrap: 'wrap'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: '15px',
-              height: '15px',
-              background: '#28a745',
-              marginRight: '8px',
-              borderRadius: '2px'
-            }}
-          ></span>
-          <span>Approved</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: '15px',
-              height: '15px',
-              background: '#ffc107',
-              marginRight: '8px',
-              borderRadius: '2px'
-            }}
-          ></span>
-          <span>Pending</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: '15px',
-              height: '15px',
-              background: '#6c757d',
-              marginRight: '8px',
-              borderRadius: '2px'
-            }}
-          ></span>
-          <span>Cancelled</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: '15px',
-              height: '15px',
-              background: '#dc3545',
-              marginRight: '8px',
-              borderRadius: '2px'
-            }}
-          ></span>
-          <span>Declined</span>
-        </div>
-      </div>
 
-      <div style={{ textAlign: 'center', marginTop: '10px', color: 'var(--gray-600)', fontSize: '12px' }}>
-        <small>💡 Click on any holiday to view details</small>
-      </div>
     </div>
   );
 };
