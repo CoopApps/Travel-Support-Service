@@ -10,10 +10,14 @@
 }
 
 .customer-stats-grid .stat-card {
-  padding: 8px 10px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
   min-height: 95px;
-  text-align: left;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .customer-stats-grid .stat-value {
