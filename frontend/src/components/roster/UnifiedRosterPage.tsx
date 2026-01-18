@@ -373,23 +373,23 @@ export default function UnifiedRosterPage() {
 
       {/* Summary Stats - Compact */}
       <div style={{ display: 'grid', gridTemplateColumns: showServiceType ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
-        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#2563eb' }}>{Object.keys(entriesByDriver).length}</div>
-          <div style={{ fontSize: '10px', color: '#2563eb', fontWeight: 500, textTransform: 'uppercase' }}>Drivers</div>
+        <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', textAlign: 'center', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1d4ed8' }}>{Object.keys(entriesByDriver).length}</div>
+          <div style={{ fontSize: '10px', color: '#1d4ed8', fontWeight: 500, textTransform: 'uppercase' }}>Drivers</div>
         </div>
-        <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>{filteredEntries.length}</div>
-          <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, textTransform: 'uppercase' }}>Assignments</div>
+        <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '6px', textAlign: 'center', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#15803d' }}>{filteredEntries.length}</div>
+          <div style={{ fontSize: '10px', color: '#15803d', fontWeight: 500, textTransform: 'uppercase' }}>Assignments</div>
         </div>
         {showServiceType && (
           <>
-            <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#9333ea' }}>{filteredEntries.filter(e => e.service_type === 'transport').length}</div>
-              <div style={{ fontSize: '10px', color: '#9333ea', fontWeight: 500, textTransform: 'uppercase' }}>Transport</div>
+            <div style={{ background: '#f3e8ff', padding: '12px', borderRadius: '6px', textAlign: 'center', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#7e22ce' }}>{filteredEntries.filter(e => e.service_type === 'transport').length}</div>
+              <div style={{ fontSize: '10px', color: '#7e22ce', fontWeight: 500, textTransform: 'uppercase' }}>Transport</div>
             </div>
-            <div style={{ background: 'white', padding: '8px 10px', borderRadius: '4px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#ea580c' }}>{filteredEntries.filter(e => e.service_type === 'bus').length}</div>
-              <div style={{ fontSize: '10px', color: '#ea580c', fontWeight: 500, textTransform: 'uppercase' }}>Bus</div>
+            <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '6px', textAlign: 'center', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#c2410c' }}>{filteredEntries.filter(e => e.service_type === 'bus').length}</div>
+              <div style={{ fontSize: '10px', color: '#c2410c', fontWeight: 500, textTransform: 'uppercase' }}>Bus</div>
             </div>
           </>
         )}
