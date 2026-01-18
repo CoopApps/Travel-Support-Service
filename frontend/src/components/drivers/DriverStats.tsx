@@ -98,9 +98,19 @@ interface StatCardProps {
   color: string;
 }
 
+function getBackgroundColor(color: string): string {
+  const colorMap: { [key: string]: string } = {
+    '#2563eb': '#dbeafe', // blue
+    '#16a34a': '#dcfce7', // green
+    '#ea580c': '#ffedd5', // orange
+    '#9333ea': '#f3e8ff'  // purple
+  };
+  return colorMap[color] || '#f9fafb';
+}
+
 function StatCard({ label, value, subtitle, color }: StatCardProps) {
   return (
-    <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+    <div style={{ padding: '12px', borderRadius: '6px', background: getBackgroundColor(color) }}>
       <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
       <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
       {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}

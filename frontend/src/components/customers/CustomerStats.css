@@ -34,53 +34,45 @@
   margin-top: 2px;
 }
 
-/* Theme Colors - White background with colored text */
+/* Theme Colors - Colored backgrounds */
 .stat-card-blue {
-  background: white;
-  color: #2563eb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
 .stat-card-green {
-  background: white;
-  color: #16a34a;
-  border: 1px solid #e5e7eb;
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
 .stat-card-orange {
-  background: white;
-  color: #ea580c;
-  border: 1px solid #e5e7eb;
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
 .stat-card-purple {
-  background: white;
-  color: #9333ea;
-  border: 1px solid #e5e7eb;
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
 }
 
 .stat-card-teal {
-  background: white;
-  color: #0d9488;
-  border: 1px solid #e5e7eb;
+  background: var(--color-teal-100);
+  color: var(--color-teal-700);
 }
 
 .stat-card-indigo {
-  background: white;
-  color: #4f46e5;
-  border: 1px solid #e5e7eb;
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
 }
 
 .stat-card-red {
-  background: white;
-  color: #dc2626;
-  border: 1px solid #e5e7eb;
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
 }
 
 .stat-card-amber {
-  background: white;
-  color: #d97706;
-  border: 1px solid #e5e7eb;
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
 .customer-stats-grid .stat-subtitle {
