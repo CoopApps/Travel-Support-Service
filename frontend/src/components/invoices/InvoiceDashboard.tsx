@@ -137,21 +137,22 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
           <div className="stat-card stat-card-blue">
             <h4 className="stat-value">{stats.totalInvoices}</h4>
             <small className="stat-label">Total Invoices</small>
+            <div className="stat-subtitle">All time records</div>
           </div>
           <div className="stat-card stat-card-green">
             <h4 className="stat-value">{formatCurrency(stats.totalPaid)}</h4>
             <small className="stat-label">Paid</small>
+            <div className="stat-subtitle">Collected revenue</div>
           </div>
           <div className="stat-card stat-card-orange">
             <h4 className="stat-value">{formatCurrency(stats.totalPending)}</h4>
             <small className="stat-label">Pending</small>
+            <div className="stat-subtitle">Awaiting payment</div>
           </div>
           <div className="stat-card stat-card-purple">
             <h4 className="stat-value">{formatCurrency(stats.totalOverdue)}</h4>
             <small className="stat-label">Overdue</small>
-            {stats.totalOverdue > 0 && (
-              <div className="stat-subtitle">Requires attention</div>
-            )}
+            <div className="stat-subtitle">{stats.totalOverdue > 0 ? 'Requires attention' : 'No overdue invoices'}</div>
           </div>
         </div>
       )}
