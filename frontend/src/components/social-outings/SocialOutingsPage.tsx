@@ -315,6 +315,9 @@ function SocialOutingsPage() {
         </div>
       </div>
 
+      {/* Stats */}
+      <OutingStats tenantId={tenantId} />
+
       {/* Search and Filters */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', alignItems: 'center' }}>
         {/* Search */}
@@ -359,9 +362,6 @@ function SocialOutingsPage() {
           <option value="bus">Bus Only</option>
         </select>
       </div>
-
-      {/* Stats */}
-      <OutingStats tenantId={tenantId} />
 
       {/* Customer Availability Overview */}
       <CustomerAvailabilityOverview
