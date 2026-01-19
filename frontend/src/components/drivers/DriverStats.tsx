@@ -62,30 +62,30 @@ function DriverStats({ tenantId, onStatsLoaded }: DriverStatsProps) {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
+    <div className="driver-stats-grid">
       <StatCard
         label="Total Drivers"
         value={stats.summary.total.toString()}
         subtitle={`${stats.summary.contracted} Contracted • ${stats.summary.freelance} Freelance`}
-        color="#2563eb"
+        theme="blue"
       />
       <StatCard
         label="Contracted Weekly"
         value={formatCurrency(stats.financial.contractedWeekly)}
         subtitle="Fixed + allowances"
-        color="#16a34a"
+        theme="green"
       />
       <StatCard
         label="Freelance Est."
         value={formatCurrency(stats.financial.freelanceEst)}
         subtitle={stats.summary.freelance === 0 ? 'No freelance' : 'Estimated weekly'}
-        color="#ea580c"
+        theme="orange"
       />
       <StatCard
         label="Fuel Costs"
         value={formatCurrency(stats.financial.fuelCosts)}
         subtitle="Allowances + cards"
-        color="#9333ea"
+        theme="purple"
       />
     </div>
   );
@@ -94,26 +94,16 @@ function DriverStats({ tenantId, onStatsLoaded }: DriverStatsProps) {
 interface StatCardProps {
   label: string;
   value: string;
-  subtitle?: string;
-  color: string;
+  subtitle: string;
+  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
 }
 
-function getBackgroundColor(color: string): string {
-  const colorMap: { [key: string]: string } = {
-    '#2563eb': '#dbeafe', // blue
-    '#16a34a': '#dcfce7', // green
-    '#ea580c': '#ffedd5', // orange
-    '#9333ea': '#f3e8ff'  // purple
-  };
-  return colorMap[color] || '#f9fafb';
-}
-
-function StatCard({ label, value, subtitle, color }: StatCardProps) {
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div style={{ padding: '12px', borderRadius: '6px', background: getBackgroundColor(color), minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
-      <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
-      {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}
+    <div className={'stat-card stat-card-' + theme}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
     </div>
   );
 }

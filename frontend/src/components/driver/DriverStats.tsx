@@ -29,31 +29,37 @@ function DriverStats({
       <StatCard
         label="Today's Trips"
         value={todaySchedules}
+        subtitle="Scheduled for today"
         theme="blue"
       />
       <StatCard
         label="Upcoming Trips"
         value={upcomingSchedules}
+        subtitle="Future schedules"
         theme="teal"
       />
       <StatCard
         label="Completion Rate"
         value={`${tripStats?.completionRate || 0}%`}
+        subtitle="Last 30 days"
         theme="green"
       />
       <StatCard
         label="Completed (30d)"
         value={tripStats?.completed || 0}
+        subtitle="Successfully finished"
         theme="purple"
       />
       <StatCard
         label="No Shows (30d)"
         value={tripStats?.noShows || 0}
+        subtitle="Customer absences"
         theme="orange"
       />
       <StatCard
         label="Pending Holidays"
         value={pendingHolidays}
+        subtitle="Awaiting approval"
         theme="indigo"
       />
     </div>
@@ -63,14 +69,16 @@ function DriverStats({
 interface StatCardProps {
   label: string;
   value: number | string;
+  subtitle: string;
   theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
 }
 
-function StatCard({ label, value, theme }: StatCardProps) {
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
     <div className={`stat-card stat-card-${theme}`}>
       <div className="stat-value">{value}</div>
       <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
     </div>
   );
 }

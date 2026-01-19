@@ -10,13 +10,18 @@
 }
 
 .driver-stats-grid .stat-card {
-  padding: 8px 10px;
-  border-radius: 4px;
-  text-align: left;
+  padding: 12px;
+  border-radius: 6px;
+  min-height: 95px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .driver-stats-grid .stat-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
@@ -31,61 +36,44 @@
   display: block;
   margin-top: 2px;
   color: inherit;
+  opacity: 0.85;
 }
 
 .driver-stats-grid .stat-subtitle {
-  font-size: 9px;
-  opacity: 0.75;
-  margin-top: 2px;
-  line-height: 1.2;
-  color: inherit;
+  font-size: 10px;
+  font-weight: 400;
+  color: #6b7280;
+  display: block;
+  line-height: 1.3;
 }
 
-/* Theme Colors - White background with colored text */
-.stat-card-blue {
-  background: white;
-  color: #2563eb;
-  border: 1px solid #e5e7eb;
+/* Theme Colors - Colored backgrounds */
+.driver-stats-grid .stat-card-blue {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
 }
 
-.stat-card-green {
-  background: white;
-  color: #16a34a;
-  border: 1px solid #e5e7eb;
+.driver-stats-grid .stat-card-green {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
 }
 
-.stat-card-orange {
-  background: white;
-  color: #ea580c;
-  border: 1px solid #e5e7eb;
+.driver-stats-grid .stat-card-orange {
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
 }
 
-.stat-card-purple {
-  background: white;
-  color: #9333ea;
-  border: 1px solid #e5e7eb;
+.driver-stats-grid .stat-card-purple {
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
 }
 
-.stat-card-teal {
-  background: white;
-  color: #0d9488;
-  border: 1px solid #e5e7eb;
+.driver-stats-grid .stat-card-teal {
+  background: var(--color-teal-100);
+  color: var(--color-teal-700);
 }
 
-.stat-card-indigo {
-  background: white;
-  color: #4f46e5;
-  border: 1px solid #e5e7eb;
-}
-
-.stat-card-red {
-  background: white;
-  color: #dc2626;
-  border: 1px solid #e5e7eb;
-}
-
-.stat-card-amber {
-  background: white;
-  color: #d97706;
-  border: 1px solid #e5e7eb;
+.driver-stats-grid .stat-card-indigo {
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
 }

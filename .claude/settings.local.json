@@ -21,7 +21,10 @@
       "Bash(\"/c/Program Files/nodejs/node.exe\" ../node_modules/jest/bin/jest.js --passWithNoTests --forceExit --runInBand src/tests/integration/route-optimization-ai.test.ts)",
       "Bash(echo:*)",
       "Bash(\"/c/Program Files/nodejs/node.exe\" -e \"const fs = require(''fs''); fs.writeFileSync(''D:\\\\projects\\\\travel-support-app -test\\\\conversion\\\\README.md'', ''# Travel Support Platform\\n\\nA comprehensive multi-tenant SaaS platform for managing accessible transportation services.\\n\\n## Overview\\n\\nThe Travel Support Platform is a complete solution for managing all aspects of accessible transportation services.\\n\\n## Quick Start\\n\\nSee [INFRASTRUCTURE_SETUP.md](INFRASTRUCTURE_SETUP.md) for setup instructions.\\n\\n## Documentation\\n\\n- [AI_FEATURES.md](AI_FEATURES.md) - AI features guide\\n- [INFRASTRUCTURE_SETUP.md](INFRASTRUCTURE_SETUP.md) - DevOps and deployment\\n- [CLAUDE.md](CLAUDE.md) - Project guidance\\n'', ''utf8''); console.log(''Done'');\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git merge:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
