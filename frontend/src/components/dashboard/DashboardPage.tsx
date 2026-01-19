@@ -578,18 +578,6 @@ function DashboardPage() {
       {/* Dashboard Header */}
       <div className="dashboard-header">
         <div className="dashboard-header-left">
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-            Dashboard
-          </h1>
-          <div className={`dashboard-last-updated ${loading ? 'refreshing' : ''}`}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            Updated {getRelativeTime(lastUpdated)}
-          </div>
-        </div>
-        <div className="dashboard-header-right">
           {/* Date Range Selector */}
           <div className="date-range-selector">
             <button
@@ -618,6 +606,15 @@ function DashboardPage() {
             </button>
           </div>
 
+          <div className={`dashboard-last-updated ${loading ? 'refreshing' : ''}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Updated {getRelativeTime(lastUpdated)}
+          </div>
+        </div>
+        <div className="dashboard-header-right">
           {/* Refresh Button */}
           <button
             onClick={loadDashboard}
@@ -730,53 +727,12 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Main Three Column Layout */}
+      {/* Main Content Layout */}
       {dashboard && (
-        <div className="dashboard-main-grid">
+        <div className="dashboard-content-wrapper">
 
-          {/* ========== LEFT COLUMN: Financial Performance ========== */}
-          <div>
-            {profitability && profitability.overview && (
-              <div className="dashboard-section">
-                <div className="dashboard-section-header">
-                  Financial Performance
-                  <span className="section-subtext">(Last 30 Days)</span>
-                </div>
-
-                <div className="dashboard-financial-row">
-                  <div className="financial-metric">
-                    <div className="financial-metric-label">Revenue</div>
-                    <div className="financial-metric-value">£{profitability.overview.totalRevenue.toLocaleString()}</div>
-                    <div className="financial-metric-subtitle">{profitability.trips.completed} trips</div>
-                  </div>
-
-                  <div className="financial-metric">
-                    <div className="financial-metric-label">Costs</div>
-                    <div className="financial-metric-value" style={{ color: '#dc2626' }}>£{profitability.overview.totalCosts.toLocaleString()}</div>
-                    <div className="financial-metric-subtitle">Wages: {profitability.costPercentages.wages}%</div>
-                  </div>
-
-                  <div className="financial-metric">
-                    <div className="financial-metric-label">Net Profit</div>
-                    <div className="financial-metric-value" style={{ color: profitability.overview.profitable ? '#16a34a' : '#dc2626' }}>
-                      {profitability.overview.profitable ? '£' : '-£'}
-                      {Math.abs(profitability.overview.netProfit).toLocaleString()}
-                    </div>
-                    <div className="financial-metric-subtitle">{profitability.overview.profitable ? 'Profitable' : 'Loss'}</div>
-                  </div>
-
-                  <div className="financial-metric">
-                    <div className="financial-metric-label">Margin</div>
-                    <div className="financial-metric-value" style={{ color: '#2563eb' }}>{profitability.overview.profitMargin.toFixed(1)}%</div>
-                    <div className="financial-metric-subtitle">£{profitability.trips.averageRevenue}/trip</div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ========== MIDDLE COLUMN: Active Alerts ========== */}
-          <div>
+          {/* ========== LEFT SECTION: Active Alerts ========== */}
+          <div className="dashboard-left-section">
             <div className="active-alerts-section">
               <div className="active-alerts-header">
                 Active Alerts ({alerts.length})
@@ -899,8 +855,8 @@ function DashboardPage() {
             )}
           </div>
 
-          {/* ========== RIGHT COLUMN: Financial, Compliance, Fleet ========== */}
-          <div>
+          {/* ========== RIGHT SECTION: Financial Summary at top, then Compliance & Fleet ========== */}
+          <div className="dashboard-right-section">
             {/* Financial Summary - Compact */}
             <div style={{ marginBottom: '16px' }}>
               <h3 className="dashboard-section-title">
