@@ -682,47 +682,110 @@ function DashboardPage() {
         </button>
       </div>
 
-      {/* Stats Cards - Compact */}
+      {/* Top Row: Stats Cards (left) and Financial Summary (right) */}
       {dashboard && (
-        <div className="stats-grid">
-          <div className="stat-card stat-card-purple clickable" onClick={() => handleStatCardClick('/invoices')}>
-            <div className="stat-value">£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
-            <div className="stat-label">Revenue This Week</div>
+        <div className="dashboard-top-row">
+          {/* Stats Cards - Left Side */}
+          <div className="stats-grid">
+            <div className="stat-card stat-card-purple clickable" onClick={() => handleStatCardClick('/invoices')}>
+              <div className="stat-value">£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
+              <div className="stat-label">Revenue This Week</div>
+            </div>
+
+            <div className="stat-card stat-card-blue clickable" onClick={() => handleStatCardClick('/schedules')}>
+              <div className="stat-value">{dashboard.stats?.journeysThisWeek || 0}</div>
+              <div className="stat-label">Journeys This Week</div>
+            </div>
+
+            <div className="stat-card stat-card-green clickable" onClick={() => handleStatCardClick('/customers')}>
+              <div className="stat-value">{dashboard.stats?.activeCustomers || 0}</div>
+              <div className="stat-label">Active Customers</div>
+            </div>
+
+            <div className="stat-card stat-card-orange clickable" onClick={() => handleStatCardClick('/drivers')}>
+              <div className="stat-value">{dashboard.stats?.activeDrivers || 0}</div>
+              <div className="stat-label">Active Drivers</div>
+            </div>
+
+            <div className="stat-card stat-card-teal clickable" onClick={() => handleStatCardClick('/schedules')}>
+              <div className="stat-value">{dashboard.stats?.journeysToday || 0}</div>
+              <div className="stat-label">Journeys Today</div>
+            </div>
+
+            <div className="stat-card stat-card-indigo clickable" onClick={() => handleStatCardClick('/payroll')}>
+              <div className="stat-value">{dashboard.stats?.pendingApprovals || 0}</div>
+              <div className="stat-label">Approvals</div>
+            </div>
+
+            <div className="stat-card stat-card-red clickable">
+              <div className="stat-value">{dashboard.summary?.criticalTasks || 0}</div>
+              <div className="stat-label">Active Issues</div>
+            </div>
+
+            <div className="stat-card stat-card-amber clickable" onClick={() => handleStatCardClick('/invoices')}>
+              <div className="stat-value">£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
+              <div className="stat-label">Pending Payments</div>
+            </div>
           </div>
 
-          <div className="stat-card stat-card-blue clickable" onClick={() => handleStatCardClick('/schedules')}>
-            <div className="stat-value">{dashboard.stats?.journeysThisWeek || 0}</div>
-            <div className="stat-label">Journeys This Week</div>
-          </div>
+          {/* Financial Summary - Right Side (level with stat cards) */}
+          <div className="dashboard-section">
+            <div className="dashboard-section-header">
+              Financial Summary
+              <span className="section-subtext">(MTD)</span>
+            </div>
+            <div className="dashboard-mini-grid">
+              <div className="mini-stat-card">
+                <div className="mini-stat-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">£{dashboard.stats.revenueMTD?.toLocaleString() || '0'}</div>
+                  <div className="mini-stat-label">Revenue MTD</div>
+                </div>
+              </div>
 
-          <div className="stat-card stat-card-green clickable" onClick={() => handleStatCardClick('/customers')}>
-            <div className="stat-value">{dashboard.stats?.activeCustomers || 0}</div>
-            <div className="stat-label">Active Customers</div>
-          </div>
+              <div className="mini-stat-card">
+                <div className="mini-stat-icon" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">£{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}</div>
+                  <div className="mini-stat-label">Outstanding ({dashboard.stats.outstandingInvoicesCount})</div>
+                </div>
+              </div>
 
-          <div className="stat-card stat-card-orange clickable" onClick={() => handleStatCardClick('/drivers')}>
-            <div className="stat-value">{dashboard.stats?.activeDrivers || 0}</div>
-            <div className="stat-label">Active Drivers</div>
-          </div>
+              <div className="mini-stat-card">
+                <div className="mini-stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">£{dashboard.stats.payrollCosts?.toLocaleString() || '0'}</div>
+                  <div className="mini-stat-label">Payroll</div>
+                </div>
+              </div>
 
-          <div className="stat-card stat-card-teal clickable" onClick={() => handleStatCardClick('/schedules')}>
-            <div className="stat-value">{dashboard.stats?.journeysToday || 0}</div>
-            <div className="stat-label">Journeys Today</div>
-          </div>
-
-          <div className="stat-card stat-card-indigo clickable" onClick={() => handleStatCardClick('/payroll')}>
-            <div className="stat-value">{dashboard.stats?.pendingApprovals || 0}</div>
-            <div className="stat-label">Approvals</div>
-          </div>
-
-          <div className="stat-card stat-card-red clickable">
-            <div className="stat-value">{dashboard.summary?.criticalTasks || 0}</div>
-            <div className="stat-label">Active Issues</div>
-          </div>
-
-          <div className="stat-card stat-card-amber clickable" onClick={() => handleStatCardClick('/invoices')}>
-            <div className="stat-value">£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
-            <div className="stat-label">Pending Payments</div>
+              <div className="mini-stat-card">
+                <div className="mini-stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">£{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}</div>
+                  <div className="mini-stat-label">Net Profit</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -855,72 +918,8 @@ function DashboardPage() {
             )}
           </div>
 
-          {/* ========== RIGHT SECTION: Financial Summary at top, then Compliance & Fleet ========== */}
+          {/* ========== RIGHT SECTION: Compliance & Fleet ========== */}
           <div className="dashboard-right-section">
-            {/* Financial Summary - Compact */}
-            <div style={{ marginBottom: '16px' }}>
-              <h3 className="dashboard-section-title">
-                Financial Summary
-                <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 400, marginLeft: '4px', display: 'block' }}>
-                  {new Date(dashboard.stats.monthStart).toLocaleDateString('en-GB', { month: 'short' })}
-                </span>
-              </h3>
-              <div className="dashboard-mini-grid" style={{ marginBottom: '12px' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', marginBottom: '4px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="1" x2="12" y2="23"/>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                  </div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
-                    £{dashboard.stats.revenueMTD?.toLocaleString() || '0'}
-                  </div>
-                  <div style={{ fontSize: '9px', color: '#475569' }}>Revenue MTD</div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', marginBottom: '4px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="2" y="5" width="20" height="14" rx="2"/>
-                      <line x1="2" y1="10" x2="22" y2="10"/>
-                    </svg>
-                  </div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
-                    £{dashboard.stats.outstandingInvoicesTotal?.toLocaleString() || '0'}
-                  </div>
-                  <div style={{ fontSize: '9px', color: '#475569' }}>
-                    Outstanding ({dashboard.stats.outstandingInvoicesCount})
-                  </div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', marginBottom: '4px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
-                    £{dashboard.stats.payrollCosts?.toLocaleString() || '0'}
-                  </div>
-                  <div style={{ fontSize: '9px', color: '#475569' }}>Payroll</div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', marginBottom: '4px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                  </div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
-                    £{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}
-                  </div>
-                  <div style={{ fontSize: '9px', color: '#475569' }}>Net Profit</div>
-                </div>
-              </div>
-            </div>
-
             {/* Driver Compliance - Compact */}
             <div style={{ marginBottom: '16px' }}>
               <h3 className="dashboard-section-title">Driver Compliance</h3>

@@ -68,7 +68,15 @@
    DASHBOARD RESPONSIVE LAYOUTS
    ============================================================================ */
 
-/* Dashboard layout - Two sections side by side */
+/* Dashboard top row - Stat cards and Financial Summary side by side */
+.dashboard-top-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Dashboard content wrapper - Below stat cards */
 .dashboard-content-wrapper {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -250,6 +258,10 @@
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
+  .dashboard-top-row {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-content-wrapper {
     grid-template-columns: 1fr;
   }
