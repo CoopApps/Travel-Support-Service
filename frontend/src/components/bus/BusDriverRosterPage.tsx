@@ -180,43 +180,15 @@ export default function BusDriverRosterPage() {
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
-        <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af', marginBottom: '2px', lineHeight: 1.2 }}>{drivers.length}</div>
-          <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Drivers</div>
-          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>All registered drivers</div>
-        </div>
-
-        <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#166534', marginBottom: '2px', lineHeight: 1.2 }}>{driversWithAssignments}</div>
-          <div style={{ fontSize: '10px', color: '#166534', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Assigned</div>
-          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Drivers with routes</div>
-        </div>
-
-        <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#c2410c', marginBottom: '2px', lineHeight: 1.2 }}>{driversAvailable}</div>
-          <div style={{ fontSize: '10px', color: '#c2410c', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Available</div>
-          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Ready for assignment</div>
-        </div>
-
-        <div style={{ background: '#f3e8ff', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#7e22ce', marginBottom: '2px', lineHeight: 1.2 }}>{totalAssignments}</div>
-          <div style={{ fontSize: '10px', color: '#7e22ce', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Services</div>
-          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Scheduled for today</div>
-        </div>
-      </div>
-
-      {/* Controls */}
+      {/* Date Navigation */}
       <div style={{
         background: '#fff',
         border: '1px solid #e5e7eb',
         borderRadius: '8px',
         padding: '1.5rem',
-        marginBottom: '2rem'
+        marginBottom: '1.5rem'
       }}>
-        {/* Date Navigation */}
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <button
             onClick={handlePreviousDay}
             style={{
@@ -283,8 +255,43 @@ export default function BusDriverRosterPage() {
             </span>
           </button>
         </div>
+      </div>
 
-        {/* Search and Filters */}
+      {/* Stats Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+        <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af', marginBottom: '2px', lineHeight: 1.2 }}>{drivers.length}</div>
+          <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Drivers</div>
+          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>All registered drivers</div>
+        </div>
+
+        <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#166534', marginBottom: '2px', lineHeight: 1.2 }}>{driversWithAssignments}</div>
+          <div style={{ fontSize: '10px', color: '#166534', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Assigned</div>
+          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Drivers with routes</div>
+        </div>
+
+        <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#c2410c', marginBottom: '2px', lineHeight: 1.2 }}>{driversAvailable}</div>
+          <div style={{ fontSize: '10px', color: '#c2410c', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Available</div>
+          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Ready for assignment</div>
+        </div>
+
+        <div style={{ background: '#f3e8ff', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#7e22ce', marginBottom: '2px', lineHeight: 1.2 }}>{totalAssignments}</div>
+          <div style={{ fontSize: '10px', color: '#7e22ce', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Services</div>
+          <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Scheduled for today</div>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div style={{
+        background: '#fff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '1.5rem',
+        marginBottom: '2rem'
+      }}>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <input
             type="text"
