@@ -920,9 +920,9 @@ function DashboardPage() {
 
           {/* ========== RIGHT SECTION: Compliance & Fleet ========== */}
           <div className="dashboard-right-section">
-            {/* Driver Compliance - Compact */}
-            <div style={{ marginBottom: '16px' }}>
-              <h3 className="dashboard-section-title">Driver Compliance</h3>
+            {/* Driver Compliance */}
+            <div className="dashboard-section" style={{ marginBottom: '20px' }}>
+              <div className="dashboard-section-header">Driver Compliance</div>
               <div className="dashboard-mini-grid">
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', marginBottom: '4px' }}>
@@ -981,10 +981,10 @@ function DashboardPage() {
               </div>
             </div>
 
-            {/* Fleet Utilization - Compact */}
+            {/* Fleet Utilization */}
             {dashboard.fleet && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3 className="dashboard-section-title">Fleet Utilization</h3>
+              <div className="dashboard-section">
+                <div className="dashboard-section-header">Fleet Utilization</div>
                 <div className="dashboard-mini-grid">
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px' }}>
                     <div style={{ width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', marginBottom: '4px' }}>
