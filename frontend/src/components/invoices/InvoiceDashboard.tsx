@@ -133,24 +133,25 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
       {/* Key Stats */}
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
-          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb', marginBottom: '4px' }}>{stats.totalInvoices}</div>
-            <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Invoices</div>
+          <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af', marginBottom: '2px', lineHeight: 1.2 }}>{stats.totalInvoices}</div>
+            <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Invoices</div>
+            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>All time records</div>
           </div>
-          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#16a34a', marginBottom: '4px' }}>{formatCurrency(stats.totalPaid)}</div>
-            <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Paid</div>
+          <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#166534', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalPaid)}</div>
+            <div style={{ fontSize: '10px', color: '#166534', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Paid</div>
+            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Collected revenue</div>
           </div>
-          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#ea580c', marginBottom: '4px' }}>{formatCurrency(stats.totalPending)}</div>
-            <div style={{ fontSize: '11px', color: '#ea580c', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
+          <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#c2410c', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalPending)}</div>
+            <div style={{ fontSize: '10px', color: '#c2410c', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Pending</div>
+            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Awaiting payment</div>
           </div>
-          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#9333ea', marginBottom: '4px' }}>{formatCurrency(stats.totalOverdue)}</div>
-            <div style={{ fontSize: '11px', color: '#9333ea', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Overdue</div>
-            {stats.totalOverdue > 0 && (
-              <div style={{ fontSize: '10px', color: '#6b7280' }}>Requires attention</div>
-            )}
+          <div style={{ background: '#f3e8ff', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#7e22ce', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalOverdue)}</div>
+            <div style={{ fontSize: '10px', color: '#7e22ce', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Overdue</div>
+            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>{stats.totalOverdue > 0 ? 'Requires attention' : 'No overdue invoices'}</div>
           </div>
         </div>
       )}

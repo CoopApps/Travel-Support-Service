@@ -15,11 +15,31 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value, subtitle, color }: StatCardProps) {
+  const getBackgroundColor = (textColor: string) => {
+    const colorMap: { [key: string]: string } = {
+      '#2563eb': '#dbeafe', // blue
+      '#16a34a': '#dcfce7', // green
+      '#ea580c': '#ffedd5', // orange
+      '#9333ea': '#f3e8ff'  // purple
+    };
+    return colorMap[textColor] || '#f9fafb';
+  };
+
+  const getDarkerColor = (textColor: string) => {
+    const colorMap: { [key: string]: string } = {
+      '#2563eb': '#1e40af', // blue
+      '#16a34a': '#166534', // green
+      '#ea580c': '#c2410c', // orange
+      '#9333ea': '#7e22ce'  // purple
+    };
+    return colorMap[textColor] || textColor;
+  };
+
   return (
-    <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: '24px', fontWeight: 700, color, marginBottom: '4px' }}>{value}</div>
-      <div style={{ fontSize: '11px', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{label}</div>
-      {subtitle && <div style={{ fontSize: '10px', color: '#6b7280' }}>{subtitle}</div>}
+    <div style={{ background: getBackgroundColor(color), padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+      <div style={{ fontSize: '20px', fontWeight: 700, color: getDarkerColor(color), marginBottom: '2px', lineHeight: 1.2 }}>{value}</div>
+      <div style={{ fontSize: '10px', color: getDarkerColor(color), fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>{label}</div>
+      {subtitle && <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>{subtitle}</div>}
     </div>
   );
 }
@@ -63,9 +83,9 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
   if (loading) {
     return (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
-        <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb', opacity: 0.5 }}>
-          <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>...</div>
-          <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, textTransform: 'uppercase' }}>Loading...</div>
+        <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: 0.5 }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af' }}>...</div>
+          <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase' }}>Loading...</div>
         </div>
       </div>
     );
