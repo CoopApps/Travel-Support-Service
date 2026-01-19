@@ -36,9 +36,28 @@ function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(() => {
+    // Load dismissed alerts from localStorage
+    const saved = localStorage.getItem('dismissedAlerts');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Filter out alerts older than 24 hours
+        const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const valid = Object.entries(parsed)
+          .filter(([_, timestamp]) => (timestamp as number) > dayAgo)
+          .reduce((acc, [key]) => acc.add(key), new Set<string>());
+        return valid;
+      } catch {
+        return new Set<string>();
+      }
+    }
+    return new Set<string>();
+  });
   const [profitability, setProfitability] = useState<any>(null);
   const [loadingProfitability, setLoadingProfitability] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | '30days'>('today');
 
   // Quick Actions State
   const [showIncidentModal, setShowIncidentModal] = useState(false);
@@ -81,6 +100,7 @@ function DashboardPage() {
       setError('');
       const data = await dashboardApi.getOverview(user.tenantId);
       setDashboard(data);
+      setLastUpdated(new Date());
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Failed to load dashboard');
     } finally {
@@ -110,7 +130,16 @@ function DashboardPage() {
   };
 
   const dismissAlert = (alertId: string) => {
-    setDismissedAlerts(prev => new Set([...prev, alertId]));
+    setDismissedAlerts(prev => {
+      const newSet = new Set([...prev, alertId]);
+      // Persist to localStorage with timestamp
+      const storage: Record<string, number> = {};
+      newSet.forEach(id => {
+        storage[id] = Date.now();
+      });
+      localStorage.setItem('dismissedAlerts', JSON.stringify(storage));
+      return newSet;
+    });
   };
 
   // Quick Actions Handlers
@@ -466,6 +495,39 @@ function DashboardPage() {
 
   const alerts = generateAlerts().filter(alert => !dismissedAlerts.has(alert.id));
 
+  // Helper to get relative time
+  const getRelativeTime = (date: Date): string => {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? 's' : ''} ago`;
+  };
+
+  // Helper to navigate from stat cards
+  const handleStatCardClick = (destination: string) => {
+    navigate(destination);
+  };
+
+  // Helper to navigate from alerts
+  const getAlertNavigationPath = (alert: Alert): string | null => {
+    if (alert.id.startsWith('expired-mot') || alert.id.startsWith('expiring-mot')) return '/vehicles';
+    if (alert.id.startsWith('safeguarding')) return '/safeguarding';
+    if (alert.id.startsWith('overdue-invoice')) return '/invoices';
+    if (alert.id.startsWith('expired-doc') || alert.id.startsWith('critical-doc') || alert.id.startsWith('warning-doc')) return '/documents';
+    if (alert.id.startsWith('timesheet')) return '/payroll';
+    if (alert.id.startsWith('leave')) return '/drivers';
+    if (alert.id.startsWith('training')) return '/training';
+    if (alert.id.startsWith('permit')) return '/permits';
+    if (alert.id.startsWith('unassigned')) return '/schedules';
+    if (alert.id.startsWith('holiday')) return '/holidays';
+    if (alert.id.startsWith('outing')) return '/outings';
+    return null;
+  };
+
   const getAlertStyles = (type: 'critical' | 'warning' | 'info') => {
     switch (type) {
       case 'critical':
@@ -513,210 +575,223 @@ function DashboardPage() {
 
   return (
     <div style={{ padding: '0.75rem' }}>
-      {/* Refresh Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
-        <button
-          onClick={loadDashboard}
-          disabled={loading}
-          title="Refresh"
-          style={{
-            padding: '6px 8px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            opacity: loading ? 0.6 : 1
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
-            <polyline points="23 4 23 10 17 10"/>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      {/* Dashboard Header */}
+      <div className="dashboard-header">
+        <div className="dashboard-header-left">
+          <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            Dashboard
+          </h1>
+          <div className={`dashboard-last-updated ${loading ? 'refreshing' : ''}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Updated {getRelativeTime(lastUpdated)}
+          </div>
+        </div>
+        <div className="dashboard-header-right">
+          {/* Date Range Selector */}
+          <div className="date-range-selector">
+            <button
+              className={`date-range-btn ${dateRange === 'today' ? 'active' : ''}`}
+              onClick={() => setDateRange('today')}
+            >
+              Today
+            </button>
+            <button
+              className={`date-range-btn ${dateRange === 'week' ? 'active' : ''}`}
+              onClick={() => setDateRange('week')}
+            >
+              Week
+            </button>
+            <button
+              className={`date-range-btn ${dateRange === 'month' ? 'active' : ''}`}
+              onClick={() => setDateRange('month')}
+            >
+              Month
+            </button>
+            <button
+              className={`date-range-btn ${dateRange === '30days' ? 'active' : ''}`}
+              onClick={() => setDateRange('30days')}
+            >
+              30 Days
+            </button>
+          </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={loadDashboard}
+            disabled={loading}
+            className={`refresh-btn ${loading ? 'refreshing' : ''}`}
+            title="Refresh dashboard"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="dashboard-quick-actions">
+        <button className="quick-action-btn" onClick={handleReportIncident}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
+          Report Incident
+        </button>
+        <button className="quick-action-btn" onClick={handleReportSafeguarding}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Safeguarding
+        </button>
+        <button className="quick-action-btn" onClick={handleLogLateArrival}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Log Late Arrival
+        </button>
+        <button className="quick-action-btn" onClick={handleViewTodaySchedule}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Today's Schedule
+        </button>
+        <button className="quick-action-btn" onClick={handleViewTomorrowSchedule}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Tomorrow's Schedule
+        </button>
+        <button className="quick-action-btn" onClick={handleExportReport}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export Report
         </button>
       </div>
 
       {/* Stats Cards - Compact */}
       {dashboard && (
-        <div className="stats-grid" style={{ marginBottom: '0.75rem' }}>
-          <div className="stat-card stat-card-purple" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Revenue This Week</div>
+        <div className="stats-grid">
+          <div className="stat-card stat-card-purple clickable" onClick={() => handleStatCardClick('/invoices')}>
+            <div className="stat-value">£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
+            <div className="stat-label">Revenue This Week</div>
           </div>
 
-          <div className="stat-card stat-card-blue" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.journeysThisWeek || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Journeys This Week</div>
+          <div className="stat-card stat-card-blue clickable" onClick={() => handleStatCardClick('/schedules')}>
+            <div className="stat-value">{dashboard.stats?.journeysThisWeek || 0}</div>
+            <div className="stat-label">Journeys This Week</div>
           </div>
 
-          <div className="stat-card stat-card-green" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.activeCustomers || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Active Customers</div>
+          <div className="stat-card stat-card-green clickable" onClick={() => handleStatCardClick('/customers')}>
+            <div className="stat-value">{dashboard.stats?.activeCustomers || 0}</div>
+            <div className="stat-label">Active Customers</div>
           </div>
 
-          <div className="stat-card stat-card-orange" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.activeDrivers || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Active Drivers</div>
+          <div className="stat-card stat-card-orange clickable" onClick={() => handleStatCardClick('/drivers')}>
+            <div className="stat-value">{dashboard.stats?.activeDrivers || 0}</div>
+            <div className="stat-label">Active Drivers</div>
           </div>
 
-          <div className="stat-card stat-card-teal" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.journeysToday || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Journeys Today</div>
+          <div className="stat-card stat-card-teal clickable" onClick={() => handleStatCardClick('/schedules')}>
+            <div className="stat-value">{dashboard.stats?.journeysToday || 0}</div>
+            <div className="stat-label">Journeys Today</div>
           </div>
 
-          <div className="stat-card stat-card-indigo" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.stats?.pendingApprovals || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Approvals</div>
+          <div className="stat-card stat-card-indigo clickable" onClick={() => handleStatCardClick('/payroll')}>
+            <div className="stat-value">{dashboard.stats?.pendingApprovals || 0}</div>
+            <div className="stat-label">Approvals</div>
           </div>
 
-          <div className="stat-card stat-card-red" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>{dashboard.summary?.criticalTasks || 0}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Active Issues</div>
+          <div className="stat-card stat-card-red clickable">
+            <div className="stat-value">{dashboard.summary?.criticalTasks || 0}</div>
+            <div className="stat-label">Active Issues</div>
           </div>
 
-          <div className="stat-card stat-card-amber" style={{ padding: '0.75rem' }}>
-            <div className="stat-value" style={{ fontSize: '20px' }}>£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
-            <div className="stat-label" style={{ fontSize: '11px' }}>Pending Payments</div>
-          </div>
-        </div>
-      )}
-
-      {/* Profitability KPIs - Last 30 Days */}
-      {profitability && profitability.overview && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '0.5rem'
-          }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
-              Financial Performance (Last 30 Days)
-            </h3>
-            <button
-              onClick={() => navigate('/admin')}
-              style={{
-                padding: '4px 10px',
-                fontSize: '11px',
-                background: 'transparent',
-                border: '1px solid #cbd5e1',
-                borderRadius: '4px',
-                color: '#475569',
-                cursor: 'pointer',
-                fontWeight: 500
-              }}
-            >
-              View Details →
-            </button>
-          </div>
-
-          <div className="dashboard-financial-row">
-            {/* Total Revenue */}
-            <div style={{
-              background: 'white',
-              borderRadius: '4px',
-              padding: '10px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
-                Revenue
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#9333ea' }}>
-                £{profitability.overview.totalRevenue.toLocaleString()}
-              </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
-                {profitability.trips.completed} trips
-              </div>
-            </div>
-
-            {/* Total Costs */}
-            <div style={{
-              background: 'white',
-              borderRadius: '4px',
-              padding: '10px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
-                Costs
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>
-                £{profitability.overview.totalCosts.toLocaleString()}
-              </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
-                Wages: {profitability.costPercentages.wages}%
-              </div>
-            </div>
-
-            {/* Net Profit */}
-            <div style={{
-              background: 'white',
-              borderRadius: '4px',
-              padding: '10px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
-                Net Profit
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: profitability.overview.profitable ? '#16a34a' : '#dc2626' }}>
-                {profitability.overview.profitable ? '£' : '-£'}
-                {Math.abs(profitability.overview.netProfit).toLocaleString()}
-              </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
-                {profitability.overview.profitable ? 'Profitable' : 'Loss'}
-              </div>
-            </div>
-
-            {/* Profit Margin */}
-            <div style={{
-              background: 'white',
-              borderRadius: '4px',
-              padding: '10px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '2px', fontWeight: 500, textTransform: 'uppercase' }}>
-                Margin
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#2563eb' }}>
-                {profitability.overview.profitMargin.toFixed(1)}%
-              </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
-                £{profitability.trips.averageRevenue}/trip
-              </div>
-            </div>
+          <div className="stat-card stat-card-amber clickable" onClick={() => handleStatCardClick('/invoices')}>
+            <div className="stat-value">£{dashboard.stats?.pendingPayments?.toLocaleString() || '0'}</div>
+            <div className="stat-label">Pending Payments</div>
           </div>
         </div>
       )}
 
-      {/* Main Two Column Layout */}
+      {/* Main Three Column Layout */}
       {dashboard && (
         <div className="dashboard-main-grid">
 
-          {/* ========== LEFT COLUMN: Alerts, Today's Data ========== */}
+          {/* ========== LEFT COLUMN: Financial Performance ========== */}
           <div>
-            {/* Active Alerts - Always visible */}
-            <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
+            {profitability && profitability.overview && (
+              <div className="dashboard-section">
+                <div className="dashboard-section-header">
+                  Financial Performance
+                  <span className="section-subtext">(Last 30 Days)</span>
+                </div>
+
+                <div className="dashboard-financial-row">
+                  <div className="financial-metric">
+                    <div className="financial-metric-label">Revenue</div>
+                    <div className="financial-metric-value">£{profitability.overview.totalRevenue.toLocaleString()}</div>
+                    <div className="financial-metric-subtitle">{profitability.trips.completed} trips</div>
+                  </div>
+
+                  <div className="financial-metric">
+                    <div className="financial-metric-label">Costs</div>
+                    <div className="financial-metric-value" style={{ color: '#dc2626' }}>£{profitability.overview.totalCosts.toLocaleString()}</div>
+                    <div className="financial-metric-subtitle">Wages: {profitability.costPercentages.wages}%</div>
+                  </div>
+
+                  <div className="financial-metric">
+                    <div className="financial-metric-label">Net Profit</div>
+                    <div className="financial-metric-value" style={{ color: profitability.overview.profitable ? '#16a34a' : '#dc2626' }}>
+                      {profitability.overview.profitable ? '£' : '-£'}
+                      {Math.abs(profitability.overview.netProfit).toLocaleString()}
+                    </div>
+                    <div className="financial-metric-subtitle">{profitability.overview.profitable ? 'Profitable' : 'Loss'}</div>
+                  </div>
+
+                  <div className="financial-metric">
+                    <div className="financial-metric-label">Margin</div>
+                    <div className="financial-metric-value" style={{ color: '#2563eb' }}>{profitability.overview.profitMargin.toFixed(1)}%</div>
+                    <div className="financial-metric-subtitle">£{profitability.trips.averageRevenue}/trip</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ========== MIDDLE COLUMN: Active Alerts ========== */}
+          <div>
+            <div className="active-alerts-section">
+              <div className="active-alerts-header">
                 Active Alerts ({alerts.length})
-              </h3>
+              </div>
               {alerts.length === 0 ? (
-                <div style={{
-                  background: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: '8px',
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  color: '#166534',
-                  textAlign: 'center'
-                }}>
+                <div className="alert-all-clear">
                   All clear - no active alerts
                 </div>
               ) : (
-                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <div className="alerts-container">
                   {alerts.map(alert => {
                     const styles = getAlertStyles(alert.type);
+                    const navPath = getAlertNavigationPath(alert);
                     return (
-                      <div key={alert.id} style={{
+                      <div key={alert.id} className="alert-item" style={{
                         background: styles.bg,
                         border: `1px solid ${styles.border}`,
                         borderRadius: '8px',
@@ -729,24 +804,44 @@ function DashboardPage() {
                             <div style={{ fontSize: '13px', fontWeight: 600, color: styles.textColor, marginBottom: '4px' }}>
                               {alert.message}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: navPath ? '0.5rem' : '0' }}>
                               {alert.instructions}
                             </div>
+                            {navPath && (
+                              <div className="alert-actions">
+                                <button
+                                  className="alert-action-btn"
+                                  onClick={() => navigate(navPath)}
+                                  style={{ color: styles.textColor }}
+                                >
+                                  View Details →
+                                </button>
+                                <button
+                                  className="alert-action-btn"
+                                  onClick={() => dismissAlert(alert.id)}
+                                  style={{ color: '#64748b' }}
+                                >
+                                  Dismiss
+                                </button>
+                              </div>
+                            )}
                           </div>
-                          <button
-                            onClick={() => dismissAlert(alert.id)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: '#64748b',
-                              cursor: 'pointer',
-                              padding: '0 4px',
-                              fontSize: '16px',
-                              lineHeight: '1'
-                            }}
-                          >
-                            ×
-                          </button>
+                          {!navPath && (
+                            <button
+                              onClick={() => dismissAlert(alert.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#64748b',
+                                cursor: 'pointer',
+                                padding: '0 4px',
+                                fontSize: '16px',
+                                lineHeight: '1'
+                              }}
+                            >
+                              ×
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

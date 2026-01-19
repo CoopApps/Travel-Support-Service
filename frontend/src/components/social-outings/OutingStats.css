@@ -5,14 +5,14 @@
 .outing-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
+  gap: 8px;
   margin-bottom: var(--space-6);
 }
 
 .outing-stats-grid .stat-card {
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  text-align: left;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
   min-height: 95px;
   display: flex;
   flex-direction: column;
@@ -28,20 +28,21 @@
 
 .outing-stats-grid .stat-value {
   font-size: 20px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   margin: 0;
-  line-height: var(--line-height-none);
+  line-height: 1.2;
   color: inherit;
 }
 
 .outing-stats-grid .stat-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.3px;
   display: block;
-  margin: var(--space-1-5) 0 0 0;
+  margin-top: 2px;
   color: inherit;
+  opacity: 0.85;
 }
 
 .outing-stats-grid .stat-subtitle {

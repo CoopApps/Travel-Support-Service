@@ -230,6 +230,23 @@ function NotificationBell() {
                   </div>
                 )}
 
+                {dashboard?.tasks.expiringDocuments && dashboard.tasks.expiringDocuments.items && dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length > 0 && (
+                  <div className="notification-item notification-critical">
+                    <div className="notification-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                      </svg>
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expired/Critical Documents</div>
+                      <div className="notification-message">{dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length} document{dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'expired' || d.expiry_status === 'critical').length !== 1 ? 's' : ''} need immediate attention</div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Approvals */}
                 {dashboard?.tasks.pendingLeaveRequests && dashboard.tasks.pendingLeaveRequests.count > 0 && (
                   <div className="notification-item notification-warning">
@@ -338,6 +355,23 @@ function NotificationBell() {
                     <div className="notification-content">
                       <div className="notification-type">Expiring Permits</div>
                       <div className="notification-message">{dashboard.tasks.expiringPermits.count} permit{dashboard.tasks.expiringPermits.count !== 1 ? 's' : ''} expiring soon</div>
+                    </div>
+                  </div>
+                )}
+
+                {dashboard?.tasks.expiringDocuments && dashboard.tasks.expiringDocuments.items && dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'warning').length > 0 && (
+                  <div className="notification-item notification-warning">
+                    <div className="notification-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                      </svg>
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-type">Expiring Documents</div>
+                      <div className="notification-message">{dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'warning').length} document{dashboard.tasks.expiringDocuments.items.filter((d: any) => d.expiry_status === 'warning').length !== 1 ? 's' : ''} expiring within 30 days</div>
                     </div>
                   </div>
                 )}
