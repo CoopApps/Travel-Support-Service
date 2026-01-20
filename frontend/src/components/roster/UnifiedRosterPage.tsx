@@ -280,18 +280,6 @@ export default function UnifiedRosterPage() {
         </div>
       )}
 
-      {/* Summary Stats - Compact */}
-      <RosterStats
-        stats={{
-          drivers: Object.keys(entriesByDriver).length,
-          assignments: filteredEntries.length,
-          transport: filteredEntries.filter(e => e.service_type === 'transport').length,
-          bus: filteredEntries.filter(e => e.service_type === 'bus').length
-        }}
-        loading={loading}
-        showServiceType={showServiceType}
-      />
-
       {/* View Toggle and Date Navigation */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* View Toggle - Pill Style */}
@@ -383,6 +371,18 @@ export default function UnifiedRosterPage() {
           </select>
         </div>
       </div>
+
+      {/* Summary Stats */}
+      <RosterStats
+        stats={{
+          drivers: Object.keys(entriesByDriver).length,
+          assignments: filteredEntries.length,
+          transport: filteredEntries.filter(e => e.service_type === 'transport').length,
+          bus: filteredEntries.filter(e => e.service_type === 'bus').length
+        }}
+        loading={loading}
+        showServiceType={showServiceType}
+      />
 
       {/* Roster Content */}
       {Object.keys(entriesByDriver).length === 0 ? (

@@ -84,6 +84,16 @@
   color: var(--color-brand-800);
 }
 
+.roster-stats-grid .stat-card-red {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
+}
+
+.roster-stats-grid .stat-card-amber {
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
+}
+
 .roster-stats-grid .stat-subtitle {
   font-size: 11px;
   font-weight: 400;
