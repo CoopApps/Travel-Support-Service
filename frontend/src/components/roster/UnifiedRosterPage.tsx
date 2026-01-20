@@ -281,7 +281,7 @@ export default function UnifiedRosterPage() {
       )}
 
       {/* View Toggle and Date Navigation */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* View Toggle - Pill Style */}
         <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
@@ -333,6 +333,18 @@ export default function UnifiedRosterPage() {
         </div>
       </div>
 
+      {/* Summary Stats */}
+      <RosterStats
+        stats={{
+          drivers: Object.keys(entriesByDriver).length,
+          assignments: filteredEntries.length,
+          transport: filteredEntries.filter(e => e.service_type === 'transport').length,
+          bus: filteredEntries.filter(e => e.service_type === 'bus').length
+        }}
+        loading={loading}
+        showServiceType={showServiceType}
+      />
+
       {/* Calendar and Filters */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* Date Picker */}
@@ -371,18 +383,6 @@ export default function UnifiedRosterPage() {
           </select>
         </div>
       </div>
-
-      {/* Summary Stats */}
-      <RosterStats
-        stats={{
-          drivers: Object.keys(entriesByDriver).length,
-          assignments: filteredEntries.length,
-          transport: filteredEntries.filter(e => e.service_type === 'transport').length,
-          bus: filteredEntries.filter(e => e.service_type === 'bus').length
-        }}
-        loading={loading}
-        showServiceType={showServiceType}
-      />
 
       {/* Roster Content */}
       {Object.keys(entriesByDriver).length === 0 ? (
