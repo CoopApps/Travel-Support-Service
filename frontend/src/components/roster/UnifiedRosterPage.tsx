@@ -4,6 +4,7 @@ import { useServiceContext } from '../../contexts/ServiceContext';
 import { tripApi, driverApi } from '../../services/api';
 import { busTimetablesApi, busRosterApi } from '../../services/busApi';
 import { CalendarIcon, UserIcon, ClockIcon, BusIcon, ArrowLeftIcon, ArrowRightIcon } from '../icons/BusIcons';
+import RosterStats from './RosterStats';
 import './UnifiedRosterPage.css';
 
 interface Driver {
@@ -280,32 +281,16 @@ export default function UnifiedRosterPage() {
       )}
 
       {/* Summary Stats - Compact */}
-      <div className="roster-stats-grid">
-        <div className="stat-card stat-card-blue">
-          <div className="stat-value">{Object.keys(entriesByDriver).length}</div>
-          <div className="stat-label">Drivers</div>
-          <div className="stat-subtitle">On duty today</div>
-        </div>
-        <div className="stat-card stat-card-green">
-          <div className="stat-value">{filteredEntries.length}</div>
-          <div className="stat-label">Assignments</div>
-          <div className="stat-subtitle">Total scheduled</div>
-        </div>
-        {showServiceType && (
-          <>
-            <div className="stat-card stat-card-purple">
-              <div className="stat-value">{filteredEntries.filter(e => e.service_type === 'transport').length}</div>
-              <div className="stat-label">Transport</div>
-              <div className="stat-subtitle">Travel support trips</div>
-            </div>
-            <div className="stat-card stat-card-orange">
-              <div className="stat-value">{filteredEntries.filter(e => e.service_type === 'bus').length}</div>
-              <div className="stat-label">Bus</div>
-              <div className="stat-subtitle">Bus routes</div>
-            </div>
-          </>
-        )}
-      </div>
+      <RosterStats
+        stats={{
+          drivers: Object.keys(entriesByDriver).length,
+          assignments: filteredEntries.length,
+          transport: filteredEntries.filter(e => e.service_type === 'transport').length,
+          bus: filteredEntries.filter(e => e.service_type === 'bus').length
+        }}
+        loading={loading}
+        showServiceType={showServiceType}
+      />
 
       {/* View Toggle and Date Navigation */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
