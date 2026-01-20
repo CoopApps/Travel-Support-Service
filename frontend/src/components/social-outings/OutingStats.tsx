@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { OutingStats as OutingStatsType } from '../../types';
 import socialOutingsApi from '../../services/socialOutingsApi';
+import './OutingStats.css';
 
 interface OutingStatsProps {
   tenantId: number;
@@ -11,35 +12,15 @@ interface StatCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  color: string;
+  theme: 'blue' | 'green' | 'orange' | 'purple';
 }
 
-function StatCard({ label, value, subtitle, color }: StatCardProps) {
-  const getBackgroundColor = (textColor: string) => {
-    const colorMap: { [key: string]: string } = {
-      '#2563eb': '#dbeafe', // blue
-      '#16a34a': '#dcfce7', // green
-      '#ea580c': '#ffedd5', // orange
-      '#9333ea': '#f3e8ff'  // purple
-    };
-    return colorMap[textColor] || '#f9fafb';
-  };
-
-  const getDarkerColor = (textColor: string) => {
-    const colorMap: { [key: string]: string } = {
-      '#2563eb': '#1e40af', // blue
-      '#16a34a': '#166534', // green
-      '#ea580c': '#c2410c', // orange
-      '#9333ea': '#7e22ce'  // purple
-    };
-    return colorMap[textColor] || textColor;
-  };
-
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div style={{ background: getBackgroundColor(color), padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-      <div style={{ fontSize: '20px', fontWeight: 700, color: getDarkerColor(color), marginBottom: '2px', lineHeight: 1.2 }}>{value}</div>
-      <div style={{ fontSize: '10px', color: getDarkerColor(color), fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>{label}</div>
-      {subtitle && <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>{subtitle}</div>}
+    <div className={`stat-card stat-card-${theme}`}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
     </div>
   );
 }
@@ -82,10 +63,10 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
 
   if (loading) {
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
-        <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: 0.5 }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af' }}>...</div>
-          <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase' }}>Loading...</div>
+      <div className="outing-stats-grid">
+        <div className="stat-card stat-card-blue" style={{ opacity: 0.5 }}>
+          <div className="stat-value">...</div>
+          <div className="stat-label">Loading...</div>
         </div>
       </div>
     );
@@ -100,30 +81,30 @@ function OutingStats({ tenantId, onStatsLoaded }: OutingStatsProps) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' }}>
+    <div className="outing-stats-grid">
       <StatCard
         label="Total Outings"
         value={stats.total.toString()}
         subtitle={`${stats.upcoming} Upcoming • ${stats.past} Past`}
-        color="#2563eb"
+        theme="blue"
       />
       <StatCard
         label="Upcoming"
         value={stats.upcoming.toString()}
         subtitle="Scheduled outings"
-        color="#16a34a"
+        theme="green"
       />
       <StatCard
         label="Total Bookings"
         value={stats.total_bookings.toString()}
         subtitle="All confirmed bookings"
-        color="#ea580c"
+        theme="orange"
       />
       <StatCard
         label="Wheelchair Users"
         value={stats.wheelchair_users.toString()}
         subtitle="Require accessible vehicles"
-        color="#9333ea"
+        theme="purple"
       />
     </div>
   );
