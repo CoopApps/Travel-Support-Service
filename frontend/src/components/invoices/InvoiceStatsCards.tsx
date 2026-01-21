@@ -8,17 +8,17 @@ interface Props {
 
 interface StatCardProps {
   label: string;
-  value: string;
-  subtitle?: string;
-  theme: 'blue' | 'green' | 'orange' | 'purple' | 'violet' | 'cyan';
+  value: number | string;
+  subtitle: string;
+  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo';
 }
 
 function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
+    <div className={'stat-card stat-card-' + theme}>
       <div className="stat-value">{value}</div>
       <div className="stat-label">{label}</div>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
+      <div className="stat-subtitle">{subtitle}</div>
     </div>
   );
 }
@@ -39,39 +39,39 @@ export const InvoiceStatsCards: React.FC<Props> = ({ stats }) => {
     <div className="invoice-stats-grid">
       <StatCard
         label="Total Invoices"
-        value={stats.totalInvoices.toString()}
+        value={stats.totalInvoices}
+        subtitle="All invoices"
         theme="blue"
       />
-
       <StatCard
         label="Total Paid"
         value={formatCurrency(stats.totalPaid)}
+        subtitle="Received payments"
         theme="green"
       />
-
       <StatCard
         label="Total Pending"
         value={formatCurrency(stats.totalPending)}
+        subtitle="Awaiting payment"
         theme="orange"
       />
-
       <StatCard
         label="Overdue"
-        value={stats.totalOverdue.toString()}
-        subtitle={stats.totalOverdue > 0 ? 'Requires attention' : undefined}
+        value={stats.totalOverdue}
+        subtitle={stats.totalOverdue > 0 ? 'Requires attention' : 'None overdue'}
         theme="purple"
       />
-
       <StatCard
         label="Collection Rate"
         value={`${stats.collectionRate}%`}
-        theme="violet"
+        subtitle="Payment success rate"
+        theme="teal"
       />
-
       <StatCard
         label="Avg Days to Pay"
         value={`${stats.avgDaysToPay} days`}
-        theme="cyan"
+        subtitle="Average payment time"
+        theme="indigo"
       />
     </div>
   );
