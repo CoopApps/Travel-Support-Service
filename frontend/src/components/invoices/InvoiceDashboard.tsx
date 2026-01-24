@@ -132,26 +132,26 @@ export const InvoiceDashboard: React.FC<Props> = ({ tenantId }) => {
     <div className="invoice-dashboard">
       {/* Key Stats */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
-          <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e40af', marginBottom: '2px', lineHeight: 1.2 }}>{stats.totalInvoices}</div>
-            <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Total Invoices</div>
-            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>All time records</div>
+        <div className="stats-grid">
+          <div className="stat-card stat-card-blue">
+            <div className="stat-value">{stats.totalInvoices}</div>
+            <div className="stat-label">Total Invoices</div>
+            <div className="stat-subtitle">All time records</div>
           </div>
-          <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#166534', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalPaid)}</div>
-            <div style={{ fontSize: '10px', color: '#166534', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Paid</div>
-            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Collected revenue</div>
+          <div className="stat-card stat-card-green">
+            <div className="stat-value">{formatCurrency(stats.totalPaid)}</div>
+            <div className="stat-label">Paid</div>
+            <div className="stat-subtitle">Collected revenue</div>
           </div>
-          <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#c2410c', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalPending)}</div>
-            <div style={{ fontSize: '10px', color: '#c2410c', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Pending</div>
-            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>Awaiting payment</div>
+          <div className="stat-card stat-card-orange">
+            <div className="stat-value">{formatCurrency(stats.totalPending)}</div>
+            <div className="stat-label">Pending</div>
+            <div className="stat-subtitle">Awaiting payment</div>
           </div>
-          <div style={{ background: '#f3e8ff', padding: '12px', borderRadius: '6px', minHeight: '95px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#7e22ce', marginBottom: '2px', lineHeight: 1.2 }}>{formatCurrency(stats.totalOverdue)}</div>
-            <div style={{ fontSize: '10px', color: '#7e22ce', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px', opacity: 0.85, marginTop: '2px' }}>Overdue</div>
-            <div style={{ fontSize: '10px', fontWeight: 400, color: '#6b7280', lineHeight: 1.3 }}>{stats.totalOverdue > 0 ? 'Requires attention' : 'No overdue invoices'}</div>
+          <div className="stat-card stat-card-purple">
+            <div className="stat-value">{formatCurrency(stats.totalOverdue)}</div>
+            <div className="stat-label">Overdue</div>
+            <div className="stat-subtitle">{stats.totalOverdue > 0 ? 'Requires attention' : 'No overdue invoices'}</div>
           </div>
         </div>
       )}
