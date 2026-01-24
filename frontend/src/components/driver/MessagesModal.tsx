@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { driverDashboardApi } from '../../services/driverDashboardApi';
+import './DriverMessagesModal.css';
 
 interface MessagesModalProps {
   tenantId: number;
@@ -53,6 +54,24 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
       loadMessagesToOffice();
     }
   }, [tenantId, driverId, activeTab]);
+
+  // Clear messages when switching tabs
+  useEffect(() => {
+    setMessages([]);
+    setMessagesToOffice([]);
+  }, [activeTab]);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const loadMessages = async () => {
     setLoading(true);
@@ -142,16 +161,16 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
-      case 'high': return '#dc3545';
-      case 'medium': return '#fd7e14';
-      case 'low': return '#6c757d';
-      default: return '#6c757d';
+      case 'high': return 'var(--color-danger-500)';
+      case 'medium': return 'var(--color-warning-500)';
+      case 'low': return 'var(--color-gray-600)';
+      default: return 'var(--color-gray-600)';
     }
   };
 
-  const getPriorityLabel = (priority: string) => {
+  const getPriorityLabel = (priority: string): string => {
     switch (priority) {
       case 'high': return 'Important';
       case 'medium': return 'Notice';
@@ -160,19 +179,28 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
     }
   };
 
-  const unreadCount = messages.filter(m => !m.read).length;
-  const pendingCount = messagesToOffice.filter(m => m.status === 'pending').length;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return '#fd7e14';
-      case 'read': return '#2196f3';
-      case 'resolved': return '#10b981';
-      default: return '#6c757d';
+  const getPriorityClass = (priority: string): string => {
+    switch (priority) {
+      case 'high': return 'message-priority-high';
+      case 'medium': return 'message-priority-medium';
+      case 'low': return 'message-priority-low';
+      default: return 'message-priority-low';
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const unreadCount = messages.filter(m => !m.read).length;
+  const pendingCount = messagesToOffice.filter(m => m.status === 'pending').length;
+
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case 'pending': return 'var(--color-warning-500)';
+      case 'read': return 'var(--color-brand-500)';
+      case 'resolved': return 'var(--color-success-500)';
+      default: return 'var(--color-gray-600)';
+    }
+  };
+
+  const getStatusLabel = (status: string): string => {
     switch (status) {
       case 'pending': return 'Pending';
       case 'read': return 'Read';
@@ -181,105 +209,44 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
     }
   };
 
+  const getStatusClass = (status: string): string => {
+    switch (status) {
+      case 'pending': return 'sent-message-status-pending';
+      case 'read': return 'sent-message-status-read';
+      case 'resolved': return 'sent-message-status-resolved';
+      default: return '';
+    }
+  };
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      padding: '1rem'
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '8px',
-        maxWidth: '700px',
-        width: '100%',
-        maxHeight: '90vh',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: 'var(--shadow-lg)'
-      }}>
+    <div className="messages-modal-backdrop">
+      <div className="messages-modal-content">
         {/* Header */}
-        <div style={{
-          padding: '1.5rem 1.5rem 0',
-          background: 'white'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--gray-900)' }}>
-              Messages
-            </h2>
-          </div>
+        <div className="messages-modal-header">
+          <h2 className="messages-modal-title">
+            Messages
+          </h2>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '2px solid var(--gray-200)' }}>
+          <div className="messages-modal-tabs">
             <button
               onClick={() => setActiveTab('inbox')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                background: 'transparent',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: activeTab === 'inbox' ? 'var(--primary)' : 'var(--gray-600)',
-                borderBottom: activeTab === 'inbox' ? '2px solid var(--primary)' : '2px solid transparent',
-                marginBottom: '-2px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
+              className={`messages-modal-tab ${activeTab === 'inbox' ? 'active' : ''}`}
             >
               From Office
               {unreadCount > 0 && (
-                <span style={{
-                  marginLeft: '6px',
-                  background: '#dc3545',
-                  color: 'white',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  minWidth: '18px',
-                  display: 'inline-block',
-                  textAlign: 'center'
-                }}>
+                <span className="messages-modal-tab-badge">
                   {unreadCount}
                 </span>
               )}
             </button>
             <button
               onClick={() => setActiveTab('sent')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                background: 'transparent',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: activeTab === 'sent' ? 'var(--primary)' : 'var(--gray-600)',
-                borderBottom: activeTab === 'sent' ? '2px solid var(--primary)' : '2px solid transparent',
-                marginBottom: '-2px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
+              className={`messages-modal-tab ${activeTab === 'sent' ? 'active' : ''}`}
             >
               Sent to Office
               {pendingCount > 0 && (
-                <span style={{
-                  marginLeft: '6px',
-                  background: '#fd7e14',
-                  color: 'white',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  minWidth: '18px',
-                  display: 'inline-block',
-                  textAlign: 'center'
-                }}>
+                <span className="messages-modal-tab-badge pending">
                   {pendingCount}
                 </span>
               )}
@@ -288,13 +255,9 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
         </div>
 
         {/* Messages List */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '1rem 1.5rem'
-        }}>
+        <div className="messages-modal-body">
           {error && (
-            <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+            <div className="messages-alert alert alert-error">
               {error}
             </div>
           )}
@@ -303,81 +266,40 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
             // Inbox - Messages from office
             <>
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '3rem' }}>
-                  <div className="spinner" style={{ width: '2rem', height: '2rem', margin: '0 auto' }}></div>
-                  <p style={{ marginTop: '1rem', color: 'var(--gray-600)' }}>Loading messages...</p>
+                <div className="messages-loading">
+                  <div className="spinner messages-loading-spinner"></div>
+                  <p className="messages-loading-text">Loading messages...</p>
                 </div>
               ) : messages.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-600)' }}>
+                <div className="messages-empty">
                   No messages at this time
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="messages-list">
                   {messages.map((msg) => (
                 <div
                   key={msg.message_id}
                   onClick={() => handleMessageClick(msg)}
-                  style={{
-                    background: msg.read ? 'white' : '#f0f9ff',
-                    border: msg.read ? '1px solid var(--gray-200)' : '2px solid #3b82f6',
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    position: 'relative',
-                    cursor: msg.read ? 'default' : 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!msg.read) {
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  className={`message-item ${msg.read ? 'message-item-read' : 'unread'}`}
                 >
                   {!msg.read && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '1rem',
-                      right: '1rem',
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: '#3b82f6'
-                    }} />
+                    <div className="message-unread-indicator" />
                   )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      padding: '2px 8px',
-                      background: `${getPriorityColor(msg.priority)}20`,
-                      color: getPriorityColor(msg.priority),
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 600
-                    }}>
+                  <div className="message-header">
+                    <div className={`message-priority-badge ${getPriorityClass(msg.priority)}`}>
                       {getPriorityLabel(msg.priority)}
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
+                    <div className="message-date">
                       {formatDate(msg.created_at)}
                     </div>
                   </div>
 
-                  <div style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: 'var(--gray-900)',
-                    marginBottom: '0.5rem'
-                  }}>
+                  <div className="message-title">
                     {msg.title}
                   </div>
 
-                  <div style={{
-                    fontSize: '14px',
-                    color: 'var(--gray-700)',
-                    lineHeight: '1.5'
-                  }}>
+                  <div className="message-content">
                     {msg.message}
                   </div>
                 </div>
@@ -391,9 +313,8 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
               {/* Send Message Button */}
               {!showSendForm && (
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary new-message-button"
                   onClick={() => setShowSendForm(true)}
-                  style={{ marginBottom: '1rem' }}
                 >
                   + New Message to Office
                 </button>
@@ -401,18 +322,12 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
 
               {/* Send Message Form */}
               {showSendForm && (
-                <div style={{
-                  background: 'var(--gray-50)',
-                  border: '2px solid var(--primary)',
-                  borderRadius: '8px',
-                  padding: '1.25rem',
-                  marginBottom: '1rem'
-                }}>
-                  <h4 style={{ margin: '0 0 1rem 0', fontSize: '15px', fontWeight: 600 }}>Send Message to Office</h4>
+                <div className="send-message-form-container">
+                  <h4 className="send-message-form-title">Send Message to Office</h4>
                   <form onSubmit={handleSendMessage}>
-                    <div className="form-group" style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="subject" style={{ fontSize: '13px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
-                        Subject <span style={{ color: '#dc3545' }}>*</span>
+                    <div className="form-group">
+                      <label htmlFor="subject">
+                        Subject <span className="required">*</span>
                       </label>
                       <input
                         id="subject"
@@ -426,9 +341,9 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
                       />
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '1rem' }}>
-                      <label htmlFor="messageContent" style={{ fontSize: '13px', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
-                        Message <span style={{ color: '#dc3545' }}>*</span>
+                    <div className="form-group">
+                      <label htmlFor="messageContent">
+                        Message <span className="required">*</span>
                       </label>
                       <textarea
                         id="messageContent"
@@ -442,7 +357,7 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
                       />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="send-button-group">
                       <button
                         type="submit"
                         className="btn btn-primary"
@@ -469,83 +384,53 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
 
               {/* Sent Messages List */}
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '3rem' }}>
-                  <div className="spinner" style={{ width: '2rem', height: '2rem', margin: '0 auto' }}></div>
-                  <p style={{ marginTop: '1rem', color: 'var(--gray-600)' }}>Loading sent messages...</p>
+                <div className="messages-loading">
+                  <div className="spinner messages-loading-spinner"></div>
+                  <p className="messages-loading-text">Loading sent messages...</p>
                 </div>
               ) : messagesToOffice.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-600)' }}>
+                <div className="messages-empty">
                   No messages sent yet
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="messages-list">
                   {messagesToOffice.map((msg) => (
                     <div
                       key={msg.message_id}
-                      style={{
-                        background: 'white',
-                        border: '1px solid var(--gray-200)',
-                        borderRadius: '8px',
-                        padding: '1rem'
-                      }}
+                      className="sent-message-item"
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{
-                            display: 'inline-flex',
-                            padding: '3px 10px',
-                            background: `${getStatusColor(msg.status)}20`,
-                            color: getStatusColor(msg.status),
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: 600
-                          }}>
+                      <div className="sent-message-header">
+                        <div className="sent-message-meta">
+                          <div className={`sent-message-status-badge ${getStatusClass(msg.status)}`}>
                             {getStatusLabel(msg.status)}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
+                          <div className="message-date">
                             {formatDate(msg.created_at)}
                           </div>
                         </div>
                       </div>
 
-                      <div style={{
-                        fontSize: '15px',
-                        fontWeight: 600,
-                        color: 'var(--gray-900)',
-                        marginBottom: '0.5rem'
-                      }}>
+                      <div className="sent-message-subject">
                         {msg.subject}
                       </div>
 
-                      <div style={{
-                        fontSize: '14px',
-                        color: 'var(--gray-700)',
-                        lineHeight: '1.5',
-                        marginBottom: '0.75rem',
-                        whiteSpace: 'pre-wrap'
-                      }}>
+                      <div className="sent-message-content">
                         {msg.message}
                       </div>
 
                       {msg.admin_response && (
-                        <div style={{
-                          background: '#e3f2fd',
-                          border: '1px solid #2196f3',
-                          borderRadius: '6px',
-                          padding: '0.75rem',
-                          marginTop: '0.75rem'
-                        }}>
-                          <div style={{ fontSize: '12px', fontWeight: 600, color: '#2196f3', marginBottom: '4px' }}>
+                        <div className="admin-response">
+                          <div className="admin-response-label">
                             Office Response:
                           </div>
-                          <div style={{ fontSize: '13px', color: 'var(--gray-800)', whiteSpace: 'pre-wrap' }}>
+                          <div className="admin-response-content">
                             {msg.admin_response}
                           </div>
                         </div>
                       )}
 
                       {msg.read_at && (
-                        <div style={{ fontSize: '11px', color: 'var(--gray-500)', marginTop: '0.5rem' }}>
+                        <div className="message-read-at">
                           Read {formatDate(msg.read_at)}
                         </div>
                       )}
@@ -558,15 +443,8 @@ function MessagesModal({ tenantId, driverId, onClose }: MessagesModalProps) {
         </div>
 
         {/* Footer */}
-        <div style={{
-          padding: '1rem 1.5rem',
-          borderTop: '1px solid var(--gray-200)',
-          background: 'var(--gray-50)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontSize: '13px', color: 'var(--gray-600)' }}>
+        <div className="messages-modal-footer">
+          <div className="messages-modal-footer-info">
             {activeTab === 'inbox' ? (
               <>
                 {messages.length} message{messages.length !== 1 ? 's' : ''}
