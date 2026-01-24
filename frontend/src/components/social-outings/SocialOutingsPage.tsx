@@ -178,7 +178,7 @@ function SocialOutingsPage() {
 
   if (!tenantId) {
     return (
-      <div style={{ padding: '2rem' }}>
+      <div className="error-state">
         <h2>Error: No Tenant Information</h2>
         <p>Unable to determine which organization you belong to. Please contact support.</p>
       </div>
@@ -188,75 +188,34 @@ function SocialOutingsPage() {
   return (
     <div>
       {/* View Toggle and Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div className="outings-header">
         {/* View Toggle - Pill Style */}
-        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
+        <div className="tab-group">
           <button
             onClick={() => setActiveTab('upcoming')}
-            style={{
-              padding: '5px 12px',
-              background: activeTab === 'upcoming' ? 'white' : 'transparent',
-              color: activeTab === 'upcoming' ? '#111827' : '#6b7280',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontWeight: 500,
-              fontSize: '12px',
-              boxShadow: activeTab === 'upcoming' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-            }}
+            className={`tab-button ${activeTab === 'upcoming' ? 'tab-active' : ''}`}
           >
             Upcoming
           </button>
           <button
             onClick={() => setActiveTab('past')}
-            style={{
-              padding: '5px 12px',
-              background: activeTab === 'past' ? 'white' : 'transparent',
-              color: activeTab === 'past' ? '#111827' : '#6b7280',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontWeight: 500,
-              fontSize: '12px',
-              boxShadow: activeTab === 'past' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-            }}
+            className={`tab-button ${activeTab === 'past' ? 'tab-active' : ''}`}
           >
             Past
           </button>
           <button
             onClick={() => setActiveTab('all')}
-            style={{
-              padding: '5px 12px',
-              background: activeTab === 'all' ? 'white' : 'transparent',
-              color: activeTab === 'all' ? '#111827' : '#6b7280',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontWeight: 500,
-              fontSize: '12px',
-              boxShadow: activeTab === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-            }}
+            className={`tab-button ${activeTab === 'all' ? 'tab-active' : ''}`}
           >
             All
           </button>
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="action-buttons">
           <button
             onClick={handleExportCSV}
-            style={{
-              padding: '6px 10px',
-              background: 'white',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '12px',
-              color: '#374151'
-            }}
+            className="btn-action btn-action-outline"
             title="Export to CSV"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -267,9 +226,8 @@ function SocialOutingsPage() {
             Export
           </button>
           <button
-            className="btn btn-outline"
+            className="btn btn-outline btn-with-icon"
             onClick={() => setShowAccessibilityModal(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="4" r="2"/>
@@ -278,9 +236,8 @@ function SocialOutingsPage() {
             Accessibility
           </button>
           <button
-            className="btn btn-outline"
+            className="btn btn-outline btn-with-icon"
             onClick={() => setShowAvailability(!showAvailability)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -292,19 +249,7 @@ function SocialOutingsPage() {
           </button>
           <button
             onClick={handleAddOuting}
-            style={{
-              padding: '6px 12px',
-              background: '#10b981',
-              border: 'none',
-              borderRadius: '4px',
-              color: 'white',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '12px',
-              fontWeight: 500
-            }}
+            className="btn btn-primary btn-with-icon"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19"/>
@@ -319,10 +264,10 @@ function SocialOutingsPage() {
       <OutingStats tenantId={tenantId} />
 
       {/* Search and Filters */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', alignItems: 'center' }}>
+      <div className="search-filters">
         {/* Search */}
-        <div style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}>
+        <div className="search-input-wrapper">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="search-icon">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
           </svg>
@@ -331,15 +276,7 @@ function SocialOutingsPage() {
             placeholder="Search outings..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            style={{
-              paddingLeft: '32px',
-              padding: '6px 10px',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '12px',
-              width: '100%',
-              outline: 'none'
-            }}
+            className="search-input"
           />
         </div>
 
@@ -347,15 +284,7 @@ function SocialOutingsPage() {
         <select
           value={serviceTypeFilter}
           onChange={e => setServiceTypeFilter(e.target.value as 'all' | 'transport' | 'bus')}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #d1d5db',
-            borderRadius: '4px',
-            fontSize: '12px',
-            background: 'white',
-            cursor: 'pointer',
-            outline: 'none'
-          }}
+          className="filter-select"
         >
           <option value="all">All Services</option>
           <option value="transport">Transport Only</option>
@@ -371,20 +300,20 @@ function SocialOutingsPage() {
 
       {/* Outings List */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-600)' }}>
+        <div className="loading-state">
           Loading outings...
         </div>
       ) : filteredOutings.length === 0 ? (
         <div className="empty-state">
-          <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%', color: 'var(--gray-400)' }}>
+          <div className="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
           </div>
-          <p style={{ color: 'var(--gray-600)', marginBottom: '1rem' }}>
+          <p className="empty-state-text">
             {activeTab === 'upcoming' ? 'No upcoming outings.' : activeTab === 'past' ? 'No past outings.' : 'No outings yet.'}
           </p>
           {activeTab !== 'past' && (
