@@ -215,7 +215,18 @@ function SocialOutingsPage() {
         <div className="action-buttons">
           <button
             onClick={handleExportCSV}
-            className="btn-action btn-action-outline"
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
             title="Export to CSV"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -226,20 +237,44 @@ function SocialOutingsPage() {
             Export
           </button>
           <button
-            className="btn btn-outline btn-with-icon"
+            style={{
+              padding: '6px 12px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              color: '#374151',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
             onClick={() => setShowAccessibilityModal(true)}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="4" r="2"/>
               <path d="M19 13v-2c-1.54.02-3.09-.75-4.07-1.83l-1.29-1.43c-.17-.19-.38-.34-.61-.45-.01 0-.01-.01-.02-.01H13c-.35-.2-.75-.3-1.19-.26C10.76 7.11 10 8.04 10 9.09V15c0 1.1.9 2 2 2h5v5h2v-5.5c0-1.1-.9-2-2-2h-3v-3.45c1.29 1.07 3.25 1.94 5 1.95zm-6.17 5c-.41 1.16-1.52 2-2.83 2-1.66 0-3-1.34-3-3 0-1.31.84-2.41 2-2.83V12.1c-2.28.46-4 2.48-4 4.9 0 2.76 2.24 5 5 5 2.42 0 4.44-1.72 4.9-4h-2.07z"/>
             </svg>
             Accessibility
           </button>
           <button
-            className="btn btn-outline btn-with-icon"
+            style={{
+              padding: '6px 12px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              color: '#374151',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
             onClick={() => setShowAvailability(!showAvailability)}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -249,7 +284,19 @@ function SocialOutingsPage() {
           </button>
           <button
             onClick={handleAddOuting}
-            className="btn btn-primary btn-with-icon"
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19"/>
@@ -317,7 +364,22 @@ function SocialOutingsPage() {
             {activeTab === 'upcoming' ? 'No upcoming outings.' : activeTab === 'past' ? 'No past outings.' : 'No outings yet.'}
           </p>
           {activeTab !== 'past' && (
-            <button className="btn btn-primary" onClick={handleAddOuting}>
+            <button
+              onClick={handleAddOuting}
+              style={{
+                padding: '6px 12px',
+                background: '#10b981',
+                border: 'none',
+                borderRadius: '4px',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '12px',
+                fontWeight: 500
+              }}
+            >
               + Create Outing
             </button>
           )}
