@@ -36,6 +36,7 @@ function TrainingPage() {
   const [trainingTypes, setTrainingTypes] = useState<TrainingType[]>([]);
   const [trainingRecords, setTrainingRecords] = useState<TrainingRecord[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [error, setError] = useState<string>('');
 
   // Tab state
   const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
@@ -56,11 +57,15 @@ function TrainingPage() {
   const [isAddRecordModalOpen, setIsAddRecordModalOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
 
+  // Bulk selection state
+  const [selectedRecords, setSelectedRecords] = useState<Set<number>>(new Set());
+
   const fetchData = useCallback(async () => {
     if (!tenantId) return;
 
     try {
       setLoading(true);
+      setError('');
       const [overviewData, typesData, recordsData, driversData] = await Promise.all([
         trainingApi.getOverview(tenantId),
         trainingApi.getTrainingTypes(tenantId),
@@ -78,9 +83,12 @@ function TrainingPage() {
       setTrainingRecords(recordsData.trainingRecords || []);
       setTotal(recordsData.total || 0);
       setTotalPages(recordsData.totalPages || 0);
-      setDrivers(driversData.drivers || driversData || []);
-    } catch (error) {
-      toast.error('Failed to load training data');
+      setDrivers(driversData?.drivers || []);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error?.message || 'Failed to load training data';
+      setError(errorMessage);
+      console.error('Failed to load training data:', error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -128,6 +136,75 @@ function TrainingPage() {
     setPage(1); // Reset to first page when searching
   };
 
+  /**
+   * Toggle selection of a training record
+   */
+  const toggleRecordSelection = (recordId: number) => {
+    setSelectedRecords(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(recordId)) {
+        newSet.delete(recordId);
+      } else {
+        newSet.add(recordId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Toggle all records on current page
+   */
+  const toggleAllRecords = () => {
+    const currentRecords = trainingRecords.filter(r => activeTab === 'active' ? !r.archived : r.archived);
+    if (selectedRecords.size === currentRecords.length) {
+      setSelectedRecords(new Set());
+    } else {
+      setSelectedRecords(new Set(currentRecords.map(r => r.id)));
+    }
+  };
+
+  /**
+   * Bulk archive selected records
+   */
+  const handleBulkArchive = async () => {
+    if (selectedRecords.size === 0) return;
+    if (!confirm(`Archive ${selectedRecords.size} training record${selectedRecords.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedRecords).map(id =>
+          trainingApi.updateTrainingRecord(tenantId, id, { archived: true })
+        )
+      );
+      toast.success(`Archived ${selectedRecords.size} training record${selectedRecords.size !== 1 ? 's' : ''}`);
+      setSelectedRecords(new Set());
+      fetchData();
+    } catch (err: any) {
+      toast.error(`Failed to archive records: ${err.message}`);
+    }
+  };
+
+  /**
+   * Bulk unarchive selected records
+   */
+  const handleBulkUnarchive = async () => {
+    if (selectedRecords.size === 0) return;
+    if (!confirm(`Unarchive ${selectedRecords.size} training record${selectedRecords.size !== 1 ? 's' : ''}?`)) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedRecords).map(id =>
+          trainingApi.updateTrainingRecord(tenantId, id, { archived: false })
+        )
+      );
+      toast.success(`Unarchived ${selectedRecords.size} training record${selectedRecords.size !== 1 ? 's' : ''}`);
+      setSelectedRecords(new Set());
+      fetchData();
+    } catch (err: any) {
+      toast.error(`Failed to unarchive records: ${err.message}`);
+    }
+  };
+
   // Handle export to CSV
   const handleExportCSV = async () => {
     if (!tenantId) return;
@@ -166,171 +243,238 @@ function TrainingPage() {
 
   if (drivers.length === 0) {
     return (
-      <div className="training-page">
-        <div className="training-header">
-          <div>
-            <h2>Training & Compliance</h2>
-            {tenant && (
-              <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-                {tenant.company_name}
-              </p>
-            )}
+      <div>
+        {/* Empty State */}
+        <div className="empty-state">
+          <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%', color: 'var(--gray-400)' }}>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
           </div>
-        </div>
-
-        <div className="empty-state" style={{ padding: '60px 20px', background: '#f8f9fa', borderRadius: '8px' }}>
-          <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-            <h3 style={{ color: '#495057', marginBottom: '15px' }}>No Drivers Found</h3>
-            <p style={{ color: '#6c757d', marginBottom: '25px', lineHeight: '1.5' }}>
-              Add drivers first to manage their training and compliance. Training management tracks
-              certifications, courses, and compliance status for all drivers.
-            </p>
-            <button className="btn btn-primary btn-lg" onClick={() => window.location.href = '/drivers'}>
-              Manage Drivers First
-            </button>
-          </div>
+          <p style={{ color: 'var(--gray-600)', marginBottom: '1rem' }}>
+            Add drivers first to manage their training and compliance. Training management tracks certifications, courses, and compliance status for all drivers.
+          </p>
+          <button className="btn btn-primary" onClick={() => window.location.href = '/drivers'}>
+            Manage Drivers First
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="training-page">
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Training & Compliance</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-secondary" onClick={handleExportCSV}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
-            </svg>
-            Export CSV
+    <div>
+      {/* Action Buttons and Tabs */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        {/* Tabs - Compact */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
+          <button
+            onClick={() => { setActiveTab('active'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'active' ? 'white' : 'transparent',
+              color: activeTab === 'active' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Active
           </button>
           <button
-            className="btn btn-info"
-            onClick={() => setIsManageTypesModalOpen(true)}
+            onClick={() => { setActiveTab('archive'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'archive' ? 'white' : 'transparent',
+              color: activeTab === 'archive' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
           >
-            Manage Training Types ({trainingTypes.length})
+            Archived
           </button>
-          <button className="btn btn-secondary" onClick={fetchData}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Export to CSV"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            Refresh
+            Export
           </button>
-          <button className="btn btn-success" onClick={() => setIsAddRecordModalOpen(true)}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          <button
+            onClick={() => setIsManageTypesModalOpen(true)}
+            style={{
+              padding: '6px 12px',
+              background: '#3b82f6',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            Manage Types ({trainingTypes.length})
+          </button>
+          <button
+            onClick={() => setIsAddRecordModalOpen(true)}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Add Training Record
+            Add Record
           </button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
 
       {/* Statistics Cards */}
       {overview && <TrainingStatsCards overview={overview} />}
 
-      {/* Active/Archive Tabs */}
-      <div style={{ borderBottom: '2px solid var(--gray-200)', marginBottom: '1.5rem', marginTop: '2rem' }}>
-        <button
-          onClick={() => {
-            setActiveTab('active');
-            setPage(1);
-          }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: activeTab === 'active' ? 'white' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'active' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'active' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'active' ? 600 : 400,
-            fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Active Records
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab('archive');
-            setPage(1);
-          }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: activeTab === 'archive' ? 'white' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'archive' ? '2px solid #28a745' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'archive' ? '#28a745' : 'var(--gray-600)',
-            fontWeight: activeTab === 'archive' ? 600 : 400,
-            fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          Archived Records
-        </button>
-      </div>
-
-      {/* Search and Filters */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        {/* Search Form */}
-        <form onSubmit={handleSearch} style={{ flex: '1', minWidth: '300px' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+      {/* Search & Bulk Actions - Compact */}
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', maxWidth: '320px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="2"
+              style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+            >
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by driver or training type..."
-              className="form-control"
-              style={{ flex: '1' }}
+              placeholder="Search training records..."
+              style={{
+                width: '100%',
+                padding: '6px 8px 6px 28px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
             />
-            <button type="submit" className="btn btn-secondary">
-              Search
-            </button>
-            {search && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  setSearchInput('');
-                  setSearch('');
-                  setPage(1);
-                }}
-              >
-                Clear
-              </button>
-            )}
           </div>
+          {search && (
+            <button
+              type="button"
+              onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
+              style={{
+                padding: '6px 10px',
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              Clear
+            </button>
+          )}
         </form>
 
-        {/* Results count */}
-        <div style={{ color: 'var(--gray-600)', fontSize: '14px', whiteSpace: 'nowrap' }}>
-          Showing {trainingRecords.length} of {total} records
-        </div>
+        {/* Bulk Actions */}
+        {selectedRecords.size > 0 && (
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+            <span style={{ fontSize: '12px', color: '#1e40af', fontWeight: 500 }}>
+              {selectedRecords.size} selected
+            </span>
+            {activeTab === 'active' ? (
+              <button
+                onClick={handleBulkArchive}
+                style={{ padding: '4px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Archive
+              </button>
+            ) : (
+              <button
+                onClick={handleBulkUnarchive}
+                style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+              >
+                Unarchive
+              </button>
+            )}
+            <button
+              onClick={() => setSelectedRecords(new Set())}
+              style={{ padding: '4px 8px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '3px', fontSize: '11px', cursor: 'pointer' }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Results count */}
+      {selectedRecords.size === 0 && (
+        <div style={{ marginBottom: '12px', color: 'var(--gray-600)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+          Showing {trainingRecords.length} of {total}
+        </div>
+      )}
 
       {/* Training Records Table */}
       {trainingRecords.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem', background: '#f8f9fa', borderRadius: '8px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="var(--gray-400)">
+        <div className="empty-state">
+          <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%', color: 'var(--gray-400)' }}>
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm0-10h2v8h-2z"/>
             </svg>
           </div>
@@ -345,10 +489,18 @@ function TrainingPage() {
         </div>
       ) : (
         <>
-          <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
-            <table className="table">
+          <div className="table-container">
+            <table>
               <thead>
                 <tr>
+                  <th style={{ width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedRecords.size === trainingRecords.length && trainingRecords.length > 0}
+                      onChange={toggleAllRecords}
+                      style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                    />
+                  </th>
                   <th>Driver</th>
                   <th>Training Type</th>
                   <th>Category</th>
@@ -356,7 +508,7 @@ function TrainingPage() {
                   <th>Expiry Date</th>
                   <th>Status</th>
                   <th>Provider</th>
-                  <th>Certificate #</th>
+                  <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -367,28 +519,34 @@ function TrainingPage() {
                   const today = new Date();
                   const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-                  let statusColor = '#28a745'; // Valid (green)
+                  let statusColor = '#10b981'; // Valid (green)
                   let statusText = 'Valid';
 
                   if (daysUntilExpiry < 0) {
                     statusColor = '#dc3545'; // Expired (red)
                     statusText = 'Expired';
                   } else if (daysUntilExpiry <= 30) {
-                    statusColor = '#ffc107'; // Expiring Soon (yellow)
+                    statusColor = '#f59e0b'; // Expiring Soon (amber)
                     statusText = 'Expiring Soon';
                   }
 
                   return (
                     <tr key={record.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedRecords.has(record.id)}
+                          onChange={() => toggleRecordSelection(record.id)}
+                          style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                        />
+                      </td>
                       <td>{driver?.name || 'Unknown Driver'}</td>
                       <td>{type?.name || 'Unknown Type'}</td>
                       <td>
                         <span style={{
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '4px',
                           fontSize: '12px',
-                          background: 'var(--gray-100)',
-                          color: 'var(--gray-700)'
+                          color: '#6b7280',
+                          fontWeight: 500
                         }}>
                           {type?.category || 'N/A'}
                         </span>
@@ -397,18 +555,27 @@ function TrainingPage() {
                       <td>{expiryDate.toLocaleDateString()}</td>
                       <td>
                         <span style={{
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '4px',
-                          fontSize: '12px',
+                          padding: '2px 6px',
+                          borderRadius: '3px',
+                          fontSize: '11px',
                           background: statusColor + '20',
                           color: statusColor,
-                          fontWeight: 500
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.3px'
                         }}>
                           {statusText}
                         </span>
                       </td>
                       <td>{record.provider || '-'}</td>
-                      <td>{record.certificateNumber || '-'}</td>
+                      <td style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
+                        <button
+                          onClick={() => handleAddTrainingForDriver(driver!)}
+                          style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                          View
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}

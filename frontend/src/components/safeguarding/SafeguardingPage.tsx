@@ -15,6 +15,7 @@ import './Safeguarding.css';
 function SafeguardingPage() {
   const { tenantId, tenant } = useTenant();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
   const [reports, setReports] = useState<SafeguardingReport[]>([]);
   const [filteredReports, setFilteredReports] = useState<SafeguardingReport[]>([]);
 
@@ -25,6 +26,10 @@ function SafeguardingPage() {
   const [statusFilter, setStatusFilter] = useState<ReportStatus | ''>('');
   const [severityFilter, setSeverityFilter] = useState<SeverityLevel | ''>('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
 
   // View state
   const [selectedReport, setSelectedReport] = useState<SafeguardingReport | null>(null);
@@ -45,10 +50,13 @@ function SafeguardingPage() {
 
     try {
       setLoading(true);
+      setError('');
       const data = await safeguardingApi.getReports(tenantId);
       setReports(data.reports || []);
-    } catch {
-      // Error handled silently
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error?.message || 'Failed to load safeguarding reports';
+      setError(errorMessage);
+      console.error('Failed to load safeguarding reports:', err);
     } finally {
       setLoading(false);
     }
@@ -180,6 +188,47 @@ function SafeguardingPage() {
     }
   };
 
+  /**
+   * Handle export to CSV
+   */
+  const handleExportCSV = () => {
+    if (filteredReports.length === 0) {
+      alert('No reports to export');
+      return;
+    }
+
+    // Prepare CSV data
+    const headers = ['Ref', 'Date/Time', 'Severity', 'Type', 'Driver', 'Customer', 'Location', 'Status', 'Description'];
+    const rows = filteredReports.map(report => [
+      `SG-${report.report_id}`,
+      formatDate(report.incident_date),
+      report.severity.toUpperCase(),
+      report.incident_type.replace('_', ' '),
+      report.driver_name || '',
+      report.customer_name || '',
+      report.location || '',
+      report.status.replace('_', ' ').toUpperCase(),
+      (report.description || '').replace(/"/g, '""') // Escape quotes for CSV
+    ]);
+
+    // Convert to CSV format
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `safeguarding-reports-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   // Calculate stats
   const stats = {
     total: reports.length,
@@ -198,67 +247,116 @@ function SafeguardingPage() {
     );
   }
 
-  return (
-    <div>
-      {/* Header */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Safeguarding Reports</h2>
-          <button onClick={fetchReports} className="btn btn-secondary" style={{ fontSize: '14px' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
-              <polyline points="23 4 23 10 17 10"/>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-            Refresh
-          </button>
+      {/* Error Message */}
+      {error && (
+        <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+          {error}
         </div>
-        {tenant && (
-          <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '14px' }}>
-            {tenant.company_name} - Critical Safety Reporting System
-          </p>
-        )}
+      )}
+
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem', gap: '8px' }}>
+        <button
+          onClick={handleExportCSV}
+          style={{
+            padding: '6px 10px',
+            background: 'white',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            color: '#374151'
+          }}
+          title="Export to CSV"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export
+        </button>
+        <button
+          onClick={() => window.location.href = '/safeguarding/new'}
+          style={{
+            padding: '6px 12px',
+            background: '#10b981',
+            border: 'none',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            fontWeight: 500
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Create Report
+        </button>
+        <button
+          onClick={fetchReports}
+          style={{
+            padding: '6px 12px',
+            background: 'white',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            color: '#374151',
+            fontWeight: 500
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          Refresh
+        </button>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        borderBottom: '2px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        gap: '0.5rem'
-      }}>
+      {/* Tabs - Compact Pill Style */}
+      <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px', marginBottom: '1rem' }}>
         <button
           onClick={() => setActiveTab('active')}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'active' ? 'white' : 'transparent',
+            color: activeTab === 'active' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'active' ? '2px solid var(--danger)' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'active' ? 'var(--danger)' : 'var(--gray-600)',
-            fontWeight: activeTab === 'active' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Active Reports
+          Active
         </button>
         <button
           onClick={() => setActiveTab('archive')}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '5px 12px',
             background: activeTab === 'archive' ? 'white' : 'transparent',
+            color: activeTab === 'archive' ? '#111827' : '#6b7280',
             border: 'none',
-            borderBottom: activeTab === 'archive' ? '2px solid var(--danger)' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeTab === 'archive' ? 'var(--danger)' : 'var(--gray-600)',
-            fontWeight: activeTab === 'archive' ? 600 : 400,
-            fontSize: '14px',
+            borderRadius: '3px',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            fontWeight: 500,
+            fontSize: '12px',
+            boxShadow: activeTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
           }}
         >
-          Archive
+          Archived
         </button>
       </div>
 
@@ -293,34 +391,66 @@ function SafeguardingPage() {
       {/* Stats Cards */}
       <SafeguardingStatsCards stats={stats} />
 
-      {/* Filters */}
-      <div style={{
-        background: 'white',
-        border: '1px solid var(--gray-200)',
-        borderRadius: '8px',
-        padding: '1rem 1.25rem',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        gap: '1rem',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <input
-            type="text"
-            placeholder="Search driver, customer, location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="form-control"
-            style={{ fontSize: '14px' }}
-          />
+      {/* Search & Filters */}
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '250px', display: 'flex', gap: '6px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="2"
+              style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+            >
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search driver, customer, location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '6px 8px 6px 28px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
+            />
+          </div>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              style={{
+                padding: '6px 10px',
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              Clear
+            </button>
+          )}
         </div>
-        <div style={{ minWidth: '150px' }}>
+
+        {/* Filters on Right */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ReportStatus | '')}
-            className="form-control"
-            style={{ fontSize: '14px' }}
+            style={{
+              padding: '6px 8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '12px',
+              minWidth: '140px'
+            }}
           >
             <option value="">All Statuses</option>
             <option value="submitted">Submitted</option>
@@ -329,13 +459,16 @@ function SafeguardingPage() {
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-        </div>
-        <div style={{ minWidth: '130px' }}>
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value as SeverityLevel | '')}
-            className="form-control"
-            style={{ fontSize: '14px' }}
+            style={{
+              padding: '6px 8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              fontSize: '12px',
+              minWidth: '120px'
+            }}
           >
             <option value="">All Severities</option>
             <option value="critical">Critical</option>
@@ -344,6 +477,11 @@ function SafeguardingPage() {
             <option value="low">Low</option>
           </select>
         </div>
+      </div>
+
+      {/* Results Counter */}
+      <div style={{ marginBottom: '12px', color: 'var(--gray-600)', fontSize: '12px' }}>
+        Showing {filteredReports.length} of {reports.length} reports
       </div>
 
       {/* Reports Table */}

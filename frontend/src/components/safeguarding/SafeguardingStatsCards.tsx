@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface SafeguardingStats {
   total: number;
   critical: number;
@@ -14,17 +12,17 @@ interface Props {
 
 interface StatCardProps {
   label: string;
-  value: string;
-  subtitle?: string;
+  value: number;
+  subtitle: string;
   theme: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
 }
 
 function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div className={`stat-card stat-card-${theme}`}>
-      <h4 className="stat-value">{value}</h4>
-      <small className="stat-label">{label}</small>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
+    <div className={'stat-card stat-card-' + theme}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
     </div>
   );
 }
@@ -35,35 +33,39 @@ function StatCard({ label, value, subtitle, theme }: StatCardProps) {
  */
 export default function SafeguardingStatsCards({ stats }: Props) {
   return (
-    <div className="stats-grid">
+    <div className="stat-card-grid">
       <StatCard
         label="Total Reports"
-        value={stats.total.toString()}
-        theme="gray"
+        value={stats.total}
+        subtitle="All submissions"
+        theme="blue"
       />
 
       <StatCard
         label="Critical (Open)"
-        value={stats.critical.toString()}
-        subtitle={stats.critical > 0 ? 'Immediate action required' : undefined}
+        value={stats.critical}
+        subtitle="Immediate action required"
         theme="red"
       />
 
       <StatCard
         label="High Priority (Open)"
-        value={stats.high.toString()}
+        value={stats.high}
+        subtitle="Needs attention"
         theme="orange"
       />
 
       <StatCard
         label="Pending Review"
-        value={stats.pending.toString()}
+        value={stats.pending}
+        subtitle="Under assessment"
         theme="yellow"
       />
 
       <StatCard
         label="Resolved"
-        value={stats.resolved.toString()}
+        value={stats.resolved}
+        subtitle="Closed or resolved"
         theme="green"
       />
     </div>
