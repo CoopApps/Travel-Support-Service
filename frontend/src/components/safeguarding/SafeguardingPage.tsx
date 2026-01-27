@@ -331,7 +331,7 @@ function SafeguardingPage() {
         <button
           onClick={() => setActiveTab('active')}
           style={{
-            padding: '5px 12px',
+            padding: '4px 10px',
             background: activeTab === 'active' ? 'white' : 'transparent',
             color: activeTab === 'active' ? '#111827' : '#6b7280',
             border: 'none',
@@ -347,7 +347,7 @@ function SafeguardingPage() {
         <button
           onClick={() => setActiveTab('archive')}
           style={{
-            padding: '5px 12px',
+            padding: '4px 10px',
             background: activeTab === 'archive' ? 'white' : 'transparent',
             color: activeTab === 'archive' ? '#111827' : '#6b7280',
             border: 'none',
