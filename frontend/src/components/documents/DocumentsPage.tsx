@@ -717,7 +717,14 @@ export function DocumentsPage() {
         </>
       ) : (
         <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6b7280' }}>
-          <div style={{ fontSize: '48px', marginBottom: '1rem' }}>📄</div>
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '1rem',
+            fontWeight: 300,
+            color: '#d1d5db'
+          }}>
+            📄
+          </div>
           <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>
             No documents found
           </div>

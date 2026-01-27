@@ -84,12 +84,12 @@ function getExpiryStatusText(status?: string, daysUntilExpiry?: number): string 
 }
 
 function getFileTypeIcon(mimeType: string): string {
-  if (mimeType.includes('pdf')) return '📄';
-  if (mimeType.includes('image')) return '🖼️';
-  if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
-  if (mimeType.includes('text')) return '📃';
-  return '📎';
+  if (mimeType.includes('pdf')) return 'PDF';
+  if (mimeType.includes('image')) return 'IMG';
+  if (mimeType.includes('word') || mimeType.includes('document')) return 'DOC';
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'XLS';
+  if (mimeType.includes('text')) return 'TXT';
+  return 'FILE';
 }
 
 function getModuleLabel(module?: string): string {
@@ -175,8 +175,19 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
             style={{ marginTop: '4px', cursor: 'pointer' }}
           />
         )}
-        {/* File icon */}
-        <div style={{ fontSize: '40px', flexShrink: 0 }}>
+        {/* File type badge */}
+        <div style={{
+          backgroundColor: '#f3f4f6',
+          color: '#374151',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          flexShrink: 0,
+          fontWeight: 600,
+          fontSize: '11px',
+          minWidth: '50px',
+          textAlign: 'center',
+          border: '1px solid #e5e7eb'
+        }}>
           {getFileTypeIcon(doc.mime_type)}
         </div>
 
@@ -313,7 +324,7 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
               }}
               title="View full details"
             >
-              ℹ️ Details
+              Details
             </button>
           )}
 
@@ -341,7 +352,7 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
               }}
               title="Preview document"
             >
-              👁️ Preview
+              Preview
             </button>
           )}
 
@@ -368,7 +379,7 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
                 e.currentTarget.style.backgroundColor = '#3b82f6';
               }}
             >
-              ⬇️ Download
+              Download
             </button>
           )}
 
@@ -395,7 +406,7 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
                 e.currentTarget.style.backgroundColor = '#6b7280';
               }}
             >
-              ✏️ Edit
+              Edit
             </button>
           )}
 
@@ -424,7 +435,7 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
                 e.currentTarget.style.backgroundColor = '#ef4444';
               }}
             >
-              🗑️ Delete
+              Delete
             </button>
           )}
         </div>
@@ -455,7 +466,14 @@ export function DocumentsList({
         color: '#6b7280',
         fontSize: '16px'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+        <div style={{
+          fontSize: '48px',
+          marginBottom: '12px',
+          fontWeight: 300,
+          color: '#d1d5db'
+        }}>
+          📄
+        </div>
         {emptyMessage}
       </div>
     );
