@@ -14,6 +14,9 @@ interface Document {
   uploaded_by_name?: string;
   expiry_status?: 'no_expiry' | 'valid' | 'warning' | 'critical' | 'expired';
   days_until_expiry?: number;
+  module?: string;
+  entity_type?: string;
+  entity_id?: number;
 }
 
 interface DocumentsListProps {
@@ -25,6 +28,8 @@ interface DocumentsListProps {
   onUpdate?: (documentId: number) => void;
   onToggleSelect?: (documentId: number) => void;
   selectedDocuments?: Set<number>;
+  onPreview?: (documentId: number) => void;
+  onShowDetails?: (documentId: number) => void;
   emptyMessage?: string;
 }
 
@@ -64,13 +69,13 @@ function getExpiryStatusColor(status?: string): string {
 function getExpiryStatusText(status?: string, daysUntilExpiry?: number): string {
   switch (status) {
     case 'expired':
-      return '🔴 Expired';
+      return 'Expired';
     case 'critical':
-      return `🟠 Expires in ${daysUntilExpiry} days`;
+      return `Expires in ${daysUntilExpiry} days`;
     case 'warning':
-      return `🟡 Expires in ${daysUntilExpiry} days`;
+      return `Expires in ${daysUntilExpiry} days`;
     case 'valid':
-      return '🟢 Valid';
+      return 'Valid';
     case 'no_expiry':
       return 'No expiry';
     default:
@@ -87,7 +92,51 @@ function getFileTypeIcon(mimeType: string): string {
   return '📎';
 }
 
-function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggleSelect, isSelected }: {
+function getModuleLabel(module?: string): string {
+  const labels: Record<string, string> = {
+    drivers: 'Drivers',
+    customers: 'Customers',
+    vehicles: 'Vehicles',
+    training: 'Training',
+    safeguarding: 'Safeguarding',
+    permits: 'Permits',
+    schedules: 'Schedules',
+    maintenance: 'Maintenance',
+    billing: 'Billing',
+    providers: 'Providers'
+  };
+  return labels[module?.toLowerCase() || ''] || (module || 'Unknown');
+}
+
+function getModuleColor(module?: string): string {
+  const colors: Record<string, string> = {
+    drivers: '#3b82f6',
+    customers: '#8b5cf6',
+    vehicles: '#ec4899',
+    training: '#f59e0b',
+    safeguarding: '#ef4444',
+    permits: '#10b981',
+    schedules: '#06b6d4',
+    maintenance: '#6366f1',
+    billing: '#14b8a6',
+    providers: '#84cc16'
+  };
+  return colors[module?.toLowerCase() || ''] || '#6b7280';
+}
+
+function getEntityTypeLabel(entityType?: string): string {
+  const labels: Record<string, string> = {
+    driver: 'Driver',
+    customer: 'Customer',
+    vehicle: 'Vehicle',
+    provider: 'Provider',
+    staff: 'Staff',
+    organization: 'Organization'
+  };
+  return labels[entityType?.toLowerCase() || ''] || (entityType || 'Entity');
+}
+
+function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggleSelect, isSelected, onPreview, onShowDetails }: {
   doc: Document;
   showExpiry?: boolean;
   onDownload?: (id: number) => void;
@@ -95,6 +144,8 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
   onUpdate?: (id: number) => void;
   onToggleSelect?: (id: number) => void;
   isSelected?: boolean;
+  onPreview?: (id: number) => void;
+  onShowDetails?: (id: number) => void;
 }) {
   return (
     <div style={{
@@ -135,13 +186,51 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
             fontWeight: 600,
             fontSize: '16px',
             color: '#111827',
-            marginBottom: '4px',
+            marginBottom: '6px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}>
             {doc.title || doc.original_filename}
           </div>
+
+          {/* Entity Information Badges */}
+          {(doc.module || doc.entity_type) && (
+            <div style={{
+              display: 'flex',
+              gap: '6px',
+              marginBottom: '8px',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}>
+              {doc.module && (
+                <span style={{
+                  backgroundColor: getModuleColor(doc.module),
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '3px',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.3px'
+                }}>
+                  {getModuleLabel(doc.module)}
+                </span>
+              )}
+              {doc.entity_type && (
+                <span style={{
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  padding: '2px 8px',
+                  borderRadius: '3px',
+                  fontSize: '11px',
+                  fontWeight: 500
+                }}>
+                  {getEntityTypeLabel(doc.entity_type)}
+                </span>
+              )}
+            </div>
+          )}
 
           {doc.description && (
             <div style={{
@@ -160,11 +249,18 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
             fontSize: '13px',
             color: '#6b7280'
           }}>
-            <span>📦 {formatFileSize(doc.file_size)}</span>
-            <span>📅 {formatDate(doc.uploaded_at)}</span>
-            {doc.uploaded_by_name && <span>👤 {doc.uploaded_by_name}</span>}
+            <span>{formatFileSize(doc.file_size)}</span>
+            <span>{formatDate(doc.uploaded_at)}</span>
+            {doc.uploaded_by_name && <span>{doc.uploaded_by_name}</span>}
             {showExpiry && doc.expiry_date && (
-              <span style={{ color: getExpiryStatusColor(doc.expiry_status) }}>
+              <span style={{
+                backgroundColor: getExpiryStatusColor(doc.expiry_status),
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '3px',
+                fontSize: '11px',
+                fontWeight: 500
+              }}>
                 {getExpiryStatusText(doc.expiry_status, doc.days_until_expiry)}
               </span>
             )}
@@ -192,7 +288,63 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggl
         </div>
 
         {/* Action buttons */}
-        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: '8px', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {onShowDetails && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onShowDetails(doc.document_id);
+              }}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#4f46e5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#6366f1';
+              }}
+              title="View full details"
+            >
+              ℹ️ Details
+            </button>
+          )}
+
+          {onPreview && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview(doc.document_id);
+              }}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#7c3aed';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#8b5cf6';
+              }}
+              title="Preview document"
+            >
+              👁️ Preview
+            </button>
+          )}
+
           {onDownload && (
             <button
               onClick={(e) => {
@@ -290,6 +442,8 @@ export function DocumentsList({
   onUpdate,
   onToggleSelect,
   selectedDocuments,
+  onPreview,
+  onShowDetails,
   emptyMessage = 'No documents found'
 }: DocumentsListProps) {
 
@@ -340,6 +494,8 @@ export function DocumentsList({
                 onUpdate={onUpdate}
                 onToggleSelect={onToggleSelect}
                 isSelected={selectedDocuments?.has(doc.document_id) || false}
+                onPreview={onPreview}
+                onShowDetails={onShowDetails}
               />
             ))}
           </div>
@@ -380,6 +536,8 @@ export function DocumentsList({
                 onUpdate={onUpdate}
                 onToggleSelect={onToggleSelect}
                 isSelected={selectedDocuments?.has(doc.document_id) || false}
+                onPreview={onPreview}
+                onShowDetails={onShowDetails}
               />
             ))}
           </div>
@@ -401,6 +559,8 @@ export function DocumentsList({
           onUpdate={onUpdate}
           onToggleSelect={onToggleSelect}
           isSelected={selectedDocuments?.has(doc.document_id) || false}
+          onPreview={onPreview}
+          onShowDetails={onShowDetails}
         />
       ))}
     </div>

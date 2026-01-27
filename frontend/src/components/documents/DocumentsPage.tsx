@@ -24,6 +24,11 @@ export function DocumentsPage() {
   // Bulk selection
   const [selectedDocuments, setSelectedDocuments] = useState<Set<number>>(new Set());
 
+  // Upload, preview, and details modals
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [previewDocId, setPreviewDocId] = useState<number | null>(null);
+  const [detailsDocId, setDetailsDocId] = useState<number | null>(null);
+
   const fetchStats = async () => {
     if (!tenantId) return;
 
@@ -186,6 +191,14 @@ export function DocumentsPage() {
     }
   };
 
+  const handlePreview = (documentId: number) => {
+    setPreviewDocId(documentId);
+  };
+
+  const handleShowDetails = (documentId: number) => {
+    setDetailsDocId(documentId);
+  };
+
   if (!tenantId) {
     return (
       <div style={{ padding: '2rem' }}>
@@ -276,6 +289,36 @@ export function DocumentsPage() {
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+            title="Upload new document"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#059669';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#10b981';
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload
+          </button>
           <button
             onClick={handleExportCSV}
             style={{
@@ -619,6 +662,8 @@ export function DocumentsPage() {
               onDelete={handleDelete}
               onToggleSelect={toggleDocumentSelection}
               selectedDocuments={selectedDocuments}
+              onPreview={handlePreview}
+              onShowDetails={handleShowDetails}
             />
           </div>
 
@@ -672,12 +717,186 @@ export function DocumentsPage() {
         </>
       ) : (
         <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6b7280' }}>
-          <div style={{ fontSize: '48px', marginBottom: '1rem' }}>📭</div>
+          <div style={{ fontSize: '48px', marginBottom: '1rem' }}>📄</div>
           <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem' }}>
             No documents found
           </div>
           <div style={{ fontSize: '14px' }}>
             Try adjusting your filters or upload some documents
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal Placeholder */}
+      {showUploadModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Upload Document</h2>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ color: '#6b7280', marginBottom: '16px' }}>
+              <p>Upload functionality will be integrated here with document categorization and module selection.</p>
+            </div>
+            <button
+              onClick={() => setShowUploadModal(false)}
+              style={{
+                padding: '8px 16px',
+                background: '#e5e7eb',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal Placeholder */}
+      {previewDocId && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            maxWidth: '600px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Preview Document</h2>
+              <button
+                onClick={() => setPreviewDocId(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ color: '#6b7280', marginBottom: '16px' }}>
+              <p>Document preview will be displayed here for PDFs and images.</p>
+            </div>
+            <button
+              onClick={() => setPreviewDocId(null)}
+              style={{
+                padding: '8px 16px',
+                background: '#e5e7eb',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal Placeholder */}
+      {detailsDocId && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            maxWidth: '600px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Document Details</h2>
+              <button
+                onClick={() => setDetailsDocId(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ color: '#6b7280', marginBottom: '16px' }}>
+              <p>Full document metadata including entity information, audit trail, and security settings will be displayed here.</p>
+            </div>
+            <button
+              onClick={() => setDetailsDocId(null)}
+              style={{
+                padding: '8px 16px',
+                background: '#e5e7eb',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
