@@ -190,22 +190,55 @@ function SocialOutingsPage() {
       {/* View Toggle and Action Buttons */}
       <div className="outings-header">
         {/* View Toggle - Pill Style */}
-        <div className="tab-group">
+        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
           <button
             onClick={() => setActiveTab('upcoming')}
-            className={`tab-button ${activeTab === 'upcoming' ? 'tab-active' : ''}`}
+            style={{
+              padding: '4px 10px',
+              background: activeTab === 'upcoming' ? 'white' : 'transparent',
+              color: activeTab === 'upcoming' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'upcoming' ? '0 1px 2px rgba(0, 0, 0, 0.05)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
           >
             Upcoming
           </button>
           <button
             onClick={() => setActiveTab('past')}
-            className={`tab-button ${activeTab === 'past' ? 'tab-active' : ''}`}
+            style={{
+              padding: '4px 10px',
+              background: activeTab === 'past' ? 'white' : 'transparent',
+              color: activeTab === 'past' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'past' ? '0 1px 2px rgba(0, 0, 0, 0.05)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
           >
             Past
           </button>
           <button
             onClick={() => setActiveTab('all')}
-            className={`tab-button ${activeTab === 'all' ? 'tab-active' : ''}`}
+            style={{
+              padding: '4px 10px',
+              background: activeTab === 'all' ? 'white' : 'transparent',
+              color: activeTab === 'all' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'all' ? '0 1px 2px rgba(0, 0, 0, 0.05)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
           >
             All
           </button>
