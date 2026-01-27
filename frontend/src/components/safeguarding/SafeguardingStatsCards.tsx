@@ -14,7 +14,7 @@ interface StatCardProps {
   label: string;
   value: number;
   subtitle: string;
-  theme: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'blue';
+  theme: 'gray' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple';
 }
 
 function StatCard({ label, value, subtitle, theme }: StatCardProps) {
@@ -29,7 +29,7 @@ function StatCard({ label, value, subtitle, theme }: StatCardProps) {
 
 /**
  * Safeguarding Statistics Cards
- * Displays key safeguarding metrics in consistent card format
+ * Displays key safeguarding metrics in consistent card format matching Drivers/Customers design
  */
 export default function SafeguardingStatsCards({ stats }: Props) {
   return (
@@ -42,30 +42,23 @@ export default function SafeguardingStatsCards({ stats }: Props) {
       />
 
       <StatCard
-        label="Critical (Open)"
+        label="Critical"
         value={stats.critical}
-        subtitle="Immediate action required"
+        subtitle="Immediate action"
         theme="red"
       />
 
       <StatCard
-        label="High Priority (Open)"
+        label="High Priority"
         value={stats.high}
         subtitle="Needs attention"
         theme="orange"
       />
 
       <StatCard
-        label="Pending Review"
-        value={stats.pending}
-        subtitle="Under assessment"
-        theme="yellow"
-      />
-
-      <StatCard
         label="Resolved"
         value={stats.resolved}
-        subtitle="Closed or resolved"
+        subtitle="Closed/resolved"
         theme="green"
       />
     </div>
