@@ -23,6 +23,8 @@ interface DocumentsListProps {
   onDownload?: (documentId: number) => void;
   onDelete?: (documentId: number) => void;
   onUpdate?: (documentId: number) => void;
+  onToggleSelect?: (documentId: number) => void;
+  selectedDocuments?: Set<number>;
   emptyMessage?: string;
 }
 
@@ -85,21 +87,23 @@ function getFileTypeIcon(mimeType: string): string {
   return '📎';
 }
 
-function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate }: {
+function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate, onToggleSelect, isSelected }: {
   doc: Document;
   showExpiry?: boolean;
   onDownload?: (id: number) => void;
   onDelete?: (id: number) => void;
   onUpdate?: (id: number) => void;
+  onToggleSelect?: (id: number) => void;
+  isSelected?: boolean;
 }) {
   return (
     <div style={{
       border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '16px',
-      backgroundColor: '#ffffff',
-      marginBottom: '12px',
-      transition: 'box-shadow 0.2s ease',
+      borderRadius: '6px',
+      padding: '12px',
+      backgroundColor: isSelected ? '#dbeafe' : '#ffffff',
+      marginBottom: '8px',
+      transition: 'all 0.2s ease',
       cursor: 'pointer'
     }}
     onMouseEnter={(e) => {
@@ -109,7 +113,17 @@ function DocumentCard({ doc, showExpiry, onDownload, onDelete, onUpdate }: {
       e.currentTarget.style.boxShadow = 'none';
     }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        {/* Checkbox */}
+        {onToggleSelect && (
+          <input
+            type="checkbox"
+            checked={isSelected || false}
+            onChange={() => onToggleSelect(doc.document_id)}
+            onClick={(e) => e.stopPropagation()}
+            style={{ marginTop: '4px', cursor: 'pointer' }}
+          />
+        )}
         {/* File icon */}
         <div style={{ fontSize: '40px', flexShrink: 0 }}>
           {getFileTypeIcon(doc.mime_type)}
@@ -274,6 +288,8 @@ export function DocumentsList({
   onDownload,
   onDelete,
   onUpdate,
+  onToggleSelect,
+  selectedDocuments,
   emptyMessage = 'No documents found'
 }: DocumentsListProps) {
 
@@ -322,6 +338,8 @@ export function DocumentsList({
                 onDownload={onDownload}
                 onDelete={onDelete}
                 onUpdate={onUpdate}
+                onToggleSelect={onToggleSelect}
+                isSelected={selectedDocuments?.has(doc.document_id) || false}
               />
             ))}
           </div>
@@ -360,6 +378,8 @@ export function DocumentsList({
                 onDownload={onDownload}
                 onDelete={onDelete}
                 onUpdate={onUpdate}
+                onToggleSelect={onToggleSelect}
+                isSelected={selectedDocuments?.has(doc.document_id) || false}
               />
             ))}
           </div>
@@ -379,6 +399,8 @@ export function DocumentsList({
           onDownload={onDownload}
           onDelete={onDelete}
           onUpdate={onUpdate}
+          onToggleSelect={onToggleSelect}
+          isSelected={selectedDocuments?.has(doc.document_id) || false}
         />
       ))}
     </div>
