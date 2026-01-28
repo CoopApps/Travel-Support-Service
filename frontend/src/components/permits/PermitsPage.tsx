@@ -492,7 +492,11 @@ function PermitsPage() {
           ) : (
             <>
               {/* Statistics Cards */}
-              {stats && <PermitsStatsCards stats={stats} />}
+              {stats && (
+                <div style={{ padding: '0 1rem', marginBottom: '12px' }}>
+                  <PermitsStatsCards stats={stats} />
+                </div>
+              )}
 
               {/* Driver Compliance Table */}
               {getFilteredDrivers().length === 0 ? (

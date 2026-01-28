@@ -381,7 +381,11 @@ function TrainingPage() {
       )}
 
       {/* Statistics Cards */}
-      {overview && <TrainingStatsCards overview={overview} />}
+      {overview && (
+        <div style={{ padding: '0 1rem' }}>
+          <TrainingStatsCards overview={overview} />
+        </div>
+      )}
 
       {/* Search & Bulk Actions - Compact */}
       <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
