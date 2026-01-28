@@ -213,7 +213,7 @@ function PermitsPage() {
   }
 
   return (
-    <div>
+    <div className="permits-page">
       {/* Error Message */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: '1rem' }}>

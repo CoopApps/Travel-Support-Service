@@ -266,7 +266,7 @@ function TrainingPage() {
   }
 
   return (
-    <div>
+    <div className="training-page">
       {/* Action Buttons and Tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         {/* Tabs - Compact */}
