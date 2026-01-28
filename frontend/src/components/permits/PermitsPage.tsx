@@ -471,6 +471,13 @@ function PermitsPage() {
       {/* Tab Content */}
       {activeTab === 'drivers' && (
         <>
+          {/* Statistics Cards - Always show */}
+          {stats && (
+            <div style={{ padding: '0 1rem', marginBottom: '12px' }}>
+              <PermitsStatsCards stats={stats} />
+            </div>
+          )}
+
           {drivers.length === 0 ? (
             <div className="empty-state">
               <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem' }}>
@@ -491,12 +498,6 @@ function PermitsPage() {
             </div>
           ) : (
             <>
-              {/* Statistics Cards */}
-              {stats && (
-                <div style={{ padding: '0 1rem', marginBottom: '12px' }}>
-                  <PermitsStatsCards stats={stats} />
-                </div>
-              )}
 
               {/* Driver Compliance Table */}
               {getFilteredDrivers().length === 0 ? (
