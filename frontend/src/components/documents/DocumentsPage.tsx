@@ -462,10 +462,10 @@ export function DocumentsPage() {
       )}
 
       {/* Filters Toolbar */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', padding: '0 1rem', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', padding: '0 1rem', flexWrap: 'wrap' }}>
         {/* Search */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', flex: 1, minWidth: '250px' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
             <svg
               width="14"
               height="14"
@@ -484,7 +484,7 @@ export function DocumentsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
-                width: '100%',
+                width: '160px',
                 padding: '6px 8px 6px 28px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
@@ -492,27 +492,8 @@ export function DocumentsPage() {
               }}
             />
           </div>
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              style={{
-                padding: '6px 10px',
-                background: '#f3f4f6',
-                border: '1px solid #e5e7eb',
-                borderRadius: '4px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                color: '#6b7280'
-              }}
-            >
-              Clear
-            </button>
-          )}
-        </form>
 
-        {/* Filters on Right */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Filters Inline */}
           <select
             value={selectedCategory}
             onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
@@ -521,7 +502,7 @@ export function DocumentsPage() {
               border: '1px solid #e5e7eb',
               borderRadius: '4px',
               fontSize: '12px',
-              minWidth: '120px'
+              minWidth: '100px'
             }}
           >
             <option value="">All Categories</option>
@@ -543,7 +524,7 @@ export function DocumentsPage() {
               border: '1px solid #e5e7eb',
               borderRadius: '4px',
               fontSize: '12px',
-              minWidth: '120px'
+              minWidth: '100px'
             }}
           >
             <option value="">All Modules</option>
@@ -562,7 +543,7 @@ export function DocumentsPage() {
               border: '1px solid #e5e7eb',
               borderRadius: '4px',
               fontSize: '12px',
-              minWidth: '120px'
+              minWidth: '100px'
             }}
           >
             <option value="uploaded_at">Upload Date</option>
@@ -572,6 +553,7 @@ export function DocumentsPage() {
           </select>
 
           <button
+            type="button"
             onClick={() => setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC')}
             style={{
               padding: '6px 10px',
@@ -586,7 +568,30 @@ export function DocumentsPage() {
           >
             {sortOrder === 'ASC' ? '↑' : '↓'}
           </button>
-        </div>
+
+          {(searchQuery || selectedCategory || selectedModule) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('');
+                setSelectedModule('');
+                setCurrentPage(1);
+              }}
+              style={{
+                padding: '6px 10px',
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              Clear Filters
+            </button>
+          )}
+        </form>
       </div>
 
       {/* Bulk Actions Bar */}
