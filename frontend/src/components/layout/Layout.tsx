@@ -93,7 +93,7 @@ function Layout() {
               {activeService === 'bus' ? 'Bus Operations' : activeService === 'homecare' ? 'Home Care' : 'Core Operations'}
             </div>
             <div role="list" aria-labelledby="nav-section-core">
-              {/* Dashboard is service-aware - same route for all services */}
+              {/* Dashboard - service-aware, shows different content based on activeService */}
               <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
 
               {activeService === 'bus' && (
@@ -108,7 +108,6 @@ function Layout() {
               {activeService === 'homecare' && (
                 /* Homecare-specific modules */
                 <>
-                  <NavItem to="/homecare/dashboard" label="Dashboard" icon="home" active={location.pathname === '/homecare/dashboard'} />
                   <NavItem to="/homecare/clients" label="Clients" icon="users" active={location.pathname.startsWith('/homecare/clients')} />
                   <NavItem to="/homecare/carers" label="Carers" icon="user-plus" active={location.pathname.startsWith('/homecare/carers')} />
                   <NavItem to="/homecare/visits" label="Visits" icon="calendar" active={location.pathname.startsWith('/homecare/visits')} />

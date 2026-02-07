@@ -8,6 +8,7 @@ import { vehicleApi, customerApi, driverApi, adminAnalyticsApi } from '../../ser
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
 import BusDashboard from '../bus/BusDashboard';
+import HomecareDashboard from '../../homecare/pages/DashboardPage';
 import '../../pages/AdminDashboard.css';
 
 /**
@@ -16,6 +17,7 @@ import '../../pages/AdminDashboard.css';
  * Displays different dashboards based on active service:
  * - Transport: Shows trips, ad-hoc bookings, driver assignments
  * - Bus: Shows scheduled routes, timetables, seat availability
+ * - Homecare: Shows clients, carers, visits, and revenue stats
  */
 
 interface Alert {
@@ -88,6 +90,11 @@ function DashboardPage() {
   // If bus service is active, show bus dashboard (after ALL hooks are called)
   if (activeService === 'bus') {
     return <BusDashboard />;
+  }
+
+  // If homecare service is active, show homecare dashboard
+  if (activeService === 'homecare') {
+    return <HomecareDashboard />;
   }
 
   // Otherwise show transport dashboard
