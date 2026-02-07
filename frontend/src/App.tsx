@@ -55,6 +55,9 @@ import RouteOptimizationAnalytics from './components/analytics/RouteOptimization
 import RosterOptimizationDashboard from './components/roster/RosterOptimizationDashboard';
 import UnifiedRosterPage from './components/roster/UnifiedRosterPage';
 
+// Homecare Components
+import HomecareDashboard from './homecare/pages/DashboardPage';
+
 /**
  * Main Application Component - Multi-Tenant
  *
@@ -151,7 +154,7 @@ function App() {
 
   // Tenant Application Routes
   return (
-    <ServiceProvider transportEnabled={true} busEnabled={true}>
+    <ServiceProvider transportEnabled={true} busEnabled={true} homecareEnabled={true}>
       <Routes>
       {/* Unified Login - Routes to appropriate dashboard based on role */}
       <Route
@@ -215,7 +218,11 @@ function App() {
         {/* surplus-pool, members, dividends routes removed - now tabs in CooperativePage */}
         {/* bus/compliance route removed - now tab in PermitsPage */}
 
-        {/* Note: /dashboard is now service-aware and shows bus or transport based on activeService */}
+        {/* Homecare Service Routes - homecare-specific modules */}
+        <Route path="homecare/dashboard" element={<HomecareDashboard />} />
+        {/* Additional homecare routes will be added as components are integrated */}
+
+        {/* Note: /dashboard is now service-aware and shows bus, transport, or homecare based on activeService */}
 
         {/* Route Proposals (Admin) */}
         <Route path="admin/route-proposals" element={<RouteProposalsAdmin />} />

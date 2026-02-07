@@ -9,7 +9,7 @@ import { useServiceContext, ServiceType } from '../../contexts/ServiceContext';
 
 export function ServiceToggleCompact() {
   const navigate = useNavigate();
-  const { activeService, setActiveService, bothEnabled } = useServiceContext();
+  const { activeService, setActiveService, multipleEnabled, transportEnabled, busEnabled, homecareEnabled } = useServiceContext();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,22 +37,36 @@ export function ServiceToggleCompact() {
   };
 
   // Don't render if only one service is enabled
-  if (!bothEnabled) {
+  if (!multipleEnabled) {
     return null;
   }
+
+  // Helper to get current service label
+  const getCurrentServiceLabel = () => {
+    switch (activeService) {
+      case 'bus': return 'Community Bus';
+      case 'homecare': return 'Home Care';
+      case 'transport':
+      default: return 'Community Transport';
+    }
+  };
 
   return (
     <div className="notification-bell-container" ref={dropdownRef}>
       <button
         className="icon-button"
         onClick={() => setIsOpen(!isOpen)}
-        title={`Active: ${activeService === 'bus' ? 'Community Bus' : 'Community Transport'}`}
+        title={`Active: ${getCurrentServiceLabel()}`}
         aria-label="Switch service type"
       >
         {/* Show current service icon */}
         {activeService === 'bus' ? (
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
             <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+          </svg>
+        ) : activeService === 'homecare' ? (
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
           </svg>
         ) : (
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -68,6 +82,7 @@ export function ServiceToggleCompact() {
           </div>
 
           <div className="notification-dropdown-content" style={{ padding: 0 }}>
+            {transportEnabled && (
             <button
               onClick={() => handleToggle('transport')}
               aria-label="Switch to Community Transport service"
@@ -126,7 +141,70 @@ export function ServiceToggleCompact() {
                 </svg>
               )}
             </button>
+            )}
 
+            {homecareEnabled && (
+            <button
+              onClick={() => handleToggle('homecare')}
+              aria-label="Switch to Home Care service"
+              aria-pressed={activeService === 'homecare'}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: 'none',
+                background: activeService === 'homecare' ? 'var(--green-50)' : 'white',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                borderBottom: '1px solid var(--gray-200)'
+              }}
+              onMouseEnter={(e) => {
+                if (activeService !== 'homecare') {
+                  e.currentTarget.style.background = 'var(--gray-50)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeService !== 'homecare') {
+                  e.currentTarget.style.background = 'white';
+                }
+              }}
+              onFocus={(e) => {
+                if (activeService !== 'homecare') {
+                  e.currentTarget.style.background = 'var(--gray-50)';
+                }
+              }}
+              onBlur={(e) => {
+                if (activeService !== 'homecare') {
+                  e.currentTarget.style.background = 'white';
+                }
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ color: activeService === 'homecare' ? 'var(--green-600)' : 'var(--gray-600)' }}>
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{
+                  fontWeight: activeService === 'homecare' ? 600 : 400,
+                  fontSize: '14px',
+                  color: activeService === 'homecare' ? 'var(--green-600)' : 'var(--gray-900)'
+                }}>
+                  Home Care Services
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--gray-500)', marginTop: '2px' }}>
+                  Care Visits & Support
+                </div>
+              </div>
+              {activeService === 'homecare' && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-600)" strokeWidth="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              )}
+            </button>
+            )}
+
+            {busEnabled && (
             <button
               onClick={() => handleToggle('bus')}
               aria-label="Switch to Community Bus service"
@@ -184,6 +262,7 @@ export function ServiceToggleCompact() {
                 </svg>
               )}
             </button>
+            )}
           </div>
         </div>
       )}

@@ -90,10 +90,10 @@ function Layout() {
         <nav className="sidebar-nav" aria-label="Main navigation">
           <div className="nav-section">
             <div className="nav-section-label" id="nav-section-core">
-              {activeService === 'bus' ? 'Bus Operations' : 'Core Operations'}
+              {activeService === 'bus' ? 'Bus Operations' : activeService === 'homecare' ? 'Home Care' : 'Core Operations'}
             </div>
             <div role="list" aria-labelledby="nav-section-core">
-              {/* Dashboard is service-aware - same route for both */}
+              {/* Dashboard is service-aware - same route for all services */}
               <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
 
               {activeService === 'bus' && (
@@ -102,6 +102,14 @@ function Layout() {
                   <NavItem to="/bus/routes" label="Routes" icon="map" active={location.pathname === '/bus/routes'} />
                   <NavItem to="/bus/timetables" label="Timetables" icon="calendar" active={location.pathname === '/bus/timetables'} />
                   <NavItem to="/bus/analytics" label="Analytics" icon="chart" active={location.pathname === '/bus/analytics'} />
+                </>
+              )}
+
+              {activeService === 'homecare' && (
+                /* Homecare-specific modules */
+                <>
+                  <NavItem to="/homecare/dashboard" label="Care Dashboard" icon="home" active={location.pathname === '/homecare/dashboard'} />
+                  {/* More homecare nav items will be added as components are integrated */}
                 </>
               )}
             </div>
