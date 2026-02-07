@@ -45,7 +45,7 @@ function InvoiceDetailPage() {
     if (!tenantId) return;
     try {
       const response = await clientApi.list(tenantId);
-      setClients(response.data);
+      setClients(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Failed to load clients:', err);
     }
@@ -186,7 +186,7 @@ function InvoiceDetailPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/homecare/invoices')}>
-            ê Back
+            ÔøΩ Back
           </button>
           <h1 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '24px', fontWeight: 600 }}>
             {isNewInvoice ? 'New Invoice' : `Invoice ${invoice?.invoice_number}`}

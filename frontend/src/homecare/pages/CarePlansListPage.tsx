@@ -31,8 +31,8 @@ function CarePlansListPage() {
         carePlanApi.list(tenantId, params),
         clientApi.list(tenantId),
       ]);
-      setCarePlans(carePlansRes.data);
-      setClients(clientsRes.data);
+      setCarePlans(Array.isArray(carePlansRes.data) ? carePlansRes.data : []);
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load care plans');
       console.error('Failed to load care plans:', err);

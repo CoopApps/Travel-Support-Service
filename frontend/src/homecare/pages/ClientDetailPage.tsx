@@ -49,8 +49,8 @@ function ClientDetailPage() {
 
       setClient(clientRes.data);
       setFormData(clientRes.data);
-      setCarePlans(carePlansRes.data);
-      setVisits(visitsRes.data);
+      setCarePlans(Array.isArray(carePlansRes.data) ? carePlansRes.data : []);
+      setVisits(Array.isArray(visitsRes.data) ? visitsRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load client');
       console.error('Failed to load client:', err);

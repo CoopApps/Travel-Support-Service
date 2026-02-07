@@ -28,7 +28,7 @@ function DocumentsListPage() {
       if (statusFilter !== 'all') params.status = statusFilter;
 
       const response = await documentApi.list(tenantId, params);
-      setDocuments(response.data.documents);
+      setDocuments(Array.isArray(response.data?.documents) ? response.data.documents : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load documents');
       console.error('Failed to load documents:', err);

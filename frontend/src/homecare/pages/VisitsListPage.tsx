@@ -42,9 +42,9 @@ function VisitsListPage() {
         clientApi.list(tenantId),
         carerApi.list(tenantId),
       ]);
-      setVisits(visitsRes.data);
-      setClients(clientsRes.data);
-      setCarers(carersRes.data);
+      setVisits(Array.isArray(visitsRes.data) ? visitsRes.data : []);
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
+      setCarers(Array.isArray(carersRes.data) ? carersRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load visits');
       console.error('Failed to load visits:', err);

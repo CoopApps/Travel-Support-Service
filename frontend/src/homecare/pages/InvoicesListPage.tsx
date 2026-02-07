@@ -32,8 +32,8 @@ function InvoicesListPage() {
         invoiceApi.list(tenantId, params),
         clientApi.list(tenantId),
       ]);
-      setInvoices(invoicesRes.data);
-      setClients(clientsRes.data);
+      setInvoices(Array.isArray(invoicesRes.data) ? invoicesRes.data : []);
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load invoices');
       console.error('Failed to load invoices:', err);

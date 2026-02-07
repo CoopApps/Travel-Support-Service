@@ -50,7 +50,7 @@ function CarerDetailPage() {
 
       // Load schedule
       const scheduleRes = await carerApi.getSchedule(tenantId, parseInt(carerId));
-      setSchedule(scheduleRes.data);
+      setSchedule(Array.isArray(scheduleRes.data) ? scheduleRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load carer');
       console.error('Failed to load carer:', err);
