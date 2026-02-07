@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTenant } from '../../context/TenantContext';
@@ -8,8 +8,10 @@ import { vehicleApi, customerApi, driverApi, adminAnalyticsApi } from '../../ser
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
 import BusDashboard from '../bus/BusDashboard';
-import HomecareDashboard from '../../homecare/pages/DashboardPage';
 import '../../pages/AdminDashboard.css';
+
+// Lazy load homecare dashboard to avoid circular dependencies
+const HomecareDashboard = lazy(() => import('../../homecare/pages/DashboardPage'));
 
 /**
  * Service-Aware Dashboard Page Component
@@ -94,7 +96,11 @@ function DashboardPage() {
 
   // If homecare service is active, show homecare dashboard
   if (activeService === 'homecare') {
-    return <HomecareDashboard />;
+    return (
+      <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading dashboard...</div>}>
+        <HomecareDashboard />
+      </Suspense>
+    );
   }
 
   // Otherwise show transport dashboard
