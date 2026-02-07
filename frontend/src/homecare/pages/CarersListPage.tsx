@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { carerApi, Carer } from '../services/homecareApi';
-import HomecareLayout from '../components/HomecareLayout';
 
 function CarersListPage() {
   const { tenantId } = useTenant();
@@ -67,7 +66,6 @@ function CarersListPage() {
   };
 
   return (
-    <HomecareLayout>
       <div style={{ padding: '1.5rem' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -252,7 +250,6 @@ function CarersListPage() {
           </div>
         )}
       </div>
-    </HomecareLayout>
   );
 }
 

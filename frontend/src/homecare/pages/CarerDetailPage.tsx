@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { carerApi, Carer, visitApi, Visit } from '../services/homecareApi';
-import HomecareLayout from '../components/HomecareLayout';
 
 function CarerDetailPage() {
   const { carerId } = useParams<{ carerId: string }>();
@@ -151,17 +150,14 @@ function CarerDetailPage() {
 
   if (loading) {
     return (
-      <HomecareLayout>
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--gray-600)' }}>
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--gray-600)' }}>
           Loading carer...
         </div>
-      </HomecareLayout>
-    );
+          );
   }
 
   return (
-    <HomecareLayout>
-      <div style={{ padding: '1.5rem' }}>
+          <div style={{ padding: '1.5rem' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
@@ -567,8 +563,7 @@ function CarerDetailPage() {
           </div>
         )}
       </div>
-    </HomecareLayout>
-  );
+      );
 }
 
 export default CarerDetailPage;

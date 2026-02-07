@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { clientApi, Client, carePlanApi, CarePlan, visitApi, Visit } from '../services/homecareApi';
-import HomecareLayout from '../components/HomecareLayout';
 
 function ClientDetailPage() {
   const { clientId } = useParams<{ clientId: string }>();
@@ -140,17 +139,14 @@ function ClientDetailPage() {
 
   if (loading) {
     return (
-      <HomecareLayout>
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--gray-600)' }}>
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--gray-600)' }}>
           Loading client...
         </div>
-      </HomecareLayout>
-    );
+          );
   }
 
   return (
-    <HomecareLayout>
-      <div style={{ padding: '1.5rem' }}>
+          <div style={{ padding: '1.5rem' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
@@ -596,8 +592,7 @@ function ClientDetailPage() {
           </div>
         )}
       </div>
-    </HomecareLayout>
-  );
+      );
 }
 
 export default ClientDetailPage;
