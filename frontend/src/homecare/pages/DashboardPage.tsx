@@ -75,7 +75,7 @@ function DashboardPage() {
                 {stats?.overview.active_clients || 0}
               </p>
               <Link to="/homecare/clients" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View all clients →
+                View all clients &rarr;
               </Link>
             </div>
 
@@ -87,7 +87,7 @@ function DashboardPage() {
                 {stats?.overview.active_carers || 0}
               </p>
               <Link to="/homecare/carers" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View all carers →
+                View all carers &rarr;
               </Link>
             </div>
 
@@ -99,7 +99,7 @@ function DashboardPage() {
                 {stats?.overview.total_visits || 0}
               </p>
               <Link to="/homecare/visits" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View visits →
+                View visits &rarr;
               </Link>
             </div>
 
@@ -176,7 +176,7 @@ function DashboardPage() {
                     {stats.alerts.expiring_dbs_checks}
                   </p>
                   <Link to="/homecare/carers" style={{ color: '#92400e', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review carers →
+                    Review carers &rarr;
                   </Link>
                 </div>
               )}
@@ -190,7 +190,7 @@ function DashboardPage() {
                     {stats.alerts.expiring_documents}
                   </p>
                   <Link to="/homecare/documents" style={{ color: '#92400e', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review documents →
+                    Review documents &rarr;
                   </Link>
                 </div>
               )}
@@ -204,7 +204,7 @@ function DashboardPage() {
                     {stats.alerts.overdue_invoices}
                   </p>
                   <Link to="/homecare/invoices?status=overdue" style={{ color: '#991b1b', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review invoices →
+                    Review invoices &rarr;
                   </Link>
                 </div>
               )}
@@ -218,7 +218,7 @@ function DashboardPage() {
                     {stats.alerts.unassigned_visits}
                   </p>
                   <Link to="/homecare/visits?status=scheduled" style={{ color: '#991b1b', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Assign carers →
+                    Assign carers &rarr;
                   </Link>
                 </div>
               )}

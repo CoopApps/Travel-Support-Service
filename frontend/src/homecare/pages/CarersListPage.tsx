@@ -178,7 +178,7 @@ function CarersListPage() {
                           </Link>
                           {carer.care_certificate && (
                             <div style={{ fontSize: '11px', color: '#10b981', marginTop: '2px' }}>
-                              ✓ Care Certificate
+                              Care Certificate
                             </div>
                           )}
                         </td>
