@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { carerApi, Carer } from '../services/homecareApi';
@@ -36,15 +36,18 @@ function CarersListPage() {
     }
   };
 
-  const filteredCarers = carers.filter(carer => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      carer.first_name.toLowerCase().includes(searchLower) ||
-      carer.last_name.toLowerCase().includes(searchLower) ||
-      carer.email?.toLowerCase().includes(searchLower) ||
-      carer.phone?.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredCarers = useMemo(() => {
+    if (!Array.isArray(carers)) return [];
+    return carers.filter(carer => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        carer.first_name.toLowerCase().includes(searchLower) ||
+        carer.last_name.toLowerCase().includes(searchLower) ||
+        carer.email?.toLowerCase().includes(searchLower) ||
+        carer.phone?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [carers, searchTerm]);
 
   const getStatusBadge = (status: string) => {
     const styles = {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { clientApi, Client } from '../services/homecareApi';
@@ -37,15 +37,18 @@ function ClientsListPage() {
     }
   };
 
-  const filteredClients = clients.filter(client => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      client.first_name.toLowerCase().includes(searchLower) ||
-      client.last_name.toLowerCase().includes(searchLower) ||
-      client.email?.toLowerCase().includes(searchLower) ||
-      client.phone?.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredClients = useMemo(() => {
+    if (!Array.isArray(clients)) return [];
+    return clients.filter(client => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        client.first_name.toLowerCase().includes(searchLower) ||
+        client.last_name.toLowerCase().includes(searchLower) ||
+        client.email?.toLowerCase().includes(searchLower) ||
+        client.phone?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [clients, searchTerm]);
 
   const getStatusBadge = (status: string) => {
     const styles = {
