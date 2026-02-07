@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { usePlatformAdminStore } from './store/platformAdminStore';
@@ -56,20 +55,20 @@ import RouteOptimizationAnalytics from './components/analytics/RouteOptimization
 import RosterOptimizationDashboard from './components/roster/RosterOptimizationDashboard';
 import UnifiedRosterPage from './components/roster/UnifiedRosterPage';
 
-// Homecare Components - lazy loaded to avoid circular dependencies
-const HomecareDashboard = lazy(() => import('./homecare/pages/DashboardPage'));
-const ClientsListPage = lazy(() => import('./homecare/pages/ClientsListPage'));
-const ClientDetailPage = lazy(() => import('./homecare/pages/ClientDetailPage'));
-const CarersListPage = lazy(() => import('./homecare/pages/CarersListPage'));
-const CarerDetailPage = lazy(() => import('./homecare/pages/CarerDetailPage'));
-const VisitsListPage = lazy(() => import('./homecare/pages/VisitsListPage'));
-const VisitDetailPage = lazy(() => import('./homecare/pages/VisitDetailPage'));
-const CarePlansListPage = lazy(() => import('./homecare/pages/CarePlansListPage'));
-const CarePlanDetailPage = lazy(() => import('./homecare/pages/CarePlanDetailPage'));
-const DocumentsListPage = lazy(() => import('./homecare/pages/DocumentsListPage'));
-const InvoicesListPage = lazy(() => import('./homecare/pages/InvoicesListPage'));
-const InvoiceDetailPage = lazy(() => import('./homecare/pages/InvoiceDetailPage'));
-const HomecareSettingsPage = lazy(() => import('./homecare/pages/SettingsPage'));
+// Homecare Components
+import HomecareDashboard from './homecare/pages/DashboardPage';
+import ClientsListPage from './homecare/pages/ClientsListPage';
+import ClientDetailPage from './homecare/pages/ClientDetailPage';
+import CarersListPage from './homecare/pages/CarersListPage';
+import CarerDetailPage from './homecare/pages/CarerDetailPage';
+import VisitsListPage from './homecare/pages/VisitsListPage';
+import VisitDetailPage from './homecare/pages/VisitDetailPage';
+import CarePlansListPage from './homecare/pages/CarePlansListPage';
+import CarePlanDetailPage from './homecare/pages/CarePlanDetailPage';
+import DocumentsListPage from './homecare/pages/DocumentsListPage';
+import InvoicesListPage from './homecare/pages/InvoicesListPage';
+import InvoiceDetailPage from './homecare/pages/InvoiceDetailPage';
+import HomecareSettingsPage from './homecare/pages/SettingsPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -232,19 +231,19 @@ function App() {
         {/* bus/compliance route removed - now tab in PermitsPage */}
 
         {/* Homecare Service Routes - homecare-specific modules */}
-        <Route path="homecare/dashboard" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><HomecareDashboard /></Suspense>} />
-        <Route path="homecare/clients" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><ClientsListPage /></Suspense>} />
-        <Route path="homecare/clients/:clientId" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><ClientDetailPage /></Suspense>} />
-        <Route path="homecare/carers" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><CarersListPage /></Suspense>} />
-        <Route path="homecare/carers/:carerId" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><CarerDetailPage /></Suspense>} />
-        <Route path="homecare/visits" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><VisitsListPage /></Suspense>} />
-        <Route path="homecare/visits/:visitId" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><VisitDetailPage /></Suspense>} />
-        <Route path="homecare/care-plans" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><CarePlansListPage /></Suspense>} />
-        <Route path="homecare/care-plans/:carePlanId" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><CarePlanDetailPage /></Suspense>} />
-        <Route path="homecare/documents" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><DocumentsListPage /></Suspense>} />
-        <Route path="homecare/invoices" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><InvoicesListPage /></Suspense>} />
-        <Route path="homecare/invoices/:invoiceId" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><InvoiceDetailPage /></Suspense>} />
-        <Route path="homecare/settings" element={<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}><HomecareSettingsPage /></Suspense>} />
+        <Route path="homecare/dashboard" element={<HomecareDashboard />} />
+        <Route path="homecare/clients" element={<ClientsListPage />} />
+        <Route path="homecare/clients/:clientId" element={<ClientDetailPage />} />
+        <Route path="homecare/carers" element={<CarersListPage />} />
+        <Route path="homecare/carers/:carerId" element={<CarerDetailPage />} />
+        <Route path="homecare/visits" element={<VisitsListPage />} />
+        <Route path="homecare/visits/:visitId" element={<VisitDetailPage />} />
+        <Route path="homecare/care-plans" element={<CarePlansListPage />} />
+        <Route path="homecare/care-plans/:carePlanId" element={<CarePlanDetailPage />} />
+        <Route path="homecare/documents" element={<DocumentsListPage />} />
+        <Route path="homecare/invoices" element={<InvoicesListPage />} />
+        <Route path="homecare/invoices/:invoiceId" element={<InvoiceDetailPage />} />
+        <Route path="homecare/settings" element={<HomecareSettingsPage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus, transport, or homecare based on activeService */}
 
