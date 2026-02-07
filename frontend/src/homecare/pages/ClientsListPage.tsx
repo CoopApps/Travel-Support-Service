@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { clientApi, Client } from '../services/homecareApi';
 
+// Clients list page - shows all clients with search and filters
 function ClientsListPage() {
   const { tenantId } = useTenant();
   const navigate = useNavigate();
