@@ -27,7 +27,7 @@ router.get(
 router.get(
   '/tenants/:tenantId/members/:memberId',
   verifyTenantAccess,
-  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
     res.status(501).json({
       message: 'Co-operative membership features are not yet implemented',
       feature: 'member-detail'
@@ -38,7 +38,7 @@ router.get(
 router.post(
   '/tenants/:tenantId/members',
   verifyTenantAccess,
-  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
     res.status(501).json({
       message: 'Co-operative membership features are not yet implemented',
       feature: 'create-member'

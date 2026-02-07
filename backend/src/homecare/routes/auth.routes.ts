@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from '../../middleware/errorHandler';
-import { query, queryOne } from '../../config/database';
+import { queryOne } from '../../config/database';
 import { AuthenticationError, ValidationError } from '../../utils/errorTypes';
 import { logger, auditLog } from '../../utils/logger';
 import { setAuthCookie, clearAuthCookie } from '../../utils/cookieAuth';
@@ -82,7 +82,7 @@ router.post(
     };
 
     const token = jwt.sign(tokenPayload, jwtSecret, {
-      expiresIn: process.env.JWT_EXPIRATION || '24h',
+      expiresIn: (process.env.JWT_EXPIRATION || '24h') as string,
     });
 
     // Set auth cookie

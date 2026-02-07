@@ -20,7 +20,7 @@ const router: Router = express.Router();
 async function checkDocumentAccess(
   tenantId: string,
   documentId: string,
-  userId: number,
+  _userId: number,
   userRole: string
 ): Promise<{ hasAccess: boolean; document: any }> {
   const document = await queryOne(
@@ -529,7 +529,7 @@ router.delete(
 
     const { hasAccess, document } = await checkDocumentAccess(tenantId, documentId, userId, userRole);
 
-    if (!document) {
+    if (!document || !hasAccess) {
       throw new NotFoundError('Document not found');
     }
 
