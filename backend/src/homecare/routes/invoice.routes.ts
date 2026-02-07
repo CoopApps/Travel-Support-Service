@@ -1,90 +1,84 @@
-import { Router, Response } from 'express';
-import { query, queryWithTenant } from '../../config/database';
+import express, { Router, Response } from 'express';
 import { asyncHandler } from '../../middleware/errorHandler';
-import { validateBody, validateQuery, validateParams } from '../../middleware/validation';
-import {
-  createInvoiceSchema,
-  updateInvoiceSchema,
-  invoiceLineSchema,
-  recordPaymentSchema,
-  invoiceIdParamSchema,
-  listInvoicesQuerySchema,
-  batchInvoiceSchema,
-  billingRateSchema,
-  localAuthorityConfigSchema,
-  creditNoteSchema,
-  sendInvoiceSchema,
-} from '../../schemas/invoice.schemas';
-import { AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
+import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
+import { query, queryOne } from '../../config/database';
+import { NotFoundError, ValidationError } from '../../utils/errorTypes';
 import { logger } from '../../utils/logger';
-import { NotFoundError, ForbiddenError, ValidationError } from '../../utils/errorTypes';
 
-const router = Router();
+const router: Router = express.Router();
 
 /**
- * Invoice Routes for Home Care Co-operative System
- *
- * Handles billing, invoicing, and payment tracking.
+ * Home Care Invoice Routes
+ * Complete billing and invoicing system for care services
+ * (Completely separate from travel support invoicing)
  */
 
 /**
  * Generate unique invoice number
  */
-async function generateInvoiceNumber(tenantId: number): Promise<string> {
-  const result = await query(
-    `SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number FROM 5) AS INTEGER)), 0) + 1 as next_num
-     FROM tenant_invoices
-     WHERE tenant_id = $1 AND invoice_number LIKE 'INV-%'`,
+async function generateInvoiceNumber(tenantId: string): Promise<string> {
+  const result = await queryOne(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number FROM 9) AS INTEGER)), 0) + 1 as next_num
+     FROM tenant_homecare_invoices
+     WHERE tenant_id = $1 AND invoice_number LIKE 'HC-INV-%'`,
     [tenantId]
   );
-  const nextNum = result.rows[0].next_num;
-  return `INV-${String(nextNum).padStart(6, '0')}`;
+  const nextNum = result?.next_num || 1;
+  return `HC-INV-${String(nextNum).padStart(6, '0')}`;
 }
 
 /**
  * Calculate billing for visits in a period
  */
 async function calculateVisitBilling(
-  tenantId: number,
+  tenantId: string,
   clientId: number,
   periodStart: string,
   periodEnd: string
 ): Promise<any[]> {
-  // Get completed visits in period
-  const visits = await queryWithTenant<any>(
-    tenantId,
-    `SELECT v.id, v.scheduled_date, v.actual_start_time, v.actual_end_time,
-            v.miles_claimed, v.status,
-            c.funding_source
-     FROM tenant_visits v
-     JOIN tenant_clients c ON v.client_id = c.id AND c.tenant_id = v.tenant_id
-     WHERE v.client_id = $2
-       AND v.scheduled_date >= $3
-       AND v.scheduled_date <= $4
+  // Get completed visits in period that haven't been invoiced
+  const visits = await query(
+    `SELECT
+      v.visit_id,
+      v.scheduled_start,
+      v.scheduled_end,
+      v.actual_start,
+      v.actual_end,
+      v.mileage_claimed,
+      c.funding_source
+     FROM tenant_care_visits v
+     JOIN tenant_care_clients c ON v.client_id = c.client_id AND v.tenant_id = c.tenant_id
+     WHERE v.tenant_id = $1
+       AND v.client_id = $2
+       AND DATE(v.scheduled_start) >= $3
+       AND DATE(v.scheduled_start) <= $4
        AND v.status = 'completed'
-       AND v.id NOT IN (
-         SELECT DISTINCT visit_id FROM tenant_invoice_lines WHERE visit_id IS NOT NULL
+       AND v.visit_id NOT IN (
+         SELECT DISTINCT visit_id FROM tenant_homecare_invoice_items
+         WHERE tenant_id = $1 AND visit_id IS NOT NULL
        )
-     ORDER BY v.scheduled_date`,
-    [clientId, periodStart, periodEnd]
+     ORDER BY v.scheduled_start`,
+    [tenantId, clientId, periodStart, periodEnd]
   );
 
   const lineItems = [];
 
   for (const visit of visits) {
-    // Calculate duration
-    const startParts = visit.actual_start_time.split(':');
-    const endParts = visit.actual_end_time.split(':');
-    const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-    const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-    const durationMinutes = endMinutes - startMinutes;
+    // Calculate duration in minutes
+    const scheduledStart = new Date(visit.scheduled_start);
+    const scheduledEnd = new Date(visit.scheduled_end);
+    const actualStart = visit.actual_start ? new Date(visit.actual_start) : scheduledStart;
+    const actualEnd = visit.actual_end ? new Date(visit.actual_end) : scheduledEnd;
+
+    const durationMs = actualEnd.getTime() - actualStart.getTime();
+    const durationMinutes = Math.round(durationMs / 60000);
     const hours = Math.floor(durationMinutes / 60);
     const minutes = durationMinutes % 60;
 
     // Determine rate type based on day/time
-    const visitDate = new Date(visit.scheduled_date);
+    const visitDate = new Date(visit.scheduled_start);
     const dayOfWeek = visitDate.getDay();
-    const hour = parseInt(startParts[0]);
+    const hour = visitDate.getHours();
 
     let rateType = 'standard';
     if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -93,45 +87,43 @@ async function calculateVisitBilling(
       rateType = 'evening';
     }
 
-    // Get applicable rate
-    const rates = await queryWithTenant<any>(
-      tenantId,
-      `SELECT hourly_rate FROM tenant_billing_rates
+    // Get applicable hourly rate (in pence)
+    const rateResult = await queryOne(
+      `SELECT hourly_rate FROM tenant_homecare_billing_rates
        WHERE tenant_id = $1
          AND rate_type = $2
          AND is_active = true
          AND effective_from <= $3
          AND (effective_to IS NULL OR effective_to >= $3)
-         AND (client_id IS NULL OR client_id = $4)
-         AND (funding_source IS NULL OR funding_source = $5)
-       ORDER BY client_id NULLS LAST, funding_source NULLS LAST
+         AND (funding_source IS NULL OR funding_source = $4)
+       ORDER BY funding_source DESC NULLS LAST
        LIMIT 1`,
-      [rateType, visit.scheduled_date, clientId, visit.funding_source]
+      [tenantId, rateType, visitDate, visit.funding_source]
     );
 
-    const hourlyRate = rates.length > 0 ? rates[0].hourly_rate : 1500; // Default 15.00
+    const hourlyRate = rateResult?.hourly_rate || 1500; // Default £15.00 per hour
     const visitAmount = Math.round((durationMinutes / 60) * hourlyRate);
 
     // Mileage calculation
     let mileageAmount = 0;
     const mileageRate = 45; // 45p per mile
-    if (visit.miles_claimed && visit.miles_claimed > 0) {
-      mileageAmount = Math.round(visit.miles_claimed * mileageRate);
+    if (visit.mileage_claimed && visit.mileage_claimed > 0) {
+      mileageAmount = Math.round(visit.mileage_claimed * mileageRate);
     }
 
     lineItems.push({
-      visitId: visit.id,
-      visitDate: visit.scheduled_date,
-      description: `Care visit on ${new Date(visit.scheduled_date).toLocaleDateString('en-GB')}`,
+      visitId: visit.visit_id,
+      visitDate: visitDate.toISOString().split('T')[0],
+      description: `Care visit on ${visitDate.toLocaleDateString('en-GB')} - ${hours}h ${minutes}m`,
       hours,
       minutes,
       rateType,
-      unitRate: hourlyRate,
-      amount: visitAmount,
-      mileage: visit.miles_claimed || 0,
+      hourlyRate,
+      visitAmount,
+      mileage: visit.mileage_claimed || 0,
       mileageRate,
       mileageAmount,
-      totalAmount: visitAmount + mileageAmount,
+      totalAmount: visitAmount + mileageAmount
     });
   }
 
@@ -139,26 +131,25 @@ async function calculateVisitBilling(
 }
 
 /**
- * GET /tenants/:tenantId/invoices
+ * GET /api/homecare/tenants/:tenantId/invoices
  * List invoices with filtering and pagination
  */
 router.get(
   '/tenants/:tenantId/invoices',
-  validateQuery(listInvoicesQuerySchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
     const {
       page = 1,
       limit = 20,
       status,
-      fundingSource,
-      clientId,
-      localAuthorityId,
-      dateFrom,
-      dateTo,
+      funding_source,
+      client_id,
+      date_from,
+      date_to,
       overdue,
-      sortBy = 'issue_date',
-      sortOrder = 'desc',
+      sort_by = 'issue_date',
+      sort_order = 'desc'
     } = req.query;
 
     const offset = (Number(page) - 1) * Number(limit);
@@ -173,39 +164,40 @@ router.get(
       paramIndex++;
     }
 
-    if (fundingSource) {
+    if (funding_source) {
       whereClause += ` AND i.funding_source = $${paramIndex}`;
-      params.push(fundingSource);
+      params.push(funding_source);
       paramIndex++;
     }
 
-    if (clientId) {
+    if (client_id) {
       whereClause += ` AND i.client_id = $${paramIndex}`;
-      params.push(clientId);
+      params.push(client_id);
       paramIndex++;
     }
 
-    if (localAuthorityId) {
-      whereClause += ` AND i.local_authority_id = $${paramIndex}`;
-      params.push(localAuthorityId);
-      paramIndex++;
-    }
-
-    if (dateFrom) {
+    if (date_from) {
       whereClause += ` AND i.issue_date >= $${paramIndex}`;
-      params.push(dateFrom);
+      params.push(date_from);
       paramIndex++;
     }
 
-    if (dateTo) {
+    if (date_to) {
       whereClause += ` AND i.issue_date <= $${paramIndex}`;
-      params.push(dateTo);
+      params.push(date_to);
       paramIndex++;
     }
 
     if (overdue === 'true') {
-      whereClause += ` AND i.due_date < NOW() AND i.status NOT IN ('paid', 'cancelled')`;
+      whereClause += ` AND i.due_date < CURRENT_DATE AND i.status NOT IN ('paid', 'cancelled')`;
     }
+
+    // Get total count
+    const countResult = await queryOne(
+      `SELECT COUNT(*) as total FROM tenant_homecare_invoices i WHERE ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.total || '0', 10);
 
     // Sort mapping
     const sortColumns: Record<string, string> = {
@@ -213,236 +205,196 @@ router.get(
       issue_date: 'i.issue_date',
       due_date: 'i.due_date',
       total_amount: 'i.total_amount',
-      status: 'i.status',
+      status: 'i.status'
     };
-    const sortColumn = sortColumns[sortBy as string] || 'i.issue_date';
-    const order = sortOrder === 'asc' ? 'ASC' : 'DESC';
-
-    // Get total count
-    const countResult = await query(
-      `SELECT COUNT(*) as total FROM tenant_invoices i WHERE ${whereClause}`,
-      params
-    );
-    const total = parseInt(countResult.rows[0].total, 10);
+    const sortColumn = sortColumns[sort_by as string] || 'i.issue_date';
+    const order = sort_order === 'asc' ? 'ASC' : 'DESC';
 
     // Get invoices
     const invoices = await query(
-      `SELECT i.*,
-              c.first_name as client_first_name,
-              c.last_name as client_last_name,
-              la.name as local_authority_name
-       FROM tenant_invoices i
-       LEFT JOIN tenant_clients c ON i.client_id = c.id AND c.tenant_id = i.tenant_id
-       LEFT JOIN tenant_local_authorities la ON i.local_authority_id = la.id AND la.tenant_id = i.tenant_id
-       WHERE ${whereClause}
-       ORDER BY ${sortColumn} ${order}
-       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      `SELECT
+        i.*,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name
+      FROM tenant_homecare_invoices i
+      LEFT JOIN tenant_care_clients c ON i.client_id = c.client_id AND i.tenant_id = c.tenant_id
+      WHERE ${whereClause}
+      ORDER BY ${sortColumn} ${order}
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
       [...params, limit, offset]
     );
 
     res.json({
-      invoices: invoices.rows,
+      invoices,
       pagination: {
         page: Number(page),
         limit: Number(limit),
         total,
-        totalPages: Math.ceil(total / Number(limit)),
-      },
+        totalPages: Math.ceil(total / Number(limit))
+      }
     });
   })
 );
 
 /**
- * GET /tenants/:tenantId/invoices/:invoiceId
- * Get single invoice with line items
+ * GET /api/homecare/tenants/:tenantId/invoices/:invoiceId
+ * Get single invoice with line items and payments
  */
 router.get(
   '/tenants/:tenantId/invoices/:invoiceId',
-  validateParams(invoiceIdParamSchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, invoiceId } = req.params;
 
     // Get invoice
-    const invoices = await queryWithTenant<any>(
-      Number(tenantId),
-      `SELECT i.*,
-              c.first_name as client_first_name,
-              c.last_name as client_last_name,
-              c.address as client_address,
-              c.email as client_email,
-              la.name as local_authority_name,
-              la.billing_address as la_billing_address
-       FROM tenant_invoices i
-       LEFT JOIN tenant_clients c ON i.client_id = c.id AND c.tenant_id = i.tenant_id
-       LEFT JOIN tenant_local_authorities la ON i.local_authority_id = la.id AND la.tenant_id = i.tenant_id
-       WHERE i.id = $2`,
-      [invoiceId]
+    const invoice = await queryOne(
+      `SELECT
+        i.*,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        c.address as client_address,
+        c.postcode as client_postcode,
+        c.email as client_email
+      FROM tenant_homecare_invoices i
+      LEFT JOIN tenant_care_clients c ON i.client_id = c.client_id AND i.tenant_id = c.tenant_id
+      WHERE i.tenant_id = $1 AND i.invoice_id = $2`,
+      [tenantId, invoiceId]
     );
 
-    if (invoices.length === 0) {
+    if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
 
-    const invoice = invoices[0];
-
     // Get line items
-    const lineItems = await queryWithTenant<any>(
-      Number(tenantId),
-      `SELECT * FROM tenant_invoice_lines WHERE invoice_id = $2 ORDER BY visit_date, id`,
-      [invoiceId]
+    const lineItems = await query(
+      `SELECT * FROM tenant_homecare_invoice_items
+       WHERE tenant_id = $1 AND invoice_id = $2
+       ORDER BY visit_date, item_id`,
+      [tenantId, invoiceId]
     );
 
     // Get payments
-    const payments = await queryWithTenant<any>(
-      Number(tenantId),
-      `SELECT p.*, u.first_name as received_by_first_name, u.last_name as received_by_last_name
-       FROM tenant_payments p
-       LEFT JOIN tenant_users u ON p.received_by = u.id
-       WHERE p.invoice_id = $2
+    const payments = await query(
+      `SELECT
+        p.*,
+        u.first_name as received_by_first_name,
+        u.last_name as received_by_last_name
+       FROM tenant_homecare_payments p
+       LEFT JOIN tenant_users u ON p.received_by = u.user_id AND p.tenant_id = u.tenant_id
+       WHERE p.tenant_id = $1 AND p.invoice_id = $2
        ORDER BY p.payment_date DESC`,
-      [invoiceId]
-    );
-
-    // Get credit notes
-    const creditNotes = await queryWithTenant<any>(
-      Number(tenantId),
-      `SELECT cn.*, u.first_name as issued_by_first_name, u.last_name as issued_by_last_name
-       FROM tenant_credit_notes cn
-       LEFT JOIN tenant_users u ON cn.issued_by = u.id
-       WHERE cn.invoice_id = $2
-       ORDER BY cn.issued_date DESC`,
-      [invoiceId]
+      [tenantId, invoiceId]
     );
 
     res.json({
       invoice,
-      lineItems: lineItems,
-      payments: payments,
-      creditNotes: creditNotes,
+      lineItems,
+      payments
     });
   })
 );
 
 /**
- * POST /tenants/:tenantId/invoices
- * Create a new invoice
+ * POST /api/homecare/tenants/:tenantId/invoices
+ * Create a new invoice (auto-generates line items from visits)
  */
 router.post(
   '/tenants/:tenantId/invoices',
-  validateBody(createInvoiceSchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
     const userId = req.user!.userId;
     const {
-      clientId,
-      localAuthorityId,
-      periodStart,
-      periodEnd,
-      dueDate,
-      purchaseOrderNumber,
+      client_id,
+      period_start,
+      period_end,
+      due_date,
+      purchase_order_number,
       notes,
-      autoGenerateLines = true,
+      auto_generate_lines = true
     } = req.body;
 
-    // Validate client or local authority exists
-    let billingName = '';
-    let billingAddress = '';
-    let billingEmail = '';
-    let fundingSource = 'self_funded';
-
-    if (clientId) {
-      const clients = await queryWithTenant<any>(
-        Number(tenantId),
-        'SELECT * FROM tenant_clients WHERE id = $2',
-        [clientId]
-      );
-      if (clients.length === 0) {
-        throw new ValidationError('Client not found');
-      }
-      const client = clients[0];
-      billingName = `${client.first_name} ${client.last_name}`;
-      billingAddress = `${client.address}, ${client.city}, ${client.postcode}`;
-      billingEmail = client.email || '';
-      fundingSource = client.funding_source || 'self_funded';
-    } else if (localAuthorityId) {
-      const las = await queryWithTenant<any>(
-        Number(tenantId),
-        'SELECT * FROM tenant_local_authorities WHERE id = $2',
-        [localAuthorityId]
-      );
-      if (las.length === 0) {
-        throw new ValidationError('Local authority not found');
-      }
-      const la = las[0];
-      billingName = la.name;
-      billingAddress = la.billing_address;
-      billingEmail = la.contact_email || '';
-      fundingSource = 'local_authority';
+    // Validate required fields
+    if (!client_id || !period_start || !period_end) {
+      throw new ValidationError('Client ID, period start, and period end are required');
     }
 
+    // Get client details
+    const client = await queryOne(
+      `SELECT * FROM tenant_care_clients WHERE tenant_id = $1 AND client_id = $2`,
+      [tenantId, client_id]
+    );
+
+    if (!client) {
+      throw new ValidationError('Client not found');
+    }
+
+    const billingName = `${client.first_name} ${client.last_name}`;
+    const billingAddress = `${client.address || ''}, ${client.city || ''}, ${client.postcode || ''}`.trim();
+    const billingEmail = client.email || '';
+    const fundingSource = client.funding_source || 'self_funded';
+
     // Generate invoice number
-    const invoiceNumber = await generateInvoiceNumber(Number(tenantId));
+    const invoiceNumber = await generateInvoiceNumber(tenantId);
 
     // Calculate due date (default 30 days)
-    const calculatedDueDate = dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const calculatedDueDate = due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     // Create invoice
-    const result = await query(
-      `INSERT INTO tenant_invoices (
-        tenant_id, invoice_number, client_id, local_authority_id,
+    const invoice = await queryOne(
+      `INSERT INTO tenant_homecare_invoices (
+        tenant_id, invoice_number, client_id,
         billing_name, billing_address, billing_email,
         period_start, period_end, issue_date, due_date,
         subtotal, tax_amount, total_amount, paid_amount, outstanding_amount,
         status, funding_source, purchase_order_number, notes,
-        created_by, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10, 0, 0, 0, 0, 0, 'draft', $11, $12, $13, $14, NOW(), NOW())
+        created_by, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_DATE, $9, 0, 0, 0, 0, 0, 'draft', $10, $11, $12, $13, NOW())
       RETURNING *`,
       [
         tenantId,
         invoiceNumber,
-        clientId || null,
-        localAuthorityId || null,
+        client_id,
         billingName,
         billingAddress,
         billingEmail,
-        periodStart,
-        periodEnd,
+        period_start,
+        period_end,
         calculatedDueDate,
         fundingSource,
-        purchaseOrderNumber || null,
+        purchase_order_number || null,
         notes || null,
-        userId,
+        userId
       ]
     );
 
-    const invoice = result.rows[0];
-
     // Auto-generate line items from visits
-    if (autoGenerateLines && clientId) {
-      const lineItems = await calculateVisitBilling(Number(tenantId), clientId, periodStart, periodEnd);
+    if (auto_generate_lines) {
+      const lineItems = await calculateVisitBilling(tenantId, client_id, period_start, period_end);
 
       let subtotal = 0;
       for (const item of lineItems) {
         await query(
-          `INSERT INTO tenant_invoice_lines (
+          `INSERT INTO tenant_homecare_invoice_items (
             tenant_id, invoice_id, visit_id, visit_date, description,
-            hours, minutes, rate_type, unit_rate, amount,
-            mileage, mileage_rate, mileage_amount, created_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())`,
+            hours, minutes, rate_type, hourly_rate, visit_amount,
+            mileage, mileage_rate, mileage_amount, total_amount, created_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())`,
           [
             tenantId,
-            invoice.id,
+            invoice.invoice_id,
             item.visitId,
             item.visitDate,
             item.description,
             item.hours,
             item.minutes,
             item.rateType,
-            item.unitRate,
-            item.amount,
+            item.hourlyRate,
+            item.visitAmount,
             item.mileage,
             item.mileageRate,
             item.mileageAmount,
+            item.totalAmount
           ]
         );
         subtotal += item.totalAmount;
@@ -450,10 +402,10 @@ router.post(
 
       // Update invoice totals
       await query(
-        `UPDATE tenant_invoices
+        `UPDATE tenant_homecare_invoices
          SET subtotal = $3, total_amount = $3, outstanding_amount = $3, updated_at = NOW()
-         WHERE tenant_id = $1 AND id = $2`,
-        [tenantId, invoice.id, subtotal]
+         WHERE tenant_id = $1 AND invoice_id = $2`,
+        [tenantId, invoice.invoice_id, subtotal]
       );
 
       invoice.subtotal = subtotal;
@@ -461,169 +413,154 @@ router.post(
       invoice.outstanding_amount = subtotal;
     }
 
-    logger.info('Invoice created', {
-      tenantId,
-      invoiceId: invoice.id,
-      invoiceNumber,
-      clientId,
-      localAuthorityId,
-      userId,
-    });
-
-    res.status(201).json({
-      message: 'Invoice created successfully',
-      invoice,
-    });
+    logger.info(`Created homecare invoice ${invoiceNumber} for tenant ${tenantId}`);
+    res.status(201).json(invoice);
   })
 );
 
 /**
- * POST /tenants/:tenantId/invoices/:invoiceId/lines
- * Add line item to invoice
+ * POST /api/homecare/tenants/:tenantId/invoices/:invoiceId/items
+ * Add a line item to an invoice
  */
 router.post(
-  '/tenants/:tenantId/invoices/:invoiceId/lines',
-  validateParams(invoiceIdParamSchema),
-  validateBody(invoiceLineSchema),
+  '/tenants/:tenantId/invoices/:invoiceId/items',
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, invoiceId } = req.params;
-    const { visitId, description, hours, minutes = 0, rateType, unitRate, mileage, mileageRate } = req.body;
+    const {
+      visit_id,
+      description,
+      hours,
+      minutes = 0,
+      rate_type,
+      hourly_rate,
+      mileage,
+      mileage_rate
+    } = req.body;
 
     // Verify invoice exists and is editable
-    const invoices = await queryWithTenant<any>(
-      Number(tenantId),
-      'SELECT * FROM tenant_invoices WHERE id = $2',
-      [invoiceId]
+    const invoice = await queryOne(
+      'SELECT invoice_id, status FROM tenant_homecare_invoices WHERE tenant_id = $1 AND invoice_id = $2',
+      [tenantId, invoiceId]
     );
 
-    if (invoices.length === 0) {
+    if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
 
-    if (invoices[0].status !== 'draft') {
-      throw new ValidationError('Cannot add lines to non-draft invoice');
+    if (invoice.status !== 'draft') {
+      throw new ValidationError('Cannot add items to non-draft invoice');
     }
 
-    // Calculate amounts
+    // Calculate amounts (amounts in pence)
     const durationHours = hours + minutes / 60;
-    const amount = Math.round(durationHours * unitRate);
-    const mileageAmount = mileage && mileageRate ? Math.round(mileage * mileageRate) : 0;
+    const visitAmount = Math.round(durationHours * hourly_rate);
+    const mileageAmount = mileage && mileage_rate ? Math.round(mileage * mileage_rate) : 0;
+    const totalAmount = visitAmount + mileageAmount;
 
     // Insert line item
-    const result = await query(
-      `INSERT INTO tenant_invoice_lines (
+    const item = await queryOne(
+      `INSERT INTO tenant_homecare_invoice_items (
         tenant_id, invoice_id, visit_id, description,
-        hours, minutes, rate_type, unit_rate, amount,
-        mileage, mileage_rate, mileage_amount, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+        hours, minutes, rate_type, hourly_rate, visit_amount,
+        mileage, mileage_rate, mileage_amount, total_amount, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
       RETURNING *`,
       [
         tenantId,
         invoiceId,
-        visitId || null,
+        visit_id || null,
         description,
         hours,
         minutes,
-        rateType,
-        unitRate,
-        amount,
-        mileage || null,
-        mileageRate || null,
+        rate_type,
+        hourly_rate,
+        visitAmount,
+        mileage || 0,
+        mileage_rate || 0,
         mileageAmount,
+        totalAmount
       ]
     );
 
     // Update invoice totals
     await query(
-      `UPDATE tenant_invoices
+      `UPDATE tenant_homecare_invoices
        SET subtotal = subtotal + $3,
            total_amount = total_amount + $3,
            outstanding_amount = outstanding_amount + $3,
            updated_at = NOW()
-       WHERE tenant_id = $1 AND id = $2`,
-      [tenantId, invoiceId, amount + mileageAmount]
+       WHERE tenant_id = $1 AND invoice_id = $2`,
+      [tenantId, invoiceId, totalAmount]
     );
 
-    res.status(201).json({
-      message: 'Line item added successfully',
-      lineItem: result.rows[0],
-    });
+    res.status(201).json(item);
   })
 );
 
 /**
- * POST /tenants/:tenantId/invoices/:invoiceId/send
+ * POST /api/homecare/tenants/:tenantId/invoices/:invoiceId/send
  * Mark invoice as sent
  */
 router.post(
   '/tenants/:tenantId/invoices/:invoiceId/send',
-  validateParams(invoiceIdParamSchema),
-  validateBody(sendInvoiceSchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, invoiceId } = req.params;
     const userId = req.user!.userId;
 
-    const invoices = await queryWithTenant<any>(
-      Number(tenantId),
-      'SELECT * FROM tenant_invoices WHERE id = $2',
-      [invoiceId]
+    const invoice = await queryOne(
+      'SELECT invoice_id, status FROM tenant_homecare_invoices WHERE tenant_id = $1 AND invoice_id = $2',
+      [tenantId, invoiceId]
     );
 
-    if (invoices.length === 0) {
+    if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
 
-    if (invoices[0].status !== 'draft' && invoices[0].status !== 'pending') {
+    if (invoice.status !== 'draft') {
       throw new ValidationError('Invoice has already been sent');
     }
 
     // Update status to sent
     await query(
-      `UPDATE tenant_invoices
-       SET status = 'sent', updated_at = NOW()
-       WHERE tenant_id = $1 AND id = $2`,
+      `UPDATE tenant_homecare_invoices
+       SET status = 'sent', sent_date = CURRENT_DATE, updated_at = NOW()
+       WHERE tenant_id = $1 AND invoice_id = $2`,
       [tenantId, invoiceId]
     );
 
-    // TODO: Implement actual email sending
-
-    logger.info('Invoice sent', {
-      tenantId,
-      invoiceId,
-      userId,
-    });
-
-    res.json({
-      message: 'Invoice marked as sent',
-    });
+    logger.info(`Invoice ${invoiceId} sent by user ${userId}`);
+    res.json({ message: 'Invoice marked as sent' });
   })
 );
 
 /**
- * POST /tenants/:tenantId/invoices/:invoiceId/payments
+ * POST /api/homecare/tenants/:tenantId/invoices/:invoiceId/payments
  * Record a payment against an invoice
  */
 router.post(
   '/tenants/:tenantId/invoices/:invoiceId/payments',
-  validateParams(invoiceIdParamSchema),
-  validateBody(recordPaymentSchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, invoiceId } = req.params;
     const userId = req.user!.userId;
-    const { amount, paymentMethod, paymentDate, reference, notes } = req.body;
+    const { amount, payment_method, payment_date, reference, notes } = req.body;
 
-    // Verify invoice exists
-    const invoices = await queryWithTenant<any>(
-      Number(tenantId),
-      'SELECT * FROM tenant_invoices WHERE id = $2',
-      [invoiceId]
-    );
-
-    if (invoices.length === 0) {
-      throw new NotFoundError('Invoice not found');
+    // Validate amount
+    if (!amount || amount <= 0) {
+      throw new ValidationError('Payment amount must be positive');
     }
 
-    const invoice = invoices[0];
+    // Get invoice
+    const invoice = await queryOne(
+      'SELECT * FROM tenant_homecare_invoices WHERE tenant_id = $1 AND invoice_id = $2',
+      [tenantId, invoiceId]
+    );
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
 
     if (invoice.status === 'cancelled') {
       throw new ValidationError('Cannot record payment on cancelled invoice');
@@ -634,13 +571,22 @@ router.post(
     }
 
     // Record payment
-    const result = await query(
-      `INSERT INTO tenant_payments (
+    const payment = await queryOne(
+      `INSERT INTO tenant_homecare_payments (
         tenant_id, invoice_id, amount, payment_method, payment_date,
         reference, notes, received_by, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       RETURNING *`,
-      [tenantId, invoiceId, amount, paymentMethod, paymentDate, reference || null, notes || null, userId]
+      [
+        tenantId,
+        invoiceId,
+        amount,
+        payment_method,
+        payment_date || new Date().toISOString().split('T')[0],
+        reference || null,
+        notes || null,
+        userId
+      ]
     );
 
     // Update invoice
@@ -649,155 +595,114 @@ router.post(
     const newStatus = newOutstanding <= 0 ? 'paid' : 'partial';
 
     await query(
-      `UPDATE tenant_invoices
+      `UPDATE tenant_homecare_invoices
        SET paid_amount = $3,
            outstanding_amount = $4,
            status = $5,
-           paid_date = CASE WHEN $5 = 'paid' THEN NOW() ELSE paid_date END,
+           paid_date = CASE WHEN $5 = 'paid' THEN CURRENT_DATE ELSE paid_date END,
            updated_at = NOW()
-       WHERE tenant_id = $1 AND id = $2`,
+       WHERE tenant_id = $1 AND invoice_id = $2`,
       [tenantId, invoiceId, newPaidAmount, newOutstanding, newStatus]
     );
 
-    logger.info('Payment recorded', {
-      tenantId,
-      invoiceId,
-      paymentId: result.rows[0].id,
-      amount,
-      userId,
-    });
-
+    logger.info(`Payment recorded for invoice ${invoiceId}: ${amount}p`);
     res.status(201).json({
-      message: 'Payment recorded successfully',
-      payment: result.rows[0],
+      payment,
       invoiceStatus: newStatus,
-      outstandingAmount: newOutstanding,
+      outstandingAmount: newOutstanding
     });
   })
 );
 
 /**
- * POST /tenants/:tenantId/invoices/:invoiceId/credit-note
- * Issue a credit note against an invoice
+ * POST /api/homecare/tenants/:tenantId/invoices/:invoiceId/cancel
+ * Cancel an invoice
  */
 router.post(
-  '/tenants/:tenantId/invoices/:invoiceId/credit-note',
-  validateParams(invoiceIdParamSchema),
-  validateBody(creditNoteSchema),
+  '/tenants/:tenantId/invoices/:invoiceId/cancel',
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, invoiceId } = req.params;
-    const userId = req.user!.userId;
-    const { amount, reason } = req.body;
+    const { reason } = req.body;
 
-    // Verify invoice exists
-    const invoices = await queryWithTenant<any>(
-      Number(tenantId),
-      'SELECT * FROM tenant_invoices WHERE id = $2',
-      [invoiceId]
+    const invoice = await queryOne(
+      'SELECT invoice_id, status FROM tenant_homecare_invoices WHERE tenant_id = $1 AND invoice_id = $2',
+      [tenantId, invoiceId]
     );
 
-    if (invoices.length === 0) {
+    if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
 
-    if (amount > invoices[0].outstanding_amount) {
-      throw new ValidationError('Credit note amount exceeds outstanding balance');
+    if (invoice.status === 'paid') {
+      throw new ValidationError('Cannot cancel a paid invoice');
     }
 
-    // Generate credit note number
-    const cnResult = await query(
-      `SELECT COALESCE(MAX(CAST(SUBSTRING(credit_note_number FROM 4) AS INTEGER)), 0) + 1 as next_num
-       FROM tenant_credit_notes WHERE tenant_id = $1`,
-      [tenantId]
-    );
-    const creditNoteNumber = `CN-${String(cnResult.rows[0].next_num).padStart(6, '0')}`;
-
-    // Create credit note
-    const result = await query(
-      `INSERT INTO tenant_credit_notes (
-        tenant_id, credit_note_number, invoice_id, amount, reason,
-        issued_by, issued_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-      RETURNING *`,
-      [tenantId, creditNoteNumber, invoiceId, amount, reason, userId]
-    );
-
-    // Update invoice
     await query(
-      `UPDATE tenant_invoices
-       SET outstanding_amount = outstanding_amount - $3,
-           total_amount = total_amount - $3,
-           updated_at = NOW()
-       WHERE tenant_id = $1 AND id = $2`,
-      [tenantId, invoiceId, amount]
+      `UPDATE tenant_homecare_invoices
+       SET status = 'cancelled', cancellation_reason = $3, updated_at = NOW()
+       WHERE tenant_id = $1 AND invoice_id = $2`,
+      [tenantId, invoiceId, reason || null]
     );
 
-    logger.info('Credit note issued', {
-      tenantId,
-      invoiceId,
-      creditNoteId: result.rows[0].id,
-      amount,
-      userId,
-    });
-
-    res.status(201).json({
-      message: 'Credit note issued successfully',
-      creditNote: result.rows[0],
-    });
+    logger.info(`Invoice ${invoiceId} cancelled`);
+    res.json({ message: 'Invoice cancelled successfully' });
   })
 );
 
 /**
- * GET /tenants/:tenantId/billing/summary
+ * GET /api/homecare/tenants/:tenantId/billing/summary
  * Get billing summary for dashboard
  */
 router.get(
   '/tenants/:tenantId/billing/summary',
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
 
     // Total outstanding
-    const outstandingResult = await query(
+    const outstandingResult = await queryOne(
       `SELECT COALESCE(SUM(outstanding_amount), 0) as total
-       FROM tenant_invoices
+       FROM tenant_homecare_invoices
        WHERE tenant_id = $1 AND status NOT IN ('paid', 'cancelled')`,
       [tenantId]
     );
 
     // Total overdue
-    const overdueResult = await query(
+    const overdueResult = await queryOne(
       `SELECT COALESCE(SUM(outstanding_amount), 0) as total
-       FROM tenant_invoices
+       FROM tenant_homecare_invoices
        WHERE tenant_id = $1
          AND status NOT IN ('paid', 'cancelled')
-         AND due_date < NOW()`,
+         AND due_date < CURRENT_DATE`,
       [tenantId]
     );
 
     // Paid this month
-    const paidThisMonthResult = await query(
+    const paidThisMonthResult = await queryOne(
       `SELECT COALESCE(SUM(amount), 0) as total
-       FROM tenant_payments
+       FROM tenant_homecare_payments
        WHERE tenant_id = $1
-         AND payment_date >= DATE_TRUNC('month', NOW())`,
+         AND payment_date >= DATE_TRUNC('month', CURRENT_DATE)`,
       [tenantId]
     );
 
     // Invoiced this month
-    const invoicedThisMonthResult = await query(
+    const invoicedThisMonthResult = await queryOne(
       `SELECT COALESCE(SUM(total_amount), 0) as total
-       FROM tenant_invoices
+       FROM tenant_homecare_invoices
        WHERE tenant_id = $1
-         AND issue_date >= DATE_TRUNC('month', NOW())`,
+         AND issue_date >= DATE_TRUNC('month', CURRENT_DATE)`,
       [tenantId]
     );
 
     // By funding source
     const byFundingResult = await query(
-      `SELECT funding_source,
-              COALESCE(SUM(outstanding_amount), 0) as outstanding,
-              COALESCE(SUM(CASE WHEN due_date < NOW() THEN outstanding_amount ELSE 0 END), 0) as overdue
-       FROM tenant_invoices
+      `SELECT
+        funding_source,
+        COALESCE(SUM(outstanding_amount), 0) as outstanding,
+        COALESCE(SUM(CASE WHEN due_date < CURRENT_DATE THEN outstanding_amount ELSE 0 END), 0) as overdue
+       FROM tenant_homecare_invoices
        WHERE tenant_id = $1 AND status NOT IN ('paid', 'cancelled')
        GROUP BY funding_source`,
       [tenantId]
@@ -806,8 +711,8 @@ router.get(
     // Recent payments
     const recentPayments = await query(
       `SELECT p.*, i.invoice_number
-       FROM tenant_payments p
-       JOIN tenant_invoices i ON p.invoice_id = i.id
+       FROM tenant_homecare_payments p
+       JOIN tenant_homecare_invoices i ON p.invoice_id = i.invoice_id AND p.tenant_id = i.tenant_id
        WHERE p.tenant_id = $1
        ORDER BY p.payment_date DESC
        LIMIT 10`,
@@ -817,11 +722,11 @@ router.get(
     // Overdue invoices
     const overdueInvoices = await query(
       `SELECT i.*, c.first_name, c.last_name
-       FROM tenant_invoices i
-       LEFT JOIN tenant_clients c ON i.client_id = c.id
+       FROM tenant_homecare_invoices i
+       LEFT JOIN tenant_care_clients c ON i.client_id = c.client_id AND i.tenant_id = c.tenant_id
        WHERE i.tenant_id = $1
          AND i.status NOT IN ('paid', 'cancelled')
-         AND i.due_date < NOW()
+         AND i.due_date < CURRENT_DATE
        ORDER BY i.due_date ASC
        LIMIT 10`,
       [tenantId]
@@ -829,146 +734,119 @@ router.get(
 
     res.json({
       summary: {
-        totalOutstanding: parseInt(outstandingResult.rows[0].total, 10),
-        totalOverdue: parseInt(overdueResult.rows[0].total, 10),
-        paidThisMonth: parseInt(paidThisMonthResult.rows[0].total, 10),
-        invoicedThisMonth: parseInt(invoicedThisMonthResult.rows[0].total, 10),
-        byFundingSource: byFundingResult.rows,
-        recentPayments: recentPayments.rows,
-        overdueInvoices: overdueInvoices.rows,
-      },
+        totalOutstanding: parseInt(outstandingResult.total || '0', 10),
+        totalOverdue: parseInt(overdueResult.total || '0', 10),
+        paidThisMonth: parseInt(paidThisMonthResult.total || '0', 10),
+        invoicedThisMonth: parseInt(invoicedThisMonthResult.total || '0', 10),
+        byFundingSource: byFundingResult,
+        recentPayments,
+        overdueInvoices
+      }
     });
   })
 );
 
 /**
- * GET /tenants/:tenantId/billing/rates
- * Get billing rates
+ * GET /api/homecare/tenants/:tenantId/billing/rates
+ * Get billing rates configuration
  */
 router.get(
   '/tenants/:tenantId/billing/rates',
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
 
     const rates = await query(
-      `SELECT * FROM tenant_billing_rates
+      `SELECT * FROM tenant_homecare_billing_rates
        WHERE tenant_id = $1 AND is_active = true
-       ORDER BY rate_type, funding_source, client_id NULLS FIRST`,
+       ORDER BY rate_type, funding_source NULLS FIRST`,
       [tenantId]
     );
 
-    res.json({
-      rates: rates.rows,
-    });
+    res.json({ rates });
   })
 );
 
 /**
- * POST /tenants/:tenantId/billing/rates
- * Create billing rate
+ * POST /api/homecare/tenants/:tenantId/billing/rates
+ * Create a billing rate
  */
 router.post(
   '/tenants/:tenantId/billing/rates',
-  validateBody(billingRateSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { tenantId } = req.params;
-    const { name, rateType, hourlyRate, minimumCharge, fundingSource, clientId, effectiveFrom, effectiveTo } = req.body;
-
-    const result = await query(
-      `INSERT INTO tenant_billing_rates (
-        tenant_id, name, rate_type, hourly_rate, minimum_charge,
-        funding_source, client_id, effective_from, effective_to,
-        is_active, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, NOW(), NOW())
-      RETURNING *`,
-      [
-        tenantId,
-        name,
-        rateType,
-        hourlyRate,
-        minimumCharge || null,
-        fundingSource || null,
-        clientId || null,
-        effectiveFrom,
-        effectiveTo || null,
-      ]
-    );
-
-    res.status(201).json({
-      message: 'Billing rate created successfully',
-      rate: result.rows[0],
-    });
-  })
-);
-
-/**
- * GET /tenants/:tenantId/local-authorities
- * Get local authority configurations
- */
-router.get(
-  '/tenants/:tenantId/local-authorities',
-  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { tenantId } = req.params;
-
-    const authorities = await query(
-      `SELECT * FROM tenant_local_authorities
-       WHERE tenant_id = $1 AND is_active = true
-       ORDER BY name`,
-      [tenantId]
-    );
-
-    res.json({
-      localAuthorities: authorities.rows,
-    });
-  })
-);
-
-/**
- * POST /tenants/:tenantId/local-authorities
- * Create local authority configuration
- */
-router.post(
-  '/tenants/:tenantId/local-authorities',
-  validateBody(localAuthorityConfigSchema),
+  verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
     const {
       name,
-      code,
-      contactEmail,
-      contactPhone,
-      billingAddress,
-      paymentTerms,
-      invoiceFormat,
-      requiresPurchaseOrder,
-      rates,
+      rate_type,
+      hourly_rate,
+      funding_source,
+      effective_from,
+      effective_to
     } = req.body;
 
-    const result = await query(
-      `INSERT INTO tenant_local_authorities (
-        tenant_id, name, code, contact_email, contact_phone,
-        billing_address, payment_terms, invoice_format, requires_purchase_order,
-        rates, is_active, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, NOW(), NOW())
+    // Validate required fields
+    if (!name || !rate_type || !hourly_rate || !effective_from) {
+      throw new ValidationError('Name, rate type, hourly rate, and effective from date are required');
+    }
+
+    const rate = await queryOne(
+      `INSERT INTO tenant_homecare_billing_rates (
+        tenant_id, name, rate_type, hourly_rate,
+        funding_source, effective_from, effective_to,
+        is_active, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
       RETURNING *`,
       [
         tenantId,
         name,
-        code,
-        contactEmail || null,
-        contactPhone || null,
-        billingAddress,
-        paymentTerms,
-        invoiceFormat || null,
-        requiresPurchaseOrder,
-        rates ? JSON.stringify(rates) : null,
+        rate_type,
+        hourly_rate,
+        funding_source || null,
+        effective_from,
+        effective_to || null
       ]
     );
 
-    res.status(201).json({
-      message: 'Local authority created successfully',
-      localAuthority: result.rows[0],
-    });
+    logger.info(`Created billing rate for tenant ${tenantId}: ${name}`);
+    res.status(201).json(rate);
+  })
+);
+
+/**
+ * PUT /api/homecare/tenants/:tenantId/billing/rates/:rateId
+ * Update a billing rate
+ */
+router.put(
+  '/tenants/:tenantId/billing/rates/:rateId',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, rateId } = req.params;
+    const { name, hourly_rate, effective_to, is_active } = req.body;
+
+    const existing = await queryOne(
+      'SELECT rate_id FROM tenant_homecare_billing_rates WHERE tenant_id = $1 AND rate_id = $2',
+      [tenantId, rateId]
+    );
+
+    if (!existing) {
+      throw new NotFoundError('Billing rate not found');
+    }
+
+    const rate = await queryOne(
+      `UPDATE tenant_homecare_billing_rates SET
+        name = COALESCE($3, name),
+        hourly_rate = COALESCE($4, hourly_rate),
+        effective_to = COALESCE($5, effective_to),
+        is_active = COALESCE($6, is_active),
+        updated_at = NOW()
+       WHERE tenant_id = $1 AND rate_id = $2
+       RETURNING *`,
+      [tenantId, rateId, name, hourly_rate, effective_to, is_active]
+    );
+
+    logger.info(`Updated billing rate ${rateId} for tenant ${tenantId}`);
+    res.json(rate);
   })
 );
 

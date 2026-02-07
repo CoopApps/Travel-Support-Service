@@ -3,70 +3,94 @@ import { asyncHandler } from '../../middleware/errorHandler';
 import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
 import { query, queryOne } from '../../config/database';
 import { NotFoundError, ValidationError } from '../../utils/errorTypes';
-import { logger, careEventLog } from '../../utils/logger';
-import { sanitizeCareNotes } from '../../utils/sanitize';
+import { logger } from '../../utils/logger';
+import { sanitizeInput } from '../../utils/sanitize';
 
 const router: Router = express.Router();
 
 /**
- * Care Plan Routes for Home Care Co-operative System
- *
- * Care plans define the regular care needs and tasks for each client.
+ * Home Care Plan Routes
+ * Manages care plans for clients
  */
 
 /**
- * @route GET /api/tenants/:tenantId/care-plans
- * @desc Get all care plans
+ * GET /api/homecare/tenants/:tenantId/care-plans
+ * List all care plans (optionally filtered by client)
  */
 router.get(
   '/tenants/:tenantId/care-plans',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
-    const { clientId, status, page = 1, limit = 20 } = req.query;
+    const { client_id, status = 'active' } = req.query;
 
-    const conditions: string[] = ['cp.tenant_id = $1'];
-    const params: any[] = [tenantId];
-    let paramCount = 2;
-
-    if (clientId) {
-      conditions.push(`cp.client_id = $${paramCount}`);
-      params.push(clientId);
-      paramCount++;
-    }
-
-    if (status) {
-      conditions.push(`cp.status = $${paramCount}`);
-      params.push(status);
-      paramCount++;
-    }
-
-    const whereClause = conditions.join(' AND ');
-    const offset = (Number(page) - 1) * Number(limit);
-
-    const carePlans = await query(
-      `SELECT
-        cp.care_plan_id as id, cp.client_id, cp.version,
-        cp.start_date, cp.end_date, cp.status,
-        cp.weekly_hours, cp.visits_per_week,
-        cp.review_date, cp.reviewed_by,
-        cl.first_name as client_first_name, cl.last_name as client_last_name,
-        cp.created_at, cp.updated_at
+    let sql = `
+      SELECT
+        cp.care_plan_id,
+        cp.client_id,
+        cp.category,
+        cp.care_needs,
+        cp.support_required,
+        cp.goals,
+        cp.frequency,
+        cp.preferred_time,
+        cp.last_review_date,
+        cp.next_review_date,
+        cp.status,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        cp.created_at
       FROM tenant_care_plans cp
-      JOIN tenant_clients cl ON cp.client_id = cl.client_id AND cp.tenant_id = cl.tenant_id
-      WHERE ${whereClause}
-      ORDER BY cp.created_at DESC
-      LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
-      [...params, limit, offset]
-    );
+      JOIN tenant_care_clients c ON cp.client_id = c.client_id AND cp.tenant_id = c.tenant_id
+      WHERE cp.tenant_id = $1
+    `;
 
-    res.json({ carePlans });
+    const params: any[] = [tenantId];
+
+    if (client_id) {
+      sql += ` AND cp.client_id = $${params.length + 1}`;
+      params.push(client_id);
+    }
+
+    if (status && status !== 'all') {
+      sql += ` AND cp.status = $${params.length + 1}`;
+      params.push(status);
+    }
+
+    sql += ' ORDER BY c.last_name, c.first_name, cp.category';
+
+    const carePlans = await query(sql, params);
+
+    logger.info(`Listed ${carePlans.length} care plans for tenant ${tenantId}`);
+    res.json(carePlans);
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/care-plans/:carePlanId
- * @desc Get a specific care plan
+ * GET /api/homecare/tenants/:tenantId/clients/:clientId/care-plans
+ * Get all care plans for a specific client
+ */
+router.get(
+  '/tenants/:tenantId/clients/:clientId/care-plans',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, clientId } = req.params;
+
+    const carePlans = await query(
+      `SELECT * FROM tenant_care_plans
+       WHERE tenant_id = $1 AND client_id = $2
+       AND status = 'active'
+       ORDER BY category`,
+      [tenantId, clientId]
+    );
+
+    res.json(carePlans);
+  })
+);
+
+/**
+ * GET /api/homecare/tenants/:tenantId/care-plans/:carePlanId
+ * Get a specific care plan by ID
  */
 router.get(
   '/tenants/:tenantId/care-plans/:carePlanId',
@@ -77,12 +101,13 @@ router.get(
     const carePlan = await queryOne(
       `SELECT
         cp.*,
-        cl.first_name as client_first_name, cl.last_name as client_last_name,
-        cl.date_of_birth, cl.medical_conditions, cl.allergies, cl.medications,
-        cl.mobility_level, cl.care_level, cl.mental_capacity
-      FROM tenant_care_plans cp
-      JOIN tenant_clients cl ON cp.client_id = cl.client_id AND cp.tenant_id = cl.tenant_id
-      WHERE cp.tenant_id = $1 AND cp.care_plan_id = $2`,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        c.medical_conditions,
+        c.mobility_needs
+       FROM tenant_care_plans cp
+       JOIN tenant_care_clients c ON cp.client_id = c.client_id AND cp.tenant_id = c.tenant_id
+       WHERE cp.tenant_id = $1 AND cp.care_plan_id = $2`,
       [tenantId, carePlanId]
     );
 
@@ -95,100 +120,79 @@ router.get(
 );
 
 /**
- * @route POST /api/tenants/:tenantId/care-plans
- * @desc Create a new care plan
+ * POST /api/homecare/tenants/:tenantId/clients/:clientId/care-plans
+ * Create a new care plan for a client
  */
 router.post(
-  '/tenants/:tenantId/care-plans',
+  '/tenants/:tenantId/clients/:clientId/care-plans',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { tenantId } = req.params;
-    const user = req.user!;
-    const planData = req.body;
+    const { tenantId, clientId } = req.params;
+    const {
+      category,
+      care_needs,
+      support_required,
+      goals,
+      frequency,
+      preferred_time,
+      next_review_date,
+    } = req.body;
 
-    if (!planData.clientId) {
-      throw new ValidationError('Client ID is required');
+    // Validate required fields
+    if (!category || !care_needs) {
+      throw new ValidationError('Category and care needs are required');
     }
 
-    // Get current version for this client
-    const currentVersion = await queryOne<{ version: number }>(
-      `SELECT COALESCE(MAX(version), 0) as version FROM tenant_care_plans
-       WHERE tenant_id = $1 AND client_id = $2`,
-      [tenantId, planData.clientId]
-    );
-
-    const newVersion = (currentVersion?.version || 0) + 1;
-
-    // Deactivate any existing active plans
-    await query(
-      `UPDATE tenant_care_plans SET status = 'superseded', is_active = false, end_date = CURRENT_DATE
-       WHERE tenant_id = $1 AND client_id = $2 AND status = 'active'`,
-      [tenantId, planData.clientId]
-    );
-
-    const result = await queryOne<{ id: number }>(
+    const result = await queryOne(
       `INSERT INTO tenant_care_plans (
-        tenant_id, client_id, version,
-        start_date, review_date, status,
-        weekly_hours, visits_per_week,
-        care_needs, personal_care_tasks, medication_tasks, nutrition_tasks,
-        mobility_tasks, domestic_tasks, social_tasks, health_monitoring_tasks,
-        preferences, risk_assessment, goals,
-        is_active, created_at, updated_at, created_by
+        tenant_id, client_id, category,
+        care_needs, support_required, goals,
+        frequency, preferred_time,
+        created_date, next_review_date,
+        status
       ) VALUES (
-        $1, $2, $3, COALESCE($4, CURRENT_DATE), $5, 'active',
-        $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
-        true, NOW(), NOW(), $19
-      ) RETURNING care_plan_id as id`,
+        $1, $2, $3, $4, $5, $6, $7, $8, CURRENT_DATE, $9, 'active'
+      ) RETURNING *`,
       [
-        tenantId, planData.clientId, newVersion,
-        planData.startDate,
-        planData.reviewDate,
-        planData.weeklyHours,
-        planData.visitsPerWeek,
-        sanitizeCareNotes(planData.careNeeds),
-        JSON.stringify(planData.personalCareTasks || []),
-        JSON.stringify(planData.medicationTasks || []),
-        JSON.stringify(planData.nutritionTasks || []),
-        JSON.stringify(planData.mobilityTasks || []),
-        JSON.stringify(planData.domesticTasks || []),
-        JSON.stringify(planData.socialTasks || []),
-        JSON.stringify(planData.healthMonitoringTasks || []),
-        JSON.stringify(planData.preferences || {}),
-        JSON.stringify(planData.riskAssessment || {}),
-        JSON.stringify(planData.goals || []),
-        user.userId,
+        tenantId,
+        clientId,
+        sanitizeInput(category),
+        sanitizeInput(care_needs),
+        support_required ? sanitizeInput(support_required) : null,
+        goals ? sanitizeInput(goals) : null,
+        frequency || 'as_needed',
+        preferred_time || null,
+        next_review_date || null,
       ]
     );
 
-    careEventLog('CARE_PLAN_CREATED', {
-      tenantId,
-      carePlanId: result?.id,
-      clientId: planData.clientId,
-      version: newVersion,
-      createdBy: user.userId,
-    });
-
-    res.status(201).json({
-      id: result?.id,
-      version: newVersion,
-      message: 'Care plan created successfully',
-    });
+    logger.info(`Created care plan ${result.care_plan_id} for client ${clientId} in tenant ${tenantId}`);
+    res.status(201).json(result);
   })
 );
 
 /**
- * @route PUT /api/tenants/:tenantId/care-plans/:carePlanId
- * @desc Update a care plan
+ * PUT /api/homecare/tenants/:tenantId/care-plans/:carePlanId
+ * Update an existing care plan
  */
 router.put(
   '/tenants/:tenantId/care-plans/:carePlanId',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, carePlanId } = req.params;
-    const user = req.user!;
-    const planData = req.body;
+    const {
+      category,
+      care_needs,
+      support_required,
+      goals,
+      frequency,
+      preferred_time,
+      last_review_date,
+      next_review_date,
+      status,
+    } = req.body;
 
+    // Check if care plan exists
     const existing = await queryOne(
       'SELECT care_plan_id FROM tenant_care_plans WHERE tenant_id = $1 AND care_plan_id = $2',
       [tenantId, carePlanId]
@@ -198,76 +202,95 @@ router.put(
       throw new NotFoundError('Care plan not found');
     }
 
-    await query(
+    const result = await queryOne(
       `UPDATE tenant_care_plans SET
-        weekly_hours = COALESCE($3, weekly_hours),
-        visits_per_week = COALESCE($4, visits_per_week),
-        care_needs = COALESCE($5, care_needs),
-        personal_care_tasks = COALESCE($6, personal_care_tasks),
-        medication_tasks = COALESCE($7, medication_tasks),
-        preferences = COALESCE($8, preferences),
-        risk_assessment = COALESCE($9, risk_assessment),
-        goals = COALESCE($10, goals),
-        review_date = COALESCE($11, review_date),
-        updated_at = NOW(),
-        updated_by = $12
-      WHERE tenant_id = $1 AND care_plan_id = $2`,
+        category = COALESCE($3, category),
+        care_needs = COALESCE($4, care_needs),
+        support_required = COALESCE($5, support_required),
+        goals = COALESCE($6, goals),
+        frequency = COALESCE($7, frequency),
+        preferred_time = COALESCE($8, preferred_time),
+        last_review_date = COALESCE($9, last_review_date),
+        next_review_date = COALESCE($10, next_review_date),
+        status = COALESCE($11, status),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE tenant_id = $1 AND care_plan_id = $2
+      RETURNING *`,
       [
-        tenantId, carePlanId,
-        planData.weeklyHours,
-        planData.visitsPerWeek,
-        planData.careNeeds ? sanitizeCareNotes(planData.careNeeds) : null,
-        planData.personalCareTasks ? JSON.stringify(planData.personalCareTasks) : null,
-        planData.medicationTasks ? JSON.stringify(planData.medicationTasks) : null,
-        planData.preferences ? JSON.stringify(planData.preferences) : null,
-        planData.riskAssessment ? JSON.stringify(planData.riskAssessment) : null,
-        planData.goals ? JSON.stringify(planData.goals) : null,
-        planData.reviewDate,
-        user.userId,
+        tenantId,
+        carePlanId,
+        category ? sanitizeInput(category) : null,
+        care_needs ? sanitizeInput(care_needs) : null,
+        support_required ? sanitizeInput(support_required) : null,
+        goals ? sanitizeInput(goals) : null,
+        frequency,
+        preferred_time,
+        last_review_date,
+        next_review_date,
+        status,
       ]
     );
 
-    careEventLog('CARE_PLAN_UPDATED', {
-      tenantId,
-      carePlanId,
-      updatedBy: user.userId,
-    });
-
-    res.json({ message: 'Care plan updated successfully' });
+    logger.info(`Updated care plan ${carePlanId} for tenant ${tenantId}`);
+    res.json(result);
   })
 );
 
 /**
- * @route POST /api/tenants/:tenantId/care-plans/:carePlanId/review
- * @desc Mark care plan as reviewed
+ * DELETE /api/homecare/tenants/:tenantId/care-plans/:carePlanId
+ * Delete (archive) a care plan
  */
-router.post(
-  '/tenants/:tenantId/care-plans/:carePlanId/review',
+router.delete(
+  '/tenants/:tenantId/care-plans/:carePlanId',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, carePlanId } = req.params;
-    const user = req.user!;
-    const { nextReviewDate, reviewNotes } = req.body;
 
-    await query(
-      `UPDATE tenant_care_plans SET
-        last_reviewed = CURRENT_DATE,
-        reviewed_by = $3,
-        review_notes = $4,
-        review_date = $5,
-        updated_at = NOW()
-      WHERE tenant_id = $1 AND care_plan_id = $2`,
-      [tenantId, carePlanId, user.userId, sanitizeCareNotes(reviewNotes), nextReviewDate]
+    // Soft delete by setting status to archived
+    const result = await queryOne(
+      `UPDATE tenant_care_plans
+       SET status = 'archived', updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND care_plan_id = $2
+       RETURNING care_plan_id`,
+      [tenantId, carePlanId]
     );
 
-    careEventLog('CARE_PLAN_REVIEWED', {
-      tenantId,
-      carePlanId,
-      reviewedBy: user.userId,
-      nextReviewDate,
-    });
+    if (!result) {
+      throw new NotFoundError('Care plan not found');
+    }
 
-    res.json({ message: 'Care plan reviewed successfully' });
+    logger.info(`Archived care plan ${carePlanId} for tenant ${tenantId}`);
+    res.json({ message: 'Care plan archived successfully' });
+  })
+);
+
+/**
+ * GET /api/homecare/tenants/:tenantId/care-plans/review/due
+ * Get care plans that are due for review
+ */
+router.get(
+  '/tenants/:tenantId/care-plans/review/due',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+
+    const dueForReview = await query(
+      `SELECT
+        cp.*,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        EXTRACT(DAY FROM (next_review_date - CURRENT_DATE)) as days_until_review
+       FROM tenant_care_plans cp
+       JOIN tenant_care_clients c ON cp.client_id = c.client_id AND cp.tenant_id = c.tenant_id
+       WHERE cp.tenant_id = $1
+       AND cp.status = 'active'
+       AND cp.next_review_date IS NOT NULL
+       AND cp.next_review_date <= CURRENT_DATE + INTERVAL '30 days'
+       ORDER BY cp.next_review_date`,
+      [tenantId]
+    );
+
+    res.json(dueForReview);
   })
 );
 

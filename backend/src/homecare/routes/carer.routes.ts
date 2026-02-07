@@ -1,124 +1,73 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Response } from 'express';
 import { asyncHandler } from '../../middleware/errorHandler';
 import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
 import { query, queryOne } from '../../config/database';
 import { NotFoundError, ValidationError } from '../../utils/errorTypes';
-import { logger, auditLog } from '../../utils/logger';
-import { sanitizeInput, sanitizePhone, sanitizeEmail, sanitizePostcode } from '../../utils/sanitize';
+import { logger } from '../../utils/logger';
+import { sanitizeInput, sanitizeEmail, sanitizePhone } from '../../utils/sanitize';
 
 const router: Router = express.Router();
 
 /**
- * Carer (Care Worker) Routes for Home Care Co-operative System
+ * Home Care Carer Routes
+ * Manages care workers who are co-operative members
  */
 
 /**
- * @route GET /api/tenants/:tenantId/carers
- * @desc Get all carers for a tenant with pagination and filtering
+ * GET /api/homecare/tenants/:tenantId/carers
+ * List all carers for a tenant
  */
 router.get(
   '/tenants/:tenantId/carers',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
-    const {
-      page = 1,
-      limit = 20,
-      search = '',
-      status,
-      contractType,
-      canDrive,
-      sortBy = 'last_name',
-      sortOrder = 'asc'
-    } = req.query;
+    const { status = 'active', search } = req.query;
 
-    logger.info('Fetching carers', { tenantId, page, limit, search });
+    let sql = `
+      SELECT
+        carer_id,
+        first_name,
+        last_name,
+        phone,
+        email,
+        dbs_check_date,
+        dbs_expiry_date,
+        employment_type,
+        hourly_rate,
+        status,
+        total_visits_completed,
+        on_time_percentage,
+        created_at
+      FROM tenant_carers
+      WHERE tenant_id = $1
+    `;
 
-    const conditions: string[] = ['c.tenant_id = $1', 'c.is_active = true'];
     const params: any[] = [tenantId];
-    let paramCount = 2;
+
+    if (status && status !== 'all') {
+      sql += ' AND status = $2';
+      params.push(status);
+    }
 
     if (search) {
-      conditions.push(`(
-        c.first_name ILIKE $${paramCount} OR
-        c.last_name ILIKE $${paramCount} OR
-        CONCAT(c.first_name, ' ', c.last_name) ILIKE $${paramCount} OR
-        c.phone ILIKE $${paramCount} OR
-        c.email ILIKE $${paramCount}
-      )`);
-      params.push(`%${search}%`);
-      paramCount++;
+      const searchTerm = `%${sanitizeInput(search as string)}%`;
+      sql += ` AND (first_name ILIKE $${params.length + 1} OR last_name ILIKE $${params.length + 1})`;
+      params.push(searchTerm);
     }
 
-    if (status) {
-      conditions.push(`c.status = $${paramCount}`);
-      params.push(status);
-      paramCount++;
-    }
+    sql += ' ORDER BY last_name, first_name';
 
-    if (contractType) {
-      conditions.push(`c.contract_type = $${paramCount}`);
-      params.push(contractType);
-      paramCount++;
-    }
+    const carers = await query(sql, params);
 
-    if (canDrive !== undefined) {
-      conditions.push(`c.can_drive = $${paramCount}`);
-      params.push(canDrive === 'true');
-      paramCount++;
-    }
-
-    const whereClause = conditions.join(' AND ');
-
-    // Get total count
-    const countResult = await queryOne<{ count: string }>(
-      `SELECT COUNT(*) as count FROM tenant_carers c WHERE ${whereClause}`,
-      params
-    );
-    const total = parseInt(countResult?.count || '0', 10);
-
-    const validSortColumns: Record<string, string> = {
-      first_name: 'c.first_name',
-      last_name: 'c.last_name',
-      created_at: 'c.created_at',
-      status: 'c.status',
-    };
-    const sortColumn = validSortColumns[sortBy as string] || 'c.last_name';
-    const sortDirection = sortOrder === 'desc' ? 'DESC' : 'ASC';
-
-    const offset = (Number(page) - 1) * Number(limit);
-
-    const carers = await query(
-      `SELECT
-        c.carer_id as id, c.tenant_id, c.user_id, c.member_id,
-        c.first_name, c.last_name, c.preferred_name,
-        c.phone, c.email, c.postcode,
-        c.contract_type, c.weekly_hours, c.start_date,
-        c.can_drive, c.has_own_vehicle,
-        c.status, c.dbs_check_status, c.dbs_check_date,
-        c.skills, c.languages,
-        m.member_status
-      FROM tenant_carers c
-      LEFT JOIN tenant_members m ON c.member_id = m.member_id AND c.tenant_id = m.tenant_id
-      WHERE ${whereClause}
-      ORDER BY ${sortColumn} ${sortDirection}
-      LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
-      [...params, limit, offset]
-    );
-
-    res.json({
-      carers,
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / Number(limit)),
-    });
+    logger.info(`Listed ${carers.length} carers for tenant ${tenantId}`);
+    res.json(carers);
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/carers/:carerId
- * @desc Get a specific carer by ID
+ * GET /api/homecare/tenants/:tenantId/carers/:carerId
+ * Get a specific carer by ID
  */
 router.get(
   '/tenants/:tenantId/carers/:carerId',
@@ -127,25 +76,8 @@ router.get(
     const { tenantId, carerId } = req.params;
 
     const carer = await queryOne(
-      `SELECT
-        c.carer_id as id, c.tenant_id, c.user_id, c.member_id,
-        c.first_name, c.last_name, c.preferred_name,
-        c.date_of_birth, c.gender,
-        c.phone, c.email, c.address, c.address_line_2, c.city, c.county, c.postcode,
-        c.employee_id, c.contract_type, c.weekly_hours,
-        c.start_date, c.end_date, c.probation_end_date,
-        c.qualifications, c.dbs_check_date, c.dbs_check_number, c.dbs_check_status,
-        c.right_to_work_verified, c.right_to_work_expiry,
-        c.skills, c.languages,
-        c.can_drive, c.has_own_vehicle, c.vehicle_registration, c.max_travel_distance,
-        c.availability, c.preferred_areas, c.max_clients_per_day,
-        c.emergency_contact_name, c.emergency_contact_phone, c.emergency_contact_relationship,
-        c.status,
-        c.created_at, c.updated_at,
-        m.member_status, m.share_capital, m.join_date as member_join_date
-      FROM tenant_carers c
-      LEFT JOIN tenant_members m ON c.member_id = m.member_id AND c.tenant_id = m.tenant_id
-      WHERE c.tenant_id = $1 AND c.carer_id = $2 AND c.is_active = true`,
+      `SELECT * FROM tenant_carers
+       WHERE tenant_id = $1 AND carer_id = $2`,
       [tenantId, carerId]
     );
 
@@ -158,104 +90,111 @@ router.get(
 );
 
 /**
- * @route POST /api/tenants/:tenantId/carers
- * @desc Create a new carer
+ * POST /api/homecare/tenants/:tenantId/carers
+ * Create a new carer
  */
 router.post(
   '/tenants/:tenantId/carers',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
-    const user = req.user!;
-    const carerData = req.body;
+    const {
+      first_name,
+      last_name,
+      date_of_birth,
+      phone,
+      email,
+      address,
+      postcode,
+      dbs_check_date,
+      dbs_expiry_date,
+      dbs_certificate_number,
+      qualifications,
+      care_certificate,
+      employment_type,
+      hourly_rate,
+      contracted_hours,
+      max_daily_hours,
+    } = req.body;
 
-    const firstName = sanitizeInput(carerData.firstName, { maxLength: 100 });
-    const lastName = sanitizeInput(carerData.lastName, { maxLength: 100 });
-    const phone = sanitizePhone(carerData.phone);
-    const email = sanitizeEmail(carerData.email);
-
-    if (!firstName || !lastName) {
-      throw new ValidationError('First name and last name are required');
+    // Validate required fields
+    if (!first_name || !last_name || !email) {
+      throw new ValidationError('First name, last name, and email are required');
     }
 
-    if (!phone && !email) {
-      throw new ValidationError('Either phone or email is required');
-    }
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedPhone = phone ? sanitizePhone(phone) : null;
 
-    logger.info('Creating carer', { tenantId, firstName, lastName });
-
-    const result = await queryOne<{ id: number }>(
+    const result = await queryOne(
       `INSERT INTO tenant_carers (
-        tenant_id, first_name, last_name, preferred_name,
-        date_of_birth, gender, phone, email,
-        address, address_line_2, city, county, postcode,
-        contract_type, weekly_hours, start_date,
-        can_drive, has_own_vehicle, vehicle_registration, max_travel_distance,
-        skills, languages,
-        emergency_contact_name, emergency_contact_phone, emergency_contact_relationship,
-        status, is_active, dbs_check_status,
-        created_at, updated_at, created_by
+        tenant_id, first_name, last_name, date_of_birth,
+        phone, email, address, postcode,
+        dbs_check_date, dbs_expiry_date, dbs_certificate_number,
+        qualifications, care_certificate,
+        employment_type, hourly_rate, contracted_hours, max_daily_hours,
+        status
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-        $21, $22, $23, $24, $25, 'active', true, 'pending',
-        NOW(), NOW(), $26
-      ) RETURNING carer_id as id`,
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'active'
+      ) RETURNING *`,
       [
-        tenantId, firstName, lastName,
-        sanitizeInput(carerData.preferredName, { maxLength: 100 }),
-        carerData.dateOfBirth,
-        carerData.gender || 'prefer_not_to_say',
-        phone, email,
-        sanitizeInput(carerData.address, { maxLength: 500 }),
-        sanitizeInput(carerData.addressLine2, { maxLength: 200 }),
-        sanitizeInput(carerData.city, { maxLength: 100 }),
-        sanitizeInput(carerData.county, { maxLength: 100 }),
-        sanitizePostcode(carerData.postcode),
-        carerData.contractType || 'part_time',
-        carerData.weeklyHours || null,
-        carerData.startDate || new Date(),
-        carerData.canDrive || false,
-        carerData.hasOwnVehicle || false,
-        sanitizeInput(carerData.vehicleRegistration, { maxLength: 20 }),
-        carerData.maxTravelDistance || null,
-        JSON.stringify(carerData.skills || []),
-        JSON.stringify(carerData.languages || ['English']),
-        sanitizeInput(carerData.emergencyContactName, { maxLength: 200 }),
-        sanitizePhone(carerData.emergencyContactPhone),
-        sanitizeInput(carerData.emergencyContactRelationship, { maxLength: 100 }),
-        user.userId,
+        tenantId,
+        sanitizeInput(first_name),
+        sanitizeInput(last_name),
+        date_of_birth || null,
+        sanitizedPhone,
+        sanitizedEmail,
+        address || null,
+        postcode || null,
+        dbs_check_date || null,
+        dbs_expiry_date || null,
+        dbs_certificate_number || null,
+        qualifications || null,
+        care_certificate || false,
+        employment_type || 'full_time',
+        hourly_rate || null,
+        contracted_hours || null,
+        max_daily_hours || 8,
       ]
     );
 
-    auditLog('CARER_CREATED', {
-      tenantId,
-      carerId: result?.id,
-      carerName: `${firstName} ${lastName}`,
-      createdBy: user.userId,
-    });
-
-    res.status(201).json({
-      id: result?.id,
-      message: 'Carer created successfully',
-    });
+    logger.info(`Created carer ${result.carer_id} for tenant ${tenantId}`);
+    res.status(201).json(result);
   })
 );
 
 /**
- * @route PUT /api/tenants/:tenantId/carers/:carerId
- * @desc Update a carer
+ * PUT /api/homecare/tenants/:tenantId/carers/:carerId
+ * Update an existing carer
  */
 router.put(
   '/tenants/:tenantId/carers/:carerId',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, carerId } = req.params;
-    const user = req.user!;
-    const carerData = req.body;
+    const {
+      first_name,
+      last_name,
+      date_of_birth,
+      phone,
+      email,
+      address,
+      postcode,
+      dbs_check_date,
+      dbs_expiry_date,
+      dbs_certificate_number,
+      qualifications,
+      care_certificate,
+      employment_type,
+      hourly_rate,
+      contracted_hours,
+      max_daily_hours,
+      status,
+    } = req.body;
 
+    // Check if carer exists
     const existing = await queryOne(
-      'SELECT carer_id FROM tenant_carers WHERE tenant_id = $1 AND carer_id = $2 AND is_active = true',
+      'SELECT carer_id FROM tenant_carers WHERE tenant_id = $1 AND carer_id = $2',
       [tenantId, carerId]
     );
 
@@ -263,149 +202,308 @@ router.put(
       throw new NotFoundError('Carer not found');
     }
 
-    logger.info('Updating carer', { tenantId, carerId });
+    // Sanitize inputs
+    const sanitizedEmail = email ? sanitizeEmail(email) : null;
+    const sanitizedPhone = phone ? sanitizePhone(phone) : null;
 
-    await query(
+    const result = await queryOne(
       `UPDATE tenant_carers SET
         first_name = COALESCE($3, first_name),
         last_name = COALESCE($4, last_name),
-        phone = COALESCE($5, phone),
-        email = COALESCE($6, email),
-        contract_type = COALESCE($7, contract_type),
-        weekly_hours = COALESCE($8, weekly_hours),
-        can_drive = COALESCE($9, can_drive),
-        has_own_vehicle = COALESCE($10, has_own_vehicle),
-        skills = COALESCE($11, skills),
-        availability = COALESCE($12, availability),
-        status = COALESCE($13, status),
-        updated_at = NOW(),
-        updated_by = $14
-      WHERE tenant_id = $1 AND carer_id = $2`,
+        date_of_birth = COALESCE($5, date_of_birth),
+        phone = COALESCE($6, phone),
+        email = COALESCE($7, email),
+        address = COALESCE($8, address),
+        postcode = COALESCE($9, postcode),
+        dbs_check_date = COALESCE($10, dbs_check_date),
+        dbs_expiry_date = COALESCE($11, dbs_expiry_date),
+        dbs_certificate_number = COALESCE($12, dbs_certificate_number),
+        qualifications = COALESCE($13, qualifications),
+        care_certificate = COALESCE($14, care_certificate),
+        employment_type = COALESCE($15, employment_type),
+        hourly_rate = COALESCE($16, hourly_rate),
+        contracted_hours = COALESCE($17, contracted_hours),
+        max_daily_hours = COALESCE($18, max_daily_hours),
+        status = COALESCE($19, status),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE tenant_id = $1 AND carer_id = $2
+      RETURNING *`,
       [
-        tenantId, carerId,
-        carerData.firstName ? sanitizeInput(carerData.firstName, { maxLength: 100 }) : null,
-        carerData.lastName ? sanitizeInput(carerData.lastName, { maxLength: 100 }) : null,
-        carerData.phone ? sanitizePhone(carerData.phone) : null,
-        carerData.email ? sanitizeEmail(carerData.email) : null,
-        carerData.contractType,
-        carerData.weeklyHours,
-        carerData.canDrive,
-        carerData.hasOwnVehicle,
-        carerData.skills ? JSON.stringify(carerData.skills) : null,
-        carerData.availability ? JSON.stringify(carerData.availability) : null,
-        carerData.status,
-        user.userId,
+        tenantId,
+        carerId,
+        first_name ? sanitizeInput(first_name) : null,
+        last_name ? sanitizeInput(last_name) : null,
+        date_of_birth,
+        sanitizedPhone,
+        sanitizedEmail,
+        address,
+        postcode,
+        dbs_check_date,
+        dbs_expiry_date,
+        dbs_certificate_number,
+        qualifications,
+        care_certificate,
+        employment_type,
+        hourly_rate,
+        contracted_hours,
+        max_daily_hours,
+        status,
       ]
     );
 
-    auditLog('CARER_UPDATED', {
-      tenantId,
-      carerId,
-      updatedBy: user.userId,
-    });
-
-    res.json({ message: 'Carer updated successfully' });
+    logger.info(`Updated carer ${carerId} for tenant ${tenantId}`);
+    res.json(result);
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/carers/:carerId/schedule
- * @desc Get carer's schedule for a date range
+ * DELETE /api/homecare/tenants/:tenantId/carers/:carerId
+ * Delete (inactivate) a carer
+ */
+router.delete(
+  '/tenants/:tenantId/carers/:carerId',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId, carerId } = req.params;
+
+    // Soft delete by setting status to inactive
+    const result = await queryOne(
+      `UPDATE tenant_carers
+       SET status = 'inactive', updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND carer_id = $2
+       RETURNING carer_id`,
+      [tenantId, carerId]
+    );
+
+    if (!result) {
+      throw new NotFoundError('Carer not found');
+    }
+
+    logger.info(`Inactivated carer ${carerId} for tenant ${tenantId}`);
+    res.json({ message: 'Carer inactivated successfully' });
+  })
+);
+
+/**
+ * GET /api/homecare/tenants/:tenantId/carers/:carerId/schedule
+ * Get carer's schedule/upcoming visits
  */
 router.get(
   '/tenants/:tenantId/carers/:carerId/schedule',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, carerId } = req.params;
-    const { dateFrom, dateTo } = req.query;
+    const { start_date, end_date } = req.query;
 
-    if (!dateFrom || !dateTo) {
-      throw new ValidationError('dateFrom and dateTo are required');
+    let sql = `
+      SELECT
+        v.visit_id,
+        v.scheduled_start,
+        v.scheduled_end,
+        v.visit_type,
+        v.status,
+        c.client_id,
+        c.first_name as client_first_name,
+        c.last_name as client_last_name,
+        c.address,
+        c.postcode
+      FROM tenant_care_visits v
+      JOIN tenant_care_clients c ON v.client_id = c.client_id AND v.tenant_id = c.tenant_id
+      WHERE v.tenant_id = $1 AND v.carer_id = $2
+    `;
+
+    const params: any[] = [tenantId, carerId];
+
+    if (start_date) {
+      sql += ` AND v.scheduled_start >= $${params.length + 1}`;
+      params.push(start_date);
     }
 
-    const visits = await query(
-      `SELECT
-        v.visit_id as id, v.scheduled_date, v.scheduled_start_time, v.scheduled_end_time,
-        v.status, v.visit_type,
-        cl.client_id, cl.first_name as client_first_name, cl.last_name as client_last_name,
-        cl.address as client_address, cl.postcode as client_postcode
-      FROM tenant_visits v
-      JOIN tenant_clients cl ON v.client_id = cl.client_id AND v.tenant_id = cl.tenant_id
-      WHERE v.tenant_id = $1 AND v.carer_id = $2
-        AND v.scheduled_date >= $3 AND v.scheduled_date <= $4
-      ORDER BY v.scheduled_date, v.scheduled_start_time`,
-      [tenantId, carerId, dateFrom, dateTo]
-    );
+    if (end_date) {
+      sql += ` AND v.scheduled_start <= $${params.length + 1}`;
+      params.push(end_date);
+    }
 
-    res.json({ visits });
+    sql += ' ORDER BY v.scheduled_start';
+
+    const schedule = await query(sql, params);
+
+    res.json(schedule);
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/carers/:carerId/training
- * @desc Get carer's training records
+ * POST /api/homecare/tenants/:tenantId/carers/:carerId/sync-to-travel
+ * Sync homecare carer to travel support system
+ * Creates customer OR driver record (based on partnership settings)
  */
-router.get(
-  '/tenants/:tenantId/carers/:carerId/training',
+router.post(
+  '/tenants/:tenantId/carers/:carerId/sync-to-travel',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId, carerId } = req.params;
+    const user = req.user!;
+    const { sync_as = 'customer' } = req.body; // 'customer' or 'driver'
 
-    const training = await query(
-      `SELECT
-        training_id as id, course_name, provider,
-        completed_date, expiry_date, certificate_url,
-        status, is_mandatory
-      FROM tenant_training_records
-      WHERE tenant_id = $1 AND carer_id = $2
-      ORDER BY expiry_date ASC NULLS LAST, course_name`,
+    // Only admins can sync to travel
+    if (user.role !== 'admin') {
+      throw new ValidationError('Only administrators can sync carers to travel support');
+    }
+
+    // Check if integration is enabled
+    const settings = await queryOne(
+      `SELECT travel_integration_enabled, travel_partnership_type, carer_travel_discount
+       FROM tenant_homecare_settings WHERE tenant_id = $1`,
+      [tenantId]
+    );
+
+    if (!settings?.travel_integration_enabled) {
+      throw new ValidationError('Travel integration is not enabled');
+    }
+
+    // Get carer details
+    const carer = await queryOne(
+      `SELECT * FROM tenant_carers WHERE tenant_id = $1 AND carer_id = $2`,
       [tenantId, carerId]
     );
 
-    res.json({ training });
+    if (!carer) {
+      throw new NotFoundError('Carer not found');
+    }
+
+    // Check if already synced
+    if (carer.travel_customer_id || carer.travel_driver_id) {
+      throw new ValidationError('Carer is already synced to travel support');
+    }
+
+    let travelCustomerId = null;
+    let travelDriverId = null;
+
+    if (sync_as === 'driver') {
+      // Sync as driver (if they also provide transport services)
+      const travelDriver = await queryOne(
+        `INSERT INTO drivers (
+          tenant_id,
+          first_name,
+          last_name,
+          email,
+          phone,
+          address,
+          postcode,
+          notes,
+          source,
+          created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'homecare_staff', NOW())
+        RETURNING driver_id`,
+        [
+          tenantId,
+          carer.first_name,
+          carer.last_name,
+          carer.email,
+          carer.phone,
+          carer.address,
+          carer.postcode,
+          'Homecare Staff - Can provide transport for clients'
+        ]
+      );
+      travelDriverId = travelDriver.driver_id;
+    }
+
+    // Also create customer record (so they can book travel for themselves)
+    const discountNote = settings.carer_travel_discount > 0
+      ? ` - ${settings.carer_travel_discount}% staff discount applies`
+      : '';
+
+    const travelCustomer = await queryOne(
+      `INSERT INTO customers (
+        tenant_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        address,
+        city,
+        postcode,
+        notes,
+        source,
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'homecare_staff', NOW())
+      RETURNING customer_id`,
+      [
+        tenantId,
+        carer.first_name,
+        carer.last_name,
+        carer.email,
+        carer.phone,
+        carer.address,
+        '',
+        carer.postcode,
+        `Homecare Staff Member${discountNote}`
+      ]
+    );
+    travelCustomerId = travelCustomer.customer_id;
+
+    // Update carer with travel IDs
+    await query(
+      `UPDATE tenant_carers
+       SET travel_customer_id = $3, travel_driver_id = $4, updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND carer_id = $2`,
+      [tenantId, carerId, travelCustomerId, travelDriverId]
+    );
+
+    logger.info(`Synced homecare carer ${carerId} to travel (customer: ${travelCustomerId}, driver: ${travelDriverId})`);
+
+    res.json({
+      message: 'Carer synced to travel support successfully',
+      travelCustomerId,
+      travelDriverId,
+      discount: settings.carer_travel_discount
+    });
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/carers/available
- * @desc Get available carers for a specific date/time
+ * DELETE /api/homecare/tenants/:tenantId/carers/:carerId/unsync-from-travel
+ * Remove sync between homecare carer and travel records
  */
-router.get(
-  '/tenants/:tenantId/carers/available',
+router.delete(
+  '/tenants/:tenantId/carers/:carerId/unsync-from-travel',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { tenantId } = req.params;
-    const { date, startTime, endTime, clientId, requiredSkills } = req.query;
+    const { tenantId, carerId } = req.params;
+    const user = req.user!;
 
-    if (!date || !startTime || !endTime) {
-      throw new ValidationError('date, startTime, and endTime are required');
+    // Only admins can unsync
+    if (user.role !== 'admin') {
+      throw new ValidationError('Only administrators can unsync carers from travel support');
     }
 
-    // Find carers who don't have visits at this time
-    const availableCarers = await query(
-      `SELECT
-        c.carer_id as id, c.first_name, c.last_name,
-        c.skills, c.can_drive, c.max_travel_distance
-      FROM tenant_carers c
-      WHERE c.tenant_id = $1
-        AND c.is_active = true
-        AND c.status = 'active'
-        AND c.carer_id NOT IN (
-          SELECT DISTINCT carer_id FROM tenant_visits
-          WHERE tenant_id = $1
-            AND scheduled_date = $2
-            AND status NOT IN ('cancelled')
-            AND (
-              (scheduled_start_time <= $3 AND scheduled_end_time > $3) OR
-              (scheduled_start_time < $4 AND scheduled_end_time >= $4) OR
-              (scheduled_start_time >= $3 AND scheduled_end_time <= $4)
-            )
-        )
-      ORDER BY c.last_name, c.first_name`,
-      [tenantId, date, startTime, endTime]
+    // Get carer
+    const carer = await queryOne(
+      `SELECT travel_customer_id, travel_driver_id FROM tenant_carers
+       WHERE tenant_id = $1 AND carer_id = $2`,
+      [tenantId, carerId]
     );
 
-    res.json({ carers: availableCarers });
+    if (!carer) {
+      throw new NotFoundError('Carer not found');
+    }
+
+    if (!carer.travel_customer_id && !carer.travel_driver_id) {
+      throw new ValidationError('Carer is not synced to travel support');
+    }
+
+    // Remove links (do not delete records from travel system)
+    await query(
+      `UPDATE tenant_carers
+       SET travel_customer_id = NULL, travel_driver_id = NULL, updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND carer_id = $2`,
+      [tenantId, carerId]
+    );
+
+    logger.info(`Unsynced homecare carer ${carerId} from travel (customer: ${carer.travel_customer_id}, driver: ${carer.travel_driver_id})`);
+
+    res.json({ message: 'Carer unsynced from travel support successfully' });
   })
 );
 

@@ -1,21 +1,23 @@
 import express, { Router, Response } from 'express';
+import bcrypt from 'bcrypt';
 import { asyncHandler } from '../../middleware/errorHandler';
 import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
-import { query, queryOne, queryWithTenant } from '../../config/database';
+import { query, queryOne } from '../../config/database';
+import { NotFoundError, ValidationError } from '../../utils/errorTypes';
 import { logger } from '../../utils/logger';
-import { NotFoundError, ForbiddenError, ValidationError } from '../../utils/errorTypes';
+import { sanitizeInput, sanitizeEmail } from '../../utils/sanitize';
 
 const router: Router = express.Router();
 
 /**
- * Settings Routes for Home Care Co-operative System
- *
- * Handles tenant configuration, user management, and system settings.
+ * Home Care Settings Routes
+ * Configuration, user management, and travel integration settings
+ * (Homecare-specific settings, separate from travel support)
  */
 
 /**
- * @route GET /api/tenants/:tenantId/settings
- * @desc Get tenant settings
+ * GET /api/homecare/tenants/:tenantId/settings
+ * Get homecare-specific settings
  */
 router.get(
   '/tenants/:tenantId/settings',
@@ -23,39 +25,19 @@ router.get(
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
 
-    // Get tenant info
-    const tenant = await queryOne<any>(
-      `SELECT * FROM tenants WHERE id = $1`,
+    // Get homecare settings from dedicated table
+    const settingsResult = await queryOne(
+      `SELECT * FROM tenant_homecare_settings WHERE tenant_id = $1`,
       [tenantId]
     );
 
-    if (!tenant) {
-      throw new NotFoundError('Tenant not found');
-    }
-
-    // Get settings (could be stored as JSON or in a separate table)
-    const settingsResult = await queryOne<any>(
-      `SELECT settings FROM tenant_settings WHERE tenant_id = $1`,
-      [tenantId]
-    );
-
-    // Merge tenant info with settings
-    const settings = {
-      organisation: {
-        company_name: tenant.company_name,
-        trading_name: tenant.trading_name,
-        cqc_provider_id: tenant.cqc_provider_id,
-        company_number: tenant.company_number,
-        vat_number: tenant.vat_number,
-        address_line1: tenant.address_line1,
-        address_line2: tenant.address_line2,
-        city: tenant.city,
-        postcode: tenant.postcode,
-        phone: tenant.phone,
-        email: tenant.email,
-        website: tenant.website,
-      },
-      ...(settingsResult?.settings || {}),
+    const settings = settingsResult || {
+      tenant_id: tenantId,
+      travel_integration_enabled: false,
+      travel_partnership_type: null,
+      carer_travel_discount: 0,
+      client_travel_enabled: false,
+      auto_sync_enabled: false
     };
 
     res.json({ settings });
@@ -63,8 +45,8 @@ router.get(
 );
 
 /**
- * @route PUT /api/tenants/:tenantId/settings
- * @desc Update tenant settings
+ * PUT /api/homecare/tenants/:tenantId/settings
+ * Update homecare settings
  */
 router.put(
   '/tenants/:tenantId/settings',
@@ -76,67 +58,55 @@ router.put(
 
     // Only admins and managers can update settings
     if (!['admin', 'manager'].includes(user.role)) {
-      throw new ForbiddenError('Only administrators can update settings');
+      throw new ValidationError('Only administrators and managers can update settings');
     }
 
-    // Update tenant table for organisation details
-    if (settings.organisation) {
-      const org = settings.organisation;
-      await query(
-        `UPDATE tenants SET
-          company_name = COALESCE($2, company_name),
-          trading_name = COALESCE($3, trading_name),
-          cqc_provider_id = COALESCE($4, cqc_provider_id),
-          company_number = COALESCE($5, company_number),
-          vat_number = COALESCE($6, vat_number),
-          address_line1 = COALESCE($7, address_line1),
-          address_line2 = COALESCE($8, address_line2),
-          city = COALESCE($9, city),
-          postcode = COALESCE($10, postcode),
-          phone = COALESCE($11, phone),
-          email = COALESCE($12, email),
-          website = COALESCE($13, website),
-          updated_at = NOW()
-        WHERE id = $1`,
-        [
-          tenantId,
-          org.company_name,
-          org.trading_name,
-          org.cqc_provider_id,
-          org.company_number,
-          org.vat_number,
-          org.address_line1,
-          org.address_line2,
-          org.city,
-          org.postcode,
-          org.phone,
-          org.email,
-          org.website,
-        ]
-      );
-    }
-
-    // Store other settings in tenant_settings table
-    const otherSettings = { ...settings };
-    delete otherSettings.organisation;
-
+    // Upsert settings
     await query(
-      `INSERT INTO tenant_settings (tenant_id, settings, updated_at)
-       VALUES ($1, $2, NOW())
-       ON CONFLICT (tenant_id)
-       DO UPDATE SET settings = $2, updated_at = NOW()`,
-      [tenantId, JSON.stringify(otherSettings)]
+      `INSERT INTO tenant_homecare_settings (
+        tenant_id,
+        travel_integration_enabled,
+        travel_partnership_type,
+        carer_travel_discount,
+        client_travel_enabled,
+        auto_sync_enabled,
+        cqc_provider_id,
+        billing_settings,
+        notification_settings,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+      ON CONFLICT (tenant_id)
+      DO UPDATE SET
+        travel_integration_enabled = COALESCE($2, tenant_homecare_settings.travel_integration_enabled),
+        travel_partnership_type = COALESCE($3, tenant_homecare_settings.travel_partnership_type),
+        carer_travel_discount = COALESCE($4, tenant_homecare_settings.carer_travel_discount),
+        client_travel_enabled = COALESCE($5, tenant_homecare_settings.client_travel_enabled),
+        auto_sync_enabled = COALESCE($6, tenant_homecare_settings.auto_sync_enabled),
+        cqc_provider_id = COALESCE($7, tenant_homecare_settings.cqc_provider_id),
+        billing_settings = COALESCE($8, tenant_homecare_settings.billing_settings),
+        notification_settings = COALESCE($9, tenant_homecare_settings.notification_settings),
+        updated_at = NOW()`,
+      [
+        tenantId,
+        settings.travel_integration_enabled,
+        settings.travel_partnership_type,
+        settings.carer_travel_discount,
+        settings.client_travel_enabled,
+        settings.auto_sync_enabled,
+        settings.cqc_provider_id,
+        settings.billing_settings ? JSON.stringify(settings.billing_settings) : null,
+        settings.notification_settings ? JSON.stringify(settings.notification_settings) : null
+      ]
     );
 
-    logger.info('Settings updated', { tenantId, userId: user.userId });
-
+    logger.info(`Homecare settings updated for tenant ${tenantId} by user ${user.userId}`);
     res.json({ message: 'Settings updated successfully' });
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/users
- * @desc Get tenant users
+ * GET /api/homecare/tenants/:tenantId/users
+ * Get homecare-specific users (uses tenant_users table)
  */
 router.get(
   '/tenants/:tenantId/users',
@@ -146,21 +116,28 @@ router.get(
 
     const users = await query(
       `SELECT
-        user_id, first_name, last_name, email, phone, role,
-        is_active, last_login, created_at
-       FROM tenant_users
-       WHERE tenant_id = $1
-       ORDER BY last_name, first_name`,
+        user_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        is_active,
+        last_login,
+        created_at
+      FROM tenant_users
+      WHERE tenant_id = $1
+      ORDER BY last_name, first_name`,
       [tenantId]
     );
 
-    res.json({ users: users.rows });
+    res.json({ users });
   })
 );
 
 /**
- * @route POST /api/tenants/:tenantId/users
- * @desc Create a new user
+ * POST /api/homecare/tenants/:tenantId/users
+ * Create a new homecare user
  */
 router.post(
   '/tenants/:tenantId/users',
@@ -168,17 +145,22 @@ router.post(
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
     const currentUser = req.user!;
-    const { first_name, last_name, email, phone, role, send_invite } = req.body;
+    const { first_name, last_name, email, phone, role } = req.body;
 
     // Only admins can create users
     if (currentUser.role !== 'admin') {
-      throw new ForbiddenError('Only administrators can create users');
+      throw new ValidationError('Only administrators can create users');
+    }
+
+    // Validate required fields
+    if (!first_name || !last_name || !email || !role) {
+      throw new ValidationError('First name, last name, email, and role are required');
     }
 
     // Check if email already exists
-    const existing = await queryOne<any>(
+    const existing = await queryOne(
       `SELECT user_id FROM tenant_users WHERE tenant_id = $1 AND email = $2`,
-      [tenantId, email]
+      [tenantId, sanitizeEmail(email)]
     );
 
     if (existing) {
@@ -186,43 +168,40 @@ router.post(
     }
 
     // Generate temporary password
-    const tempPassword = Math.random().toString(36).slice(-8);
-    const bcrypt = require('bcryptjs');
+    const tempPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     // Create user
-    const result = await query(
+    const user = await queryOne(
       `INSERT INTO tenant_users (
         tenant_id, first_name, last_name, email, phone, role,
         password_hash, is_active, must_change_password, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, true, NOW())
       RETURNING user_id, first_name, last_name, email, phone, role, is_active, created_at`,
-      [tenantId, first_name, last_name, email, phone || null, role, passwordHash]
+      [
+        tenantId,
+        sanitizeInput(first_name),
+        sanitizeInput(last_name),
+        sanitizeEmail(email),
+        phone || null,
+        role,
+        passwordHash
+      ]
     );
 
-    const user = result.rows[0];
-
-    // TODO: If send_invite is true, send invitation email with temporary password
-
-    logger.info('User created', {
-      tenantId,
-      newUserId: user.user_id,
-      email,
-      role,
-      createdBy: currentUser.userId,
-    });
+    logger.info(`Created homecare user ${user.user_id} for tenant ${tenantId}`);
 
     res.status(201).json({
       message: 'User created successfully',
       user,
-      ...(send_invite ? {} : { temporaryPassword: tempPassword }),
+      temporaryPassword: tempPassword
     });
   })
 );
 
 /**
- * @route PUT /api/tenants/:tenantId/users/:userId
- * @desc Update a user
+ * PUT /api/homecare/tenants/:tenantId/users/:userId
+ * Update a homecare user
  */
 router.put(
   '/tenants/:tenantId/users/:userId',
@@ -232,56 +211,65 @@ router.put(
     const currentUser = req.user!;
     const updates = req.body;
 
-    // Only admins can update other users
+    // Only admins can update other users, users can update themselves
     if (currentUser.role !== 'admin' && currentUser.userId !== parseInt(userId)) {
-      throw new ForbiddenError('You can only update your own profile');
+      throw new ValidationError('You can only update your own profile');
+    }
+
+    // Check if user exists
+    const existing = await queryOne(
+      'SELECT user_id FROM tenant_users WHERE tenant_id = $1 AND user_id = $2',
+      [tenantId, userId]
+    );
+
+    if (!existing) {
+      throw new NotFoundError('User not found');
     }
 
     // Build update query
-    const allowedFields = ['first_name', 'last_name', 'phone', 'is_active'];
+    const allowedFields = ['first_name', 'last_name', 'phone'];
     if (currentUser.role === 'admin') {
-      allowedFields.push('role');
+      allowedFields.push('role', 'is_active');
     }
 
-    const setClause: string[] = [];
-    const params: any[] = [tenantId, userId];
+    const updateFields: string[] = [];
+    const updateValues: any[] = [tenantId, userId];
     let paramIndex = 3;
 
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
-        setClause.push(`${field} = $${paramIndex}`);
-        params.push(updates[field]);
+        if (field === 'first_name' || field === 'last_name') {
+          updateFields.push(`${field} = $${paramIndex}`);
+          updateValues.push(sanitizeInput(updates[field]));
+        } else {
+          updateFields.push(`${field} = $${paramIndex}`);
+          updateValues.push(updates[field]);
+        }
         paramIndex++;
       }
     }
 
-    if (setClause.length === 0) {
+    if (updateFields.length === 0) {
       throw new ValidationError('No valid fields to update');
     }
 
-    setClause.push('updated_at = NOW()');
+    updateFields.push('updated_at = NOW()');
 
     await query(
       `UPDATE tenant_users
-       SET ${setClause.join(', ')}
+       SET ${updateFields.join(', ')}
        WHERE tenant_id = $1 AND user_id = $2`,
-      params
+      updateValues
     );
 
-    logger.info('User updated', {
-      tenantId,
-      userId,
-      updatedBy: currentUser.userId,
-      updates: Object.keys(updates),
-    });
-
+    logger.info(`Updated homecare user ${userId} for tenant ${tenantId}`);
     res.json({ message: 'User updated successfully' });
   })
 );
 
 /**
- * @route DELETE /api/tenants/:tenantId/users/:userId
- * @desc Deactivate a user
+ * DELETE /api/homecare/tenants/:tenantId/users/:userId
+ * Deactivate a homecare user
  */
 router.delete(
   '/tenants/:tenantId/users/:userId',
@@ -292,7 +280,7 @@ router.delete(
 
     // Only admins can delete users
     if (currentUser.role !== 'admin') {
-      throw new ForbiddenError('Only administrators can delete users');
+      throw new ValidationError('Only administrators can delete users');
     }
 
     // Cannot delete yourself
@@ -307,19 +295,14 @@ router.delete(
       [tenantId, userId]
     );
 
-    logger.info('User deactivated', {
-      tenantId,
-      userId,
-      deletedBy: currentUser.userId,
-    });
-
+    logger.info(`Deactivated homecare user ${userId} for tenant ${tenantId}`);
     res.json({ message: 'User deactivated successfully' });
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/export/:type
- * @desc Export data as CSV
+ * GET /api/homecare/tenants/:tenantId/export/:type
+ * Export homecare data as CSV
  */
 router.get(
   '/tenants/:tenantId/export/:type',
@@ -330,7 +313,7 @@ router.get(
 
     // Only admins and managers can export
     if (!['admin', 'manager'].includes(user.role)) {
-      throw new ForbiddenError('You do not have permission to export data');
+      throw new ValidationError('You do not have permission to export data');
     }
 
     let data: any[];
@@ -338,93 +321,85 @@ router.get(
 
     switch (type) {
       case 'clients':
-        const clients = await query(
+        data = await query(
           `SELECT
             client_id, first_name, last_name, date_of_birth, gender,
             phone, email, address, city, postcode,
-            nhs_number, gp_name, gp_phone, funding_source, status,
+            nhs_number, funding_source, status,
             created_at
-           FROM tenant_clients
-           WHERE tenant_id = $1
-           ORDER BY last_name, first_name`,
+          FROM tenant_care_clients
+          WHERE tenant_id = $1
+          ORDER BY last_name, first_name`,
           [tenantId]
         );
-        data = clients.rows;
-        filename = 'clients-export.csv';
+        filename = 'homecare-clients-export.csv';
         break;
 
       case 'carers':
-        const carers = await query(
+        data = await query(
           `SELECT
             carer_id, first_name, last_name, email, phone,
-            address, city, postcode, ni_number,
-            employment_type, hourly_rate, start_date,
-            dbs_check_date, dbs_certificate_number,
-            status, created_at
-           FROM tenant_carers
-           WHERE tenant_id = $1
-           ORDER BY last_name, first_name`,
+            address, postcode,
+            dbs_check_date, dbs_expiry_date,
+            hourly_rate, employment_type, status,
+            created_at
+          FROM tenant_carers
+          WHERE tenant_id = $1
+          ORDER BY last_name, first_name`,
           [tenantId]
         );
-        data = carers.rows;
-        filename = 'carers-export.csv';
+        filename = 'homecare-carers-export.csv';
         break;
 
       case 'visits':
-        const visits = await query(
+        data = await query(
           `SELECT
-            v.visit_id, v.scheduled_date, v.scheduled_start_time, v.scheduled_end_time,
-            v.actual_start_time, v.actual_end_time, v.status, v.visit_type,
-            v.notes, v.miles_claimed,
+            v.visit_id, v.scheduled_start, v.scheduled_end,
+            v.actual_start, v.actual_end, v.status, v.visit_type,
+            v.mileage_claimed,
             c.first_name as client_first_name, c.last_name as client_last_name,
             cr.first_name as carer_first_name, cr.last_name as carer_last_name
-           FROM tenant_visits v
-           LEFT JOIN tenant_clients c ON v.client_id = c.client_id AND v.tenant_id = c.tenant_id
-           LEFT JOIN tenant_carers cr ON v.carer_id = cr.carer_id AND v.tenant_id = cr.tenant_id
-           WHERE v.tenant_id = $1
-           ORDER BY v.scheduled_date DESC, v.scheduled_start_time`,
+          FROM tenant_care_visits v
+          LEFT JOIN tenant_care_clients c ON v.client_id = c.client_id AND v.tenant_id = c.tenant_id
+          LEFT JOIN tenant_carers cr ON v.carer_id = cr.carer_id AND v.tenant_id = cr.tenant_id
+          WHERE v.tenant_id = $1
+          ORDER BY v.scheduled_start DESC
+          LIMIT 5000`,
           [tenantId]
         );
-        data = visits.rows;
-        filename = 'visits-export.csv';
+        filename = 'homecare-visits-export.csv';
         break;
 
       case 'invoices':
-        const invoices = await query(
+        data = await query(
           `SELECT
             i.invoice_number, i.issue_date, i.due_date,
             i.period_start, i.period_end,
-            i.billing_name, i.subtotal, i.tax_amount, i.total_amount,
+            i.billing_name, i.subtotal, i.total_amount,
             i.paid_amount, i.outstanding_amount, i.status,
             i.funding_source
-           FROM tenant_invoices i
-           WHERE i.tenant_id = $1
-           ORDER BY i.issue_date DESC`,
+          FROM tenant_homecare_invoices i
+          WHERE i.tenant_id = $1
+          ORDER BY i.issue_date DESC`,
           [tenantId]
         );
-        data = invoices.rows;
-        filename = 'invoices-export.csv';
+        filename = 'homecare-invoices-export.csv';
         break;
 
-      case 'full':
-        // For full backup, return all data as JSON
-        const [allClients, allCarers, allVisits, allInvoices, allMembers] = await Promise.all([
-          query(`SELECT * FROM tenant_clients WHERE tenant_id = $1`, [tenantId]),
-          query(`SELECT * FROM tenant_carers WHERE tenant_id = $1`, [tenantId]),
-          query(`SELECT * FROM tenant_visits WHERE tenant_id = $1`, [tenantId]),
-          query(`SELECT * FROM tenant_invoices WHERE tenant_id = $1`, [tenantId]),
-          query(`SELECT * FROM tenant_members WHERE tenant_id = $1`, [tenantId]),
-        ]);
-
-        res.json({
-          exportDate: new Date().toISOString(),
-          clients: allClients.rows,
-          carers: allCarers.rows,
-          visits: allVisits.rows,
-          invoices: allInvoices.rows,
-          members: allMembers.rows,
-        });
-        return;
+      case 'documents':
+        data = await query(
+          `SELECT
+            d.document_id, d.title, d.category, d.status,
+            d.expiry_date, d.created_at,
+            c.first_name as client_first_name, c.last_name as client_last_name
+          FROM tenant_homecare_documents d
+          LEFT JOIN tenant_care_clients c ON d.client_id = c.client_id AND d.tenant_id = c.tenant_id
+          WHERE d.tenant_id = $1 AND d.deleted_at IS NULL
+          ORDER BY d.created_at DESC`,
+          [tenantId]
+        );
+        filename = 'homecare-documents-export.csv';
+        break;
 
       default:
         throw new ValidationError('Invalid export type');
@@ -432,7 +407,9 @@ router.get(
 
     // Convert to CSV
     if (data.length === 0) {
-      res.json({ data: '', filename });
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send('');
       return;
     }
 
@@ -450,55 +427,165 @@ router.get(
           }
           return str;
         }).join(',')
-      ),
+      )
     ];
 
-    logger.info('Data exported', { tenantId, type, userId: user.userId, recordCount: data.length });
+    logger.info(`Exported homecare ${type} data for tenant ${tenantId}: ${data.length} records`);
 
-    res.json({ data: csvRows.join('\n'), filename });
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvRows.join('\n'));
   })
 );
 
 /**
- * @route POST /api/tenants/:tenantId/reset-demo
- * @desc Reset demo data (development only)
+ * GET /api/homecare/tenants/:tenantId/integration/status
+ * Get travel integration status
+ */
+router.get(
+  '/tenants/:tenantId/integration/status',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+
+    // Get settings
+    const settings = await queryOne(
+      `SELECT * FROM tenant_homecare_settings WHERE tenant_id = $1`,
+      [tenantId]
+    );
+
+    // Count synced clients
+    const syncedClients = await queryOne(
+      `SELECT COUNT(*) as count FROM tenant_care_clients
+       WHERE tenant_id = $1 AND travel_customer_id IS NOT NULL`,
+      [tenantId]
+    );
+
+    // Count synced carers
+    const syncedCarers = await queryOne(
+      `SELECT COUNT(*) as count FROM tenant_carers
+       WHERE tenant_id = $1 AND (travel_driver_id IS NOT NULL OR travel_customer_id IS NOT NULL)`,
+      [tenantId]
+    );
+
+    res.json({
+      integration: {
+        enabled: settings?.travel_integration_enabled || false,
+        partnershipType: settings?.travel_partnership_type || null,
+        carerDiscount: settings?.carer_travel_discount || 0,
+        clientTravelEnabled: settings?.client_travel_enabled || false,
+        autoSyncEnabled: settings?.auto_sync_enabled || false
+      },
+      syncStatus: {
+        clientsSynced: parseInt(syncedClients.count || '0', 10),
+        carersSynced: parseInt(syncedCarers.count || '0', 10)
+      }
+    });
+  })
+);
+
+/**
+ * POST /api/homecare/tenants/:tenantId/integration/enable
+ * Enable travel integration
  */
 router.post(
-  '/tenants/:tenantId/reset-demo',
+  '/tenants/:tenantId/integration/enable',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
+    const user = req.user!;
+    const { partnership_type, carer_discount, client_travel_enabled } = req.body;
+
+    // Only admins can enable integration
+    if (user.role !== 'admin') {
+      throw new ValidationError('Only administrators can enable travel integration');
+    }
+
+    await query(
+      `INSERT INTO tenant_homecare_settings (
+        tenant_id,
+        travel_integration_enabled,
+        travel_partnership_type,
+        carer_travel_discount,
+        client_travel_enabled,
+        updated_at
+      ) VALUES ($1, true, $2, $3, $4, NOW())
+      ON CONFLICT (tenant_id)
+      DO UPDATE SET
+        travel_integration_enabled = true,
+        travel_partnership_type = $2,
+        carer_travel_discount = $3,
+        client_travel_enabled = $4,
+        updated_at = NOW()`,
+      [
+        tenantId,
+        partnership_type || 'partner',
+        carer_discount || 0,
+        client_travel_enabled || false
+      ]
+    );
+
+    logger.info(`Travel integration enabled for homecare tenant ${tenantId}`);
+    res.json({ message: 'Travel integration enabled successfully' });
+  })
+);
+
+/**
+ * POST /api/homecare/tenants/:tenantId/integration/disable
+ * Disable travel integration
+ */
+router.post(
+  '/tenants/:tenantId/integration/disable',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { tenantId } = req.params;
     const user = req.user!;
 
-    // Only admins can reset
+    // Only admins can disable integration
     if (user.role !== 'admin') {
-      throw new ForbiddenError('Only administrators can reset data');
+      throw new ValidationError('Only administrators can disable travel integration');
     }
 
-    // In production, this should be disabled
-    if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenError('Data reset is not available in production');
-    }
+    await query(
+      `UPDATE tenant_homecare_settings
+       SET travel_integration_enabled = false, updated_at = NOW()
+       WHERE tenant_id = $1`,
+      [tenantId]
+    );
 
-    // Delete all tenant data (order matters due to foreign keys)
-    await query('DELETE FROM tenant_vote_records WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_votes WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_payments WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_invoice_lines WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_invoices WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_care_plan_tasks WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_care_plans WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_visits WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_training_records WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_share_transactions WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_members WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_carers WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_clients WHERE tenant_id = $1', [tenantId]);
-    await query('DELETE FROM tenant_documents WHERE tenant_id = $1', [tenantId]);
+    logger.info(`Travel integration disabled for homecare tenant ${tenantId}`);
+    res.json({ message: 'Travel integration disabled successfully' });
+  })
+);
 
-    logger.warn('Demo data reset', { tenantId, userId: user.userId });
+/**
+ * GET /api/homecare/tenants/:tenantId/stats
+ * Get overall statistics for homecare service
+ */
+router.get(
+  '/tenants/:tenantId/stats',
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { tenantId } = req.params;
 
-    res.json({ message: 'All data has been reset' });
+    // Get various counts
+    const [clients, carers, visits, documents, invoices] = await Promise.all([
+      queryOne('SELECT COUNT(*) as count FROM tenant_care_clients WHERE tenant_id = $1', [tenantId]),
+      queryOne('SELECT COUNT(*) as count FROM tenant_carers WHERE tenant_id = $1', [tenantId]),
+      queryOne('SELECT COUNT(*) as count FROM tenant_care_visits WHERE tenant_id = $1', [tenantId]),
+      queryOne('SELECT COUNT(*) as count FROM tenant_homecare_documents WHERE tenant_id = $1 AND deleted_at IS NULL', [tenantId]),
+      queryOne('SELECT COUNT(*) as count FROM tenant_homecare_invoices WHERE tenant_id = $1', [tenantId])
+    ]);
+
+    res.json({
+      stats: {
+        totalClients: parseInt(clients.count || '0', 10),
+        totalCarers: parseInt(carers.count || '0', 10),
+        totalVisits: parseInt(visits.count || '0', 10),
+        totalDocuments: parseInt(documents.count || '0', 10),
+        totalInvoices: parseInt(invoices.count || '0', 10)
+      }
+    });
   })
 );
 

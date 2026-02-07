@@ -12,249 +12,172 @@ import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verif
 const router: Router = express.Router();
 
 /**
- * Authentication Routes for Home Care Co-operative System
+ * Home Care Authentication Routes
+ * Note: Uses the same authentication as the main platform
+ * Users are stored in tenant_users table with role-based access
  */
 
 /**
- * @route POST /api/tenants/:tenantId/login
- * @desc Authenticate user and return JWT token
+ * POST /api/homecare/tenants/:tenantId/login
+ * Login for homecare users (carers, coordinators, admins)
  */
 router.post(
   '/tenants/:tenantId/login',
   asyncHandler(async (req: Request, res: Response) => {
     const { tenantId } = req.params;
-    const { username, password, rememberMe } = req.body;
-
-    logger.info('Login attempt', { tenantId, username });
+    const { email, password } = req.body;
 
     // Validate input
-    if (!username || !password) {
-      throw new ValidationError('Username and password are required');
+    if (!email || !password) {
+      throw new ValidationError('Email and password are required');
     }
 
-    // Find user by username or email
-    const sanitizedUsername = sanitizeEmail(username) || username.toLowerCase().trim();
+    const sanitizedEmail = sanitizeEmail(email);
 
-    const user = await queryOne<any>(
+    // Find user in tenant_users table
+    const user = await queryOne(
       `SELECT
-        u.user_id, u.tenant_id, u.username, u.email, u.password_hash,
-        u.role, u.full_name, u.is_active,
-        c.carer_id, c.first_name as carer_first_name, c.last_name as carer_last_name,
-        m.member_id, m.member_status,
-        cl.client_id
-      FROM tenant_users u
-      LEFT JOIN tenant_carers c ON u.user_id = c.user_id AND u.tenant_id = c.tenant_id
-      LEFT JOIN tenant_members m ON u.user_id = m.user_id AND u.tenant_id = m.tenant_id
-      LEFT JOIN tenant_clients cl ON u.user_id = cl.user_id AND u.tenant_id = cl.tenant_id
-      WHERE u.tenant_id = $1
-        AND (u.username = $2 OR u.email = $2)
-        AND u.is_active = true`,
-      [tenantId, sanitizedUsername]
+        user_id,
+        tenant_id,
+        email,
+        password_hash,
+        role,
+        first_name,
+        last_name,
+        is_active
+       FROM tenant_users
+       WHERE tenant_id = $1 AND email = $2`,
+      [tenantId, sanitizedEmail]
     );
 
     if (!user) {
-      auditLog('LOGIN_FAILED', { tenantId, username, reason: 'User not found' });
-      throw new AuthenticationError('Invalid credentials');
+      auditLog('login_failed', { tenantId, email: sanitizedEmail, reason: 'user_not_found' });
+      throw new AuthenticationError('Invalid email or password');
+    }
+
+    if (!user.is_active) {
+      auditLog('login_failed', { tenantId, email: sanitizedEmail, reason: 'user_inactive' });
+      throw new AuthenticationError('Account is inactive');
     }
 
     // Verify password
-    const passwordValid = await bcrypt.compare(password, user.password_hash);
-    if (!passwordValid) {
-      auditLog('LOGIN_FAILED', { tenantId, username, reason: 'Invalid password' });
-      throw new AuthenticationError('Invalid credentials');
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      auditLog('login_failed', { tenantId, userId: user.user_id, reason: 'invalid_password' });
+      throw new AuthenticationError('Invalid email or password');
     }
 
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      throw new Error('JWT_SECRET not configured');
+      throw new Error('JWT_SECRET is not configured');
     }
 
     const tokenPayload = {
       userId: user.user_id,
-      tenantId: parseInt(tenantId, 10),
+      tenantId: user.tenant_id,
       role: user.role,
       email: user.email,
-      carerId: user.carer_id || null,
-      memberId: user.member_id || null,
-      clientId: user.client_id || null,
-      isCareer: !!user.carer_id,
-      isMember: !!user.member_id && user.member_status === 'active',
-      isClient: !!user.client_id,
     };
 
-    const expiresIn = rememberMe ? '30d' : '24h';
-    const token = jwt.sign(tokenPayload, jwtSecret, { expiresIn });
+    const token = jwt.sign(tokenPayload, jwtSecret, {
+      expiresIn: process.env.JWT_EXPIRATION || '24h',
+    });
 
-    // Set httpOnly cookie
-    if (rememberMe) {
-      // setAuthCookieWithExpiry(res, token, 30);
-      res.cookie('homecare_auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        path: '/',
-      });
-    } else {
-      setAuthCookie(res, token);
-    }
+    // Set auth cookie
+    setAuthCookie(res, token);
 
-    // Update last login
-    await query(
-      'UPDATE tenant_users SET last_login = NOW() WHERE user_id = $1',
-      [user.user_id]
-    );
-
-    auditLog('LOGIN_SUCCESS', {
+    auditLog('login_success', {
       tenantId,
       userId: user.user_id,
-      username: user.username,
       role: user.role,
     });
 
-    logger.info('Login successful', { tenantId, userId: user.user_id });
+    logger.info(`User ${user.user_id} logged in for tenant ${tenantId}`);
 
     res.json({
-      message: 'Login successful',
+      success: true,
       user: {
-        id: user.user_id,
-        username: user.username,
+        userId: user.user_id,
+        tenantId: user.tenant_id,
         email: user.email,
-        fullName: user.full_name,
         role: user.role,
-        carerId: user.carer_id,
-        memberId: user.member_id,
-        clientId: user.client_id,
-        isCareer: !!user.carer_id,
-        isMember: !!user.member_id && user.member_status === 'active',
-        isClient: !!user.client_id,
+        firstName: user.first_name,
+        lastName: user.last_name,
       },
-      token, // Also return token for clients that need it
+      token,
     });
   })
 );
 
 /**
- * @route POST /api/tenants/:tenantId/logout
- * @desc Logout user and clear cookie
+ * POST /api/homecare/tenants/:tenantId/logout
+ * Logout user
  */
 router.post(
   '/tenants/:tenantId/logout',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { tenantId } = req.params;
+  verifyTenantAccess,
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user;
 
     clearAuthCookie(res);
 
-    auditLog('LOGOUT', { tenantId });
+    auditLog('logout', {
+      tenantId: user?.tenantId,
+      userId: user?.userId,
+    });
 
-    res.json({ message: 'Logged out successfully' });
+    logger.info(`User ${user?.userId} logged out`);
+
+    res.json({ success: true, message: 'Logged out successfully' });
   })
 );
 
 /**
- * @route GET /api/tenants/:tenantId/verify
- * @desc Verify JWT token and return user info
+ * GET /api/homecare/tenants/:tenantId/verify
+ * Verify authentication token
  */
 router.get(
   '/tenants/:tenantId/verify',
   verifyTenantAccess,
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const user = req.user!;
+    const user = req.user;
 
-    // Get fresh user data from database
-    const userData = await queryOne<any>(
+    if (!user) {
+      throw new AuthenticationError('Not authenticated');
+    }
+
+    // Fetch fresh user data
+    const currentUser = await queryOne(
       `SELECT
-        u.user_id, u.username, u.email, u.full_name, u.role, u.is_active,
-        c.carer_id, c.first_name as carer_first_name, c.last_name as carer_last_name,
-        m.member_id, m.member_status,
-        cl.client_id
-      FROM tenant_users u
-      LEFT JOIN tenant_carers c ON u.user_id = c.user_id AND u.tenant_id = c.tenant_id
-      LEFT JOIN tenant_members m ON u.user_id = m.user_id AND u.tenant_id = m.tenant_id
-      LEFT JOIN tenant_clients cl ON u.user_id = cl.user_id AND u.tenant_id = cl.tenant_id
-      WHERE u.user_id = $1 AND u.tenant_id = $2 AND u.is_active = true`,
-      [user.userId, user.tenantId]
+        user_id,
+        tenant_id,
+        email,
+        role,
+        first_name,
+        last_name,
+        is_active
+       FROM tenant_users
+       WHERE tenant_id = $1 AND user_id = $2`,
+      [user.tenantId, user.userId]
     );
 
-    if (!userData) {
-      throw new AuthenticationError('User not found');
+    if (!currentUser || !currentUser.is_active) {
+      throw new AuthenticationError('User is no longer active');
     }
 
     res.json({
-      valid: true,
+      success: true,
       user: {
-        id: userData.user_id,
-        username: userData.username,
-        email: userData.email,
-        fullName: userData.full_name,
-        role: userData.role,
-        carerId: userData.carer_id,
-        memberId: userData.member_id,
-        clientId: userData.client_id,
-        isCareer: !!userData.carer_id,
-        isMember: !!userData.member_id && userData.member_status === 'active',
-        isClient: !!userData.client_id,
+        userId: currentUser.user_id,
+        tenantId: currentUser.tenant_id,
+        email: currentUser.email,
+        role: currentUser.role,
+        firstName: currentUser.first_name,
+        lastName: currentUser.last_name,
       },
     });
-  })
-);
-
-/**
- * @route POST /api/tenants/:tenantId/change-password
- * @desc Change user password
- */
-router.post(
-  '/tenants/:tenantId/change-password',
-  verifyTenantAccess,
-  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const user = req.user!;
-    const { currentPassword, newPassword } = req.body;
-
-    if (!currentPassword || !newPassword) {
-      throw new ValidationError('Current and new password are required');
-    }
-
-    if (newPassword.length < 8) {
-      throw new ValidationError('New password must be at least 8 characters');
-    }
-
-    // Get current password hash
-    const userData = await queryOne<any>(
-      'SELECT password_hash FROM tenant_users WHERE user_id = $1 AND tenant_id = $2',
-      [user.userId, user.tenantId]
-    );
-
-    if (!userData) {
-      throw new AuthenticationError('User not found');
-    }
-
-    // Verify current password
-    const passwordValid = await bcrypt.compare(currentPassword, userData.password_hash);
-    if (!passwordValid) {
-      auditLog('PASSWORD_CHANGE_FAILED', {
-        userId: user.userId,
-        tenantId: user.tenantId,
-        reason: 'Invalid current password',
-      });
-      throw new ValidationError('Current password is incorrect');
-    }
-
-    // Hash new password
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
-
-    // Update password
-    await query(
-      'UPDATE tenant_users SET password_hash = $1, updated_at = NOW() WHERE user_id = $2 AND tenant_id = $3',
-      [newPasswordHash, user.userId, user.tenantId]
-    );
-
-    auditLog('PASSWORD_CHANGED', {
-      userId: user.userId,
-      tenantId: user.tenantId,
-    });
-
-    res.json({ message: 'Password changed successfully' });
   })
 );
 
