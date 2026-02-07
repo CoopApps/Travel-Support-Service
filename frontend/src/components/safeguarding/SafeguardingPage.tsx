@@ -397,8 +397,9 @@ function SafeguardingPage() {
       <SafeguardingStatsCards stats={stats} />
 
       {/* Search & Filters */}
-      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: '250px', display: 'flex', gap: '6px' }}>
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', padding: '0 1rem', flexWrap: 'wrap' }}>
+        {/* Search Box - Compact */}
+        <div style={{ position: 'relative', maxWidth: '220px', display: 'flex', gap: '6px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
             <svg
               width="14"
@@ -414,7 +415,7 @@ function SafeguardingPage() {
             </svg>
             <input
               type="text"
-              placeholder="Search driver, customer, location..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -444,44 +445,42 @@ function SafeguardingPage() {
           )}
         </div>
 
-        {/* Filters on Right */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as ReportStatus | '')}
-            style={{
-              padding: '6px 8px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              fontSize: '12px',
-              minWidth: '140px'
-            }}
-          >
-            <option value="">All Statuses</option>
-            <option value="submitted">Submitted</option>
-            <option value="under_review">Under Review</option>
-            <option value="investigating">Investigating</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-          <select
-            value={severityFilter}
-            onChange={(e) => setSeverityFilter(e.target.value as SeverityLevel | '')}
-            style={{
-              padding: '6px 8px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              fontSize: '12px',
-              minWidth: '120px'
-            }}
-          >
-            <option value="">All Severities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
+        {/* Filters */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as ReportStatus | '')}
+          style={{
+            padding: '6px 8px',
+            border: '1px solid #e5e7eb',
+            borderRadius: '4px',
+            fontSize: '12px',
+            minWidth: '120px'
+          }}
+        >
+          <option value="">All Statuses</option>
+          <option value="submitted">Submitted</option>
+          <option value="under_review">Under Review</option>
+          <option value="investigating">Investigating</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+        </select>
+        <select
+          value={severityFilter}
+          onChange={(e) => setSeverityFilter(e.target.value as SeverityLevel | '')}
+          style={{
+            padding: '6px 8px',
+            border: '1px solid #e5e7eb',
+            borderRadius: '4px',
+            fontSize: '12px',
+            minWidth: '110px'
+          }}
+        >
+          <option value="">All Severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
       </div>
 
       {/* Results Counter */}

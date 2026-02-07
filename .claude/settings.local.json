@@ -24,7 +24,21 @@
       "Bash(git add:*)",
       "Bash(git merge:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(for f in \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\drivers\"/*.tsx)",
+      "Bash(do wc -l \"$f\")",
+      "Bash(for f in \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\customers\"/*.tsx)",
+      "Bash(npm run build:*)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"../node_modules/.bin/vite\" build)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" -e \"require(''''vite'''').build(require(''''vite'''').defineConfig(require(''''./vite.config.ts'''')))\")",
+      "Bash(node:*)",
+      "Bash(\"C:\\Program Files\\nodejs\\node.exe\" -c \"const fs = require(''fs''); const content = fs.readFileSync(''D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\permits\\PermitsPage.tsx'', ''utf8''); console.log(''File read successfully''); console.log(''Line count:'', content.split(''\\n'').length);\")",
+      "Bash(\"C:\\Program Files\\nodejs\\node.exe\" \"D:\\projects\\travel-support-app -test\\conversion\\node_modules\\typescript\\bin\\tsc.js\" --noEmit --skipLibCheck \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\src\\components\\permits\\PermitsPage.tsx\")",
+      "Bash(\"C:\\Program Files\\nodejs\\node.exe\" \"D:\\projects\\travel-support-app -test\\conversion\\frontend\\node_modules\\vite\\bin\\vite.js\" build)"
     ],
     "deny": [],
     "ask": []
