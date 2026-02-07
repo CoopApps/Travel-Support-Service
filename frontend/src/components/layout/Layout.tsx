@@ -108,8 +108,14 @@ function Layout() {
               {activeService === 'homecare' && (
                 /* Homecare-specific modules */
                 <>
-                  <NavItem to="/homecare/dashboard" label="Care Dashboard" icon="home" active={location.pathname === '/homecare/dashboard'} />
-                  {/* More homecare nav items will be added as components are integrated */}
+                  <NavItem to="/homecare/dashboard" label="Dashboard" icon="home" active={location.pathname === '/homecare/dashboard'} />
+                  <NavItem to="/homecare/clients" label="Clients" icon="users" active={location.pathname.startsWith('/homecare/clients')} />
+                  <NavItem to="/homecare/carers" label="Carers" icon="user-plus" active={location.pathname.startsWith('/homecare/carers')} />
+                  <NavItem to="/homecare/visits" label="Visits" icon="calendar" active={location.pathname.startsWith('/homecare/visits')} />
+                  <NavItem to="/homecare/care-plans" label="Care Plans" icon="file-text" active={location.pathname.startsWith('/homecare/care-plans')} />
+                  <NavItem to="/homecare/documents" label="Documents" icon="file" active={location.pathname.startsWith('/homecare/documents')} />
+                  <NavItem to="/homecare/invoices" label="Invoices" icon="file" active={location.pathname.startsWith('/homecare/invoices')} />
+                  <NavItem to="/homecare/settings" label="Settings" icon="settings" active={location.pathname.startsWith('/homecare/settings')} />
                 </>
               )}
             </div>

@@ -57,6 +57,18 @@ import UnifiedRosterPage from './components/roster/UnifiedRosterPage';
 
 // Homecare Components
 import HomecareDashboard from './homecare/pages/DashboardPage';
+import ClientsListPage from './homecare/pages/ClientsListPage';
+import ClientDetailPage from './homecare/pages/ClientDetailPage';
+import CarersListPage from './homecare/pages/CarersListPage';
+import CarerDetailPage from './homecare/pages/CarerDetailPage';
+import VisitsListPage from './homecare/pages/VisitsListPage';
+import VisitDetailPage from './homecare/pages/VisitDetailPage';
+import CarePlansListPage from './homecare/pages/CarePlansListPage';
+import CarePlanDetailPage from './homecare/pages/CarePlanDetailPage';
+import DocumentsListPage from './homecare/pages/DocumentsListPage';
+import InvoicesListPage from './homecare/pages/InvoicesListPage';
+import InvoiceDetailPage from './homecare/pages/InvoiceDetailPage';
+import HomecareSettingsPage from './homecare/pages/SettingsPage';
 
 /**
  * Main Application Component - Multi-Tenant
@@ -220,7 +232,18 @@ function App() {
 
         {/* Homecare Service Routes - homecare-specific modules */}
         <Route path="homecare/dashboard" element={<HomecareDashboard />} />
-        {/* Additional homecare routes will be added as components are integrated */}
+        <Route path="homecare/clients" element={<ClientsListPage />} />
+        <Route path="homecare/clients/:clientId" element={<ClientDetailPage />} />
+        <Route path="homecare/carers" element={<CarersListPage />} />
+        <Route path="homecare/carers/:carerId" element={<CarerDetailPage />} />
+        <Route path="homecare/visits" element={<VisitsListPage />} />
+        <Route path="homecare/visits/:visitId" element={<VisitDetailPage />} />
+        <Route path="homecare/care-plans" element={<CarePlansListPage />} />
+        <Route path="homecare/care-plans/:carePlanId" element={<CarePlanDetailPage />} />
+        <Route path="homecare/documents" element={<DocumentsListPage />} />
+        <Route path="homecare/invoices" element={<InvoicesListPage />} />
+        <Route path="homecare/invoices/:invoiceId" element={<InvoiceDetailPage />} />
+        <Route path="homecare/settings" element={<HomecareSettingsPage />} />
 
         {/* Note: /dashboard is now service-aware and shows bus, transport, or homecare based on activeService */}
 
