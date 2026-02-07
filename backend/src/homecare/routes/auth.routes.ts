@@ -81,8 +81,7 @@ router.post(
       email: user.email,
     };
 
-    const expiresIn = process.env.JWT_EXPIRATION || '24h';
-    const token = jwt.sign(tokenPayload, jwtSecret, { expiresIn });
+    const token = jwt.sign(tokenPayload, jwtSecret, { expiresIn: '24h' });
 
     // Set auth cookie
     setAuthCookie(res, token);
