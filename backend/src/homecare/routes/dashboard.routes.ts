@@ -1,8 +1,8 @@
 import express, { Router, Response } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
-import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
-import { query, queryOne } from '../config/database';
-import { logger } from '../utils/logger';
+import { asyncHandler } from '../../middleware/errorHandler';
+import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
+import { query, queryOne } from '../../config/database';
+import { logger } from '../../utils/logger';
 
 const router: Router = express.Router();
 

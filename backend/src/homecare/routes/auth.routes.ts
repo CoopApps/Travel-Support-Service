@@ -1,13 +1,13 @@
 import express, { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { asyncHandler } from '../middleware/errorHandler';
-import { query, queryOne } from '../config/database';
-import { AuthenticationError, ValidationError } from '../utils/errorTypes';
-import { logger, auditLog } from '../utils/logger';
-import { setAuthCookie, clearAuthCookie } from '../utils/cookieAuth';
-import { sanitizeEmail } from '../utils/sanitize';
-import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTenantAccess';
+import { asyncHandler } from '../../middleware/errorHandler';
+import { query, queryOne } from '../../config/database';
+import { AuthenticationError, ValidationError } from '../../utils/errorTypes';
+import { logger, auditLog } from '../../utils/logger';
+import { setAuthCookie, clearAuthCookie } from '../../utils/cookieAuth';
+import { sanitizeEmail } from '../../utils/sanitize';
+import { verifyTenantAccess, AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
 
 const router: Router = express.Router();
 

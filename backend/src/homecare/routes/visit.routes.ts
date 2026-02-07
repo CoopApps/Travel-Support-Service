@@ -1,10 +1,10 @@
 import express, { Router, Request, Response } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
-import { verifyTenantAccess, AuthenticatedRequest, requireCareWorker } from '../middleware/verifyTenantAccess';
-import { query, queryOne, transaction } from '../config/database';
-import { NotFoundError, ValidationError, VisitConflictError } from '../utils/errorTypes';
-import { logger, careEventLog, auditLog } from '../utils/logger';
-import { sanitizeInput, sanitizeCareNotes } from '../utils/sanitize';
+import { asyncHandler } from '../../middleware/errorHandler';
+import { verifyTenantAccess, AuthenticatedRequest, requireCareWorker } from '../../middleware/verifyTenantAccess';
+import { query, queryOne, transaction } from '../../config/database';
+import { NotFoundError, ValidationError, VisitConflictError } from '../../utils/errorTypes';
+import { logger, careEventLog, auditLog } from '../../utils/logger';
+import { sanitizeInput, sanitizeCareNotes } from '../../utils/sanitize';
 
 const router: Router = express.Router();
 

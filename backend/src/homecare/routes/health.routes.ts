@@ -1,6 +1,6 @@
 import express, { Router, Request, Response } from 'express';
-import { pool } from '../config/database';
-import { logger } from '../utils/logger';
+import { pool } from '../../config/database';
+import { logger } from '../../utils/logger';
 
 const router: Router = express.Router();
 

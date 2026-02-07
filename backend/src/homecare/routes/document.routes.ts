@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { query, queryWithTenant } from '../config/database';
-import { asyncHandler } from '../middleware/errorHandler';
-import { validateBody, validateQuery, validateParams } from '../middleware/validation';
+import { query, queryWithTenant } from '../../config/database';
+import { asyncHandler } from '../../middleware/errorHandler';
+import { validateBody, validateQuery, validateParams } from '../../middleware/validation';
 import {
   createDocumentSchema,
   updateDocumentSchema,
@@ -10,10 +10,10 @@ import {
   shareDocumentSchema,
   approveDocumentSchema,
   bulkDocumentOperationSchema,
-} from '../schemas/document.schemas';
-import { AuthenticatedRequest } from '../middleware/verifyTenantAccess';
-import { logger, careEventLog } from '../utils/logger';
-import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errorTypes';
+} from '../../schemas/document.schemas';
+import { AuthenticatedRequest } from '../../middleware/verifyTenantAccess';
+import { logger, careEventLog } from '../../utils/logger';
+import { NotFoundError, ForbiddenError, ValidationError } from '../../utils/errorTypes';
 
 const router = Router();
 
