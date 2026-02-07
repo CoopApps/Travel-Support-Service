@@ -194,7 +194,7 @@ function ClientsListPage() {
                       </td>
                       <td style={{ padding: '1rem', fontSize: '13px' }}>
                         {client.travel_customer_id ? (
-                          <span style={{ color: '#10b981' }}>✓ Synced</span>
+                          <span style={{ color: '#10b981' }}>Synced</span>
                         ) : (
                           <span style={{ color: 'var(--gray-400)' }}>Not synced</span>
                         )}
