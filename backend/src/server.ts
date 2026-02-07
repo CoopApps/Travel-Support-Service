@@ -109,17 +109,18 @@ import gdprRoutes from './routes/gdpr.routes';
 import aiStatusRoutes from './routes/ai-status.routes';
 
 // Homecare Routes
-import homecareAuthRoutes from './homecare/routes/auth.routes';
-import homecareClientRoutes from './homecare/routes/client.routes';
-import homecareCarerRoutes from './homecare/routes/carer.routes';
-import homecareVisitRoutes from './homecare/routes/visit.routes';
-import homecareCarePlanRoutes from './homecare/routes/care-plan.routes';
-import homecareMemberRoutes from './homecare/routes/member.routes';
-import homecareVotingRoutes from './homecare/routes/voting.routes';
-import homecareDashboardRoutes from './homecare/routes/dashboard.routes';
-import homecareInvoiceRoutes from './homecare/routes/invoice.routes';
-import homecareDocumentRoutes from './homecare/routes/document.routes';
-import homecareSettingsRoutes from './homecare/routes/settings.routes';
+// NOTE: Most routes commented out pending full backend integration
+// import homecareAuthRoutes from './homecare/routes/auth.routes';
+// import homecareClientRoutes from './homecare/routes/client.routes';
+// import homecareCarerRoutes from './homecare/routes/carer.routes';
+// import homecareVisitRoutes from './homecare/routes/visit.routes';
+// import homecareCarePlanRoutes from './homecare/routes/care-plan.routes';
+// import homecareMemberRoutes from './homecare/routes/member.routes';
+// import homecareVotingRoutes from './homecare/routes/voting.routes';
+// import homecareDashboardRoutes from './homecare/routes/dashboard.routes';
+// import homecareInvoiceRoutes from './homecare/routes/invoice.routes';
+// import homecareDocumentRoutes from './homecare/routes/document.routes';
+// import homecareSettingsRoutes from './homecare/routes/settings.routes';
 import homecareHealthRoutes from './homecare/routes/health.routes';
 
 /**
@@ -353,18 +354,20 @@ app.use('/api', gdprRoutes);
 app.use('/api', aiStatusRoutes);
 
 // Homecare Service Routes
+// NOTE: Homecare routes temporarily disabled pending full backend integration
+// TODO: Adapt homecare routes to match conversion backend architecture
 app.use('/api/homecare', homecareHealthRoutes);
-app.use('/api/homecare', homecareAuthRoutes);
-app.use('/api/homecare', homecareClientRoutes);
-app.use('/api/homecare', homecareCarerRoutes);
-app.use('/api/homecare', homecareVisitRoutes);
-app.use('/api/homecare', homecareCarePlanRoutes);
-app.use('/api/homecare', homecareMemberRoutes);
-app.use('/api/homecare', homecareVotingRoutes);
-app.use('/api/homecare', homecareDashboardRoutes);
-app.use('/api/homecare', homecareInvoiceRoutes);
-app.use('/api/homecare', homecareDocumentRoutes);
-app.use('/api/homecare', homecareSettingsRoutes);
+// app.use('/api/homecare', homecareAuthRoutes);
+// app.use('/api/homecare', homecareClientRoutes);
+// app.use('/api/homecare', homecareCarerRoutes);
+// app.use('/api/homecare', homecareVisitRoutes);
+// app.use('/api/homecare', homecareCarePlanRoutes);
+// app.use('/api/homecare', homecareMemberRoutes);
+// app.use('/api/homecare', homecareVotingRoutes);
+// app.use('/api/homecare', homecareDashboardRoutes);
+// app.use('/api/homecare', homecareInvoiceRoutes);
+// app.use('/api/homecare', homecareDocumentRoutes);
+// app.use('/api/homecare', homecareSettingsRoutes);
 
 // Catch-all route for React Router - must be after all API routes
 app.get('*', (_req, res) => {
