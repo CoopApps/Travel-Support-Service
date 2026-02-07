@@ -231,6 +231,7 @@ function App() {
         {/* bus/compliance route removed - now tab in PermitsPage */}
 
         {/* Homecare Service Routes - homecare-specific modules */}
+        <Route path="homecare/dashboard" element={<HomecareDashboard />} />
         <Route path="homecare/clients" element={<ClientsListPage />} />
         <Route path="homecare/clients/:clientId" element={<ClientDetailPage />} />
         <Route path="homecare/carers" element={<CarersListPage />} />

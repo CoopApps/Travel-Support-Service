@@ -93,8 +93,12 @@ function Layout() {
               {activeService === 'bus' ? 'Bus Operations' : activeService === 'homecare' ? 'Home Care' : 'Core Operations'}
             </div>
             <div role="list" aria-labelledby="nav-section-core">
-              {/* Dashboard - service-aware, shows different content based on activeService */}
-              <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+              {/* Dashboard - different routes per service */}
+              {activeService === 'homecare' ? (
+                <NavItem to="/homecare/dashboard" label="Dashboard" icon="home" active={location.pathname === '/homecare/dashboard'} />
+              ) : (
+                <NavItem to="/dashboard" label="Dashboard" icon="home" active={location.pathname === '/dashboard'} />
+              )}
 
               {activeService === 'bus' && (
                 /* Bus-specific modules */

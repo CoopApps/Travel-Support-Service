@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTenant } from '../../context/TenantContext';
@@ -10,16 +10,13 @@ import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
 import BusDashboard from '../bus/BusDashboard';
 import '../../pages/AdminDashboard.css';
 
-// Lazy load homecare dashboard to avoid circular dependencies
-const HomecareDashboard = lazy(() => import('../../homecare/pages/DashboardPage'));
-
 /**
  * Service-Aware Dashboard Page Component
  *
  * Displays different dashboards based on active service:
  * - Transport: Shows trips, ad-hoc bookings, driver assignments
  * - Bus: Shows scheduled routes, timetables, seat availability
- * - Homecare: Shows clients, carers, visits, and revenue stats
+ * - Homecare: Redirects to /homecare/dashboard to avoid circular dependencies
  */
 
 interface Alert {
@@ -94,13 +91,10 @@ function DashboardPage() {
     return <BusDashboard />;
   }
 
-  // If homecare service is active, show homecare dashboard
+  // If homecare service is active, redirect to homecare dashboard route
   if (activeService === 'homecare') {
-    return (
-      <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading dashboard...</div>}>
-        <HomecareDashboard />
-      </Suspense>
-    );
+    navigate('/homecare/dashboard', { replace: true });
+    return null;
   }
 
   // Otherwise show transport dashboard
