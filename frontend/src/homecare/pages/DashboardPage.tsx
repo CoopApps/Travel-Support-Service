@@ -72,7 +72,7 @@ function DashboardPage() {
                 Active Clients
               </p>
               <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview.active_clients || 0}
+                {stats?.overview?.active_clients || 0}
               </p>
               <Link to="/homecare/clients" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
                 View all clients &rarr;
@@ -84,7 +84,7 @@ function DashboardPage() {
                 Active Carers
               </p>
               <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview.active_carers || 0}
+                {stats?.overview?.active_carers || 0}
               </p>
               <Link to="/homecare/carers" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
                 View all carers &rarr;
@@ -96,7 +96,7 @@ function DashboardPage() {
                 Total Visits
               </p>
               <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview.total_visits || 0}
+                {stats?.overview?.total_visits || 0}
               </p>
               <Link to="/homecare/visits" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
                 View visits &rarr;
@@ -108,10 +108,10 @@ function DashboardPage() {
                 Revenue (This Month)
               </p>
               <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {formatCurrency(stats?.overview.revenue_this_month || 0)}
+                {formatCurrency(stats?.overview?.revenue_this_month || 0)}
               </p>
-              <p style={{ fontSize: '12px', color: stats?.overview.revenue_growth_percentage && stats.overview.revenue_growth_percentage >= 0 ? '#10b981' : '#ef4444', marginTop: '0.5rem' }}>
-                {stats?.overview.revenue_growth_percentage ? formatPercentage(stats.overview.revenue_growth_percentage) : '-'} vs last month
+              <p style={{ fontSize: '12px', color: stats?.overview?.revenue_growth_percentage && stats.overview.revenue_growth_percentage >= 0 ? '#10b981' : '#ef4444', marginTop: '0.5rem' }}>
+                {stats?.overview?.revenue_growth_percentage ? formatPercentage(stats.overview.revenue_growth_percentage) : '-'} vs last month
               </p>
             </div>
           </div>
@@ -126,42 +126,42 @@ function DashboardPage() {
             <div className="card" style={{ padding: '1.25rem' }}>
               <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Today's Visits</p>
               <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits.today || 0}
+                {stats?.visits?.today || 0}
               </p>
             </div>
 
             <div className="card" style={{ padding: '1.25rem' }}>
               <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>This Week</p>
               <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits.this_week || 0}
+                {stats?.visits?.this_week || 0}
               </p>
             </div>
 
             <div className="card" style={{ padding: '1.25rem' }}>
               <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Completed (Month)</p>
               <p style={{ fontSize: '28px', fontWeight: 700, color: '#10b981', margin: 0 }}>
-                {stats?.visits.completed_this_month || 0}
+                {stats?.visits?.completed_this_month || 0}
               </p>
             </div>
 
             <div className="card" style={{ padding: '1.25rem' }}>
               <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Cancelled (Month)</p>
               <p style={{ fontSize: '28px', fontWeight: 700, color: '#ef4444', margin: 0 }}>
-                {stats?.visits.cancelled_this_month || 0}
+                {stats?.visits?.cancelled_this_month || 0}
               </p>
             </div>
 
             <div className="card" style={{ padding: '1.25rem' }}>
               <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Completion Rate</p>
               <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits.completion_rate ? `${stats.visits.completion_rate.toFixed(1)}%` : '0%'}
+                {stats?.visits?.completion_rate ? `${stats.visits.completion_rate.toFixed(1)}%` : '0%'}
               </p>
             </div>
           </div>
         </div>
 
         {/* Alerts */}
-        {stats?.alerts && (stats.alerts.expiring_dbs_checks > 0 || stats.alerts.expiring_documents > 0 || stats.alerts.overdue_invoices > 0 || stats.alerts.unassigned_visits > 0) && (
+        {stats?.alerts && ((stats.alerts.expiring_dbs_checks || 0) > 0 || (stats.alerts.expiring_documents || 0) > 0 || (stats.alerts.overdue_invoices || 0) > 0 || (stats.alerts.unassigned_visits || 0) > 0) && (
           <div style={{ marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '1rem' }}>
               Alerts
