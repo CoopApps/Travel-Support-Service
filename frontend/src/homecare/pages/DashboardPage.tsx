@@ -1,5 +1,5 @@
-import { useAuthStore } from '../store/authStore';
-import { useTenant } from '../context/TenantContext';
+import { useAuthStore } from '../../store/authStore';
+import { useTenant } from '../../context/TenantContext';
 
 /**
  * Dashboard Page (Placeholder)

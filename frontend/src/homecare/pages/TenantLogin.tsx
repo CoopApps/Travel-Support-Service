@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { useTenant } from '../context/TenantContext';
+import { useAuthStore } from '../../store/authStore';
+import { useTenant } from '../../context/TenantContext';
 import axios from 'axios';
 
 /**
