@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - updated 2026-02-08 17:00
-ARG CACHEBUST=2
+# Force rebuild - updated 2026-02-08 19:05
+ARG CACHEBUST=3
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
@@ -52,11 +52,8 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
 
-# Copy built files
+# Copy built backend files (includes frontend in dist/public from builder stage line 22)
 COPY --from=builder /app/backend/dist ./dist
-
-# Copy frontend static files to dist/public
-COPY --from=builder /app/frontend/dist ./dist/public
 
 ENV NODE_ENV=production
 ENV PORT=8080
