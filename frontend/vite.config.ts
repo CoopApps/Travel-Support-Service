@@ -26,8 +26,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Disable source maps in production to protect source code
-    sourcemap: process.env.NODE_ENV !== 'production',
+    // Enable source maps temporarily to debug circular dependency issue
+    sourcemap: true,
     // Use esbuild for fast minification (built-in with Vite)
     minify: 'esbuild',
     rollupOptions: {
