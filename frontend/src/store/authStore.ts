@@ -33,13 +33,6 @@ export const useAuthStore = create<AuthState>()(
       login: (user, _token) => {
         // SECURITY: Token is now stored in httpOnly cookie by the server
         // We only store user metadata in localStorage (no sensitive data)
-        // Clear React Query cache on login to ensure fresh data
-        if (typeof window !== 'undefined') {
-          import('../main').then(({ queryClient }) => {
-            queryClient.clear();
-          });
-        }
-
         set({
           user,
           token: null, // SECURITY: Don't store token in localStorage
@@ -49,13 +42,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        // Clear React Query cache on logout
-        if (typeof window !== 'undefined') {
-          import('../main').then(({ queryClient }) => {
-            queryClient.clear();
-          });
-        }
-
         set({
           user: null,
           token: null,

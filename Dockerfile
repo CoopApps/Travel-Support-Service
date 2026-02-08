@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - cache headers fix 2026-02-08 19:30
-ARG CACHEBUST=5
+# Force rebuild - circular dependency fix 2026-02-08 20:15
+ARG CACHEBUST=6
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
