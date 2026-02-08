@@ -85,19 +85,17 @@ function DashboardPage() {
     }
   }, [user?.tenantId, activeService]);
 
-  // If bus service is active, redirect to bus dashboard route
-  if (activeService === 'bus') {
-    useEffect(() => {
+  // Redirect effect for service-specific dashboards
+  useEffect(() => {
+    if (activeService === 'bus') {
       navigate('/bus/dashboard', { replace: true });
-    }, []);
-    return null;
-  }
-
-  // If homecare service is active, redirect to homecare dashboard route
-  if (activeService === 'homecare') {
-    useEffect(() => {
+    } else if (activeService === 'homecare') {
       navigate('/homecare/dashboard', { replace: true });
-    }, []);
+    }
+  }, [activeService, navigate]);
+
+  // Return null while redirecting to avoid rendering transport dashboard
+  if (activeService === 'bus' || activeService === 'homecare') {
     return null;
   }
 
