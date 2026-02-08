@@ -34,7 +34,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'state-management': ['zustand', '@tanstack/react-query'],
+          // Removed state-management chunk - was causing "Cannot access before initialization" errors
+          // due to circular dependencies between chunks
         },
       },
     },
