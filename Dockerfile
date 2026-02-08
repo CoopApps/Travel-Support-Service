@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - updated 2026-02-08 19:05
-ARG CACHEBUST=3
+# Force rebuild - cache headers fix 2026-02-08 19:30
+ARG CACHEBUST=5
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
@@ -16,6 +16,8 @@ RUN cd backend && npm run build
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
 COPY frontend ./frontend
+# Clear Vite build cache before building
+RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build
 
 # Copy frontend to backend public

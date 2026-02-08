@@ -273,7 +273,24 @@ app.use(healthRoutes);
 
 // Serve static frontend files BEFORE subdomain detection
 const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
+app.use(express.static(publicPath, {
+  setHeaders: (res, filePath) => {
+    // HTML files: never cache (always fetch fresh)
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+    // JS/CSS assets with hash: cache forever (Vite uses content hashes)
+    else if (filePath.match(/\.(js|css|woff2?|ttf|eot)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // Images and other assets: moderate caching
+    else {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  }
+}));
 
 // Public routes (no authentication or subdomain detection required)
 app.use('/api', publicRoutes);
