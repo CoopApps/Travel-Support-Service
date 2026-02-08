@@ -87,13 +87,17 @@ function DashboardPage() {
 
   // If bus service is active, redirect to bus dashboard route
   if (activeService === 'bus') {
-    navigate('/bus/dashboard', { replace: true });
+    useEffect(() => {
+      navigate('/bus/dashboard', { replace: true });
+    }, []);
     return null;
   }
 
   // If homecare service is active, redirect to homecare dashboard route
   if (activeService === 'homecare') {
-    navigate('/homecare/dashboard', { replace: true });
+    useEffect(() => {
+      navigate('/homecare/dashboard', { replace: true });
+    }, []);
     return null;
   }
 
