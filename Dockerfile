@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - updated 2026-02-08
-ARG CACHEBUST=1
+# Force rebuild - updated 2026-02-08 17:00
+ARG CACHEBUST=2
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
