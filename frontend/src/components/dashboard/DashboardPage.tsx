@@ -7,7 +7,6 @@ import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
 import { vehicleApi, customerApi, driverApi, adminAnalyticsApi } from '../../services/api';
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
-import BusDashboard from '../bus/BusDashboard';
 import '../../pages/AdminDashboard.css';
 
 /**
@@ -86,9 +85,10 @@ function DashboardPage() {
     }
   }, [user?.tenantId, activeService]);
 
-  // If bus service is active, show bus dashboard (after ALL hooks are called)
+  // If bus service is active, redirect to bus dashboard route
   if (activeService === 'bus') {
-    return <BusDashboard />;
+    navigate('/bus/dashboard', { replace: true });
+    return null;
   }
 
   // If homecare service is active, redirect to homecare dashboard route
