@@ -3,6 +3,9 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
+# Force rebuild - updated 2026-02-08
+ARG CACHEBUST=1
+
 # Copy and build backend
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
