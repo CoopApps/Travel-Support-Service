@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - remove state-management chunk 2026-02-08 23:00
-ARG CACHEBUST=8
+# Force rebuild - rename apiClient to dashboardApiClient 2026-02-08 23:10
+ARG CACHEBUST=9
 
 # Copy and build backend
 COPY backend/package*.json ./backend/

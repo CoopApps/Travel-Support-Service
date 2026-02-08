@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-// import { useAuthStore } from '../store/authStore'; // TEMPORARILY DISABLED TO TEST CIRCULAR DEPENDENCY
+import { useAuthStore } from '../store/authStore';
 
 /**
  * Dashboard API Service
@@ -10,8 +10,8 @@ import axios, { AxiosInstance } from 'axios';
  * - Summary counts
  */
 
-// Create axios instance
-const apiClient: AxiosInstance = axios.create({
+// Create axios instance for dashboard API
+const dashboardApiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 30000, // 30 seconds for comprehensive dashboard query
   headers: {
@@ -20,12 +20,12 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // Request interceptor - Add auth token
-apiClient.interceptors.request.use(
+dashboardApiClient.interceptors.request.use(
   (config) => {
-    // const token = useAuthStore.getState().token; // TEMPORARILY DISABLED
-    // if (token && config.headers) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = useAuthStore.getState().token;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -34,11 +34,11 @@ apiClient.interceptors.request.use(
 );
 
 // Response interceptor - Handle errors
-apiClient.interceptors.response.use(
+dashboardApiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // useAuthStore.getState().logout(); // TEMPORARILY DISABLED
+      useAuthStore.getState().logout();
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -250,7 +250,7 @@ export const dashboardApi = {
    * Includes all tasks, stats, and summary counts
    */
   getOverview: async (tenantId: number): Promise<DashboardOverview> => {
-    const response = await apiClient.get<DashboardOverview>(
+    const response = await dashboardApiClient.get<DashboardOverview>(
       `/tenants/${tenantId}/dashboard/overview`
     );
     return response.data;
@@ -260,7 +260,7 @@ export const dashboardApi = {
    * Get all notifications (existing endpoint for notification bell)
    */
   getAllNotifications: async (tenantId: number): Promise<any> => {
-    const response = await apiClient.get(
+    const response = await dashboardApiClient.get(
       `/tenants/${tenantId}/dashboard/all-notifications`
     );
     return response.data;
