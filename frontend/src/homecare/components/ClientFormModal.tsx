@@ -55,15 +55,74 @@ function ClientFormModal({ client, onClose, onSave }: ClientFormModalProps) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 style={{ margin: 0 }}>{isEdit ? 'Edit Client' : 'Add New Client'}</h2>
-          <button onClick={onClose} className="modal-close">&times;</button>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+      }}
+    >
+      <div
+        className="modal-container"
+        style={{
+          maxWidth: '800px',
+          width: '90%',
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="modal-header"
+          style={{
+            padding: '1.5rem',
+            borderBottom: '1px solid #e5e7eb',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>{isEdit ? 'Edit Client' : 'Add New Client'}</h2>
+          <button
+            onClick={onClose}
+            className="modal-close"
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              color: '#6b7280',
+              padding: '0',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            &times;
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <div
+            className="modal-body"
+            style={{
+              maxHeight: '70vh',
+              overflowY: 'auto',
+              padding: '1.5rem',
+            }}
+          >
             {/* Personal Information */}
             <h3 style={{ fontSize: '14px', fontWeight: 600, marginTop: 0, marginBottom: '1rem', color: '#374151' }}>
               Personal Information
@@ -310,7 +369,16 @@ function ClientFormModal({ client, onClose, onSave }: ClientFormModalProps) {
             </div>
           </div>
 
-          <div className="modal-footer">
+          <div
+            className="modal-footer"
+            style={{
+              padding: '1.5rem',
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.75rem',
+            }}
+          >
             <button type="button" onClick={onClose} className="btn btn-secondary" disabled={saving}>
               Cancel
             </button>
