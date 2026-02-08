@@ -1,0 +1,27 @@
+.medical-info-display {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.medical-info-display.empty {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.medical-info-display .info-item {
+  margin-bottom: 0.25rem;
+}
+
+.medical-info-display .info-item.alert {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.medical-info-display .info-label {
+  color: #6b7280;
+  margin-right: 0.375rem;
+}
+
+.medical-info-display .info-value {
+  color: #374151;
+}

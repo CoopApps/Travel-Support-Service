@@ -1,0 +1,34 @@
+.emergency-contact-display {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.emergency-contact-display.empty {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.emergency-contact-display .contact-name {
+  font-weight: 600;
+  color: #374151;
+}
+
+.emergency-contact-display .contact-phone {
+  color: #0891b2;
+  margin-top: 0.125rem;
+}
+
+.emergency-contact-display .contact-phone a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.emergency-contact-display .contact-phone a:hover {
+  text-decoration: underline;
+}
+
+.emergency-contact-display .contact-relationship {
+  color: #6b7280;
+  font-size: 11px;
+  margin-top: 0.125rem;
+}
