@@ -7,6 +7,23 @@ interface ClientStatsProps {
   refresh?: number;
 }
 
+interface StatCardProps {
+  label: string;
+  value: number;
+  subtitle: string;
+  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo' | 'red' | 'amber';
+}
+
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
+  return (
+    <div className={`stat-card stat-card-${theme}`}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
+    </div>
+  );
+}
+
 function ClientStats({ refresh = 0 }: ClientStatsProps) {
   const { tenantId } = useTenant();
   const [stats, setStats] = useState({
@@ -50,35 +67,47 @@ function ClientStats({ refresh = 0 }: ClientStatsProps) {
         <div className="stat-card skeleton"></div>
         <div className="stat-card skeleton"></div>
         <div className="stat-card skeleton"></div>
+        <div className="stat-card skeleton"></div>
+        <div className="stat-card skeleton"></div>
       </div>
     );
   }
 
   return (
     <div className="client-stats">
-      <div className="stat-card">
-        <div className="stat-label">Total Clients</div>
-        <div className="stat-value">{stats.total}</div>
-      </div>
-      <div className="stat-card">
-        <div className="stat-label">Active</div>
-        <div className="stat-value stat-success">{stats.active}</div>
-      </div>
-      <div className="stat-card">
-        <div className="stat-label">Archived</div>
-        <div className="stat-value stat-muted">{stats.archived}</div>
-      </div>
+      <StatCard
+        label="Total Clients"
+        value={stats.total}
+        subtitle="All clients"
+        theme="blue"
+      />
+      <StatCard
+        label="Active"
+        value={stats.active}
+        subtitle="Currently receiving care"
+        theme="green"
+      />
+      <StatCard
+        label="Archived"
+        value={stats.archived}
+        subtitle="Inactive clients"
+        theme="purple"
+      />
       {stats.needsAssessment > 0 && (
-        <div className="stat-card stat-warning-card">
-          <div className="stat-label">Needs Assessment</div>
-          <div className="stat-value stat-warning">{stats.needsAssessment}</div>
-        </div>
+        <StatCard
+          label="Needs Assessment"
+          value={stats.needsAssessment}
+          subtitle="Requires review"
+          theme="amber"
+        />
       )}
       {stats.highRisk > 0 && (
-        <div className="stat-card stat-danger-card">
-          <div className="stat-label">High Risk</div>
-          <div className="stat-value stat-danger">{stats.highRisk}</div>
-        </div>
+        <StatCard
+          label="High Risk"
+          value={stats.highRisk}
+          subtitle="Requires attention"
+          theme="red"
+        />
       )}
     </div>
   );
