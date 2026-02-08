@@ -2,6 +2,30 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { dashboardApi, DashboardStats } from '../services/homecareApi';
+import './DashboardPage.css';
+
+interface StatCardProps {
+  label: string;
+  value: number | string;
+  subtitle: string;
+  theme: 'blue' | 'green' | 'orange' | 'purple' | 'teal' | 'indigo' | 'red' | 'amber';
+  link?: string;
+}
+
+function StatCard({ label, value, subtitle, theme, link }: StatCardProps) {
+  const card = (
+    <div className={'stat-card stat-card-' + theme}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
+    </div>
+  );
+
+  if (link) {
+    return <Link to={link} style={{ textDecoration: 'none' }}>{card}</Link>;
+  }
+  return card;
+}
 
 function DashboardPage() {
   const { tenantId } = useTenant();
@@ -34,7 +58,7 @@ function DashboardPage() {
   };
 
   const formatPercentage = (value: number) => {
-    return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+    return `${value.toFixed(1)}%`;
   };
 
   if (loading) {
@@ -55,215 +79,191 @@ function DashboardPage() {
     );
   }
 
+  const overview = stats?.overview || {};
+  const visits = stats?.visits || {};
+  const alerts = stats?.alerts || {};
+
+  // Calculate completion rate
+  const completionRate = visits.completion_rate || 0;
+
   return (
-    <div style={{ padding: '1.5rem' }}>
-        <h1 style={{ marginBottom: '1.5rem', color: 'var(--gray-900)', fontSize: '24px', fontWeight: 600 }}>
-          Dashboard
-        </h1>
+    <div className="homecare-dashboard">
+      <div className="homecare-dashboard-header">
+        <h1 className="homecare-dashboard-title">Home Care Dashboard</h1>
+      </div>
 
-        {/* Overview Stats */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '1rem' }}>
-            Overview
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                Active Clients
-              </p>
-              <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview?.active_clients || 0}
-              </p>
-              <Link to="/homecare/clients" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View all clients &rarr;
-              </Link>
-            </div>
+      {/* Overview Stats - Colored Cards */}
+      <div className="homecare-stats-grid">
+        <StatCard
+          label="Active Clients"
+          value={overview.active_clients || 0}
+          subtitle="Currently receiving care"
+          theme="blue"
+          link="/homecare/clients"
+        />
+        <StatCard
+          label="Active Carers"
+          value={overview.active_carers || 0}
+          subtitle="Available staff"
+          theme="green"
+          link="/homecare/carers"
+        />
+        <StatCard
+          label="Today's Visits"
+          value={visits.today || 0}
+          subtitle="Scheduled for today"
+          theme="purple"
+          link="/homecare/visits"
+        />
+        <StatCard
+          label="Completed Visits"
+          value={visits.completed_this_month || 0}
+          subtitle="This month"
+          theme="teal"
+        />
+        <StatCard
+          label="Completion Rate"
+          value={formatPercentage(completionRate)}
+          subtitle="Visit completion"
+          theme="indigo"
+        />
+        <StatCard
+          label="Monthly Revenue"
+          value={formatCurrency(overview.revenue_this_month || 0)}
+          subtitle="Current month"
+          theme="orange"
+          link="/homecare/invoices"
+        />
+      </div>
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                Active Carers
-              </p>
-              <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview?.active_carers || 0}
-              </p>
-              <Link to="/homecare/carers" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View all carers &rarr;
-              </Link>
-            </div>
+      {/* Alerts Section */}
+      {(alerts.expiring_dbs_checks || alerts.expiring_documents || alerts.overdue_invoices || alerts.unassigned_visits || alerts.clients_needing_assessment || alerts.high_risk_clients) && (
+        <div className="homecare-alerts-section">
+          <h2 className="homecare-section-title">Alerts & Actions Required</h2>
+          <div className="homecare-alerts-grid">
+            {(alerts.expiring_dbs_checks || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#fef3c7', border: '1px solid #fcd34d' }}>
+                <p style={{ color: '#92400e', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  Expiring DBS Checks
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#92400e', margin: '0 0 8px 0' }}>
+                  {alerts.expiring_dbs_checks}
+                </p>
+                <Link to="/homecare/carers" style={{ color: '#92400e', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Review carers &rarr;
+                </Link>
+              </div>
+            )}
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                Total Visits
-              </p>
-              <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.overview?.total_visits || 0}
-              </p>
-              <Link to="/homecare/visits" style={{ color: '#0891b2', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
-                View visits &rarr;
-              </Link>
-            </div>
+            {(alerts.expiring_documents || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#fef3c7', border: '1px solid #fcd34d' }}>
+                <p style={{ color: '#92400e', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  Expiring Documents
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#92400e', margin: '0 0 8px 0' }}>
+                  {alerts.expiring_documents}
+                </p>
+                <Link to="/homecare/documents" style={{ color: '#92400e', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Review documents &rarr;
+                </Link>
+              </div>
+            )}
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                Revenue (This Month)
-              </p>
-              <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {formatCurrency(stats?.overview?.revenue_this_month || 0)}
-              </p>
-              <p style={{ fontSize: '12px', color: stats?.overview?.revenue_growth_percentage && stats.overview.revenue_growth_percentage >= 0 ? '#10b981' : '#ef4444', marginTop: '0.5rem' }}>
-                {stats?.overview?.revenue_growth_percentage ? formatPercentage(stats.overview.revenue_growth_percentage) : '-'} vs last month
-              </p>
-            </div>
+            {(alerts.overdue_invoices || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#fee2e2', border: '1px solid #fca5a5' }}>
+                <p style={{ color: '#991b1b', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  Overdue Invoices
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#991b1b', margin: '0 0 8px 0' }}>
+                  {alerts.overdue_invoices}
+                </p>
+                <Link to="/homecare/invoices?status=overdue" style={{ color: '#991b1b', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Review invoices &rarr;
+                </Link>
+              </div>
+            )}
+
+            {(alerts.unassigned_visits || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#fee2e2', border: '1px solid #fca5a5' }}>
+                <p style={{ color: '#991b1b', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  Unassigned Visits
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#991b1b', margin: '0 0 8px 0' }}>
+                  {alerts.unassigned_visits}
+                </p>
+                <Link to="/homecare/visits?status=scheduled" style={{ color: '#991b1b', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Assign carers &rarr;
+                </Link>
+              </div>
+            )}
+
+            {(alerts.clients_needing_assessment || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#dbeafe', border: '1px solid #93c5fd' }}>
+                <p style={{ color: '#1e3a8a', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  Need Assessment
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#1e3a8a', margin: '0 0 8px 0' }}>
+                  {alerts.clients_needing_assessment}
+                </p>
+                <Link to="/homecare/clients" style={{ color: '#1e3a8a', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Review clients &rarr;
+                </Link>
+              </div>
+            )}
+
+            {(alerts.high_risk_clients || 0) > 0 && (
+              <div className="card" style={{ padding: '16px', background: '#fee2e2', border: '1px solid #fca5a5' }}>
+                <p style={{ color: '#991b1b', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>
+                  High Risk Clients
+                </p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#991b1b', margin: '0 0 8px 0' }}>
+                  {alerts.high_risk_clients}
+                </p>
+                <Link to="/homecare/clients" style={{ color: '#991b1b', fontSize: '12px', textDecoration: 'none', fontWeight: 500 }}>
+                  Review clients &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         </div>
+      )}
 
-        {/* Visits Stats */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '1rem' }}>
-            Visits
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Today's Visits</p>
-              <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits?.today || 0}
-              </p>
-            </div>
+      {/* Quick Actions */}
+      <div className="homecare-quick-actions">
+        <h2 className="homecare-section-title">Quick Actions</h2>
+        <div className="homecare-actions-grid">
+          <Link to="/homecare/clients" className="homecare-action-card">
+            <h4 className="homecare-action-title">Manage Clients</h4>
+            <p className="homecare-action-description">View and edit client records</p>
+          </Link>
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>This Week</p>
-              <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits?.this_week || 0}
-              </p>
-            </div>
+          <Link to="/homecare/carers" className="homecare-action-card">
+            <h4 className="homecare-action-title">Manage Carers</h4>
+            <p className="homecare-action-description">Staff and training records</p>
+          </Link>
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Completed (Month)</p>
-              <p style={{ fontSize: '28px', fontWeight: 700, color: '#10b981', margin: 0 }}>
-                {stats?.visits?.completed_this_month || 0}
-              </p>
-            </div>
+          <Link to="/homecare/visits" className="homecare-action-card">
+            <h4 className="homecare-action-title">Schedule Visits</h4>
+            <p className="homecare-action-description">Plan and assign visits</p>
+          </Link>
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Cancelled (Month)</p>
-              <p style={{ fontSize: '28px', fontWeight: 700, color: '#ef4444', margin: 0 }}>
-                {stats?.visits?.cancelled_this_month || 0}
-              </p>
-            </div>
+          <Link to="/homecare/care-plans" className="homecare-action-card">
+            <h4 className="homecare-action-title">Care Plans</h4>
+            <p className="homecare-action-description">Manage care plans</p>
+          </Link>
 
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <p style={{ color: 'var(--gray-600)', fontSize: '12px', marginBottom: '0.5rem' }}>Completion Rate</p>
-              <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray-900)', margin: 0 }}>
-                {stats?.visits?.completion_rate ? `${stats.visits.completion_rate.toFixed(1)}%` : '0%'}
-              </p>
-            </div>
-          </div>
-        </div>
+          <Link to="/homecare/documents" className="homecare-action-card">
+            <h4 className="homecare-action-title">Documents</h4>
+            <p className="homecare-action-description">Upload and manage documents</p>
+          </Link>
 
-        {/* Alerts */}
-        {stats?.alerts && ((stats.alerts.expiring_dbs_checks || 0) > 0 || (stats.alerts.expiring_documents || 0) > 0 || (stats.alerts.overdue_invoices || 0) > 0 || (stats.alerts.unassigned_visits || 0) > 0) && (
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '1rem' }}>
-              Alerts
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-              {stats.alerts.expiring_dbs_checks > 0 && (
-                <div className="card" style={{ padding: '1.25rem', background: '#fef3c7', border: '1px solid #fcd34d' }}>
-                  <p style={{ color: '#92400e', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                    Expiring DBS Checks
-                  </p>
-                  <p style={{ fontSize: '28px', fontWeight: 700, color: '#92400e', margin: 0 }}>
-                    {stats.alerts.expiring_dbs_checks}
-                  </p>
-                  <Link to="/homecare/carers" style={{ color: '#92400e', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review carers &rarr;
-                  </Link>
-                </div>
-              )}
-
-              {stats.alerts.expiring_documents > 0 && (
-                <div className="card" style={{ padding: '1.25rem', background: '#fef3c7', border: '1px solid #fcd34d' }}>
-                  <p style={{ color: '#92400e', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                    Expiring Documents
-                  </p>
-                  <p style={{ fontSize: '28px', fontWeight: 700, color: '#92400e', margin: 0 }}>
-                    {stats.alerts.expiring_documents}
-                  </p>
-                  <Link to="/homecare/documents" style={{ color: '#92400e', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review documents &rarr;
-                  </Link>
-                </div>
-              )}
-
-              {stats.alerts.overdue_invoices > 0 && (
-                <div className="card" style={{ padding: '1.25rem', background: '#fee2e2', border: '1px solid #fca5a5' }}>
-                  <p style={{ color: '#991b1b', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                    Overdue Invoices
-                  </p>
-                  <p style={{ fontSize: '28px', fontWeight: 700, color: '#991b1b', margin: 0 }}>
-                    {stats.alerts.overdue_invoices}
-                  </p>
-                  <Link to="/homecare/invoices?status=overdue" style={{ color: '#991b1b', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Review invoices &rarr;
-                  </Link>
-                </div>
-              )}
-
-              {stats.alerts.unassigned_visits > 0 && (
-                <div className="card" style={{ padding: '1.25rem', background: '#fee2e2', border: '1px solid #fca5a5' }}>
-                  <p style={{ color: '#991b1b', fontSize: '12px', marginBottom: '0.5rem', fontWeight: 500 }}>
-                    Unassigned Visits
-                  </p>
-                  <p style={{ fontSize: '28px', fontWeight: 700, color: '#991b1b', margin: 0 }}>
-                    {stats.alerts.unassigned_visits}
-                  </p>
-                  <Link to="/homecare/visits?status=scheduled" style={{ color: '#991b1b', fontSize: '12px', marginTop: '0.5rem', display: 'inline-block', textDecoration: 'none', fontWeight: 500 }}>
-                    Assign carers &rarr;
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gray-900)', marginBottom: '1rem' }}>
-            Quick Actions
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <Link to="/homecare/clients" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Manage Clients</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>View and edit client records</p>
-            </Link>
-
-            <Link to="/homecare/carers" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Manage Carers</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>Staff and training records</p>
-            </Link>
-
-            <Link to="/homecare/visits" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Schedule Visits</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>Plan and assign visits</p>
-            </Link>
-
-            <Link to="/homecare/care-plans" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Care Plans</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>Manage care plans</p>
-            </Link>
-
-            <Link to="/homecare/documents" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Documents</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>Upload and manage documents</p>
-            </Link>
-
-            <Link to="/homecare/invoices" className="card" style={{ padding: '1rem', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'transform 0.15s' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px', fontWeight: 600 }}>Invoices</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--gray-600)' }}>Billing and payments</p>
-            </Link>
-          </div>
+          <Link to="/homecare/invoices" className="homecare-action-card">
+            <h4 className="homecare-action-title">Invoices</h4>
+            <p className="homecare-action-description">Billing and payments</p>
+          </Link>
         </div>
       </div>
+    </div>
   );
 }
 

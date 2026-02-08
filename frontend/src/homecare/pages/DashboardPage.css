@@ -1,0 +1,195 @@
+/**
+ * Homecare Dashboard - Colored Stat Cards Design
+ * Matches customers module design
+ */
+
+.homecare-dashboard {
+  padding: 1.5rem;
+}
+
+.homecare-dashboard-header {
+  margin-bottom: 1.5rem;
+}
+
+.homecare-dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+/* Stats Grid - Compact colored cards matching customers */
+.homecare-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.homecare-stats-grid .stat-card {
+  padding: 12px;
+  border-radius: 6px;
+  min-height: 95px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.homecare-stats-grid .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.homecare-stats-grid .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: inherit;
+  line-height: 1.2;
+}
+
+.homecare-stats-grid .stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+  color: inherit;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.homecare-stats-grid .stat-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  color: #6b7280;
+  display: block;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* Theme Colors - Matching customers module */
+.homecare-stats-grid .stat-card-blue {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+}
+
+.homecare-stats-grid .stat-card-green {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.homecare-stats-grid .stat-card-orange {
+  background: var(--color-orange-100);
+  color: var(--color-orange-700);
+}
+
+.homecare-stats-grid .stat-card-purple {
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
+}
+
+.homecare-stats-grid .stat-card-teal {
+  background: var(--color-teal-100);
+  color: var(--color-teal-700);
+}
+
+.homecare-stats-grid .stat-card-indigo {
+  background: var(--color-brand-100);
+  color: var(--color-brand-800);
+}
+
+.homecare-stats-grid .stat-card-red {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
+}
+
+.homecare-stats-grid .stat-card-amber {
+  background: var(--color-warning-100);
+  color: var(--color-warning-700);
+}
+
+/* Alerts Section */
+.homecare-alerts-section {
+  margin-bottom: 24px;
+}
+
+.homecare-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 12px 0;
+}
+
+.homecare-alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+/* Quick Actions */
+.homecare-quick-actions {
+  margin-top: 24px;
+}
+
+.homecare-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.homecare-action-card {
+  padding: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.homecare-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.homecare-action-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.homecare-action-description {
+  margin: 0;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .homecare-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .homecare-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .homecare-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .homecare-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
