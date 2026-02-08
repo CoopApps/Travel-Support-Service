@@ -52,6 +52,9 @@ RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
 # Copy built files
 COPY --from=builder /app/backend/dist ./dist
 
+# Copy frontend static files to dist/public
+COPY --from=builder /app/frontend/dist ./dist/public
+
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
