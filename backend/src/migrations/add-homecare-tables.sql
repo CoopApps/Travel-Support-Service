@@ -6,7 +6,8 @@
 CREATE TABLE IF NOT EXISTS tenant_care_clients (
     client_id SERIAL PRIMARY KEY,
     tenant_id INTEGER NOT NULL REFERENCES tenants(tenant_id) ON DELETE CASCADE,
-    customer_id INTEGER REFERENCES tenant_customers(customer_id), -- Link to transport customer if exists
+    customer_id INTEGER REFERENCES tenant_customers(customer_id), -- DEPRECATED: Use travel_customer_id instead
+    travel_customer_id INTEGER REFERENCES tenant_customers(customer_id), -- Link to transport customer if exists
 
     -- Personal Information
     first_name VARCHAR(100) NOT NULL,
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS tenant_care_clients (
 
 CREATE INDEX idx_care_clients_tenant ON tenant_care_clients(tenant_id);
 CREATE INDEX idx_care_clients_customer ON tenant_care_clients(customer_id);
+CREATE INDEX idx_care_clients_travel_customer ON tenant_care_clients(travel_customer_id);
 CREATE INDEX idx_care_clients_status ON tenant_care_clients(status);
 CREATE INDEX idx_care_clients_postcode ON tenant_care_clients(postcode);
 

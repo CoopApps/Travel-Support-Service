@@ -328,19 +328,18 @@ router.post(
 
     // Create customer in travel support (NO medical data)
     const travelCustomer = await queryOne(
-      `INSERT INTO customers (
+      `INSERT INTO tenant_customers (
         tenant_id,
         first_name,
         last_name,
         email,
         phone,
         address,
-        city,
         postcode,
         notes,
-        source,
+        section_19_eligible,
         created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'homecare', NOW())
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
       RETURNING customer_id`,
       [
         tenantId,
@@ -349,7 +348,6 @@ router.post(
         client.email,
         client.phone,
         client.address,
-        client.city || '',
         client.postcode,
         'Home Healthcare Client - Medical data held separately in homecare system'
       ]
@@ -361,6 +359,14 @@ router.post(
        SET travel_customer_id = $3, updated_at = CURRENT_TIMESTAMP
        WHERE tenant_id = $1 AND client_id = $2`,
       [tenantId, clientId, travelCustomer.customer_id]
+    );
+
+    // Update customer with homecare_client_id (bidirectional link)
+    await query(
+      `UPDATE tenant_customers
+       SET homecare_client_id = $3, updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = $2`,
+      [tenantId, travelCustomer.customer_id, clientId]
     );
 
     logger.info(`Synced homecare client ${clientId} to travel customer ${travelCustomer.customer_id}`);
@@ -402,12 +408,20 @@ router.delete(
       throw new ValidationError('Client is not synced to travel support');
     }
 
-    // Remove link (do not delete customer from travel system)
+    // Remove link from client (do not delete customer from travel system)
     await query(
       `UPDATE tenant_care_clients
        SET travel_customer_id = NULL, updated_at = CURRENT_TIMESTAMP
        WHERE tenant_id = $1 AND client_id = $2`,
       [tenantId, clientId]
+    );
+
+    // Remove reciprocal link from customer
+    await query(
+      `UPDATE tenant_customers
+       SET homecare_client_id = NULL, updated_at = CURRENT_TIMESTAMP
+       WHERE tenant_id = $1 AND customer_id = $2`,
+      [tenantId, client.travel_customer_id]
     );
 
     logger.info(`Unsynced homecare client ${clientId} from travel customer ${client.travel_customer_id}`);
