@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { useAuthStore } from '../store/authStore';
+// import { useAuthStore } from '../store/authStore'; // TEMPORARILY DISABLED TO TEST CIRCULAR DEPENDENCY
 import type {
   LoginCredentials,
   LoginResponse,
@@ -57,7 +57,7 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Unauthorized - clear auth state and redirect to login
-      useAuthStore.getState().logout();
+      // useAuthStore.getState().logout(); // TEMPORARILY DISABLED
       window.location.href = '/login';
     }
     return Promise.reject(error);

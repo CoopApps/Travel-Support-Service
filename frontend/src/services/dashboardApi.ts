@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { useAuthStore } from '../store/authStore';
+// import { useAuthStore } from '../store/authStore'; // TEMPORARILY DISABLED TO TEST CIRCULAR DEPENDENCY
 
 /**
  * Dashboard API Service
@@ -22,10 +22,10 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - Add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // const token = useAuthStore.getState().token; // TEMPORARILY DISABLED
+    // if (token && config.headers) {
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
     return config;
   },
   (error) => {
@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().logout();
+      // useAuthStore.getState().logout(); // TEMPORARILY DISABLED
       window.location.href = '/login';
     }
     return Promise.reject(error);

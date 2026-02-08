@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - circular dependency fix 2026-02-08 20:15
-ARG CACHEBUST=6
+# Force rebuild - test without authStore in services 2026-02-08 22:50
+ARG CACHEBUST=7
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
