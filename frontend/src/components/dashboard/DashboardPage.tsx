@@ -7,6 +7,7 @@ import { dashboardApi, DashboardOverview } from '../../services/dashboardApi';
 import { vehicleApi, customerApi, driverApi, adminAnalyticsApi } from '../../services/api';
 import IncidentFormModal from '../vehicles/IncidentFormModal';
 import SafeguardingFormModal from '../safeguarding/SafeguardingFormModal';
+import DemoDataManager from '../demo-data/DemoDataManager';
 import '../../pages/AdminDashboard.css';
 
 /**
@@ -1054,6 +1055,11 @@ function DashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* Demo Data Manager */}
+            <div style={{ marginTop: '20px' }}>
+              <DemoDataManager />
+            </div>
           </div>
         </div>
       )}
