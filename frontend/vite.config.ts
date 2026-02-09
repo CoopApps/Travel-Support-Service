@@ -26,10 +26,10 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable source maps temporarily to debug circular dependency issue
+    // Enable source maps for production debugging
     sourcemap: true,
-    // DISABLE minification to debug TDZ error with readable code
-    minify: false,
+    // Use esbuild for fast minification (TDZ error is fixed)
+    minify: 'esbuild',
     // Merged homecareApiClient back into homecareApi.ts to match dashboardApi pattern
     // No manual chunking needed - all initialization happens in one module
   },

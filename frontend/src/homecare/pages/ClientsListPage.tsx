@@ -339,10 +339,7 @@ function ClientsListPage() {
 
   return (
     <div style={{ padding: '1.5rem' }}>
-      {/* Stats */}
-      <ClientStats refresh={refreshStats} />
-
-      {/* Header */}
+      {/* Tabs and Action Buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
@@ -391,63 +388,50 @@ function ClientsListPage() {
               border: '1px solid #d1d5db',
               borderRadius: '4px',
               cursor: clients.length === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
               fontSize: '12px',
-              fontWeight: 500,
               color: clients.length === 0 ? '#9ca3af' : '#374151',
               opacity: clients.length === 0 ? 0.5 : 1
             }}
             title="Export to CSV"
           >
-            Export CSV
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
           </button>
-
-          {selectedClients.size > 0 && (
-            <>
-              {activeTab === 'active' ? (
-                <button
-                  onClick={handleBulkArchive}
-                  style={{
-                    padding: '6px 10px',
-                    background: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 500
-                  }}
-                >
-                  Archive ({selectedClients.size})
-                </button>
-              ) : (
-                <button
-                  onClick={handleBulkUnarchive}
-                  style={{
-                    padding: '6px 10px',
-                    background: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 500
-                  }}
-                >
-                  Unarchive ({selectedClients.size})
-                </button>
-              )}
-            </>
-          )}
 
           <button
             onClick={handleAdd}
-            className="btn btn-primary"
-            style={{ fontSize: '12px', padding: '6px 12px' }}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
           >
-            + Add Client
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Client
           </button>
         </div>
       </div>
+
+      {/* Statistics Cards */}
+      <ClientStats refresh={refreshStats} />
 
       {/* Search */}
       <form onSubmit={handleSearch} style={{ marginBottom: '1rem' }}>
