@@ -18,8 +18,8 @@ RUN cd backend && npm run build
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
 # FORCE CACHE BUST: Must be BEFORE COPY to invalidate the cached layer
-ARG CACHEBUST=6
-RUN echo "CACHE BUST $CACHEBUST - Added unique export to force hash change - $(date +%s%N)"
+ARG CACHEBUST=7
+RUN echo "CACHE BUST $CACHEBUST - Fixed BusSchedulePage TypeScript type issue - $(date +%s%N)"
 RUN echo "Frontend build timestamp: $(date +%s)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true

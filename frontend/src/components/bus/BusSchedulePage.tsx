@@ -10,9 +10,11 @@ import { busApi, RegularPassenger, BusTimetable } from '../../services/busApi';
  * This is different from Travel Support schedules - it shows recurring passenger assignments.
  */
 
+type DayOfWeekKey = 'travels_monday' | 'travels_tuesday' | 'travels_wednesday' | 'travels_thursday' | 'travels_friday' | 'travels_saturday' | 'travels_sunday';
+
 interface ScheduleDay {
   day: string;
-  dayKey: keyof Pick<RegularPassenger, 'travels_monday' | 'travels_tuesday' | 'travels_wednesday' | 'travels_thursday' | 'travels_friday' | 'travels_saturday' | 'travels_sunday'>;
+  dayKey: DayOfWeekKey;
   passengers: Array<RegularPassenger & { timetable?: BusTimetable }>;
 }
 
