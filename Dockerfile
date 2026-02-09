@@ -17,10 +17,10 @@ RUN cd backend && npm run build
 # Build frontend
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
+# FORCE CACHE BUST: Must be BEFORE COPY to invalidate the cached layer
+ARG CACHEBUST=5
+RUN echo "CACHE BUST $CACHEBUST - Merged homecareApiClient into homecareApi - $(date +%s%N)"
 RUN echo "Frontend build timestamp: $(date +%s)"
-# FORCE CACHE BUST: Ensure fresh frontend code is copied (circular dependency fix)
-ARG CACHEBUST=2
-RUN echo "Cache bust: $CACHEBUST - $(date +%s%N)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build -- --logLevel info 2>&1 | tee /tmp/vite.log || (cat /tmp/vite.log && exit 1)
