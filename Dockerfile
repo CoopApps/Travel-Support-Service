@@ -9,6 +9,7 @@ ARG CACHEBUST=14
 # Copy and build backend
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
+RUN echo "Backend cache bust: 14"
 COPY backend ./backend
 RUN cd backend && npm run build
 
