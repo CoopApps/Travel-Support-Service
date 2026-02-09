@@ -30,23 +30,7 @@ export default defineConfig({
     sourcemap: true,
     // Use esbuild for fast minification (built-in with Vite)
     minify: 'esbuild',
-    rollupOptions: {
-      onwarn(warning, warn) {
-        // Show circular dependency warnings
-        if (warning.code === 'CIRCULAR_DEPENDENCY') {
-          console.error('CIRCULAR DEPENDENCY:', warning.message);
-        }
-        warn(warning);
-      },
-      output: {
-        manualChunks: {
-          // Separate homecare into its own chunk to fix initialization order
-          'homecare': [
-            './src/homecare/services/homecareApiClient',
-            './src/homecare/services/homecareApi',
-          ],
-        },
-      },
-    },
+    // Merged homecareApiClient back into homecareApi.ts to match dashboardApi pattern
+    // No manual chunking needed - all initialization happens in one module
   },
 });
