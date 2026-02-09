@@ -18,11 +18,12 @@ RUN echo "Frontend build timestamp: $(date +%s)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build
+RUN echo "=== Generated frontend files ===" && ls -lah frontend/dist/assets/*.js
 
 # Copy frontend to backend public - ensure clean copy
 RUN rm -rf backend/dist/public || true
 RUN mkdir -p backend/dist/public && cp -r frontend/dist/* backend/dist/public/
-RUN ls -la backend/dist/public/assets/ | head -20
+RUN echo "=== Copied to backend/dist/public ===" && ls -lah backend/dist/public/assets/*.js
 
 # Production stage - use Puppeteer image for Chromium
 FROM node:22-slim
