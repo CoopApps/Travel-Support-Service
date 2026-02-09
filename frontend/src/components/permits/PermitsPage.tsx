@@ -221,84 +221,123 @@ function PermitsPage() {
         </div>
       )}
 
-      {/* Action Buttons - Top Right */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem', gap: '8px', padding: '0 1rem' }}>
-        <button
-          onClick={handleExportCSV}
-          style={{
-            padding: '6px 10px',
-            background: 'white',
-            border: '1px solid #d1d5db',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '12px',
-            color: '#374151'
-          }}
-          title="Export to CSV"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Export
-        </button>
-        <button
-          onClick={() => setShowGuideModal(true)}
-          style={{
-            padding: '6px 12px',
-            background: 'white',
-            border: '1px solid #d1d5db',
-            borderRadius: '4px',
-            color: '#374151',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '12px',
-            fontWeight: 500
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm0-10h2v8h-2z"/>
-          </svg>
-          Permit Guide
-        </button>
-        <button
-          onClick={fetchData}
-          style={{
-            padding: '6px 12px',
-            background: 'white',
-            border: '1px solid #d1d5db',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '12px',
-            color: '#374151',
-            fontWeight: 500
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-          </svg>
-          Refresh
-        </button>
+      {/* Active/Archived Tabs and Action Buttons - Top Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem' }}>
+        {/* Active/Archived Tabs - Compact Pill Style */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
+          <button
+            onClick={() => { setDriverTab('active'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: driverTab === 'active' ? 'white' : 'transparent',
+              color: driverTab === 'active' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '13px',
+              boxShadow: driverTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => { setDriverTab('archive'); setPage(1); }}
+            style={{
+              padding: '5px 12px',
+              background: driverTab === 'archive' ? 'white' : 'transparent',
+              color: driverTab === 'archive' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '13px',
+              boxShadow: driverTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Archived
+          </button>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Export to CSV"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+          <button
+            onClick={() => setShowGuideModal(true)}
+            style={{
+              padding: '6px 12px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              color: '#374151',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm0-10h2v8h-2z"/>
+            </svg>
+            Permit Guide
+          </button>
+          <button
+            onClick={fetchData}
+            style={{
+              padding: '6px 12px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stat Cards */}
       {stats && (
-        <div style={{ padding: '0 1rem', marginBottom: '12px' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <PermitsStatsCards stats={stats} />
         </div>
       )}
 
-      {/* Header with Tabs - Below Stats */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem', gap: '1rem', padding: '0 1rem', flexWrap: 'wrap' }}>
+      {/* Main Section Tabs and Search */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', gap: '1rem' }}>
         {/* Tab Navigation - Compact Pill Style */}
         <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
           <button
@@ -379,101 +418,65 @@ function PermitsPage() {
           </button>
         )}
         </div>
-      </div>
 
-      {/* Driver Status Tabs and Search - Same line (only show when on drivers tab) */}
-      {activeTab === 'drivers' && (
-        <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', padding: '0 1rem', flexWrap: 'wrap' }}>
-          {/* Status Tabs */}
-          <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
-            <button
-              onClick={() => { setDriverTab('active'); setPage(1); }}
-              style={{
-                padding: '4px 10px',
-                background: driverTab === 'active' ? 'white' : 'transparent',
-                color: driverTab === 'active' ? '#111827' : '#6b7280',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                fontWeight: 500,
-                fontSize: '12px',
-                boxShadow: driverTab === 'active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-              }}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => { setDriverTab('archive'); setPage(1); }}
-              style={{
-                padding: '4px 10px',
-                background: driverTab === 'archive' ? 'white' : 'transparent',
-                color: driverTab === 'archive' ? '#111827' : '#6b7280',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                fontWeight: 500,
-                fontSize: '12px',
-                boxShadow: driverTab === 'archive' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-              }}
-            >
-              Archived
-            </button>
-          </div>
+        {/* Search (only show when on drivers tab) */}
+        {activeTab === 'drivers' && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Search */}
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', maxWidth: '320px' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                >
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Search drivers..."
+                  style={{
+                    width: '100%',
+                    padding: '6px 8px 6px 28px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    fontSize: '13px'
+                  }}
+                />
+              </div>
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
+                  style={{
+                    padding: '6px 10px',
+                    background: '#f3f4f6',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    color: '#6b7280'
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </form>
 
-          {/* Search */}
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', maxWidth: '320px' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#9ca3af"
-                strokeWidth="2"
-                style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)' }}
-              >
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-              </svg>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search drivers..."
-                style={{
-                  width: '100%',
-                  padding: '6px 8px 6px 28px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
-                  fontSize: '13px'
-                }}
-              />
+            {/* Results count */}
+            <div style={{ color: 'var(--gray-600)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+              Showing {getFilteredDrivers().length} of {drivers.length}
             </div>
-            {search && (
-              <button
-                type="button"
-                onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
-                style={{
-                  padding: '6px 10px',
-                  background: '#f3f4f6',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                Clear
-              </button>
-            )}
-          </form>
-
-          {/* Results count */}
-          <div style={{ color: 'var(--gray-600)', fontSize: '12px', whiteSpace: 'nowrap' }}>
-            Showing {getFilteredDrivers().length} of {drivers.length}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Tab Content */}
       {activeTab === 'drivers' && (
