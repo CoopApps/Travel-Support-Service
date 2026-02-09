@@ -32,5 +32,14 @@ export default defineConfig({
     minify: 'esbuild',
     // REMOVED manual chunking completely - let Vite handle automatic code splitting
     // Manual chunks were causing the build to fail silently
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Show circular dependency warnings
+        if (warning.code === 'CIRCULAR_DEPENDENCY') {
+          console.error('CIRCULAR DEPENDENCY:', warning.message);
+        }
+        warn(warning);
+      },
+    },
   },
 });
