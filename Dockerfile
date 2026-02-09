@@ -21,9 +21,11 @@ RUN echo "Frontend build timestamp: $(date +%s)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build 2>&1 | tee /tmp/vite.log || (cat /tmp/vite.log && exit 1)
-RUN echo "=== Vite build output ===" && cat /tmp/vite.log
-RUN echo "=== dist directory structure ===" && find frontend/dist -type f | head -30
-RUN echo "=== Assets directory ===" && ls -lah frontend/dist/assets/ 2>/dev/null || echo "No assets directory"
+RUN echo "=== FULL Vite build output ===" && cat /tmp/vite.log
+RUN echo "=== Vite exit code: $? ==="
+RUN echo "=== dist directory structure ===" && find frontend/dist -type f
+RUN echo "=== Assets directory contents ===" && ls -lah frontend/dist/assets/
+RUN echo "=== Checking for index.html ===" && ls -lah frontend/dist/index.html || echo "NO INDEX.HTML!"
 
 # Copy frontend to backend public - ensure clean copy
 RUN rm -rf backend/dist/public || true
