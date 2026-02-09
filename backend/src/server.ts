@@ -107,6 +107,7 @@ import memberDividendsRoutes from './routes/member-dividends.routes';
 import driverRosteringRoutes from './routes/driver-rostering.routes';
 import gdprRoutes from './routes/gdpr.routes';
 import aiStatusRoutes from './routes/ai-status.routes';
+import demoDataRoutes from './routes/demo-data.routes';
 
 // Homecare Routes
 import homecareAuthRoutes from './homecare/routes/auth.routes';
@@ -368,6 +369,7 @@ app.use('/api', memberDividendsRoutes);
 app.use('/api', driverRosteringRoutes);
 app.use('/api', gdprRoutes);
 app.use('/api', aiStatusRoutes);
+app.use('/api', demoDataRoutes);
 
 // Homecare Service Routes
 // Homecare routes are now fully integrated and compatible with conversion architecture
