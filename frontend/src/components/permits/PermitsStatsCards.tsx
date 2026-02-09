@@ -1,62 +1,61 @@
 import { PermitsStats } from '../../types';
+import './PermitsStatsCards.css';
 
 interface PermitsStatsCardsProps {
   stats: PermitsStats;
 }
 
-function PermitsStatsCards({ stats }: PermitsStatsCardsProps) {
-  const statCardStyle = {
-    padding: '12px',
-    borderRadius: '6px',
-    minHeight: '95px',
-    textAlign: 'center' as const,
-    display: 'flex',
-    flexDirection: 'column' as const,
-    justifyContent: 'center',
-    alignItems: 'center',
-    transition: 'all 0.2s ease',
-  };
+interface StatCardProps {
+  label: string;
+  value: number;
+  subtitle: string;
+  theme: 'green' | 'orange' | 'red' | 'blue';
+}
 
-  const statValueStyle = {
-    fontSize: '20px',
-    fontWeight: 700,
-    margin: 0,
-    color: 'inherit',
-    lineHeight: 1.2,
-  };
-
-  const statLabelStyle = {
-    fontSize: '10px',
-    fontWeight: 500,
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.3px',
-    display: 'block',
-    color: 'inherit',
-    opacity: 0.85,
-    marginTop: '2px',
-  };
-
+function StatCard({ label, value, subtitle, theme }: StatCardProps) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-      <div style={{ ...statCardStyle, background: '#d1fae5', color: '#065f46' }}>
-        <h4 style={statValueStyle}>{stats.drivers.compliant}</h4>
-        <small style={statLabelStyle}>Fully Compliant</small>
-      </div>
+    <div className={'stat-card stat-card-' + theme}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      <div className="stat-subtitle">{subtitle}</div>
+    </div>
+  );
+}
 
-      <div style={{ ...statCardStyle, background: '#fed7aa', color: '#92400e' }}>
-        <h4 style={statValueStyle}>{stats.drivers.expiring}</h4>
-        <small style={statLabelStyle}>Expiring Soon</small>
-      </div>
+/**
+ * Permits Statistics Cards
+ * Displays driver permit compliance metrics in consistent card format matching Safeguarding design
+ */
+function PermitsStatsCards({ stats }: PermitsStatsCardsProps) {
+  return (
+    <div className="permits-stats-grid">
+      <StatCard
+        label="Fully Compliant"
+        value={stats.drivers.compliant}
+        subtitle="All permits valid"
+        theme="green"
+      />
 
-      <div style={{ ...statCardStyle, background: '#fee2e2', color: '#991b1b' }}>
-        <h4 style={statValueStyle}>{stats.drivers.expired + stats.drivers.missing}</h4>
-        <small style={statLabelStyle}>Non-Compliant</small>
-      </div>
+      <StatCard
+        label="Expiring Soon"
+        value={stats.drivers.expiring}
+        subtitle="Needs renewal"
+        theme="orange"
+      />
 
-      <div style={{ ...statCardStyle, background: '#dbeafe', color: '#1e40af' }}>
-        <h4 style={statValueStyle}>{stats.drivers.total}</h4>
-        <small style={statLabelStyle}>Total Drivers</small>
-      </div>
+      <StatCard
+        label="Non-Compliant"
+        value={stats.drivers.expired + stats.drivers.missing}
+        subtitle="Expired/missing"
+        theme="red"
+      />
+
+      <StatCard
+        label="Total Drivers"
+        value={stats.drivers.total}
+        subtitle="All drivers"
+        theme="blue"
+      />
     </div>
   );
 }
