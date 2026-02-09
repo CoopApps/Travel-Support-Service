@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
-import { dashboardApi, DashboardStats } from '../services/homecareApi';
+import { homecareDashboardApi, DashboardStats } from '../services/homecareApi';
 import './DashboardPage.css';
 
 interface StatCardProps {
@@ -40,7 +40,7 @@ function HomecareDashboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await dashboardApi.getStats(tenantId);
+        const response = await homecareDashboardApi.getStats(tenantId);
         setStats(response.data);
       } catch (err: any) {
         setError(err.response?.data?.error || 'Failed to load dashboard stats');

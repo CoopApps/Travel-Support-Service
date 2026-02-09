@@ -370,7 +370,7 @@ export const invoiceApi = {
 };
 
 // Dashboard API
-export const dashboardApi = {
+export const homecareDashboardApi = {
   getStats: (tenantId: number) =>
     homecareApi.get<DashboardStats>(`/tenants/${tenantId}/dashboard`),
 };

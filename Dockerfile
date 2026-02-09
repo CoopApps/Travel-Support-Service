@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - rename homecare DashboardPage to fix collision 2026-02-09 00:30
-ARG CACHEBUST=11
+# Force rebuild - rename dashboardApi exports to fix collision 2026-02-09 00:35
+ARG CACHEBUST=12
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
