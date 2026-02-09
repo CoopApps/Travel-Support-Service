@@ -41,10 +41,12 @@ function VisitDetailPage() {
         clientApi.list(tenantId),
         carerApi.list(tenantId, { status: 'active' }),
       ]);
-      setClients(clientsRes.data);
-      setCarers(carersRes.data);
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
+      setCarers(Array.isArray(carersRes.data) ? carersRes.data : []);
     } catch (err) {
       console.error('Failed to load clients and carers:', err);
+      setClients([]);
+      setCarers([]);
     }
   };
 
@@ -61,8 +63,8 @@ function VisitDetailPage() {
       ]);
       setVisit(visitRes.data);
       setFormData(visitRes.data);
-      setClients(clientsRes.data);
-      setCarers(carersRes.data);
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
+      setCarers(Array.isArray(carersRes.data) ? carersRes.data : []);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load visit');
       console.error('Failed to load visit:', err);
@@ -168,7 +170,7 @@ function VisitDetailPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/homecare/visits')}>
-            ê Back
+            ÔøΩ Back
           </button>
           <h1 style={{ margin: 0, color: 'var(--gray-900)', fontSize: '24px', fontWeight: 600 }}>
             {isNewVisit ? 'New Visit' : 'Visit Details'}
