@@ -20,8 +20,10 @@ RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
 RUN echo "Frontend build timestamp: $(date +%s)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
-RUN cd frontend && npm run build
-RUN echo "=== ALL Generated frontend files ===" && ls -lah frontend/dist/assets/
+RUN cd frontend && npm run build 2>&1 | tee /tmp/vite.log || (cat /tmp/vite.log && exit 1)
+RUN echo "=== Vite build output ===" && cat /tmp/vite.log
+RUN echo "=== dist directory structure ===" && find frontend/dist -type f | head -30
+RUN echo "=== Assets directory ===" && ls -lah frontend/dist/assets/ 2>/dev/null || echo "No assets directory"
 
 # Copy frontend to backend public - ensure clean copy
 RUN rm -rf backend/dist/public || true
