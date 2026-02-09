@@ -397,9 +397,9 @@ function SafeguardingPage() {
       <SafeguardingStatsCards stats={stats} />
 
       {/* Search & Filters */}
-      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center', padding: '0 1rem', flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
         {/* Search Box - Compact */}
-        <div style={{ position: 'relative', maxWidth: '220px', display: 'flex', gap: '6px' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '300px', display: 'flex', gap: '6px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
             <svg
               width="14"
@@ -454,7 +454,7 @@ function SafeguardingPage() {
             border: '1px solid #e5e7eb',
             borderRadius: '4px',
             fontSize: '12px',
-            minWidth: '120px'
+            width: '140px'
           }}
         >
           <option value="">All Statuses</option>
@@ -472,7 +472,7 @@ function SafeguardingPage() {
             border: '1px solid #e5e7eb',
             borderRadius: '4px',
             fontSize: '12px',
-            minWidth: '110px'
+            width: '130px'
           }}
         >
           <option value="">All Severities</option>
