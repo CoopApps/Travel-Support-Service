@@ -1,6 +1,4 @@
-import homecareApi from './homecareApiClient';
-
-// Circular dependency fix applied - removed export default homecareApi
+import homecareApiClient from './homecareApiClient';
 
 // Types
 export interface Client {
@@ -199,187 +197,187 @@ export interface TenantSettings {
 // Client API
 export const clientApi = {
   list: (tenantId: number, params?: { status?: string; search?: string }) =>
-    homecareApi.get<Client[]>(`/tenants/${tenantId}/clients`, { params }),
+    homecareApiClient.get<Client[]>(`/tenants/${tenantId}/clients`, { params }),
 
   getById: (tenantId: number, clientId: number) =>
-    homecareApi.get<Client>(`/tenants/${tenantId}/clients/${clientId}`),
+    homecareApiClient.get<Client>(`/tenants/${tenantId}/clients/${clientId}`),
 
   create: (tenantId: number, data: Partial<Client>) =>
-    homecareApi.post<Client>(`/tenants/${tenantId}/clients`, data),
+    homecareApiClient.post<Client>(`/tenants/${tenantId}/clients`, data),
 
   update: (tenantId: number, clientId: number, data: Partial<Client>) =>
-    homecareApi.put<Client>(`/tenants/${tenantId}/clients/${clientId}`, data),
+    homecareApiClient.put<Client>(`/tenants/${tenantId}/clients/${clientId}`, data),
 
   delete: (tenantId: number, clientId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/clients/${clientId}`),
+    homecareApiClient.delete(`/tenants/${tenantId}/clients/${clientId}`),
 
   syncToTravel: (tenantId: number, clientId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/clients/${clientId}/sync-to-travel`),
+    homecareApiClient.post(`/tenants/${tenantId}/clients/${clientId}/sync-to-travel`),
 
   unsyncFromTravel: (tenantId: number, clientId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/clients/${clientId}/unsync-from-travel`),
+    homecareApiClient.delete(`/tenants/${tenantId}/clients/${clientId}/unsync-from-travel`),
 };
 
 // Carer API
 export const carerApi = {
   list: (tenantId: number, params?: { status?: string; search?: string }) =>
-    homecareApi.get<Carer[]>(`/tenants/${tenantId}/carers`, { params }),
+    homecareApiClient.get<Carer[]>(`/tenants/${tenantId}/carers`, { params }),
 
   getById: (tenantId: number, carerId: number) =>
-    homecareApi.get<Carer>(`/tenants/${tenantId}/carers/${carerId}`),
+    homecareApiClient.get<Carer>(`/tenants/${tenantId}/carers/${carerId}`),
 
   create: (tenantId: number, data: Partial<Carer>) =>
-    homecareApi.post<Carer>(`/tenants/${tenantId}/carers`, data),
+    homecareApiClient.post<Carer>(`/tenants/${tenantId}/carers`, data),
 
   update: (tenantId: number, carerId: number, data: Partial<Carer>) =>
-    homecareApi.put<Carer>(`/tenants/${tenantId}/carers/${carerId}`, data),
+    homecareApiClient.put<Carer>(`/tenants/${tenantId}/carers/${carerId}`, data),
 
   delete: (tenantId: number, carerId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/carers/${carerId}`),
+    homecareApiClient.delete(`/tenants/${tenantId}/carers/${carerId}`),
 
   getSchedule: (tenantId: number, carerId: number, params?: { start_date?: string; end_date?: string }) =>
-    homecareApi.get(`/tenants/${tenantId}/carers/${carerId}/schedule`, { params }),
+    homecareApiClient.get(`/tenants/${tenantId}/carers/${carerId}/schedule`, { params }),
 
   syncToTravel: (tenantId: number, carerId: number, data: { sync_as?: 'customer' | 'driver' }) =>
-    homecareApi.post(`/tenants/${tenantId}/carers/${carerId}/sync-to-travel`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/carers/${carerId}/sync-to-travel`, data),
 
   unsyncFromTravel: (tenantId: number, carerId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/carers/${carerId}/unsync-from-travel`),
+    homecareApiClient.delete(`/tenants/${tenantId}/carers/${carerId}/unsync-from-travel`),
 };
 
 // Visit API
 export const visitApi = {
   list: (tenantId: number, params?: { client_id?: number; carer_id?: number; status?: string; start_date?: string; end_date?: string }) =>
-    homecareApi.get<Visit[]>(`/tenants/${tenantId}/visits`, { params }),
+    homecareApiClient.get<Visit[]>(`/tenants/${tenantId}/visits`, { params }),
 
   getById: (tenantId: number, visitId: number) =>
-    homecareApi.get<Visit>(`/tenants/${tenantId}/visits/${visitId}`),
+    homecareApiClient.get<Visit>(`/tenants/${tenantId}/visits/${visitId}`),
 
   create: (tenantId: number, data: Partial<Visit>) =>
-    homecareApi.post<Visit>(`/tenants/${tenantId}/visits`, data),
+    homecareApiClient.post<Visit>(`/tenants/${tenantId}/visits`, data),
 
   update: (tenantId: number, visitId: number, data: Partial<Visit>) =>
-    homecareApi.put<Visit>(`/tenants/${tenantId}/visits/${visitId}`, data),
+    homecareApiClient.put<Visit>(`/tenants/${tenantId}/visits/${visitId}`, data),
 
   delete: (tenantId: number, visitId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/visits/${visitId}`),
+    homecareApiClient.delete(`/tenants/${tenantId}/visits/${visitId}`),
 
   checkIn: (tenantId: number, visitId: number, data: { lat?: number; lng?: number }) =>
-    homecareApi.post(`/tenants/${tenantId}/visits/${visitId}/check-in`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/visits/${visitId}/check-in`, data),
 
   checkOut: (tenantId: number, visitId: number, data: { lat?: number; lng?: number; notes?: string }) =>
-    homecareApi.post(`/tenants/${tenantId}/visits/${visitId}/check-out`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/visits/${visitId}/check-out`, data),
 
   assignCarer: (tenantId: number, visitId: number, data: { carer_id: number }) =>
-    homecareApi.post(`/tenants/${tenantId}/visits/${visitId}/assign`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/visits/${visitId}/assign`, data),
 };
 
 // Care Plan API
 export const carePlanApi = {
   list: (tenantId: number, params?: { client_id?: number; status?: string }) =>
-    homecareApi.get<CarePlan[]>(`/tenants/${tenantId}/care-plans`, { params }),
+    homecareApiClient.get<CarePlan[]>(`/tenants/${tenantId}/care-plans`, { params }),
 
   getById: (tenantId: number, carePlanId: number) =>
-    homecareApi.get<CarePlan>(`/tenants/${tenantId}/care-plans/${carePlanId}`),
+    homecareApiClient.get<CarePlan>(`/tenants/${tenantId}/care-plans/${carePlanId}`),
 
   create: (tenantId: number, data: Partial<CarePlan>) =>
-    homecareApi.post<CarePlan>(`/tenants/${tenantId}/care-plans`, data),
+    homecareApiClient.post<CarePlan>(`/tenants/${tenantId}/care-plans`, data),
 
   update: (tenantId: number, carePlanId: number, data: Partial<CarePlan>) =>
-    homecareApi.put<CarePlan>(`/tenants/${tenantId}/care-plans/${carePlanId}`, data),
+    homecareApiClient.put<CarePlan>(`/tenants/${tenantId}/care-plans/${carePlanId}`, data),
 
   delete: (tenantId: number, carePlanId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/care-plans/${carePlanId}`),
+    homecareApiClient.delete(`/tenants/${tenantId}/care-plans/${carePlanId}`),
 };
 
 // Document API
 export const documentApi = {
   list: (tenantId: number, params?: { type?: string; client_id?: number; carer_id?: number; status?: string; page?: number; limit?: number }) =>
-    homecareApi.get<{ documents: Document[]; pagination: any }>(`/tenants/${tenantId}/documents`, { params }),
+    homecareApiClient.get<{ documents: Document[]; pagination: any }>(`/tenants/${tenantId}/documents`, { params }),
 
   getById: (tenantId: number, documentId: number) =>
-    homecareApi.get<Document>(`/tenants/${tenantId}/documents/${documentId}`),
+    homecareApiClient.get<Document>(`/tenants/${tenantId}/documents/${documentId}`),
 
   upload: (tenantId: number, formData: FormData) =>
-    homecareApi.post<Document>(`/tenants/${tenantId}/documents`, formData, {
+    homecareApiClient.post<Document>(`/tenants/${tenantId}/documents`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 
   update: (tenantId: number, documentId: number, data: Partial<Document>) =>
-    homecareApi.put<Document>(`/tenants/${tenantId}/documents/${documentId}`, data),
+    homecareApiClient.put<Document>(`/tenants/${tenantId}/documents/${documentId}`, data),
 
   delete: (tenantId: number, documentId: number) =>
-    homecareApi.delete(`/tenants/${tenantId}/documents/${documentId}`),
+    homecareApiClient.delete(`/tenants/${tenantId}/documents/${documentId}`),
 
   approve: (tenantId: number, documentId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/documents/${documentId}/approve`),
+    homecareApiClient.post(`/tenants/${tenantId}/documents/${documentId}/approve`),
 
   reject: (tenantId: number, documentId: number, data: { reason: string }) =>
-    homecareApi.post(`/tenants/${tenantId}/documents/${documentId}/reject`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/documents/${documentId}/reject`, data),
 
   getStats: (tenantId: number) =>
-    homecareApi.get(`/tenants/${tenantId}/documents/stats`),
+    homecareApiClient.get(`/tenants/${tenantId}/documents/stats`),
 
   getExpiring: (tenantId: number, params?: { days?: number }) =>
-    homecareApi.get(`/tenants/${tenantId}/documents/expiring`, { params }),
+    homecareApiClient.get(`/tenants/${tenantId}/documents/expiring`, { params }),
 };
 
 // Invoice API
 export const invoiceApi = {
   list: (tenantId: number, params?: { client_id?: number; status?: string; start_date?: string; end_date?: string }) =>
-    homecareApi.get<Invoice[]>(`/tenants/${tenantId}/invoices`, { params }),
+    homecareApiClient.get<Invoice[]>(`/tenants/${tenantId}/invoices`, { params }),
 
   getById: (tenantId: number, invoiceId: number) =>
-    homecareApi.get<Invoice>(`/tenants/${tenantId}/invoices/${invoiceId}`),
+    homecareApiClient.get<Invoice>(`/tenants/${tenantId}/invoices/${invoiceId}`),
 
   create: (tenantId: number, data: Partial<Invoice> & { generate_from_visits?: boolean; period_start?: string; period_end?: string }) =>
-    homecareApi.post<Invoice>(`/tenants/${tenantId}/invoices`, data),
+    homecareApiClient.post<Invoice>(`/tenants/${tenantId}/invoices`, data),
 
   addItem: (tenantId: number, invoiceId: number, data: Partial<InvoiceItem>) =>
-    homecareApi.post<InvoiceItem>(`/tenants/${tenantId}/invoices/${invoiceId}/items`, data),
+    homecareApiClient.post<InvoiceItem>(`/tenants/${tenantId}/invoices/${invoiceId}/items`, data),
 
   send: (tenantId: number, invoiceId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/invoices/${invoiceId}/send`),
+    homecareApiClient.post(`/tenants/${tenantId}/invoices/${invoiceId}/send`),
 
   recordPayment: (tenantId: number, invoiceId: number, data: { amount: number; payment_date: string; payment_method: string; notes?: string }) =>
-    homecareApi.post(`/tenants/${tenantId}/invoices/${invoiceId}/payments`, data),
+    homecareApiClient.post(`/tenants/${tenantId}/invoices/${invoiceId}/payments`, data),
 
   cancel: (tenantId: number, invoiceId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/invoices/${invoiceId}/cancel`),
+    homecareApiClient.post(`/tenants/${tenantId}/invoices/${invoiceId}/cancel`),
 
   getSummary: (tenantId: number, params?: { start_date?: string; end_date?: string }) =>
-    homecareApi.get(`/tenants/${tenantId}/invoices/summary`, { params }),
+    homecareApiClient.get(`/tenants/${tenantId}/invoices/summary`, { params }),
 };
 
 // Dashboard API
 export const homecareDashboardApi = {
   getStats: (tenantId: number) =>
-    homecareApi.get<DashboardStats>(`/tenants/${tenantId}/dashboard`),
+    homecareApiClient.get<DashboardStats>(`/tenants/${tenantId}/dashboard`),
 };
 
 // Settings API
 export const settingsApi = {
   get: (tenantId: number) =>
-    homecareApi.get<TenantSettings>(`/tenants/${tenantId}/settings`),
+    homecareApiClient.get<TenantSettings>(`/tenants/${tenantId}/settings`),
 
   update: (tenantId: number, data: Partial<TenantSettings>) =>
-    homecareApi.put<TenantSettings>(`/tenants/${tenantId}/settings`, data),
+    homecareApiClient.put<TenantSettings>(`/tenants/${tenantId}/settings`, data),
 
   getIntegrationStatus: (tenantId: number) =>
-    homecareApi.get(`/tenants/${tenantId}/integration/status`),
+    homecareApiClient.get(`/tenants/${tenantId}/integration/status`),
 
   enableIntegration: (tenantId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/integration/enable`),
+    homecareApiClient.post(`/tenants/${tenantId}/integration/enable`),
 
   disableIntegration: (tenantId: number) =>
-    homecareApi.post(`/tenants/${tenantId}/integration/disable`),
+    homecareApiClient.post(`/tenants/${tenantId}/integration/disable`),
 
   exportClients: (tenantId: number) =>
-    homecareApi.get(`/tenants/${tenantId}/export/clients`, { responseType: 'blob' }),
+    homecareApiClient.get(`/tenants/${tenantId}/export/clients`, { responseType: 'blob' }),
 
   exportCarers: (tenantId: number) =>
-    homecareApi.get(`/tenants/${tenantId}/export/carers`, { responseType: 'blob' }),
+    homecareApiClient.get(`/tenants/${tenantId}/export/carers`, { responseType: 'blob' }),
 
   exportVisits: (tenantId: number, params: { start_date: string; end_date: string }) =>
-    homecareApi.get(`/tenants/${tenantId}/export/visits`, { params, responseType: 'blob' }),
+    homecareApiClient.get(`/tenants/${tenantId}/export/visits`, { params, responseType: 'blob' }),
 };
