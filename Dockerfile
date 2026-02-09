@@ -3,24 +3,15 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - trigger fresh deploy with all fixes 2026-02-09 00:45
-ARG CACHEBUST=15
-RUN echo "FULL CACHE PURGE: ${CACHEBUST}" && date
+# Copy everything first to avoid layer caching issues
+COPY . .
 
-# Copy and build backend
-COPY backend/package*.json ./backend/
+# Build backend
 RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
-RUN echo "Backend cache bust: 14"
-COPY backend ./backend
 RUN cd backend && npm run build
 
-# Copy and build frontend
-COPY frontend/package*.json ./frontend/
+# Build frontend
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
-# Use CACHEBUST to invalidate cache for frontend build
-RUN echo "Cache bust: 14"
-COPY frontend ./frontend
-# Clear Vite build cache before building
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build
 
@@ -57,6 +48,9 @@ WORKDIR /app/backend
 # Copy backend package.json and install prod deps
 COPY backend/package*.json ./
 RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
+
+# Bust cache for production stage
+RUN echo "Production stage cache bust: $(date +%s)"
 
 # Copy built backend files (includes frontend in dist/public from builder stage line 22)
 COPY --from=builder /app/backend/dist ./dist
