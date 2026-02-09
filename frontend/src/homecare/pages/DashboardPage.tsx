@@ -27,7 +27,7 @@ function StatCard({ label, value, subtitle, theme, link }: StatCardProps) {
   return card;
 }
 
-function DashboardPage() {
+function HomecareDashboard() {
   const { tenantId } = useTenant();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -267,4 +267,4 @@ function DashboardPage() {
   );
 }
 
-export default DashboardPage;
+export default HomecareDashboard;

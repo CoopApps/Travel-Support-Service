@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - enable sourcemaps for debugging 2026-02-08 23:15
-ARG CACHEBUST=10
+# Force rebuild - rename homecare DashboardPage to fix collision 2026-02-09 00:30
+ARG CACHEBUST=11
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
