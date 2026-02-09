@@ -213,7 +213,26 @@ export const RouteOptimizationAnalytics: React.FC<RouteAnalyticsProps> = ({ tena
         </div>
       )}
 
-      {analytics && (
+      {analytics && analytics.overview.totalTrips === 0 && !error && (
+        <div style={{
+          padding: '2rem',
+          textAlign: 'center',
+          background: '#f8f9fa',
+          borderRadius: '8px',
+          border: '1px solid #dee2e6'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '1rem' }}>📊</div>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '0.5rem', color: '#495057' }}>
+            No Trip Data Available
+          </h3>
+          <p style={{ color: '#6c757d', fontSize: '14px', marginBottom: '0' }}>
+            There are no trips in the selected date range ({startDate} to {endDate}).
+            Try selecting a different date range or add some trips first.
+          </p>
+        </div>
+      )}
+
+      {analytics && analytics.overview.totalTrips > 0 && (
         <>
           {/* Overview KPIs */}
           <div style={{

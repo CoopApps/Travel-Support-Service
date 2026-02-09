@@ -778,17 +778,22 @@ router.get(
       client.release();
 
       const metrics = metricsResult.rows[0];
+      const totalTrips = parseInt(metrics.total_trips) || 0;
+      const driversUsed = parseInt(metrics.drivers_used) || 0;
+      const avgPassengers = parseFloat(metrics.avg_passengers_per_trip) || 0;
+      const totalMiles = parseFloat(metrics.total_miles) || 0;
+      const totalMinutes = parseFloat(metrics.total_minutes) || 0;
 
       return res.json({
         success: true,
         overview: {
-          totalTrips: parseInt(metrics.total_trips),
-          driversUsed: parseInt(metrics.drivers_used),
-          daysActive: parseInt(metrics.days_active),
-          avgPassengersPerTrip: parseFloat(parseFloat(metrics.avg_passengers_per_trip).toFixed(2)),
-          totalMiles: parseFloat(parseFloat(metrics.total_miles).toFixed(2)),
-          totalHours: parseFloat((parseFloat(metrics.total_minutes) / 60).toFixed(2)),
-          tripsPerDriver: parseFloat((parseFloat(metrics.total_trips) / parseInt(metrics.drivers_used)).toFixed(2))
+          totalTrips,
+          driversUsed,
+          daysActive: parseInt(metrics.days_active) || 0,
+          avgPassengersPerTrip: parseFloat(avgPassengers.toFixed(2)),
+          totalMiles: parseFloat(totalMiles.toFixed(2)),
+          totalHours: parseFloat((totalMinutes / 60).toFixed(2)),
+          tripsPerDriver: driversUsed > 0 ? parseFloat((totalTrips / driversUsed).toFixed(2)) : 0
         },
         driverUtilization: utilizationResult.rows.map((r: any) => ({
           driverId: r.driver_id,
