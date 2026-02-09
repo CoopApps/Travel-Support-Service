@@ -6,6 +6,9 @@ import axios, { AxiosInstance } from 'axios';
  * Provides API methods for homecare management including clients, carers, visits, etc.
  */
 
+// Force bundle hash change - merged axios client into this file
+export const HOMECARE_API_VERSION = '2.0.0-merged-2026-02-09';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // Create axios instance for homecare API calls

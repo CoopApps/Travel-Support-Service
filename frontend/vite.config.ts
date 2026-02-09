@@ -28,8 +28,8 @@ export default defineConfig({
   build: {
     // Enable source maps temporarily to debug circular dependency issue
     sourcemap: true,
-    // Use esbuild for fast minification (built-in with Vite)
-    minify: 'esbuild',
+    // DISABLE minification to debug TDZ error with readable code
+    minify: false,
     // Merged homecareApiClient back into homecareApi.ts to match dashboardApi pattern
     // No manual chunking needed - all initialization happens in one module
   },
