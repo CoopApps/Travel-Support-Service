@@ -30,8 +30,6 @@ export default defineConfig({
     sourcemap: true,
     // Use esbuild for fast minification (built-in with Vite)
     minify: 'esbuild',
-    // REMOVED manual chunking completely - let Vite handle automatic code splitting
-    // Manual chunks were causing the build to fail silently
     rollupOptions: {
       onwarn(warning, warn) {
         // Show circular dependency warnings
@@ -39,6 +37,15 @@ export default defineConfig({
           console.error('CIRCULAR DEPENDENCY:', warning.message);
         }
         warn(warning);
+      },
+      output: {
+        manualChunks: {
+          // Separate homecare into its own chunk to fix initialization order
+          'homecare': [
+            './src/homecare/services/homecareApiClient',
+            './src/homecare/services/homecareApi',
+          ],
+        },
       },
     },
   },
