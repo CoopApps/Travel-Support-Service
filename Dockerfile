@@ -1,6 +1,9 @@
 # Build stage - use lightweight Node image
 FROM node:22-slim AS builder
 
+# CRITICAL: Force complete cache invalidation - timestamp changes every build
+RUN echo "Build started at: $(date)" && date +%s%N > /tmp/build_id
+
 WORKDIR /app
 
 # Build backend
