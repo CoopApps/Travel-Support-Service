@@ -40,11 +40,6 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
-      <div className="page-header">
-        <h1>Company Admin</h1>
-        <p className="page-subtitle">Back-office management and administration</p>
-      </div>
-
       {/* Tab Navigation */}
       <div className="tab-navigation">
         <button
