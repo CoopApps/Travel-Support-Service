@@ -174,19 +174,30 @@ function OfficeStaffPage() {
   }
 
   return (
-    <div className="office-staff-page">
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Office Staff Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
-        </div>
-        <button className="btn btn-primary" onClick={() => setShowAddModal(true)} style={{ background: '#28a745' }}>
-          + Add Staff Member
+    <>
+      {/* Action Buttons - Top Row */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{
+            padding: '6px 12px',
+            background: '#10b981',
+            border: 'none',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            fontWeight: 500
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add Staff Member
         </button>
       </div>
 
@@ -626,7 +637,7 @@ function OfficeStaffPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

@@ -353,7 +353,7 @@ const PayrollPage: React.FC = () => {
   }
 
   return (
-    <div className="payroll-page">
+    <>
       {/* Action Buttons - Top Row */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <button
@@ -614,7 +614,7 @@ const PayrollPage: React.FC = () => {
           onSave={handleSaveRecord}
         />
       )}
-    </div>
+    </>
   );
 };
 
