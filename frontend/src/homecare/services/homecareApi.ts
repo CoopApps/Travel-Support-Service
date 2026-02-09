@@ -381,5 +381,3 @@ export const settingsApi = {
   exportVisits: (tenantId: number, params: { start_date: string; end_date: string }) =>
     homecareApi.get(`/tenants/${tenantId}/export/visits`, { params, responseType: 'blob' }),
 };
-
-export default homecareApi;
