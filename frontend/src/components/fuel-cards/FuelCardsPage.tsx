@@ -187,99 +187,202 @@ const FuelCardsPage: React.FC = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="fuel-cards-header">
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Fuel Card Management</h2>
-          {tenant && (
-            <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-              {tenant.company_name}
-            </p>
-          )}
+      {/* Active/Archived Tabs and Action Buttons - Top Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem' }}>
+        {/* Active/Archived Tabs - Compact Pill Style */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
+          <button
+            onClick={() => setArchivedFilter(false)}
+            style={{
+              padding: '5px 12px',
+              background: archivedFilter === false ? 'white' : 'transparent',
+              color: archivedFilter === false ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: archivedFilter === false ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setArchivedFilter(undefined)}
+            style={{
+              padding: '5px 12px',
+              background: archivedFilter === undefined ? 'white' : 'transparent',
+              color: archivedFilter === undefined ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: archivedFilter === undefined ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setArchivedFilter(true)}
+            style={{
+              padding: '5px 12px',
+              background: archivedFilter === true ? 'white' : 'transparent',
+              color: archivedFilter === true ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: archivedFilter === true ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Archived
+          </button>
         </div>
-        <div className="fuel-cards-header-buttons">
-          {activeTab === 'overview' && (
-            <>
-              <button className="btn btn-secondary" onClick={() => setShowBulkImportWizard(true)}>
-                📁 Bulk Import
-              </button>
-              <button className="btn btn-primary" onClick={handleAddCard}>
-                + Add Fuel Card
-              </button>
-            </>
-          )}
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleRefresh}
+            style={{
+              padding: '6px 10px',
+              background: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              color: '#374151'
+            }}
+            title="Refresh"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Refresh
+          </button>
+          <button
+            onClick={handleAddCard}
+            style={{
+              padding: '6px 12px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px',
+              fontWeight: 500
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Fuel Card
+          </button>
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div style={{
-        display: 'flex',
-        gap: '0.5rem',
-        borderBottom: '2px solid var(--gray-200)',
-        marginBottom: '1.5rem',
-        overflowX: 'auto',
-      }}>
-        {[
-          { id: 'overview', label: 'Overview', icon: '📋' },
-          { id: 'import', label: 'Bulk Import', icon: '📁' },
-          { id: 'reconciliation', label: 'Reconciliation', icon: '🔍' },
-          { id: 'analytics', label: 'Analytics', icon: '📊' },
-          { id: 'budget', label: 'Budget Monitoring', icon: '💰' },
-        ].map(tab => (
+      {/* Statistics Cards */}
+      <FuelCardStats stats={statsData?.stats || null} loading={loading} />
+
+      {/* Tab Navigation and Search Row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', gap: '1rem' }}>
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab('overview')}
             style={{
-              padding: '0.75rem 1.25rem',
+              padding: '5px 12px',
+              background: activeTab === 'overview' ? 'white' : 'transparent',
+              color: activeTab === 'overview' ? '#111827' : '#6b7280',
               border: 'none',
-              background: 'transparent',
-              borderBottom: activeTab === tab.id ? '3px solid var(--primary)' : '3px solid transparent',
-              color: activeTab === tab.id ? 'var(--primary)' : 'var(--gray-600)',
-              fontWeight: activeTab === tab.id ? 600 : 400,
+              borderRadius: '3px',
               cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              fontSize: '14px',
-              transition: 'all 0.2s',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'overview' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
             }}
           >
-            {tab.icon} {tab.label}
+            Overview
           </button>
-        ))}
+          <button
+            onClick={() => setActiveTab('import')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'import' ? 'white' : 'transparent',
+              color: activeTab === 'import' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'import' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Bulk Import
+          </button>
+          <button
+            onClick={() => setActiveTab('reconciliation')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'reconciliation' ? 'white' : 'transparent',
+              color: activeTab === 'reconciliation' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'reconciliation' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Reconciliation
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'analytics' ? 'white' : 'transparent',
+              color: activeTab === 'analytics' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'analytics' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('budget')}
+            style={{
+              padding: '5px 12px',
+              background: activeTab === 'budget' ? 'white' : 'transparent',
+              color: activeTab === 'budget' ? '#111827' : '#6b7280',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              fontSize: '12px',
+              boxShadow: activeTab === 'budget' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+            }}
+          >
+            Budget Monitoring
+          </button>
+        </div>
       </div>
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* Archive Filter */}
-          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <label style={{ fontSize: '14px', color: 'var(--gray-700)', fontWeight: 500 }}>
-                Show:
-              </label>
-              <select
-                value={archivedFilter === undefined ? 'all' : archivedFilter ? 'archived' : 'active'}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setArchivedFilter(value === 'all' ? undefined : value === 'archived');
-                }}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid var(--gray-300)',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="all">All Cards</option>
-                <option value="active">Active Only</option>
-                <option value="archived">Archived Only</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <FuelCardStats stats={statsData?.stats || null} loading={loading} />
-
           {/* Fuel Cards Grid */}
           {fuelCards.length === 0 ? (
             <div className="empty-state">
@@ -311,17 +414,39 @@ const FuelCardsPage: React.FC = () => {
       {/* Bulk Import Tab */}
       {activeTab === 'import' && (
         <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <div style={{ fontSize: '64px', marginBottom: '1.5rem' }}>📁</div>
+          <div style={{ width: '64px', height: '64px', margin: '0 auto 1.5rem' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '100%', height: '100%', color: 'var(--gray-400)' }}>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
           <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Enhanced Bulk Import</h3>
           <p style={{ color: 'var(--gray-600)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
             Import fuel card transactions from CSV files with comprehensive validation and duplicate detection.
           </p>
           <button
-            className="btn btn-primary"
             onClick={() => setShowBulkImportWizard(true)}
-            style={{ fontSize: '16px', padding: '0.75rem 2rem' }}
+            style={{
+              fontSize: '14px',
+              padding: '8px 16px',
+              background: '#10b981',
+              border: 'none',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: 500
+            }}
           >
-            📁 Start Bulk Import Wizard
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Start Bulk Import Wizard
           </button>
         </div>
       )}
