@@ -218,7 +218,7 @@ export function DocumentsPage() {
       )}
 
       {/* Header with Tabs and Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem', padding: '0 1rem', marginTop: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem' }}>
         {/* Tabs - Compact Pill Style */}
         <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px' }}>
           <button
@@ -372,8 +372,7 @@ export function DocumentsPage() {
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '8px',
-          marginBottom: '12px',
-          padding: '0 1rem'
+          marginBottom: '12px'
         }}>
           <div style={{
             backgroundColor: 'var(--color-brand-100)',
@@ -462,7 +461,7 @@ export function DocumentsPage() {
       )}
 
       {/* Filters Toolbar */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', padding: '0 1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
         {/* Search */}
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
@@ -646,7 +645,7 @@ export function DocumentsPage() {
 
       {/* Results Counter */}
       {documents && (
-        <div style={{ marginBottom: '12px', color: '#6b7280', fontSize: '12px', padding: '0 1rem' }}>
+        <div style={{ marginBottom: '12px', color: '#6b7280', fontSize: '12px' }}>
           Showing {documents.documents.length} of {documents.totalRecords || 0} documents
         </div>
       )}
@@ -659,10 +658,9 @@ export function DocumentsPage() {
         </div>
       ) : documents && documents.documents.length > 0 ? (
         <>
-          <div style={{ padding: '0 1rem' }}>
-            <DocumentsList
-              documents={documents.documents}
-              showExpiry={true}
+          <DocumentsList
+            documents={documents.documents}
+            showExpiry={true}
               onDownload={handleDownload}
               onDelete={handleDelete}
               onToggleSelect={toggleDocumentSelection}
@@ -670,7 +668,6 @@ export function DocumentsPage() {
               onPreview={handlePreview}
               onShowDetails={handleShowDetails}
             />
-          </div>
 
           {/* Pagination */}
           {documents.totalPages && documents.totalPages > 1 && (
