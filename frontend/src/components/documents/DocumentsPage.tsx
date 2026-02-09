@@ -209,7 +209,7 @@ export function DocumentsPage() {
   }
 
   return (
-    <div>
+    <>
       {/* Error Alert */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
@@ -920,6 +920,6 @@ export function DocumentsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

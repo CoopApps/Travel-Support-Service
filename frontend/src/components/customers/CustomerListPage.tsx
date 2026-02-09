@@ -398,7 +398,7 @@ function CustomerListPage() {
   };
 
   return (
-    <div>
+    <>
       {/* Action Buttons and Tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         {/* Tabs - Compact */}
@@ -975,7 +975,7 @@ function CustomerListPage() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
 

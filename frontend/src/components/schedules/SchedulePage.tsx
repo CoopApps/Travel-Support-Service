@@ -251,7 +251,7 @@ function SchedulePage() {
   };
 
   return (
-    <div>
+    <>
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1.5rem' }}>
         {/* Client Time Display with Week Navigation */}
@@ -976,7 +976,7 @@ function SchedulePage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

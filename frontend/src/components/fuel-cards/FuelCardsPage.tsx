@@ -186,7 +186,7 @@ const FuelCardsPage: React.FC = () => {
   }
 
   return (
-    <div className="fuel-cards-container">
+    <>
       {/* Header */}
       <div className="fuel-cards-header">
         <div>
@@ -368,7 +368,7 @@ const FuelCardsPage: React.FC = () => {
         onClose={() => setShowBulkImportWizard(false)}
         onSuccess={handleBulkImportSuccess}
       />
-    </div>
+    </>
   );
 };
 

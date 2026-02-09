@@ -584,7 +584,7 @@ function DashboardPage() {
   }
 
   return (
-    <div style={{ padding: '0.75rem' }}>
+    <>
       {/* Dashboard Header */}
       <div className="dashboard-header">
         <div className="dashboard-header-left">
@@ -1108,7 +1108,7 @@ function DashboardPage() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
 

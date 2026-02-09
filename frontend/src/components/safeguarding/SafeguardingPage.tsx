@@ -248,7 +248,7 @@ function SafeguardingPage() {
   }
 
   return (
-    <div>
+    <>
       {/* Error Message */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
@@ -590,7 +590,7 @@ function SafeguardingPage() {
           onClose={handleCloseModal}
         />
       )}
-    </div>
+    </>
   );
 }
 

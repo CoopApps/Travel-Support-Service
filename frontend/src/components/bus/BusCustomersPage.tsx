@@ -373,7 +373,7 @@ export default function BusCustomersPage() {
   }
 
   return (
-    <div className="bus-customers-page">
+    <>
       {/* Page Header - Matching CustomerListPage style */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
@@ -941,6 +941,6 @@ export default function BusCustomersPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

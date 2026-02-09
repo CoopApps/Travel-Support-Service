@@ -193,7 +193,7 @@ const HolidaysPage: React.FC = () => {
   }
 
   return (
-    <div className="holidays-page">
+    <>
       {/* Tab Toggle, Status Indicators, and Action Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '3px', borderRadius: '6px' }}>
@@ -385,7 +385,7 @@ const HolidaysPage: React.FC = () => {
           onSave={handleSaveBalanceAdjustment}
         />
       )}
-    </div>
+    </>
   );
 };
 

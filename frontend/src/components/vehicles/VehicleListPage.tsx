@@ -247,7 +247,7 @@ function VehicleListPage() {
   }
 
   return (
-    <div>
+    <>
       {/* Tab Navigation and Action Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         {/* Tabs - Compact */}
@@ -587,7 +587,7 @@ function VehicleListPage() {
           onClose={handleModalClose}
         />
       )}
-    </div>
+    </>
   );
 }
 

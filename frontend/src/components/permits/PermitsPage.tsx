@@ -213,7 +213,7 @@ function PermitsPage() {
   }
 
   return (
-    <div className="permits-page">
+    <>
       {/* Error Message */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
@@ -564,7 +564,7 @@ function PermitsPage() {
       {showGuideModal && (
         <PermitGuideModal onClose={() => setShowGuideModal(false)} />
       )}
-    </div>
+    </>
   );
 }
 
