@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - fix ClientStats dashboardApi import 2026-02-09 00:40
-ARG CACHEBUST=13
+# Force rebuild - trigger fresh deploy with all fixes 2026-02-09 00:45
+ARG CACHEBUST=14
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
