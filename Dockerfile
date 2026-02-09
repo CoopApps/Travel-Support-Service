@@ -15,6 +15,8 @@ RUN cd backend && npm run build
 # Copy and build frontend
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
+# Use CACHEBUST to invalidate cache for frontend build
+RUN echo "Cache bust: 14"
 COPY frontend ./frontend
 # Clear Vite build cache before building
 RUN cd frontend && rm -rf dist node_modules/.vite || true
