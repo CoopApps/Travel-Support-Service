@@ -72,35 +72,7 @@ function DashboardPage() {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (user?.tenantId && activeService !== 'bus') {
-      loadDashboard();
-      loadProfitability();
-      // Auto-refresh every 5 minutes
-      const interval = setInterval(() => {
-        loadDashboard();
-        loadProfitability();
-      }, 5 * 60 * 1000);
-      return () => clearInterval(interval);
-    }
-  }, [user?.tenantId, activeService]);
-
-  // Redirect effect for service-specific dashboards
-  useEffect(() => {
-    if (activeService === 'bus') {
-      navigate('/bus/dashboard', { replace: true });
-    } else if (activeService === 'homecare') {
-      navigate('/homecare/dashboard', { replace: true });
-    }
-  }, [activeService, navigate]);
-
-  // Return null while redirecting to avoid rendering transport dashboard
-  if (activeService === 'bus' || activeService === 'homecare') {
-    return null;
-  }
-
-  // Otherwise show transport dashboard
-
+  // Define functions BEFORE useEffect to avoid TDZ errors
   const loadDashboard = async () => {
     if (!user?.tenantId) return;
 
@@ -137,6 +109,35 @@ function DashboardPage() {
       setLoadingProfitability(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.tenantId && activeService !== 'bus') {
+      loadDashboard();
+      loadProfitability();
+      // Auto-refresh every 5 minutes
+      const interval = setInterval(() => {
+        loadDashboard();
+        loadProfitability();
+      }, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [user?.tenantId, activeService]);
+
+  // Redirect effect for service-specific dashboards
+  useEffect(() => {
+    if (activeService === 'bus') {
+      navigate('/bus/dashboard', { replace: true });
+    } else if (activeService === 'homecare') {
+      navigate('/homecare/dashboard', { replace: true });
+    }
+  }, [activeService, navigate]);
+
+  // Return null while redirecting to avoid rendering transport dashboard
+  if (activeService === 'bus' || activeService === 'homecare') {
+    return null;
+  }
+
+  // Otherwise show transport dashboard
 
   const dismissAlert = (alertId: string) => {
     setDismissedAlerts(prev => {
