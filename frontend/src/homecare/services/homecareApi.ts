@@ -1,24 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-// Axios instance for homecare API calls
-const homecareApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/homecare`,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Add auth token to requests
-homecareApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import homecareApi from './homecareApiClient';
 
 // Types
 export interface Client {
