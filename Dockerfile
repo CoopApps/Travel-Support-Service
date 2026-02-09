@@ -8,6 +8,7 @@ COPY backend/package*.json ./backend/
 RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
 RUN echo "Backend build timestamp: $(date +%s)"
 COPY backend ./backend
+RUN cd backend && rm -rf dist || true
 RUN cd backend && npm run build
 
 # Build frontend
@@ -18,8 +19,10 @@ COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build
 
-# Copy frontend to backend public
+# Copy frontend to backend public - ensure clean copy
+RUN rm -rf backend/dist/public || true
 RUN mkdir -p backend/dist/public && cp -r frontend/dist/* backend/dist/public/
+RUN ls -la backend/dist/public/assets/ | head -20
 
 # Production stage - use Puppeteer image for Chromium
 FROM node:22-slim
