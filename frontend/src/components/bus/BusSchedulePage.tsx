@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useToast } from '../../context/ToastContext';
-import { busApi, RegularPassenger, BusTimetable } from '../../services/busApi';
+import { regularPassengersApi, busTimetablesApi, RegularPassenger, BusTimetable } from '../../services/busApi';
 
 /**
  * Bus Schedule Page - Weekly View of Regular Passengers
@@ -50,8 +50,8 @@ function BusSchedulePage() {
     try {
       setLoading(true);
       const [passengersData, timetablesData] = await Promise.all([
-        busApi.getRegularPassengers(tenantId, { status: 'active' }),
-        busApi.getTimetables(tenantId, {}),
+        regularPassengersApi.getRegularPassengers(tenantId, { status: 'active' }),
+        busTimetablesApi.getTimetables(tenantId, {}),
       ]);
       setRegularPassengers(passengersData);
       setTimetables(timetablesData);
