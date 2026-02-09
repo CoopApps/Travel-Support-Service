@@ -3,15 +3,18 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Copy everything first to avoid layer caching issues
-COPY . .
-
 # Build backend
+COPY backend/package*.json ./backend/
 RUN cd backend && npm install --legacy-peer-deps --no-audit --no-fund
+RUN echo "Backend build timestamp: $(date +%s)"
+COPY backend ./backend
 RUN cd backend && npm run build
 
 # Build frontend
+COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
+RUN echo "Frontend build timestamp: $(date +%s)"
+COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true
 RUN cd frontend && npm run build
 
