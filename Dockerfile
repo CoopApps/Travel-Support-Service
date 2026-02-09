@@ -19,7 +19,7 @@ COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps --no-audit --no-fund
 RUN echo "Frontend build timestamp: $(date +%s)"
 # FORCE CACHE BUST: Ensure fresh frontend code is copied (circular dependency fix)
-ARG CACHEBUST=1
+ARG CACHEBUST=2
 RUN echo "Cache bust: $CACHEBUST - $(date +%s%N)"
 COPY frontend ./frontend
 RUN cd frontend && rm -rf dist node_modules/.vite || true

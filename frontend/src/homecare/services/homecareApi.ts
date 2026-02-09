@@ -1,5 +1,7 @@
 import homecareApi from './homecareApiClient';
 
+// Circular dependency fix applied - removed export default homecareApi
+
 // Types
 export interface Client {
   client_id: number;
