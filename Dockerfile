@@ -4,7 +4,8 @@ FROM node:22-slim AS builder
 WORKDIR /app
 
 # Force rebuild - trigger fresh deploy with all fixes 2026-02-09 00:45
-ARG CACHEBUST=14
+ARG CACHEBUST=15
+RUN echo "FULL CACHE PURGE: ${CACHEBUST}" && date
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
