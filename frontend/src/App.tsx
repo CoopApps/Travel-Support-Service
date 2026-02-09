@@ -38,6 +38,7 @@ import { ServiceProvider } from './contexts/ServiceContext';
 import BusDashboard from './components/bus/BusDashboard';
 import BusRoutesPage from './components/bus/BusRoutesPage';
 import BusTimetablesPage from './components/bus/BusTimetablesPage';
+import BusSchedulePage from './components/bus/BusSchedulePage';
 // BusBookingsPage removed - booking handled via customer journey requests
 // Section22CompliancePage now integrated into PermitsPage as a tab
 import SeatAssignmentPage from './components/bus/SeatAssignmentPage';
@@ -222,6 +223,7 @@ function App() {
         <Route path="bus/cooperative" element={<CooperativePage />} />
         <Route path="bus/routes" element={<BusRoutesPage />} />
         <Route path="bus/timetables" element={<BusTimetablesPage />} />
+        <Route path="bus/schedules" element={<BusSchedulePage />} />
         <Route path="bus/roster" element={<Navigate to="/roster" replace />} />
         {/* bus/book and bus/bookings routes removed - booking handled via customer journey requests */}
         <Route path="bus/seats" element={<SeatAssignmentPage />} />
