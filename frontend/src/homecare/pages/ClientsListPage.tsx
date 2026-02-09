@@ -338,7 +338,7 @@ function ClientsListPage() {
   const paginatedClients = getFilteredClients();
 
   return (
-    <div style={{ padding: '1.5rem' }}>
+    <div>
       {/* Tabs and Action Buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         {/* Tabs */}
