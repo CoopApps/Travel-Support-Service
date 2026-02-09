@@ -88,10 +88,6 @@ function HomecareDashboard() {
 
   return (
     <div className="homecare-dashboard">
-      <div className="homecare-dashboard-header">
-        <h1 className="homecare-dashboard-title">Home Care Dashboard</h1>
-      </div>
-
       {/* Overview Stats - Colored Cards */}
       <div className="homecare-stats-grid">
         <StatCard
