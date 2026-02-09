@@ -354,19 +354,28 @@ const PayrollPage: React.FC = () => {
 
   return (
     <div className="payroll-page">
-      {/* Page Header */}
-      <div className="page-header">
-        <div>
-          <h2 style={{ margin: 0, color: 'var(--gray-900)' }}>Payroll Management</h2>
-          <p style={{ margin: '4px 0 0 0', color: 'var(--gray-600)', fontSize: '14px' }}>
-            Manage employee payroll, track payments, and HMRC submissions
-          </p>
-        </div>
+      {/* Action Buttons - Top Row */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <button
-          className="btn btn-success"
           onClick={() => setShowCreatePeriodModal(true)}
+          style={{
+            padding: '6px 12px',
+            background: '#10b981',
+            border: 'none',
+            borderRadius: '4px',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            fontWeight: 500
+          }}
         >
-          <PlusIcon size={16} />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
           Create Pay Period
         </button>
       </div>
