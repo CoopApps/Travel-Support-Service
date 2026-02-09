@@ -1,8 +1,8 @@
 # Build stage - use lightweight Node image
 FROM node:22-slim AS builder
 
-# CRITICAL FIX: Removed manual chunking from vite.config.ts - rebuild with automatic chunking
-RUN echo "Build started at: $(date)" && date +%s%N > /tmp/build_id
+# CRITICAL FIX: Removed circular export from homecareApi.ts - force fresh build
+RUN echo "Build started at: $(date)" && date +%s%N > /tmp/build_id && echo "Circular dependency fix applied"
 
 WORKDIR /app
 
