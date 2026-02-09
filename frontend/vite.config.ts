@@ -30,14 +30,7 @@ export default defineConfig({
     sourcemap: true,
     // Use esbuild for fast minification (built-in with Vite)
     minify: 'esbuild',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // Removed state-management chunk - was causing "Cannot access before initialization" errors
-          // due to circular dependencies between chunks
-        },
-      },
-    },
+    // REMOVED manual chunking completely - let Vite handle automatic code splitting
+    // Manual chunks were causing the build to fail silently
   },
 });

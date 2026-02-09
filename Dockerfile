@@ -1,7 +1,7 @@
 # Build stage - use lightweight Node image
 FROM node:22-slim AS builder
 
-# CRITICAL: Force complete cache invalidation - timestamp changes every build
+# CRITICAL FIX: Removed manual chunking from vite.config.ts - rebuild with automatic chunking
 RUN echo "Build started at: $(date)" && date +%s%N > /tmp/build_id
 
 WORKDIR /app
