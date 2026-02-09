@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
-import { dashboardApi } from '../services/homecareApi';
+import { homecareDashboardApi } from '../services/homecareApi';
 import './ClientStats.css';
 
 interface ClientStatsProps {
@@ -41,7 +41,7 @@ function ClientStats({ refresh = 0 }: ClientStatsProps) {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const response = await dashboardApi.getStats(tenantId);
+        const response = await homecareDashboardApi.getStats(tenantId);
         const overview = response.data?.overview;
 
         setStats({

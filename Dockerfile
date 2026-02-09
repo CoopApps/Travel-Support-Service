@@ -3,8 +3,8 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Force rebuild - rename dashboardApi exports to fix collision 2026-02-09 00:35
-ARG CACHEBUST=12
+# Force rebuild - fix ClientStats dashboardApi import 2026-02-09 00:40
+ARG CACHEBUST=13
 
 # Copy and build backend
 COPY backend/package*.json ./backend/
