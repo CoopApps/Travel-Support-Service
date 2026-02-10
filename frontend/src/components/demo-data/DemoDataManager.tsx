@@ -26,6 +26,7 @@ export const DemoDataManager: React.FC = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
+    console.log('DemoDataManager mounted', { tenant: tenant?.tenant_id, hasToken: !!token });
     if (tenant?.tenant_id && token) {
       fetchStatus();
     }
@@ -50,7 +51,12 @@ export const DemoDataManager: React.FC = () => {
   };
 
   const handleImport = async () => {
-    if (!tenant?.tenant_id || !token) return;
+    console.log('handleImport called', { hasTenant: !!tenant?.tenant_id, hasToken: !!token });
+
+    if (!tenant?.tenant_id || !token) {
+      console.warn('Missing tenant or token', { tenant: tenant?.tenant_id, hasToken: !!token });
+      return;
+    }
 
     if (!confirm('Import 150 demo customers and 30 demo drivers?\n\nThis will add demonstration data to your system. You can remove it anytime using the "Remove Demo Data" button.')) {
       return;
