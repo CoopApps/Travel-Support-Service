@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTenant } from '../../context/TenantContext';
+import { useAuthStore } from '../../store/authStore';
 import './DemoDataManager.css';
 
 interface DemoDataStatus {
@@ -18,23 +19,23 @@ interface DemoDataStatus {
  */
 export const DemoDataManager: React.FC = () => {
   const { tenant } = useTenant();
+  const token = useAuthStore((state) => state.token);
   const [status, setStatus] = useState<DemoDataStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [actionInProgress, setActionInProgress] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    if (tenant?.tenant_id) {
+    if (tenant?.tenant_id && token) {
       fetchStatus();
     }
-  }, [tenant?.tenant_id]);
+  }, [tenant?.tenant_id, token]);
 
   const fetchStatus = async () => {
-    if (!tenant?.tenant_id) return;
+    if (!tenant?.tenant_id || !token) return;
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       const response = await axios.get(
         `/api/tenants/${tenant.tenant_id}/demo-data/status`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -49,7 +50,7 @@ export const DemoDataManager: React.FC = () => {
   };
 
   const handleImport = async () => {
-    if (!tenant?.tenant_id) return;
+    if (!tenant?.tenant_id || !token) return;
 
     if (!confirm('Import 150 demo customers and 30 demo drivers?\n\nThis will add demonstration data to your system. You can remove it anytime using the "Remove Demo Data" button.')) {
       return;
@@ -59,7 +60,6 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
-      const token = localStorage.getItem('token');
       const response = await axios.post(
         `/api/tenants/${tenant.tenant_id}/demo-data/import`,
         {},
@@ -84,7 +84,7 @@ export const DemoDataManager: React.FC = () => {
   };
 
   const handleRemove = async () => {
-    if (!tenant?.tenant_id) return;
+    if (!tenant?.tenant_id || !token) return;
 
     if (!confirm('Remove all demo data?\n\nThis will permanently delete all demo customers and drivers. This action cannot be undone.')) {
       return;
@@ -94,7 +94,6 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
-      const token = localStorage.getItem('token');
       const response = await axios.delete(
         `/api/tenants/${tenant.tenant_id}/demo-data/remove`,
         { headers: { Authorization: `Bearer ${token}` } }
