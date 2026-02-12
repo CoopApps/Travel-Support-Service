@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { useTenant } from '../../context/TenantContext';
 import { useAuthStore } from '../../store/authStore';
 import './DemoDataManager.css';
@@ -37,8 +37,8 @@ export const DemoDataManager: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(
-        `/api/tenants/${tenant.tenant_id}/demo-data/status`,
+      const response = await apiClient.get(
+        `/tenants/${tenant.tenant_id}/demo-data/status`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -66,8 +66,8 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
-      const response = await axios.post(
-        `/api/tenants/${tenant.tenant_id}/demo-data/import`,
+      const response = await apiClient.post(
+        `/tenants/${tenant.tenant_id}/demo-data/import`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -100,8 +100,8 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
-      const response = await axios.delete(
-        `/api/tenants/${tenant.tenant_id}/demo-data/remove`,
+      const response = await apiClient.delete(
+        `/tenants/${tenant.tenant_id}/demo-data/remove`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
