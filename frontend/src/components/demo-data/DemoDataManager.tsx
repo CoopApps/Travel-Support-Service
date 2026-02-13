@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../../services/api';
+import { fetchCSRFToken } from '../../services/csrfService';
 import { useTenant } from '../../context/TenantContext';
 import { useAuthStore } from '../../store/authStore';
 import './DemoDataManager.css';
@@ -28,9 +29,22 @@ export const DemoDataManager: React.FC = () => {
   useEffect(() => {
     console.log('DemoDataManager mounted', { tenant: tenant?.tenant_id, isAuthenticated });
     if (tenant?.tenant_id && isAuthenticated) {
-      fetchStatus();
+      initializeAndFetchStatus();
     }
   }, [tenant?.tenant_id, isAuthenticated]);
+
+  const initializeAndFetchStatus = async () => {
+    if (!tenant?.tenant_id) return;
+
+    try {
+      // Fetch CSRF token first
+      await fetchCSRFToken(tenant.tenant_id);
+      // Then fetch demo data status
+      await fetchStatus();
+    } catch (error) {
+      console.error('Failed to initialize demo data manager:', error);
+    }
+  };
 
   const fetchStatus = async () => {
     if (!tenant?.tenant_id || !isAuthenticated) return;

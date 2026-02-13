@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 // import { useAuthStore } from '../store/authStore'; // TEMPORARILY DISABLED TO TEST CIRCULAR DEPENDENCY
+import { getCSRFToken } from './csrfService';
 import type {
   LoginCredentials,
   LoginResponse,
@@ -31,17 +32,27 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true, // SECURITY: Enable cookies for all requests
 });
 
-// Request interceptor - Log requests (auth is handled via httpOnly cookies)
-// SECURITY: Token is now sent automatically via httpOnly cookie (withCredentials: true)
-// No need to manually add Authorization header - browser handles cookies automatically
+// Request interceptor - Add CSRF token and log requests
+// SECURITY: Auth token is sent automatically via httpOnly cookie (withCredentials: true)
+// CSRF token is required for state-changing requests (POST, PUT, DELETE)
 apiClient.interceptors.request.use(
   (config) => {
+    // Add CSRF token to headers for state-changing requests
+    const stateChangingMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+    if (config.method && stateChangingMethods.includes(config.method.toUpperCase())) {
+      const csrfToken = getCSRFToken();
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+      }
+    }
+
     // Token is no longer stored in JS - it's in an httpOnly cookie
     // The browser automatically sends cookies with requests when withCredentials: true
     if (import.meta.env.DEV) {
       console.log('🔐 Request (auth via httpOnly cookie):', {
         url: config.url,
         method: config.method?.toUpperCase(),
+        hasCSRFToken: !!config.headers['X-CSRF-Token'],
       });
     }
     return config;
