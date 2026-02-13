@@ -19,27 +19,26 @@ interface DemoDataStatus {
  */
 export const DemoDataManager: React.FC = () => {
   const { tenant } = useTenant();
-  const token = useAuthStore((state) => state.token);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [status, setStatus] = useState<DemoDataStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [actionInProgress, setActionInProgress] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    console.log('DemoDataManager mounted', { tenant: tenant?.tenant_id, hasToken: !!token });
-    if (tenant?.tenant_id && token) {
+    console.log('DemoDataManager mounted', { tenant: tenant?.tenant_id, isAuthenticated });
+    if (tenant?.tenant_id && isAuthenticated) {
       fetchStatus();
     }
-  }, [tenant?.tenant_id, token]);
+  }, [tenant?.tenant_id, isAuthenticated]);
 
   const fetchStatus = async () => {
-    if (!tenant?.tenant_id || !token) return;
+    if (!tenant?.tenant_id || !isAuthenticated) return;
 
     try {
       setLoading(true);
       const response = await apiClient.get(
-        `/tenants/${tenant.tenant_id}/demo-data/status`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/tenants/${tenant.tenant_id}/demo-data/status`
       );
 
       setStatus(response.data);
@@ -51,10 +50,10 @@ export const DemoDataManager: React.FC = () => {
   };
 
   const handleImport = async () => {
-    console.log('handleImport called', { hasTenant: !!tenant?.tenant_id, hasToken: !!token });
+    console.log('handleImport called', { hasTenant: !!tenant?.tenant_id, isAuthenticated });
 
-    if (!tenant?.tenant_id || !token) {
-      console.warn('Missing tenant or token', { tenant: tenant?.tenant_id, hasToken: !!token });
+    if (!tenant?.tenant_id || !isAuthenticated) {
+      console.warn('Missing tenant or not authenticated', { tenant: tenant?.tenant_id, isAuthenticated });
       return;
     }
 
@@ -68,8 +67,7 @@ export const DemoDataManager: React.FC = () => {
 
       const response = await apiClient.post(
         `/tenants/${tenant.tenant_id}/demo-data/import`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {}
       );
 
       setMessage({
@@ -90,7 +88,7 @@ export const DemoDataManager: React.FC = () => {
   };
 
   const handleRemove = async () => {
-    if (!tenant?.tenant_id || !token) return;
+    if (!tenant?.tenant_id || !isAuthenticated) return;
 
     if (!confirm('Remove all demo data?\n\nThis will permanently delete all demo customers and drivers. This action cannot be undone.')) {
       return;
@@ -101,8 +99,7 @@ export const DemoDataManager: React.FC = () => {
       setMessage(null);
 
       const response = await apiClient.delete(
-        `/tenants/${tenant.tenant_id}/demo-data/remove`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/tenants/${tenant.tenant_id}/demo-data/remove`
       );
 
       setMessage({
