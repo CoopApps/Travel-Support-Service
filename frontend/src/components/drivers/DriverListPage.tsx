@@ -653,7 +653,7 @@ function DriverListPage() {
         /* Driver Table */
         <>
           <div className="table-container">
-            <table>
+            <table style={{ width: '100%', tableLayout: 'auto' }}>
               <thead>
                 <tr>
                   <th style={{ width: '40px' }}>
@@ -664,14 +664,14 @@ function DriverListPage() {
                       style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                     />
                   </th>
-                  <th>Driver Details</th>
-                  <th>License & Contact</th>
-                  <th>Vehicle Assignment</th>
-                  <th>Employment & Fuel</th>
-                  <th>Dashboard Access</th>
-                  <th>Customer Assignments</th>
-                  <th>Permit Status</th>
-                  <th style={{ textAlign: 'center' }}>Actions</th>
+                  <th style={{ width: '12%' }}>Driver Details</th>
+                  <th style={{ width: '12%' }}>License & Contact</th>
+                  <th style={{ width: '12%' }}>Vehicle Assignment</th>
+                  <th style={{ width: '12%' }}>Employment & Fuel</th>
+                  <th style={{ width: '12%' }}>Dashboard Access</th>
+                  <th style={{ width: '12%' }}>Customer Assignments</th>
+                  <th style={{ width: '12%' }}>Permit Status</th>
+                  <th style={{ width: '16%', textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>

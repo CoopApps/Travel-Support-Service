@@ -607,7 +607,7 @@ function CustomerListPage() {
         /* Customer Table */
         <>
           <div className="table-container">
-            <table>
+            <table style={{ width: '100%', tableLayout: 'auto' }}>
               <thead>
                 <tr>
                   <th style={{ width: '40px' }}>
@@ -618,13 +618,13 @@ function CustomerListPage() {
                       style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                     />
                   </th>
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th>Login Status</th>
-                  <th>Payment Structure</th>
-                  <th>Weekly Schedule & Times</th>
-                  <th>Weekly Cost</th>
-                  <th style={{ textAlign: 'center' }}>Actions</th>
+                  <th style={{ width: '15%' }}>Name</th>
+                  <th style={{ width: '15%' }}>Contact</th>
+                  <th style={{ width: '12%' }}>Login Status</th>
+                  <th style={{ width: '12%' }}>Payment Structure</th>
+                  <th style={{ width: '20%' }}>Weekly Schedule & Times</th>
+                  <th style={{ width: '10%' }}>Weekly Cost</th>
+                  <th style={{ width: '16%', textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
