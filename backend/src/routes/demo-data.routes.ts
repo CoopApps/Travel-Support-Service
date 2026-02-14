@@ -96,6 +96,9 @@ router.post(
     const { tenantId } = req.params;
     const client = await getDbClient();
 
+    let customersImported = 0;
+    let driversImported = 0;
+
     try {
       await client.query('BEGIN');
 
@@ -113,9 +116,6 @@ router.post(
           error: 'Demo data already imported. Please remove existing demo data first.'
         });
       }
-
-      let customersImported = 0;
-      let driversImported = 0;
 
       // Import customers
       for (const customer of DEMO_CUSTOMERS) {
