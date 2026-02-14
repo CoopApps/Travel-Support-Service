@@ -12,24 +12,44 @@ const router = Router();
  */
 
 const DEMO_CUSTOMERS = [
-  // Elderly customers with various mobility needs
-  { first_name: 'Margaret', last_name: 'Thompson', phone: '07700 900001', email: 'margaret.thompson@example.com', address: '12 High Street, Sheffield', postcode: 'S1 2GE', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ground floor pickup' },
-  { first_name: 'Arthur', last_name: 'Davies', phone: '07700 900002', email: 'arthur.davies@example.com', address: '45 Church Lane, Rotherham', postcode: 'S60 2BX', mobility_needs: 'Walking frame', medical_notes: 'Needs assistance to vehicle' },
-  { first_name: 'Dorothy', last_name: 'Evans', phone: '07700 900003', email: 'dorothy.evans@example.com', address: '78 Park Road, Doncaster', postcode: 'DN1 3JQ', mobility_needs: 'Wheelchair user', medical_notes: 'Electric wheelchair' },
-  { first_name: 'George', last_name: 'Wilson', phone: '07700 900004', email: 'george.wilson@example.com', address: '23 Station Road, Barnsley', postcode: 'S70 2AB', mobility_needs: 'Walking stick', medical_notes: 'Slow walker' },
-  { first_name: 'Betty', last_name: 'Roberts', phone: '07700 900005', email: 'betty.roberts@example.com', address: '56 Oak Avenue, Chesterfield', postcode: 'S40 1TY', mobility_needs: 'Wheelchair user', medical_notes: 'Manual wheelchair' },
-  { first_name: 'William', last_name: 'Jones', phone: '07700 900006', email: 'william.jones@example.com', address: '89 Victoria Street, Sheffield', postcode: 'S3 7QL', mobility_needs: 'Walking frame', medical_notes: 'Requires extra time' },
-  { first_name: 'Joyce', last_name: 'Brown', phone: '07700 900007', email: 'joyce.brown@example.com', address: '34 Meadow Lane, Rotherham', postcode: 'S61 4RB', mobility_needs: 'None', medical_notes: 'Independent' },
-  { first_name: 'Albert', last_name: 'Taylor', phone: '07700 900008', email: 'albert.taylor@example.com', address: '67 Bridge Street, Doncaster', postcode: 'DN2 5FB', mobility_needs: 'Walking stick', medical_notes: 'Arthritis' },
-  { first_name: 'Doris', last_name: 'White', phone: '07700 900009', email: 'doris.white@example.com', address: '90 Castle Road, Barnsley', postcode: 'S71 3HP', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ramp' },
-  { first_name: 'Frederick', last_name: 'Martin', phone: '07700 900010', email: 'frederick.martin@example.com', address: '12 Queen Street, Chesterfield', postcode: 'S41 8NG', mobility_needs: 'Walking frame', medical_notes: 'Balance issues' },
+  // Elderly customers with various mobility needs and paying organizations
+  { first_name: 'Margaret', last_name: 'Thompson', phone: '07700 900001', email: 'margaret.thompson@example.com', address: '12 High Street, Sheffield', postcode: 'S1 2GE', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ground floor pickup', paying_org: 'Sheffield City Council' },
+  { first_name: 'Arthur', last_name: 'Davies', phone: '07700 900002', email: 'arthur.davies@example.com', address: '45 Church Lane, Rotherham', postcode: 'S60 2BX', mobility_needs: 'Walking frame', medical_notes: 'Needs assistance to vehicle', paying_org: 'Age UK Sheffield' },
+  { first_name: 'Dorothy', last_name: 'Evans', phone: '07700 900003', email: 'dorothy.evans@example.com', address: '78 Park Road, Doncaster', postcode: 'DN1 3JQ', mobility_needs: 'Wheelchair user', medical_notes: 'Electric wheelchair', paying_org: 'NHS South Yorkshire ICB' },
+  { first_name: 'George', last_name: 'Wilson', phone: '07700 900004', email: 'george.wilson@example.com', address: '23 Station Road, Barnsley', postcode: 'S70 2AB', mobility_needs: 'Walking stick', medical_notes: 'Slow walker', paying_org: 'Self-Pay' },
+  { first_name: 'Betty', last_name: 'Roberts', phone: '07700 900005', email: 'betty.roberts@example.com', address: '56 Oak Avenue, Chesterfield', postcode: 'S40 1TY', mobility_needs: 'Wheelchair user', medical_notes: 'Manual wheelchair', paying_org: 'British Red Cross' },
+  { first_name: 'William', last_name: 'Jones', phone: '07700 900006', email: 'william.jones@example.com', address: '89 Victoria Street, Sheffield', postcode: 'S3 7QL', mobility_needs: 'Walking frame', medical_notes: 'Requires extra time', paying_org: 'Rotherham Borough Council' },
+  { first_name: 'Joyce', last_name: 'Brown', phone: '07700 900007', email: 'joyce.brown@example.com', address: '34 Meadow Lane, Rotherham', postcode: 'S61 4RB', mobility_needs: 'None', medical_notes: 'Independent', paying_org: 'Self-Pay' },
+  { first_name: 'Albert', last_name: 'Taylor', phone: '07700 900008', email: 'albert.taylor@example.com', address: '67 Bridge Street, Doncaster', postcode: 'DN2 5FB', mobility_needs: 'Walking stick', medical_notes: 'Arthritis', paying_org: 'Macmillan Cancer Support' },
+  { first_name: 'Doris', last_name: 'White', phone: '07700 900009', email: 'doris.white@example.com', address: '90 Castle Road, Barnsley', postcode: 'S71 3HP', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ramp', paying_org: 'Barnsley Metropolitan Council' },
+  { first_name: 'Frederick', last_name: 'Martin', phone: '07700 900010', email: 'frederick.martin@example.com', address: '12 Queen Street, Chesterfield', postcode: 'S41 8NG', mobility_needs: 'Walking frame', medical_notes: 'Balance issues', paying_org: 'Sheffield Carers Centre' },
   // Continue with varied names and locations (total 150)
-  { first_name: 'Vera', last_name: 'Jackson', phone: '07700 900011', email: 'vera.jackson@example.com', address: '45 King Street, Sheffield', postcode: 'S1 3BR', mobility_needs: 'None', medical_notes: 'Good mobility' },
-  { first_name: 'Harold', last_name: 'Lewis', phone: '07700 900012', email: 'harold.lewis@example.com', address: '78 Mill Lane, Rotherham', postcode: 'S60 3TB', mobility_needs: 'Walking stick', medical_needs: 'Hearing aid user' },
-  { first_name: 'Ethel', last_name: 'Walker', phone: '07700 900013', email: 'ethel.walker@example.com', address: '23 School Road, Doncaster', postcode: 'DN3 2PQ', mobility_needs: 'Wheelchair user', medical_notes: 'Oxygen user' },
-  { first_name: 'Norman', last_name: 'Hall', phone: '07700 900014', email: 'norman.hall@example.com', address: '56 Church Street, Barnsley', postcode: 'S72 8QW', mobility_needs: 'Walking frame', medical_notes: 'Recent hip surgery' },
-  { first_name: 'Gladys', last_name: 'Allen', phone: '07700 900015', email: 'gladys.allen@example.com', address: '89 Market Place, Chesterfield', postcode: 'S43 1DB', mobility_needs: 'None', medical_notes: 'Visually impaired' },
+  { first_name: 'Vera', last_name: 'Jackson', phone: '07700 900011', email: 'vera.jackson@example.com', address: '45 King Street, Sheffield', postcode: 'S1 3BR', mobility_needs: 'None', medical_notes: 'Good mobility', paying_org: 'Alzheimer\'s Society' },
+  { first_name: 'Harold', last_name: 'Lewis', phone: '07700 900012', email: 'harold.lewis@example.com', address: '78 Mill Lane, Rotherham', postcode: 'S60 3TB', mobility_needs: 'Walking stick', medical_notes: 'Hearing aid user', paying_org: 'Scope Disability Charity' },
+  { first_name: 'Ethel', last_name: 'Walker', phone: '07700 900013', email: 'ethel.walker@example.com', address: '23 School Road, Doncaster', postcode: 'DN3 2PQ', mobility_needs: 'Wheelchair user', medical_notes: 'Oxygen user', paying_org: 'Marie Curie' },
+  { first_name: 'Norman', last_name: 'Hall', phone: '07700 900014', email: 'norman.hall@example.com', address: '56 Church Street, Barnsley', postcode: 'S72 8QW', mobility_needs: 'Walking frame', medical_notes: 'Recent hip surgery', paying_org: 'Independent Age' },
+  { first_name: 'Gladys', last_name: 'Allen', phone: '07700 900015', email: 'gladys.allen@example.com', address: '89 Market Place, Chesterfield', postcode: 'S43 1DB', mobility_needs: 'None', medical_notes: 'Visually impaired', paying_org: 'Contact the Elderly' },
   // Add more customers with varied profiles (continuing to 150)
+];
+
+// Define paying organizations - realistic UK charities, councils, and healthcare providers
+const PAYING_ORGS = [
+  'Self-Pay',
+  'Sheffield City Council',
+  'Rotherham Borough Council',
+  'Doncaster Council',
+  'Barnsley Metropolitan Council',
+  'Age UK Sheffield',
+  'British Red Cross',
+  'NHS South Yorkshire ICB',
+  'Macmillan Cancer Support',
+  'Sheffield Carers Centre',
+  'Alzheimer\'s Society',
+  'Scope Disability Charity',
+  'Marie Curie',
+  'Independent Age',
+  'Contact the Elderly',
+  'Royal Voluntary Service'
 ];
 
 // Generate additional 135 customers programmatically
@@ -50,7 +70,8 @@ for (let i = 16; i <= 150; i++) {
     address: `${i} ${streets[i % streets.length]}, ${cities[i % cities.length]}`,
     postcode: postcodes[i % postcodes.length],
     mobility_needs: mobilityOptions[i % mobilityOptions.length],
-    medical_notes: medicalOptions[i % medicalOptions.length]
+    medical_notes: medicalOptions[i % medicalOptions.length],
+    paying_org: PAYING_ORGS[i % PAYING_ORGS.length]
   });
 }
 
@@ -145,7 +166,7 @@ router.post(
           '', // city (could extract from address)
           '', // county
           customer.postcode,
-          'Self-Pay', // paying_org
+          customer.paying_org || 'Self-Pay', // paying_org
           false, // has_split_payment
           JSON.stringify({}), // provider_split
           JSON.stringify({}), // payment_split
