@@ -302,9 +302,9 @@ function RouteOptimizationPanel({
                       {index + 1}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{trip.customer_name}</div>
+                      <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{trip.customer_name || 'Unknown'}</div>
                       <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>
-                        {trip.pickup_time} • {trip.pickup_location} → {trip.destination}
+                        {trip.pickup_time || 'No time'} • {trip.pickup_location || 'Unknown'} → {trip.destination || 'Unknown'}
                       </div>
                     </div>
                   </div>
@@ -366,9 +366,9 @@ function RouteOptimizationPanel({
                       borderRadius: '4px',
                       fontSize: '12px'
                     }}>
-                      <strong>{index + 1}.</strong> {trip.customer_name}
+                      <strong>{index + 1}.</strong> {trip.customer_name || 'Unknown'}
                       <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginTop: '2px' }}>
-                        {trip.pickup_location} → {trip.destination}
+                        {trip.pickup_location || 'Unknown'} → {trip.destination || 'Unknown'}
                       </div>
                     </div>
                   ))}
@@ -387,9 +387,9 @@ function RouteOptimizationPanel({
                       borderRadius: '4px',
                       fontSize: '12px'
                     }}>
-                      <strong>{index + 1}.</strong> {trip.customer_name}
+                      <strong>{index + 1}.</strong> {trip.customer_name || 'Unknown'}
                       <div style={{ fontSize: '11px', color: 'var(--gray-600)', marginTop: '2px' }}>
-                        {trip.pickup_location} → {trip.destination}
+                        {trip.pickup_location || 'Unknown'} → {trip.destination || 'Unknown'}
                       </div>
                     </div>
                   ))}
