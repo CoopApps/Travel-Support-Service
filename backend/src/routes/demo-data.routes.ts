@@ -65,25 +65,27 @@ const DEMO_DRIVERS = [
   { first_name: 'Rachel', last_name: 'Hughes', phone: '07800 900008', email: 'rachel.hughes@demotransport.com', license_number: 'HUGHE808901RH9OP', license_expiry: '2027-02-14', dbs_check_date: '2025-02-28', vehicle_type: 'Wheelchair accessible van' },
   { first_name: 'Paul', last_name: 'Richardson', phone: '07800 900009', email: 'paul.richardson@demotransport.com', license_number: 'RICHA809012PR9QR', license_expiry: '2026-07-22', dbs_check_date: '2024-09-10', vehicle_type: '8-seater minibus' },
   { first_name: 'Helen', last_name: 'Baker', phone: '07800 900010', email: 'helen.baker@demotransport.com', license_number: 'BAKER810123HB9ST', license_expiry: '2027-05-05', dbs_check_date: '2025-04-01', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Tom', last_name: 'Turner', phone: '07800 900011', email: 'tom.turner@demotransport.com', license_number: 'TURNE811234TT9UV', license_expiry: '2026-06-15', dbs_check_date: '2025-01-10', vehicle_type: '8-seater minibus' },
+  { first_name: 'Sophie', last_name: 'Phillips', phone: '07800 900012', email: 'sophie.phillips@demotransport.com', license_number: 'PHILL812345SP9WX', license_expiry: '2027-08-20', dbs_check_date: '2025-03-15', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Mark', last_name: 'Morgan', phone: '07800 900013', email: 'mark.morgan@demotransport.com', license_number: 'MORGA813456MM9YZ', license_expiry: '2026-10-12', dbs_check_date: '2024-12-05', vehicle_type: '16-seater minibus' },
+  { first_name: 'Laura', last_name: 'Rogers', phone: '07800 900014', email: 'laura.rogers@demotransport.com', license_number: 'ROGER814567LR9AB', license_expiry: '2027-04-25', dbs_check_date: '2025-02-20', vehicle_type: '8-seater minibus' },
+  { first_name: 'Simon', last_name: 'Bell', phone: '07800 900015', email: 'simon.bell@demotransport.com', license_number: 'BELLS815678SB9CD', license_expiry: '2026-11-30', dbs_check_date: '2024-11-15', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Kate', last_name: 'Murphy', phone: '07800 900016', email: 'kate.murphy@demotransport.com', license_number: 'MURPH816789KM9EF', license_expiry: '2027-01-18', dbs_check_date: '2025-04-10', vehicle_type: '8-seater minibus' },
+  { first_name: 'Ben', last_name: 'Cook', phone: '07800 900017', email: 'ben.cook@demotransport.com', license_number: 'COOKB817890BC9GH', license_expiry: '2026-05-22', dbs_check_date: '2024-10-30', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Amy', last_name: 'Ward', phone: '07800 900018', email: 'amy.ward@demotransport.com', license_number: 'WARDA818901AW9IJ', license_expiry: '2027-09-08', dbs_check_date: '2025-01-25', vehicle_type: '16-seater minibus' },
+  { first_name: 'Chris', last_name: 'Hill', phone: '07800 900019', email: 'chris.hill@demotransport.com', license_number: 'HILLC819012CH9KL', license_expiry: '2026-07-14', dbs_check_date: '2024-12-20', vehicle_type: '8-seater minibus' },
+  { first_name: 'Hannah', last_name: 'Shaw', phone: '07800 900020', email: 'hannah.shaw@demotransport.com', license_number: 'SHAWH820123HS9MN', license_expiry: '2027-03-30', dbs_check_date: '2025-02-15', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Oliver', last_name: 'Green', phone: '07800 900021', email: 'oliver.green@demotransport.com', license_number: 'GREEN821234OG9OP', license_expiry: '2026-12-05', dbs_check_date: '2025-03-01', vehicle_type: '8-seater minibus' },
+  { first_name: 'Emily', last_name: 'Wood', phone: '07800 900022', email: 'emily.wood@demotransport.com', license_number: 'WOODE822345EW9QR', license_expiry: '2027-06-18', dbs_check_date: '2025-01-05', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Daniel', last_name: 'Price', phone: '07800 900023', email: 'daniel.price@demotransport.com', license_number: 'PRICE823456DP9ST', license_expiry: '2026-08-28', dbs_check_date: '2024-11-10', vehicle_type: '16-seater minibus' },
+  { first_name: 'Grace', last_name: 'Parker', phone: '07800 900024', email: 'grace.parker@demotransport.com', license_number: 'PARKE824567GP9UV', license_expiry: '2027-02-12', dbs_check_date: '2025-04-05', vehicle_type: '8-seater minibus' },
+  { first_name: 'Jack', last_name: 'Scott', phone: '07800 900025', email: 'jack.scott@demotransport.com', license_number: 'SCOTT825678JS9WX', license_expiry: '2026-10-20', dbs_check_date: '2024-12-28', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Olivia', last_name: 'Young', phone: '07800 900026', email: 'olivia.young@demotransport.com', license_number: 'YOUNG826789OY9YZ', license_expiry: '2027-05-15', dbs_check_date: '2025-02-08', vehicle_type: '8-seater minibus' },
+  { first_name: 'Thomas', last_name: 'King', phone: '07800 900027', email: 'thomas.king@demotransport.com', license_number: 'KINGT827890TK9AB', license_expiry: '2026-09-22', dbs_check_date: '2024-10-18', vehicle_type: 'Wheelchair accessible van' },
+  { first_name: 'Jessica', last_name: 'Wright', phone: '07800 900028', email: 'jessica.wright@demotransport.com', license_number: 'WRIGH828901JW9CD', license_expiry: '2027-07-30', dbs_check_date: '2025-03-20', vehicle_type: '16-seater minibus' },
+  { first_name: 'George', last_name: 'Lewis', phone: '07800 900029', email: 'george.lewis@demotransport.com', license_number: 'LEWIS829012GL9EF', license_expiry: '2026-04-08', dbs_check_date: '2025-01-12', vehicle_type: '8-seater minibus' },
+  { first_name: 'Amelia', last_name: 'Roberts', phone: '07800 900030', email: 'amelia.roberts@demotransport.com', license_number: 'ROBER830123AR9GH', license_expiry: '2027-11-16', dbs_check_date: '2025-04-18', vehicle_type: 'Wheelchair accessible van' },
 ];
-
-// Generate additional 20 drivers
-for (let i = 11; i <= 30; i++) {
-  const firstNames = ['Tom', 'Sophie', 'Mark', 'Laura', 'Simon', 'Kate', 'Ben', 'Amy', 'Chris', 'Hannah'];
-  const lastNames = ['Turner', 'Phillips', 'Morgan', 'Rogers', 'Bell', 'Murphy', 'Cook', 'Ward', 'Hill', 'Shaw'];
-  const vehicleTypes = ['8-seater minibus', 'Wheelchair accessible van', '16-seater minibus'];
-
-  DEMO_DRIVERS.push({
-    first_name: firstNames[i % firstNames.length],
-    last_name: lastNames[i % lastNames.length],
-    phone: `07800 ${900000 + i}`,
-    email: `driver${i}@demotransport.com`,
-    license_number: `DEMO${i.toString().padStart(3, '0')}${900000 + i}DR9XX`,
-    license_expiry: `202${6 + (i % 2)}-${String((i % 12) + 1).padStart(2, '0')}-28`,
-    dbs_check_date: `2025-${String((i % 12) + 1).padStart(2, '0')}-15`,
-    vehicle_type: vehicleTypes[i % vehicleTypes.length]
-  });
-}
 
 /**
  * POST /api/tenants/:tenantId/demo-data/import
