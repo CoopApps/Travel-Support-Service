@@ -255,31 +255,30 @@ function ScheduledTripsGrid({
       // Filter trips for this driver in the current week
       const driverTrips = filteredTrips.filter(t => t.driver_id === driverId);
 
-      if (driverTrips.length === 0) {
-        alert('No trips to export for this driver');
-        return;
-      }
-
-      // Create a simple text representation of the schedule
+      // Create a simple text representation of the schedule (even if no trips)
       let scheduleText = `Schedule for ${driverName}\n`;
       scheduleText += `Week: ${weekDays[0]} to ${weekDays[6]}\n\n`;
 
-      weekDays.forEach((day, dayIndex) => {
-        const dayTrips = driverTrips.filter(t => {
-          const tripDate = t.trip_date?.split('T')[0];
-          return tripDate === day;
-        });
-
-        if (dayTrips.length > 0) {
-          scheduleText += `${new Date(day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}\n`;
-          dayTrips.forEach(trip => {
-            scheduleText += `  ${trip.pickup_time || 'No time'} - ${trip.customer_name || 'Unknown'}\n`;
-            scheduleText += `    Pickup: ${trip.pickup_location || 'Unknown'}\n`;
-            scheduleText += `    Destination: ${trip.destination || 'Unknown'}\n`;
+      if (driverTrips.length === 0) {
+        scheduleText += 'No trips scheduled for this week.\n';
+      } else {
+        weekDays.forEach((day, dayIndex) => {
+          const dayTrips = driverTrips.filter(t => {
+            const tripDate = t.trip_date?.split('T')[0];
+            return tripDate === day;
           });
-          scheduleText += '\n';
-        }
-      });
+
+          if (dayTrips.length > 0) {
+            scheduleText += `${new Date(day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}\n`;
+            dayTrips.forEach(trip => {
+              scheduleText += `  ${trip.pickup_time || 'No time'} - ${trip.customer_name || 'Unknown'}\n`;
+              scheduleText += `    Pickup: ${trip.pickup_location || 'Unknown'}\n`;
+              scheduleText += `    Destination: ${trip.destination || 'Unknown'}\n`;
+            });
+            scheduleText += '\n';
+          }
+        });
+      }
 
       // Create a blob and download
       const blob = new Blob([scheduleText], { type: 'text/plain' });
@@ -739,7 +738,7 @@ function ScheduledTripsGrid({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <button
                         className="btn btn-sm"
-                        onClick={() => handleGeneratePDF(driver.driver_id, `${driver.first_name} ${driver.last_name}`)}
+                        onClick={() => handleGeneratePDF(driver.driver_id, driver.name || 'Unknown Driver')}
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
@@ -754,7 +753,7 @@ function ScheduledTripsGrid({
                       </button>
                       <button
                         className="btn btn-sm"
-                        onClick={() => handleEmailSchedule(driver.driver_id, `${driver.first_name} ${driver.last_name}`)}
+                        onClick={() => handleEmailSchedule(driver.driver_id, driver.name || 'Unknown Driver')}
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
