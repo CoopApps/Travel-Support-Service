@@ -15,11 +15,18 @@ let csrfToken: string | null = null;
  */
 export async function fetchCSRFToken(tenantId: number): Promise<string> {
   try {
+    console.log(`Fetching CSRF token for tenant ${tenantId}...`);
     const response = await apiClient.get(`/tenants/${tenantId}/csrf-token`);
+    console.log('CSRF token response:', response.data);
     csrfToken = response.data.data.csrfToken;
+    console.log('CSRF token set successfully');
     return csrfToken;
-  } catch (error) {
-    console.error('Failed to fetch CSRF token:', error);
+  } catch (error: any) {
+    console.error('Failed to fetch CSRF token:', {
+      error: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
     throw error;
   }
 }

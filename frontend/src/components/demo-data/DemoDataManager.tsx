@@ -79,11 +79,17 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
+      // Ensure we have a fresh CSRF token before making the request
+      console.log('Fetching CSRF token for import...');
+      await fetchCSRFToken(tenant.tenant_id);
+
+      console.log('Making import request...');
       const response = await apiClient.post(
         `/tenants/${tenant.tenant_id}/demo-data/import`,
         {}
       );
 
+      console.log('Import successful:', response.data);
       setMessage({
         type: 'success',
         text: `Successfully imported ${response.data.customersImported} customers and ${response.data.driversImported} drivers!`
@@ -91,7 +97,8 @@ export const DemoDataManager: React.FC = () => {
 
       await fetchStatus();
     } catch (error: any) {
-      const errorMsg = error.response?.data?.error || error.message || 'Failed to import demo data';
+      console.error('Import error:', error);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to import demo data';
       setMessage({
         type: 'error',
         text: errorMsg
@@ -112,10 +119,16 @@ export const DemoDataManager: React.FC = () => {
       setActionInProgress(true);
       setMessage(null);
 
+      // Ensure we have a fresh CSRF token before making the request
+      console.log('Fetching CSRF token for remove...');
+      await fetchCSRFToken(tenant.tenant_id);
+
+      console.log('Making remove request...');
       const response = await apiClient.delete(
         `/tenants/${tenant.tenant_id}/demo-data/remove`
       );
 
+      console.log('Remove successful:', response.data);
       setMessage({
         type: 'success',
         text: `Successfully removed ${response.data.customersRemoved} customers and ${response.data.driversRemoved} drivers!`
@@ -123,7 +136,8 @@ export const DemoDataManager: React.FC = () => {
 
       await fetchStatus();
     } catch (error: any) {
-      const errorMsg = error.response?.data?.error || error.message || 'Failed to remove demo data';
+      console.error('Remove error:', error);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to remove demo data';
       setMessage({
         type: 'error',
         text: errorMsg
