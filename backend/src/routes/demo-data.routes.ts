@@ -206,15 +206,15 @@ router.post(
           null, // section22_driver_expiry
           null, // mot_date
           null, // mot_expiry_date
-          'Employed', // employment_type
-          'Active', // employment_status
-          'Hourly', // salary_structure
+          'contracted', // employment_type
+          'active', // employment_status
+          JSON.stringify({ type: 'hourly', rate: 12.50 }), // salary_structure (JSON object)
           new Date().toISOString().split('T')[0], // start_date (today)
           null, // contract_end_date
-          JSON.stringify([]), // driver_roles
-          JSON.stringify([]), // holidays
-          JSON.stringify({}), // availability_restrictions
-          JSON.stringify([]), // qualifications
+          null, // driver_roles (can be null)
+          null, // holidays (can be null)
+          null, // availability_restrictions (can be null)
+          null, // qualifications (can be null)
           '', // emergency_contact
           '', // emergency_phone
           '', // preferred_hours
