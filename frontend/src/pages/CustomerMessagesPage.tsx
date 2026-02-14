@@ -123,7 +123,12 @@ function CustomerMessagesPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await apiClient.get(`/tenants/${tenantId}/customers`);
+      const response = await apiClient.get(`/tenants/${tenantId}/customers`, {
+        params: {
+          limit: 1000, // Get all customers for messaging
+          archived: 'false'
+        }
+      });
       setCustomers(response.data.customers || []);
     } catch (err: any) {
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load customers';
