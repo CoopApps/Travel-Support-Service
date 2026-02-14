@@ -123,9 +123,15 @@ router.post(
         const customerQuery = `
           INSERT INTO tenant_customers (
             tenant_id, name, phone, email,
-            address, postcode, mobility_requirements, medical_notes,
-            is_active, created_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
+            address, address_line_2, city, county, postcode,
+            paying_org, has_split_payment, provider_split, payment_split,
+            schedule, emergency_contact_name, emergency_contact_phone,
+            mobility_requirements, medical_notes, medication_notes, driver_notes,
+            reminder_opt_in, reminder_preference,
+            is_active, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, true, NOW(), NOW()
+          )
         `;
 
         await client.query(customerQuery, [
@@ -134,9 +140,23 @@ router.post(
           customer.phone,
           customer.email,
           customer.address,
+          '', // address_line_2
+          '', // city (could extract from address)
+          '', // county
           customer.postcode,
-          customer.mobility_needs,
-          customer.medical_notes
+          'Self-Pay', // paying_org
+          false, // has_split_payment
+          JSON.stringify({}), // provider_split
+          JSON.stringify({}), // payment_split
+          JSON.stringify({}), // schedule
+          '', // emergency_contact_name
+          '', // emergency_contact_phone
+          customer.mobility_needs, // mobility_requirements
+          customer.medical_notes,
+          '', // medication_notes
+          '', // driver_notes
+          false, // reminder_opt_in
+          'none' // reminder_preference
         ]);
         customersImported++;
       }
@@ -147,9 +167,23 @@ router.post(
         const driverQuery = `
           INSERT INTO tenant_drivers (
             tenant_id, name, phone, email,
-            license_number, license_expiry, dbs_check_date,
-            is_active, created_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
+            license_number, license_expiry, license_class,
+            vehicle_type, weekly_wage, weekly_lease, vehicle_id, assigned_vehicle,
+            dbs_check_date, dbs_expiry_date,
+            section19_permit, section19_expiry,
+            section19_driver_auth, section19_driver_expiry,
+            section22_driver_auth, section22_driver_expiry,
+            mot_date, mot_expiry_date,
+            employment_type, employment_status, salary_structure,
+            start_date, contract_end_date,
+            driver_roles, holidays, availability_restrictions, qualifications,
+            emergency_contact, emergency_phone, preferred_hours, notes,
+            is_active, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+            $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27,
+            $28, $29, $30, $31, $32, $33, $34, $35, true, NOW(), NOW()
+          )
         `;
 
         await client.query(driverQuery, [
@@ -159,7 +193,35 @@ router.post(
           driver.email,
           driver.license_number,
           driver.license_expiry,
-          driver.dbs_check_date
+          'D', // license_class (standard car license)
+          driver.vehicle_type || 'own', // vehicle_type
+          0, // weekly_wage (default)
+          0, // weekly_lease (default)
+          null, // vehicle_id
+          null, // assigned_vehicle
+          driver.dbs_check_date,
+          null, // dbs_expiry_date
+          false, // section19_permit
+          null, // section19_expiry
+          false, // section19_driver_auth
+          null, // section19_driver_expiry
+          false, // section22_driver_auth
+          null, // section22_driver_expiry
+          null, // mot_date
+          null, // mot_expiry_date
+          'Employed', // employment_type
+          'Active', // employment_status
+          'Hourly', // salary_structure
+          new Date().toISOString().split('T')[0], // start_date (today)
+          null, // contract_end_date
+          JSON.stringify([]), // driver_roles
+          JSON.stringify([]), // holidays
+          JSON.stringify({}), // availability_restrictions
+          JSON.stringify([]), // qualifications
+          '', // emergency_contact
+          '', // emergency_phone
+          '', // preferred_hours
+          '' // notes
         ]);
         driversImported++;
       }
