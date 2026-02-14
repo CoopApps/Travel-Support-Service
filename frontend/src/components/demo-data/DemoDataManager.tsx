@@ -98,10 +98,14 @@ export const DemoDataManager: React.FC = () => {
       await fetchStatus();
     } catch (error: any) {
       console.error('Import error:', error);
-      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to import demo data';
+      console.error('Error response data:', error.response?.data);
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to import demo data';
+      const errorDetails = error.response?.data?.details || '';
+      const errorPosition = error.response?.data?.position || '';
+
       setMessage({
         type: 'error',
-        text: errorMsg
+        text: `${errorMsg}${errorDetails ? ` - ${errorDetails}` : ''}${errorPosition ? ` (${errorPosition})` : ''}`
       });
     } finally {
       setActionInProgress(false);

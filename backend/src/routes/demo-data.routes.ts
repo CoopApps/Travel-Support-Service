@@ -244,10 +244,18 @@ router.post(
     } catch (error: any) {
       await client.query('ROLLBACK');
       client.release();
-      logger.error('Error importing demo data', { error, tenantId });
+      logger.error('Error importing demo data', {
+        error: error.message,
+        stack: error.stack,
+        tenantId,
+        customersImported,
+        driversImported
+      });
       return res.status(500).json({
         error: 'Failed to import demo data',
-        details: error.message
+        message: error.message,
+        details: error.toString(),
+        position: customersImported > 0 ? `Failed after importing ${customersImported} customers` : 'Failed during customer import'
       });
     }
   })
