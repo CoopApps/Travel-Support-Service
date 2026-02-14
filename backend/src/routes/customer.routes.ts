@@ -588,6 +588,8 @@ router.get(
         c.is_active,
         c.is_login_enabled,
         c.user_id,
+        c.section_19_eligible,
+        c.section_22_eligible,
         u.username,
         u.last_login,
         c.created_at,
