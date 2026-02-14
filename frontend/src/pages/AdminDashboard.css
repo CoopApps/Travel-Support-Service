@@ -9,12 +9,12 @@
 }
 
 .stat-card {
-  padding: 12px;
+  padding: 8px 10px;
   border-radius: 6px;
   text-align: center;
   border: 1px solid #e5e7eb;
   background: white;
-  min-height: 80px;
+  min-height: 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -34,15 +34,15 @@
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   line-height: 1;
   color: #0f172a;
 }
 
 .stat-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.3px;

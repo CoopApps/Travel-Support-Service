@@ -956,29 +956,6 @@ function DashboardPage() {
               </div>
             )}
 
-            {/* Driver Roster - Compact */}
-            {dashboard.today && dashboard.today.drivers.count > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '10px' }}>
-                  Driver Roster ({dashboard.today.drivers.count})
-                </h3>
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
-                  {dashboard.today.drivers.items.slice(0, 5).map((driver: any, idx: number) => (
-                    <div key={idx} style={{
-                      padding: '8px 0',
-                      borderBottom: idx < 4 ? '1px solid #f1f5f9' : 'none'
-                    }}>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
-                        {driver.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        {driver.registration ? `${driver.make} ${driver.model} (${driver.registration})` : 'No vehicle assigned'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* ========== RIGHT SECTION: Compliance & Fleet ========== */}
