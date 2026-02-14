@@ -3,6 +3,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { getDbClient } from '../config/database';
 import { logger } from '../utils/logger';
+import { encrypt } from '../services/piiEncryption.service';
 
 const router = Router();
 
@@ -138,9 +139,9 @@ router.post(
         await client.query(customerQuery, [
           tenantId,
           customerName,
-          customer.phone,
-          customer.email,
-          customer.address,
+          encrypt(customer.phone), // Encrypt PII
+          encrypt(customer.email), // Encrypt PII
+          encrypt(customer.address), // Encrypt PII
           '', // address_line_2
           '', // city (could extract from address)
           '', // county
@@ -151,10 +152,10 @@ router.post(
           JSON.stringify({}), // payment_split
           JSON.stringify({}), // schedule
           '', // emergency_contact_name
-          '', // emergency_contact_phone
+          encrypt(''), // emergency_contact_phone - Encrypt PII
           customer.mobility_needs, // mobility_requirements
-          customer.medical_notes,
-          '', // medication_notes
+          encrypt(customer.medical_notes || ''), // Encrypt PII
+          encrypt(''), // medication_notes - Encrypt PII
           '' // driver_notes
         ]);
         customersImported++;
@@ -188,9 +189,9 @@ router.post(
         await client.query(driverQuery, [
           tenantId,
           driverName,
-          driver.phone,
-          driver.email,
-          driver.license_number,
+          encrypt(driver.phone), // Encrypt PII
+          encrypt(driver.email), // Encrypt PII
+          encrypt(driver.license_number), // Encrypt PII
           driver.license_expiry,
           'D', // license_class (standard car license)
           driver.vehicle_type || 'own', // vehicle_type
@@ -218,7 +219,7 @@ router.post(
           null, // availability_restrictions (can be null)
           null, // qualifications (can be null)
           '', // emergency_contact
-          '', // emergency_phone
+          encrypt(''), // emergency_phone - Encrypt PII
           '', // preferred_hours
           '' // notes
         ]);
