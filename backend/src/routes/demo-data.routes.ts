@@ -119,18 +119,18 @@ router.post(
 
       // Import customers
       for (const customer of DEMO_CUSTOMERS) {
+        const customerName = `${customer.first_name} ${customer.last_name}`;
         const customerQuery = `
           INSERT INTO tenant_customers (
-            tenant_id, first_name, last_name, phone, email,
-            address, postcode, mobility_needs, medical_notes,
-            status, created_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active', NOW())
+            tenant_id, name, phone, email,
+            address, postcode, mobility_requirements, medical_notes,
+            is_active, created_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
         `;
 
         await client.query(customerQuery, [
           tenantId,
-          customer.first_name,
-          customer.last_name,
+          customerName,
           customer.phone,
           customer.email,
           customer.address,
@@ -143,18 +143,18 @@ router.post(
 
       // Import drivers
       for (const driver of DEMO_DRIVERS) {
+        const driverName = `${driver.first_name} ${driver.last_name}`;
         const driverQuery = `
           INSERT INTO tenant_drivers (
-            tenant_id, first_name, last_name, phone, email,
+            tenant_id, name, phone, email,
             license_number, license_expiry, dbs_check_date,
             is_active, created_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
         `;
 
         await client.query(driverQuery, [
           tenantId,
-          driver.first_name,
-          driver.last_name,
+          driverName,
           driver.phone,
           driver.email,
           driver.license_number,
