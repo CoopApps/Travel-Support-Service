@@ -59,7 +59,7 @@ function RouteOptimizationPanel({
 
     try {
       const response = await fetch(
-        `/api/tenants/${tenantId}/trips?driverId=${driverId}&date=${date}`,
+        `/api/tenants/${tenantId}/trips?driverId=${driverId}&startDate=${date}&endDate=${date}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -68,7 +68,8 @@ function RouteOptimizationPanel({
       if (!response.ok) throw new Error('Failed to fetch trips');
 
       const result = await response.json();
-      setTrips(result.sort((a: Trip, b: Trip) => a.pickup_time.localeCompare(b.pickup_time)));
+      const tripsArray = Array.isArray(result) ? result : (result.trips || []);
+      setTrips(tripsArray.sort((a: Trip, b: Trip) => a.pickup_time.localeCompare(b.pickup_time)));
     } catch (err: any) {
       setError(err.message);
     } finally {
