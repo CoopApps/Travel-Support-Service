@@ -742,7 +742,7 @@ function ScheduledTripsGrid({
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
-                          background: '#28a745',
+                          background: 'var(--success)',
                           color: 'white',
                           border: 'none',
                           cursor: 'pointer'
@@ -757,7 +757,7 @@ function ScheduledTripsGrid({
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
-                          background: '#17a2b8',
+                          background: 'var(--primary)',
                           color: 'white',
                           border: 'none',
                           cursor: 'pointer'
@@ -782,7 +782,7 @@ function ScheduledTripsGrid({
                           style={{
                             fontSize: '10px',
                             padding: '4px 8px',
-                            background: '#6366f1',
+                            background: 'var(--primary)',
                             color: 'white',
                             border: 'none',
                             display: 'flex',
