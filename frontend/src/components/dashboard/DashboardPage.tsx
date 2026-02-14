@@ -693,11 +693,11 @@ function DashboardPage() {
         </button>
       </div>
 
-      {/* Top Row: Stats Cards (left) and Financial Summary (right) */}
+      {/* Top Row: Stats Cards (left), Financial Summary (center), Bus Services (right) */}
       {dashboard && (
-        <div className="dashboard-top-row">
-          {/* Stats Cards - Left Side */}
-          <div className="stats-grid">
+        <div className="dashboard-top-row" style={{ gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem' }}>
+          {/* Stats Cards - Left Side - Compact 2x3 Grid */}
+          <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <div className="stat-card stat-card-purple clickable" onClick={() => handleStatCardClick('/invoices')}>
               <div className="stat-value">£{dashboard.stats?.revenueThisWeek?.toLocaleString() || '0'}</div>
               <div className="stat-label">Revenue This Week</div>
@@ -716,16 +716,6 @@ function DashboardPage() {
             <div className="stat-card stat-card-orange clickable" onClick={() => handleStatCardClick('/drivers')}>
               <div className="stat-value">{dashboard.stats?.activeDrivers || 0}</div>
               <div className="stat-label">Active Drivers</div>
-            </div>
-
-            <div className="stat-card stat-card-teal clickable" onClick={() => handleStatCardClick('/schedules')}>
-              <div className="stat-value">{dashboard.stats?.journeysToday || 0}</div>
-              <div className="stat-label">Journeys Today</div>
-            </div>
-
-            <div className="stat-card stat-card-indigo clickable" onClick={() => handleStatCardClick('/payroll')}>
-              <div className="stat-value">{dashboard.stats?.pendingApprovals || 0}</div>
-              <div className="stat-label">Approvals</div>
             </div>
 
             <div className="stat-card stat-card-red clickable">
@@ -794,6 +784,68 @@ function DashboardPage() {
                 <div className="mini-stat-content">
                   <div className="mini-stat-value">£{((dashboard.stats.revenueMTD || 0) - (dashboard.stats.payrollCosts || 0)).toLocaleString()}</div>
                   <div className="mini-stat-label">Net Profit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bus Services Summary - Section 22 */}
+          <div className="dashboard-section">
+            <div className="dashboard-section-header">
+              Bus Services
+              <span className="section-subtext">(Section 22)</span>
+            </div>
+            <div className="dashboard-mini-grid">
+              <div className="mini-stat-card clickable" onClick={() => navigate('/bus/routes')}>
+                <div className="mini-stat-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M3 9h18M3 15h18M9 9v12M15 9v12"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">{dashboard.stats?.busRoutesActive || 0}</div>
+                  <div className="mini-stat-label">Active Routes</div>
+                </div>
+              </div>
+
+              <div className="mini-stat-card clickable" onClick={() => navigate('/bus/timetables')}>
+                <div className="mini-stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">{dashboard.stats?.busTodaysServices || 0}</div>
+                  <div className="mini-stat-label">Today's Services</div>
+                </div>
+              </div>
+
+              <div className="mini-stat-card clickable" onClick={() => navigate('/bus/bookings')}>
+                <div className="mini-stat-icon" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">{dashboard.stats?.busTodaysBookings || 0}</div>
+                  <div className="mini-stat-label">Today's Bookings</div>
+                </div>
+              </div>
+
+              <div className="mini-stat-card clickable" onClick={() => navigate('/bus')}>
+                <div className="mini-stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>
+                  </svg>
+                </div>
+                <div className="mini-stat-content">
+                  <div className="mini-stat-value">{dashboard.stats?.busAvailableSeats || 0}</div>
+                  <div className="mini-stat-label">Available Seats</div>
                 </div>
               </div>
             </div>
