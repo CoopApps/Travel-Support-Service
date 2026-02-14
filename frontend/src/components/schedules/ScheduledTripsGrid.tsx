@@ -248,6 +248,79 @@ function ScheduledTripsGrid({
   }, []);
 
   /**
+   * Generate PDF schedule for a driver
+   */
+  const handleGeneratePDF = useCallback(async (driverId: number, driverName: string) => {
+    try {
+      // Filter trips for this driver in the current week
+      const driverTrips = filteredTrips.filter(t => t.driver_id === driverId);
+
+      if (driverTrips.length === 0) {
+        alert('No trips to export for this driver');
+        return;
+      }
+
+      // Create a simple text representation of the schedule
+      let scheduleText = `Schedule for ${driverName}\n`;
+      scheduleText += `Week: ${weekDays[0]} to ${weekDays[6]}\n\n`;
+
+      weekDays.forEach((day, dayIndex) => {
+        const dayTrips = driverTrips.filter(t => {
+          const tripDate = t.trip_date?.split('T')[0];
+          return tripDate === day;
+        });
+
+        if (dayTrips.length > 0) {
+          scheduleText += `${new Date(day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}\n`;
+          dayTrips.forEach(trip => {
+            scheduleText += `  ${trip.pickup_time || 'No time'} - ${trip.customer_name || 'Unknown'}\n`;
+            scheduleText += `    Pickup: ${trip.pickup_location || 'Unknown'}\n`;
+            scheduleText += `    Destination: ${trip.destination || 'Unknown'}\n`;
+          });
+          scheduleText += '\n';
+        }
+      });
+
+      // Create a blob and download
+      const blob = new Blob([scheduleText], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `schedule-${driverName.replace(/\s+/g, '-')}-${weekDays[0]}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate schedule');
+    }
+  }, [filteredTrips, weekDays]);
+
+  /**
+   * Email schedule to a driver
+   */
+  const handleEmailSchedule = useCallback(async (driverId: number, driverName: string) => {
+    const driver = drivers.find(d => d.driver_id === driverId);
+
+    if (!driver?.email) {
+      alert('No email address found for this driver');
+      return;
+    }
+
+    const confirmed = confirm(`Send schedule to ${driverName} at ${driver.email}?`);
+    if (!confirmed) return;
+
+    try {
+      // TODO: Implement actual email API endpoint
+      alert('Email functionality not yet implemented. The schedule would be sent to: ' + driver.email);
+    } catch (error) {
+      console.error('Failed to email schedule:', error);
+      alert('Failed to send email');
+    }
+  }, [drivers]);
+
+  /**
    * Select all trips (filtered results) - memoized
    */
   const handleSelectAll = useCallback(() => {
@@ -666,12 +739,14 @@ function ScheduledTripsGrid({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <button
                         className="btn btn-sm"
+                        onClick={() => handleGeneratePDF(driver.driver_id, `${driver.first_name} ${driver.last_name}`)}
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
                           background: '#28a745',
                           color: 'white',
-                          border: 'none'
+                          border: 'none',
+                          cursor: 'pointer'
                         }}
                         title="Generate PDF schedule"
                       >
@@ -679,12 +754,14 @@ function ScheduledTripsGrid({
                       </button>
                       <button
                         className="btn btn-sm"
+                        onClick={() => handleEmailSchedule(driver.driver_id, `${driver.first_name} ${driver.last_name}`)}
                         style={{
                           fontSize: '10px',
                           padding: '4px 8px',
                           background: '#17a2b8',
                           color: 'white',
-                          border: 'none'
+                          border: 'none',
+                          cursor: 'pointer'
                         }}
                         title="Email schedule"
                       >
