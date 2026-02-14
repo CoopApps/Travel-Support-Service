@@ -127,10 +127,9 @@ router.post(
             paying_org, has_split_payment, provider_split, payment_split,
             schedule, emergency_contact_name, emergency_contact_phone,
             mobility_requirements, medical_notes, medication_notes, driver_notes,
-            reminder_opt_in, reminder_preference,
             is_active, created_at, updated_at
           ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, true, NOW(), NOW()
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, true, NOW(), NOW()
           )
         `;
 
@@ -154,9 +153,7 @@ router.post(
           customer.mobility_needs, // mobility_requirements
           customer.medical_notes,
           '', // medication_notes
-          '', // driver_notes
-          false, // reminder_opt_in
-          'none' // reminder_preference
+          '' // driver_notes
         ]);
         customersImported++;
       }
