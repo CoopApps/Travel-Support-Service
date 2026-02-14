@@ -129,9 +129,9 @@ router.post(
             paying_org, has_split_payment, provider_split, payment_split,
             schedule, emergency_contact_name, emergency_contact_phone,
             mobility_requirements, medical_notes, medication_notes, driver_notes,
-            is_login_enabled, archived, is_active, created_at, updated_at
+            user_id, is_login_enabled, archived, is_active, created_at, updated_at
           ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, false, false, true, NOW(), NOW()
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NULL, false, false, true, NOW(), NOW()
           )
         `;
 
