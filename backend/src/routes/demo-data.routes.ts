@@ -157,29 +157,37 @@ const DEMO_VEHICLES = [
   { registration: 'AB90CDE', make: 'Citroen', model: 'Relay WAV', year: 2021, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 445, insurance_monthly: 325, mot_date: '2027-05-15', last_service: '2025-12-01' },
 ];
 
-// Fuel cards - Only for contracted employees (all 30 drivers in demo data are contracted)
-// Drivers with company vehicles (owned/leased) get fuel cards
+// Fuel cards - Only for contracted employees (24 out of 30 drivers)
+// Drivers 0-23 are contracted and get fuel cards
+// Drivers 24-29 are self-employed and must submit fuel receipts
 const DEMO_FUEL_CARDS = [
-  // Fuel cards for company-owned minibus drivers (drivers 20-27)
-  { card_last_four: '4523', provider: 'Shell', driver_index: 20, vehicle_index: 20, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4524', provider: 'BP', driver_index: 21, vehicle_index: 21, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4525', provider: 'Shell', driver_index: 22, vehicle_index: 22, monthly_limit: 650, daily_limit: 100 },
-  { card_last_four: '4526', provider: 'Esso', driver_index: 23, vehicle_index: 23, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4527', provider: 'BP', driver_index: 24, vehicle_index: 24, monthly_limit: 550, daily_limit: 100 },
-  { card_last_four: '4528', provider: 'Shell', driver_index: 25, vehicle_index: 25, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4529', provider: 'Texaco', driver_index: 26, vehicle_index: 26, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4530', provider: 'BP', driver_index: 27, vehicle_index: 27, monthly_limit: 550, daily_limit: 100 },
+  // Fuel cards for contracted drivers 0-19 (standard vehicles)
+  { card_last_four: '4500', provider: 'Shell', driver_index: 0, vehicle_index: 0, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4501', provider: 'BP', driver_index: 1, vehicle_index: 1, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4502', provider: 'Esso', driver_index: 2, vehicle_index: 2, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4503', provider: 'Shell', driver_index: 3, vehicle_index: 3, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4504', provider: 'Texaco', driver_index: 4, vehicle_index: 4, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4505', provider: 'BP', driver_index: 5, vehicle_index: 5, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4506', provider: 'Shell', driver_index: 6, vehicle_index: 6, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4507', provider: 'Esso', driver_index: 7, vehicle_index: 7, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4508', provider: 'BP', driver_index: 8, vehicle_index: 8, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4509', provider: 'Shell', driver_index: 9, vehicle_index: 9, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4510', provider: 'Texaco', driver_index: 10, vehicle_index: 10, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4511', provider: 'BP', driver_index: 11, vehicle_index: 11, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4512', provider: 'Shell', driver_index: 12, vehicle_index: 12, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4513', provider: 'Esso', driver_index: 13, vehicle_index: 13, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4514', provider: 'BP', driver_index: 14, vehicle_index: 14, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4515', provider: 'Shell', driver_index: 15, vehicle_index: 15, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4516', provider: 'Texaco', driver_index: 16, vehicle_index: 16, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4517', provider: 'BP', driver_index: 17, vehicle_index: 17, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4518', provider: 'Shell', driver_index: 18, vehicle_index: 18, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4519', provider: 'Esso', driver_index: 19, vehicle_index: 19, monthly_limit: 600, daily_limit: 100 },
 
-  // Fuel cards for wheelchair accessible vehicle drivers (drivers 28-29)
-  { card_last_four: '4531', provider: 'Shell', driver_index: 28, vehicle_index: 34, monthly_limit: 700, daily_limit: 120 },
-  { card_last_four: '4532', provider: 'BP', driver_index: 29, vehicle_index: 35, monthly_limit: 700, daily_limit: 120 },
-
-  // Unassigned fuel cards for company vehicles without assigned drivers (5 spare cards for future use)
-  { card_last_four: '4533', provider: 'Shell', driver_index: null, vehicle_index: 28, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4534', provider: 'Esso', driver_index: null, vehicle_index: 29, monthly_limit: 600, daily_limit: 100 },
-  { card_last_four: '4535', provider: 'BP', driver_index: null, vehicle_index: 36, monthly_limit: 700, daily_limit: 120 },
-  { card_last_four: '4536', provider: 'Shell', driver_index: null, vehicle_index: 37, monthly_limit: 700, daily_limit: 120 },
-  { card_last_four: '4537', provider: 'Texaco', driver_index: null, vehicle_index: 38, monthly_limit: 700, daily_limit: 120 },
+  // Fuel cards for contracted minibus drivers (drivers 20-23)
+  { card_last_four: '4520', provider: 'Shell', driver_index: 20, vehicle_index: 20, monthly_limit: 650, daily_limit: 100 },
+  { card_last_four: '4521', provider: 'BP', driver_index: 21, vehicle_index: 21, monthly_limit: 650, daily_limit: 100 },
+  { card_last_four: '4522', provider: 'Esso', driver_index: 22, vehicle_index: 22, monthly_limit: 650, daily_limit: 100 },
+  { card_last_four: '4523', provider: 'Shell', driver_index: 23, vehicle_index: 23, monthly_limit: 650, daily_limit: 100 },
 ];
 
 /**
@@ -257,9 +265,18 @@ router.post(
         customersImported++;
       }
 
-      // Import drivers
-      for (const driver of DEMO_DRIVERS) {
+      // Import drivers (24 contracted, 6 self-employed)
+      for (let i = 0; i < DEMO_DRIVERS.length; i++) {
+        const driver = DEMO_DRIVERS[i];
         const driverName = `${driver.first_name} ${driver.last_name}`;
+
+        // First 24 drivers are contracted, last 6 are self-employed
+        const isContracted = i < 24;
+        const employmentType = isContracted ? 'contracted' : 'self-employed';
+        const salaryStructure = isContracted
+          ? JSON.stringify({ type: 'hourly', rate: 12.50 })
+          : JSON.stringify({ type: 'self-employed', rate: 15.00 });
+
         const driverQuery = `
           INSERT INTO tenant_drivers (
             tenant_id, name, phone, email,
@@ -305,9 +322,9 @@ router.post(
           null, // section22_driver_expiry
           null, // mot_date
           null, // mot_expiry_date
-          'contracted', // employment_type
+          employmentType, // employment_type (contracted or self-employed)
           'active', // employment_status
-          JSON.stringify({ type: 'hourly', rate: 12.50 }), // salary_structure (JSON object)
+          salaryStructure, // salary_structure (JSON object)
           new Date().toISOString().split('T')[0], // start_date (today)
           null, // contract_end_date
           null, // driver_roles (can be null)
