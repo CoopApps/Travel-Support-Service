@@ -108,9 +108,83 @@ const DEMO_DRIVERS = [
   { first_name: 'Amelia', last_name: 'Roberts', phone: '07800 900030', email: 'amelia.roberts@demotransport.com', license_number: 'ROBER830123AR9GH', license_expiry: '2027-11-16', dbs_check_date: '2025-04-18', vehicle_type: 'Wheelchair accessible van' },
 ];
 
+// Vehicle data - 40 vehicles with mixed ownership types
+const DEMO_VEHICLES = [
+  // Personal cars (driver-owned) - 20 vehicles
+  { registration: 'AB12CDE', make: 'Ford', model: 'Focus', year: 2019, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 0 },
+  { registration: 'CD34EFG', make: 'Vauxhall', model: 'Corsa', year: 2020, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 1 },
+  { registration: 'EF56GHI', make: 'Toyota', model: 'Yaris', year: 2018, vehicle_type: 'Car', seats: 5, fuel_type: 'Hybrid', ownership: 'personal', wheelchair_accessible: false, driver_index: 2 },
+  { registration: 'GH78IJK', make: 'Honda', model: 'Civic', year: 2021, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 3 },
+  { registration: 'IJ90KLM', make: 'Nissan', model: 'Qashqai', year: 2019, vehicle_type: 'SUV', seats: 5, fuel_type: 'Diesel', ownership: 'personal', wheelchair_accessible: false, driver_index: 4 },
+  { registration: 'KL12MNO', make: 'Volkswagen', model: 'Golf', year: 2020, vehicle_type: 'Car', seats: 5, fuel_type: 'Diesel', ownership: 'personal', wheelchair_accessible: false, driver_index: 5 },
+  { registration: 'MN34OPQ', make: 'Peugeot', model: '208', year: 2019, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 6 },
+  { registration: 'OP56QRS', make: 'Renault', model: 'Clio', year: 2021, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 7 },
+  { registration: 'QR78STU', make: 'Mazda', model: 'CX-5', year: 2020, vehicle_type: 'SUV', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 8 },
+  { registration: 'ST90UVW', make: 'Hyundai', model: 'i30', year: 2019, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 9 },
+  { registration: 'UV12WXY', make: 'Kia', model: 'Sportage', year: 2021, vehicle_type: 'SUV', seats: 5, fuel_type: 'Diesel', ownership: 'personal', wheelchair_accessible: false, driver_index: 10 },
+  { registration: 'WX34YZA', make: 'Seat', model: 'Ibiza', year: 2018, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 11 },
+  { registration: 'YZ56ABC', make: 'Skoda', model: 'Octavia', year: 2020, vehicle_type: 'Car', seats: 5, fuel_type: 'Diesel', ownership: 'personal', wheelchair_accessible: false, driver_index: 12 },
+  { registration: 'AB78CDE', make: 'Mini', model: 'Cooper', year: 2019, vehicle_type: 'Car', seats: 4, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 13 },
+  { registration: 'CD90EFG', make: 'Fiat', model: '500', year: 2021, vehicle_type: 'Car', seats: 4, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 14 },
+  { registration: 'EF12GHI', make: 'Citroen', model: 'C3', year: 2020, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 15 },
+  { registration: 'GH34IJK', make: 'Dacia', model: 'Sandero', year: 2019, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 16 },
+  { registration: 'IJ56KLM', make: 'Suzuki', model: 'Swift', year: 2020, vehicle_type: 'Car', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 17 },
+  { registration: 'KL78MNO', make: 'Mitsubishi', model: 'ASX', year: 2018, vehicle_type: 'SUV', seats: 5, fuel_type: 'Petrol', ownership: 'personal', wheelchair_accessible: false, driver_index: 18 },
+  { registration: 'MN90OPQ', make: 'Volvo', model: 'XC40', year: 2021, vehicle_type: 'SUV', seats: 5, fuel_type: 'Hybrid', ownership: 'personal', wheelchair_accessible: false, driver_index: 19 },
+
+  // Company-owned vehicles (8-seater minibuses) - 13 vehicles
+  { registration: 'OP12QRS', make: 'Ford', model: 'Transit', year: 2020, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 20, insurance_monthly: 250, mot_date: '2026-03-15' },
+  { registration: 'QR34STU', make: 'Peugeot', model: 'Boxer', year: 2019, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 21, insurance_monthly: 250, mot_date: '2026-05-20' },
+  { registration: 'ST56UVW', make: 'Mercedes', model: 'Sprinter', year: 2021, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 22, insurance_monthly: 280, mot_date: '2027-01-10' },
+  { registration: 'UV78WXY', make: 'Volkswagen', model: 'Transporter', year: 2020, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 23, insurance_monthly: 265, mot_date: '2026-07-08' },
+  { registration: 'WX90YZA', make: 'Renault', model: 'Master', year: 2019, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 24, insurance_monthly: 240, mot_date: '2026-02-25' },
+  { registration: 'YZ12ABC', make: 'Iveco', model: 'Daily', year: 2020, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 25, insurance_monthly: 255, mot_date: '2026-09-12' },
+  { registration: 'AB34CDE', make: 'Citroen', model: 'Relay', year: 2021, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 26, insurance_monthly: 260, mot_date: '2027-04-18' },
+  { registration: 'CD56EFG', make: 'Fiat', model: 'Ducato', year: 2019, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: 27, insurance_monthly: 245, mot_date: '2026-06-30' },
+  { registration: 'EF78GHI', make: 'Nissan', model: 'NV400', year: 2020, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: null, insurance_monthly: 250, mot_date: '2026-11-05' },
+  { registration: 'GH90IJK', make: 'LDV', model: 'V80', year: 2021, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: null, insurance_monthly: 235, mot_date: '2027-02-14' },
+  { registration: 'IJ12KLM', make: 'Toyota', model: 'Hiace', year: 2019, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: null, insurance_monthly: 245, mot_date: '2026-08-22' },
+  { registration: 'KL34MNO', make: 'Maxus', model: 'Deliver 9', year: 2020, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Electric', ownership: 'owned', wheelchair_accessible: false, driver_index: null, insurance_monthly: 290, mot_date: '2026-10-18' },
+  { registration: 'MN56OPQ', make: 'Ford', model: 'Transit Custom', year: 2021, vehicle_type: 'Minibus', seats: 8, fuel_type: 'Diesel', ownership: 'owned', wheelchair_accessible: false, driver_index: null, insurance_monthly: 255, mot_date: '2027-03-25' },
+
+  // Wheelchair accessible vehicles (leased by company) - 7 vehicles
+  { registration: 'OP78QRS', make: 'Peugeot', model: 'Boxer WAV', year: 2021, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: 28, lease_monthly: 450, insurance_monthly: 320, mot_date: '2027-01-08', last_service: '2025-11-15' },
+  { registration: 'QR90STU', make: 'Fiat', model: 'Ducato WAV', year: 2020, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: 29, lease_monthly: 420, insurance_monthly: 310, mot_date: '2026-09-20', last_service: '2025-10-22' },
+  { registration: 'ST12UVW', make: 'Ford', model: 'Transit WAV', year: 2021, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 465, insurance_monthly: 330, mot_date: '2027-02-14', last_service: '2025-12-05' },
+  { registration: 'UV34WXY', make: 'Volkswagen', model: 'Caravelle WAV', year: 2020, vehicle_type: 'WAV', seats: 7, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 510, insurance_monthly: 340, mot_date: '2026-11-18', last_service: '2025-09-30' },
+  { registration: 'WX56YZA', make: 'Mercedes', model: 'Sprinter WAV', year: 2021, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 540, insurance_monthly: 360, mot_date: '2027-04-22', last_service: '2025-11-28' },
+  { registration: 'YZ78ABC', make: 'Renault', model: 'Master WAV', year: 2020, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 430, insurance_monthly: 315, mot_date: '2026-08-10', last_service: '2025-10-12' },
+  { registration: 'AB90CDE', make: 'Citroen', model: 'Relay WAV', year: 2021, vehicle_type: 'WAV', seats: 6, fuel_type: 'Diesel', ownership: 'leased', wheelchair_accessible: true, driver_index: null, lease_monthly: 445, insurance_monthly: 325, mot_date: '2027-05-15', last_service: '2025-12-01' },
+];
+
+// Fuel cards - Only for contracted employees (all 30 drivers in demo data are contracted)
+// Drivers with company vehicles (owned/leased) get fuel cards
+const DEMO_FUEL_CARDS = [
+  // Fuel cards for company-owned minibus drivers (drivers 20-27)
+  { card_last_four: '4523', provider: 'Shell', driver_index: 20, vehicle_index: 20, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4524', provider: 'BP', driver_index: 21, vehicle_index: 21, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4525', provider: 'Shell', driver_index: 22, vehicle_index: 22, monthly_limit: 650, daily_limit: 100 },
+  { card_last_four: '4526', provider: 'Esso', driver_index: 23, vehicle_index: 23, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4527', provider: 'BP', driver_index: 24, vehicle_index: 24, monthly_limit: 550, daily_limit: 100 },
+  { card_last_four: '4528', provider: 'Shell', driver_index: 25, vehicle_index: 25, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4529', provider: 'Texaco', driver_index: 26, vehicle_index: 26, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4530', provider: 'BP', driver_index: 27, vehicle_index: 27, monthly_limit: 550, daily_limit: 100 },
+
+  // Fuel cards for wheelchair accessible vehicle drivers (drivers 28-29)
+  { card_last_four: '4531', provider: 'Shell', driver_index: 28, vehicle_index: 34, monthly_limit: 700, daily_limit: 120 },
+  { card_last_four: '4532', provider: 'BP', driver_index: 29, vehicle_index: 35, monthly_limit: 700, daily_limit: 120 },
+
+  // Unassigned fuel cards for company vehicles without assigned drivers (5 spare cards for future use)
+  { card_last_four: '4533', provider: 'Shell', driver_index: null, vehicle_index: 28, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4534', provider: 'Esso', driver_index: null, vehicle_index: 29, monthly_limit: 600, daily_limit: 100 },
+  { card_last_four: '4535', provider: 'BP', driver_index: null, vehicle_index: 36, monthly_limit: 700, daily_limit: 120 },
+  { card_last_four: '4536', provider: 'Shell', driver_index: null, vehicle_index: 37, monthly_limit: 700, daily_limit: 120 },
+  { card_last_four: '4537', provider: 'Texaco', driver_index: null, vehicle_index: 38, monthly_limit: 700, daily_limit: 120 },
+];
+
 /**
  * POST /api/tenants/:tenantId/demo-data/import
- * Import demo customers and drivers
+ * Import demo customers, drivers, vehicles, and fuel cards
  */
 router.post(
   '/tenants/:tenantId/demo-data/import',
@@ -121,6 +195,8 @@ router.post(
 
     let customersImported = 0;
     let driversImported = 0;
+    let vehiclesImported = 0;
+    let fuelCardsImported = 0;
 
     try {
       await client.query('BEGIN');
@@ -246,20 +322,143 @@ router.post(
         driversImported++;
       }
 
+      // Get driver IDs for vehicle assignment
+      const driversQuery = `
+        SELECT driver_id, email FROM tenant_drivers
+        WHERE tenant_id = $1 AND email LIKE '%@demotransport.com'
+        ORDER BY driver_id ASC
+      `;
+      const driversResult = await client.query(driversQuery, [tenantId]);
+      const driverIds = driversResult.rows.map(row => row.driver_id);
+
+      // Import vehicles
+      for (const vehicle of DEMO_VEHICLES) {
+        const driverId = vehicle.driver_index !== null && vehicle.driver_index < driverIds.length
+          ? driverIds[vehicle.driver_index]
+          : null;
+
+        const vehicleQuery = `
+          INSERT INTO tenant_vehicles (
+            tenant_id, registration, make, model, year, vehicle_type, seats, fuel_type,
+            ownership, wheelchair_accessible, driver_id,
+            mot_date, insurance_expiry, last_service_date, service_interval_months,
+            lease_monthly_cost, insurance_monthly_cost, mileage,
+            is_basic_record, is_active, archived, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, true, false, NOW(), NOW()
+          )
+        `;
+
+        // Calculate insurance expiry (1 year from now)
+        const insuranceExpiry = new Date();
+        insuranceExpiry.setFullYear(insuranceExpiry.getFullYear() + 1);
+
+        await client.query(vehicleQuery, [
+          tenantId,
+          vehicle.registration,
+          vehicle.make,
+          vehicle.model,
+          vehicle.year,
+          vehicle.vehicle_type,
+          vehicle.seats,
+          vehicle.fuel_type,
+          vehicle.ownership,
+          vehicle.wheelchair_accessible,
+          driverId,
+          vehicle.mot_date || null,
+          insuranceExpiry.toISOString().split('T')[0],
+          vehicle.last_service || null,
+          6, // service_interval_months
+          vehicle.lease_monthly || 0,
+          vehicle.insurance_monthly || 0,
+          Math.floor(Math.random() * 50000) + 10000, // random mileage between 10k-60k
+          false // is_basic_record
+        ]);
+        vehiclesImported++;
+      }
+
+      // Update some customers to be wheelchair users (matching the 7 wheelchair accessible vehicles)
+      const wheelchairCustomerIndexes = [0, 2, 4, 8, 12, 23, 29]; // Select specific customers to need wheelchair access
+      const customerQuery = `
+        SELECT customer_id FROM tenant_customers
+        WHERE tenant_id = $1 AND email LIKE '%@example.com'
+        ORDER BY customer_id ASC
+      `;
+      const customersResult = await client.query(customerQuery, [tenantId]);
+
+      for (const index of wheelchairCustomerIndexes) {
+        if (index < customersResult.rows.length) {
+          const customerId = customersResult.rows[index].customer_id;
+          await client.query(`
+            UPDATE tenant_customers
+            SET mobility_requirements = 'Wheelchair user - requires wheelchair accessible vehicle',
+                medical_notes = 'Must use wheelchair accessible transport'
+            WHERE tenant_id = $1 AND customer_id = $2
+          `, [tenantId, customerId]);
+        }
+      }
+
+      // Get vehicle IDs for fuel card assignment
+      const vehiclesQuery = `
+        SELECT vehicle_id FROM tenant_vehicles
+        WHERE tenant_id = $1
+        ORDER BY vehicle_id ASC
+      `;
+      const vehiclesResult = await client.query(vehiclesQuery, [tenantId]);
+      const vehicleIds = vehiclesResult.rows.map(row => row.vehicle_id);
+
+      // Import fuel cards (only for company-owned/leased vehicles)
+      for (const fuelCard of DEMO_FUEL_CARDS) {
+        const driverId = fuelCard.driver_index !== null && fuelCard.driver_index < driverIds.length
+          ? driverIds[fuelCard.driver_index]
+          : null;
+
+        const vehicleId = fuelCard.vehicle_index !== null && fuelCard.vehicle_index < vehicleIds.length
+          ? vehicleIds[fuelCard.vehicle_index]
+          : null;
+
+        const fuelCardQuery = `
+          INSERT INTO tenant_fuelcards (
+            tenant_id, card_number_last_four, provider, pin,
+            driver_id, vehicle_id, monthly_limit, daily_limit,
+            status, is_active, archived, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, true, false, NOW(), NOW()
+          )
+        `;
+
+        await client.query(fuelCardQuery, [
+          tenantId,
+          fuelCard.card_last_four,
+          fuelCard.provider,
+          null, // pin (not stored for security)
+          driverId,
+          vehicleId,
+          fuelCard.monthly_limit,
+          fuelCard.daily_limit,
+          'active' // status
+        ]);
+        fuelCardsImported++;
+      }
+
       await client.query('COMMIT');
       client.release();
 
       logger.info('Demo data imported successfully', {
         tenantId,
         customersImported,
-        driversImported
+        driversImported,
+        vehiclesImported,
+        fuelCardsImported
       });
 
       return res.json({
         success: true,
         message: 'Demo data imported successfully',
         customersImported,
-        driversImported
+        driversImported,
+        vehiclesImported,
+        fuelCardsImported
       });
     } catch (error: any) {
       await client.query('ROLLBACK');
@@ -269,13 +468,20 @@ router.post(
         stack: error.stack,
         tenantId,
         customersImported,
-        driversImported
+        driversImported,
+        vehiclesImported
       });
       return res.status(500).json({
         error: 'Failed to import demo data',
         message: error.message,
         details: error.toString(),
-        position: customersImported > 0 ? `Failed after importing ${customersImported} customers` : 'Failed during customer import'
+        position: vehiclesImported > 0
+          ? `Failed after importing ${customersImported} customers, ${driversImported} drivers, ${vehiclesImported} vehicles`
+          : driversImported > 0
+            ? `Failed after importing ${customersImported} customers, ${driversImported} drivers`
+            : customersImported > 0
+              ? `Failed after importing ${customersImported} customers`
+              : 'Failed during customer import'
       });
     }
   })
@@ -294,6 +500,20 @@ router.delete(
 
     try {
       await client.query('BEGIN');
+
+      // Delete demo vehicles first (to avoid foreign key constraints)
+      const deleteVehiclesQuery = `
+        DELETE FROM tenant_vehicles
+        WHERE tenant_id = $1 AND registration IN (
+          SELECT unnest(ARRAY['AB12CDE', 'CD34EFG', 'EF56GHI', 'GH78IJK', 'IJ90KLM', 'KL12MNO',
+          'MN34OPQ', 'OP56QRS', 'QR78STU', 'ST90UVW', 'UV12WXY', 'WX34YZA', 'YZ56ABC', 'AB78CDE',
+          'CD90EFG', 'EF12GHI', 'GH34IJK', 'IJ56KLM', 'KL78MNO', 'MN90OPQ', 'OP12QRS', 'QR34STU',
+          'ST56UVW', 'UV78WXY', 'WX90YZA', 'YZ12ABC', 'AB34CDE', 'CD56EFG', 'EF78GHI', 'GH90IJK',
+          'IJ12KLM', 'KL34MNO', 'MN56OPQ', 'OP78QRS', 'QR90STU', 'ST12UVW', 'UV34WXY', 'WX56YZA',
+          'YZ78ABC', 'AB90CDE'])
+        )
+      `;
+      const vehiclesResult = await client.query(deleteVehiclesQuery, [tenantId]);
 
       // Delete demo customers (those with @example.com emails)
       const deleteCustomersQuery = `
@@ -314,18 +534,21 @@ router.delete(
 
       const customersRemoved = customersResult.rowCount || 0;
       const driversRemoved = driversResult.rowCount || 0;
+      const vehiclesRemoved = vehiclesResult.rowCount || 0;
 
       logger.info('Demo data removed successfully', {
         tenantId,
         customersRemoved,
-        driversRemoved
+        driversRemoved,
+        vehiclesRemoved
       });
 
       return res.json({
         success: true,
         message: 'Demo data removed successfully',
         customersRemoved,
-        driversRemoved
+        driversRemoved,
+        vehiclesRemoved
       });
     } catch (error: any) {
       await client.query('ROLLBACK');
@@ -359,23 +582,37 @@ router.get(
         SELECT COUNT(*) as count FROM tenant_drivers
         WHERE tenant_id = $1 AND email LIKE '%@demotransport.com'
       `;
+      const vehiclesQuery = `
+        SELECT COUNT(*) as count FROM tenant_vehicles
+        WHERE tenant_id = $1 AND registration IN (
+          SELECT unnest(ARRAY['AB12CDE', 'CD34EFG', 'EF56GHI', 'GH78IJK', 'IJ90KLM', 'KL12MNO',
+          'MN34OPQ', 'OP56QRS', 'QR78STU', 'ST90UVW', 'UV12WXY', 'WX34YZA', 'YZ56ABC', 'AB78CDE',
+          'CD90EFG', 'EF12GHI', 'GH34IJK', 'IJ56KLM', 'KL78MNO', 'MN90OPQ', 'OP12QRS', 'QR34STU',
+          'ST56UVW', 'UV78WXY', 'WX90YZA', 'YZ12ABC', 'AB34CDE', 'CD56EFG', 'EF78GHI', 'GH90IJK',
+          'IJ12KLM', 'KL34MNO', 'MN56OPQ', 'OP78QRS', 'QR90STU', 'ST12UVW', 'UV34WXY', 'WX56YZA',
+          'YZ78ABC', 'AB90CDE'])
+        )
+      `;
 
-      const [customersResult, driversResult] = await Promise.all([
+      const [customersResult, driversResult, vehiclesResult] = await Promise.all([
         client.query(customersQuery, [tenantId]),
-        client.query(driversQuery, [tenantId])
+        client.query(driversQuery, [tenantId]),
+        client.query(vehiclesQuery, [tenantId])
       ]);
 
       client.release();
 
       const customerCount = parseInt(customersResult.rows[0].count);
       const driverCount = parseInt(driversResult.rows[0].count);
-      const isImported = customerCount > 0 || driverCount > 0;
+      const vehicleCount = parseInt(vehiclesResult.rows[0].count);
+      const isImported = customerCount > 0 || driverCount > 0 || vehicleCount > 0;
 
       return res.json({
         success: true,
         isImported,
         customerCount,
-        driverCount
+        driverCount,
+        vehicleCount
       });
     } catch (error: any) {
       client.release();
