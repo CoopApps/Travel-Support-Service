@@ -186,8 +186,15 @@ router.post(
       status, userId
     ]);
 
+    // Convert numeric values to numbers
+    const formattedCard = {
+      ...fuelCard,
+      monthly_limit: parseFloat(fuelCard.monthly_limit) || 0,
+      daily_limit: parseFloat(fuelCard.daily_limit) || 0
+    };
+
     logger.info('Fuel card created', { tenantId, cardId: fuelCard.fuel_card_id });
-    res.status(201).json({ fuelCard });
+    res.status(201).json({ fuelCard: formattedCard });
   })
 );
 
@@ -287,8 +294,15 @@ router.put(
       driver_id, vehicle_id, monthly_limit, daily_limit, status
     ]);
 
+    // Convert numeric values to numbers
+    const formattedCard = {
+      ...fuelCard,
+      monthly_limit: parseFloat(fuelCard.monthly_limit) || 0,
+      daily_limit: parseFloat(fuelCard.daily_limit) || 0
+    };
+
     logger.info('Fuel card updated', { tenantId, cardId });
-    res.json({ fuelCard });
+    res.json({ fuelCard: formattedCard });
   })
 );
 
