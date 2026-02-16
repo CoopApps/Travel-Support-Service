@@ -518,7 +518,14 @@ router.delete(
     try {
       await client.query('BEGIN');
 
-      // Delete demo vehicles first (to avoid foreign key constraints)
+      // Delete fuel cards first (they reference drivers and vehicles)
+      const deleteFuelCardsQuery = `
+        DELETE FROM tenant_fuelcards
+        WHERE tenant_id = $1 AND card_number_last_four LIKE '45%'
+      `;
+      const fuelCardsResult = await client.query(deleteFuelCardsQuery, [tenantId]);
+
+      // Delete demo vehicles (to avoid foreign key constraints)
       const deleteVehiclesQuery = `
         DELETE FROM tenant_vehicles
         WHERE tenant_id = $1 AND registration IN (
@@ -552,12 +559,14 @@ router.delete(
       const customersRemoved = customersResult.rowCount || 0;
       const driversRemoved = driversResult.rowCount || 0;
       const vehiclesRemoved = vehiclesResult.rowCount || 0;
+      const fuelCardsRemoved = fuelCardsResult.rowCount || 0;
 
       logger.info('Demo data removed successfully', {
         tenantId,
         customersRemoved,
         driversRemoved,
-        vehiclesRemoved
+        vehiclesRemoved,
+        fuelCardsRemoved
       });
 
       return res.json({
@@ -565,7 +574,8 @@ router.delete(
         message: 'Demo data removed successfully',
         customersRemoved,
         driversRemoved,
-        vehiclesRemoved
+        vehiclesRemoved,
+        fuelCardsRemoved
       });
     } catch (error: any) {
       await client.query('ROLLBACK');
