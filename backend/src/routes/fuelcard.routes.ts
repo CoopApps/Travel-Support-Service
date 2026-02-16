@@ -46,9 +46,9 @@ router.get(
         v.model as vehicle_model,
         v.registration as vehicle_registration,
         -- Monthly statistics for each card
-        COALESCE(monthly_stats.transaction_count, 0) as monthly_transactions,
-        COALESCE(monthly_stats.monthly_cost, 0) as monthly_cost,
-        COALESCE(monthly_stats.monthly_litres, 0) as monthly_litres,
+        COALESCE(monthly_stats.transaction_count, 0)::integer as monthly_transactions,
+        COALESCE(monthly_stats.monthly_cost, 0)::numeric as monthly_cost,
+        COALESCE(monthly_stats.monthly_litres, 0)::numeric as monthly_litres,
         -- Last transaction info
         last_trans.transaction_date as last_transaction_date,
         last_trans.station_name as last_station
@@ -79,8 +79,18 @@ router.get(
       ORDER BY fc.created_at DESC
     `, [tenantId]);
 
-    logger.info('Retrieved fuel cards', { tenantId, count: fuelCards.length, archived });
-    res.json(fuelCards);
+    // Ensure numeric values are properly converted to numbers
+    const formattedFuelCards = fuelCards.map((card: any) => ({
+      ...card,
+      monthly_cost: parseFloat(card.monthly_cost) || 0,
+      monthly_litres: parseFloat(card.monthly_litres) || 0,
+      monthly_transactions: parseInt(card.monthly_transactions) || 0,
+      monthly_limit: parseFloat(card.monthly_limit) || 0,
+      daily_limit: parseFloat(card.daily_limit) || 0
+    }));
+
+    logger.info('Retrieved fuel cards', { tenantId, count: formattedFuelCards.length, archived });
+    res.json(formattedFuelCards);
   })
 );
 
