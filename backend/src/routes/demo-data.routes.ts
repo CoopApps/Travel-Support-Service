@@ -210,17 +210,26 @@ router.post(
       await client.query('BEGIN');
 
       // Check if demo data already exists
-      const checkQuery = `
+      const checkCustomersQuery = `
         SELECT COUNT(*) as count FROM tenant_customers
         WHERE tenant_id = $1 AND email LIKE '%@example.com'
       `;
-      const checkResult = await client.query(checkQuery, [tenantId]);
+      const checkFuelCardsQuery = `
+        SELECT COUNT(*) as count FROM tenant_fuelcards
+        WHERE tenant_id = $1 AND card_number_last_four BETWEEN '4500' AND '4523'
+      `;
 
-      if (parseInt(checkResult.rows[0].count) > 0) {
+      const [customersCheck, fuelCardsCheck] = await Promise.all([
+        client.query(checkCustomersQuery, [tenantId]),
+        client.query(checkFuelCardsQuery, [tenantId])
+      ]);
+
+      if (parseInt(customersCheck.rows[0].count) > 0 || parseInt(fuelCardsCheck.rows[0].count) > 0) {
         await client.query('ROLLBACK');
         client.release();
         return res.status(400).json({
-          error: 'Demo data already imported. Please remove existing demo data first.'
+          error: 'Demo data already imported. Please remove existing demo data first.',
+          details: `Found ${customersCheck.rows[0].count} customers and ${fuelCardsCheck.rows[0].count} fuel cards`
         });
       }
 
@@ -424,6 +433,13 @@ router.post(
       const vehiclesResult = await client.query(vehiclesQuery, [tenantId]);
       const vehicleIds = vehiclesResult.rows.map(row => row.vehicle_id);
 
+      // Delete any existing fuel cards with the same card numbers before importing
+      // This prevents duplicate key constraint violations
+      await client.query(`
+        DELETE FROM tenant_fuelcards
+        WHERE tenant_id = $1 AND card_number_last_four BETWEEN '4500' AND '4523'
+      `, [tenantId]);
+
       // Import fuel cards (only for company-owned/leased vehicles)
       for (const fuelCard of DEMO_FUEL_CARDS) {
         const driverId = fuelCard.driver_index !== null && fuelCard.driver_index < driverIds.length
@@ -519,9 +535,10 @@ router.delete(
       await client.query('BEGIN');
 
       // Delete fuel cards first (they reference drivers and vehicles)
+      // Delete all fuel cards with card_number_last_four between 4500-4523 (24 demo cards)
       const deleteFuelCardsQuery = `
         DELETE FROM tenant_fuelcards
-        WHERE tenant_id = $1 AND card_number_last_four LIKE '45%'
+        WHERE tenant_id = $1 AND card_number_last_four BETWEEN '4500' AND '4523'
       `;
       const fuelCardsResult = await client.query(deleteFuelCardsQuery, [tenantId]);
 
