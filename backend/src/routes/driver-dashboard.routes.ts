@@ -4,6 +4,21 @@ import { verifyTenantAccess, AuthenticatedRequest } from '../middleware/verifyTe
 import { query, queryOne } from '../config/database';
 import { NotFoundError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
+import {
+  Alert,
+  HolidayAlert,
+  PermitInfo,
+  MaintenanceRecord,
+  FuelSubmission,
+  TripRecord,
+  FuelUsageRecord,
+  MonthlyFuelUsage,
+  VehicleAssignment,
+  TrainingType,
+  TrainingRecord,
+  TrainingStatus,
+  PriorityOrder,
+} from '../types/driver-dashboard.types';
 
 const router: Router = express.Router();
 
@@ -125,15 +140,15 @@ router.get(
           : 0
       },
       activeHolidays,
-      recentAlerts: recentAlerts.map((alert: any) => ({
+      recentAlerts: recentAlerts.map((alert: Record<string, unknown>) => ({
         request_id: alert.request_id,
         start_date: alert.start_date,
         end_date: alert.end_date,
         status: alert.status,
         message:
           alert.status === 'approved'
-            ? `Your holiday request from ${alert.start_date} to ${alert.end_date} has been approved.`
-            : `Your holiday request from ${alert.start_date} to ${alert.end_date} was declined.${alert.rejection_reason ? ' Reason: ' + alert.rejection_reason : ''}`,
+            ? `Your holiday request from ${String(alert.start_date)} to ${String(alert.end_date)} has been approved.`
+            : `Your holiday request from ${String(alert.start_date)} to ${String(alert.end_date)} was declined.${alert.rejection_reason ? ' Reason: ' + alert.rejection_reason : ''}`,
         type: alert.status === 'approved' ? 'success' : 'warning'
       }))
     });
@@ -333,12 +348,12 @@ router.get(
     );
 
     // Format alerts with messages
-    const formattedAlerts = holidayAlerts.map((alert: any) => ({
+    const formattedAlerts = (holidayAlerts as HolidayAlert[]).map((alert) => ({
       ...alert,
       message:
         alert.status === 'approved'
           ? `Your holiday request from ${alert.start_date} to ${alert.end_date} has been approved.`
-          : `Your holiday request from ${alert.start_date} to ${alert.end_date} was declined.${alert.rejection_reason ? ' Reason: ' + alert.rejection_reason : ''}`,
+          : `Your holiday request from ${alert.start_date} to ${alert.end_date} was declined.${alert.reason ? ' Reason: ' + alert.reason : ''}`,
       type: alert.status === 'approved' ? 'success' : 'warning'
     }));
 
@@ -410,9 +425,9 @@ router.get(
     // Calculate expiry status for each document
     const now = new Date();
 
-    const alerts: any[] = [];
+    const alerts: Alert[] = [];
 
-    const checkExpiry = (date: any, label: string, category: string) => {
+    const checkExpiry = (date: string | null, label: string, category: string) => {
       if (!date) return;
       const expiryDate = new Date(date);
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -467,7 +482,7 @@ router.get(
     }
 
     // Check additional permits
-    permits.forEach((permit: any) => {
+    (permits as PermitInfo[]).forEach((permit) => {
       if (permit.expiry_date) {
         checkExpiry(permit.expiry_date, `${permit.permit_type} Permit`, 'permit');
       }
@@ -475,11 +490,11 @@ router.get(
 
     // Sort alerts by priority and expiry date
     alerts.sort((a, b) => {
-      const priorityOrder: any = { critical: 0, high: 1, low: 2 };
+      const priorityOrder: Record<string, number> = { critical: 0, high: 1, low: 2 };
       if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       }
-      return a.daysUntilExpiry - b.daysUntilExpiry;
+      return (a.daysRemaining || 0) - (b.daysRemaining || 0);
     });
 
     const summary = {
@@ -577,7 +592,7 @@ router.get(
 
     // Calculate maintenance alerts
     const now = new Date();
-    const alerts: any[] = [];
+    const alerts: Alert[] = [];
 
     // Check service interval
     if (vehicle.last_service_date && vehicle.service_interval_months) {
@@ -624,17 +639,17 @@ router.get(
     }
 
     // Check incomplete maintenance with high severity
-    const criticalMaintenance = upcomingMaintenance.filter((m: any) => m.severity === 'high' || m.severity === 'critical');
+    const criticalMaintenance = (upcomingMaintenance as MaintenanceRecord[]).filter((m) => m.severity === 'high' || m.severity === 'critical');
     if (criticalMaintenance.length > 0) {
       alerts.push({
         type: 'critical_maintenance',
         priority: 'critical',
         message: `${criticalMaintenance.length} critical maintenance item(s) pending`,
         actionRequired: true,
-        items: criticalMaintenance.map((m: any) => ({
+        items: criticalMaintenance.map((m) => ({
           type: m.maintenance_type,
           description: m.description,
-          dueDate: m.next_service_date
+          due_date: m.due_date
         }))
       });
     }
@@ -656,7 +671,7 @@ router.get(
       summary: {
         totalAlerts: alerts.length,
         criticalAlerts: alerts.filter(a => a.priority === 'critical').length,
-        completedLastSixMonths: maintenanceHistory.filter((m: any) => m.completed).length,
+        completedLastSixMonths: (maintenanceHistory as MaintenanceRecord[]).filter((m) => m.completed).length,
         upcomingCount: upcomingMaintenance.length
       }
     });
@@ -811,13 +826,13 @@ router.get(
     let totalReimbursed = 0;
     let pendingReimbursement = 0;
 
-    fuelSubmissions.forEach((submission: any) => {
-      totalCost += parseFloat(submission.cost || '0');
+    (fuelSubmissions as FuelSubmission[]).forEach((submission) => {
+      totalCost += parseFloat(String(submission.cost) || '0');
 
       if (submission.status === 'approved' && submission.reimbursed_date) {
-        totalReimbursed += parseFloat(submission.cost || '0');
+        totalReimbursed += parseFloat(String(submission.cost) || '0');
       } else if (submission.status === 'approved') {
-        pendingReimbursement += parseFloat(submission.cost || '0');
+        pendingReimbursement += parseFloat(String(submission.cost) || '0');
       }
     });
 
@@ -860,11 +875,11 @@ router.get(
         totalCost: totalCost.toFixed(2),
         totalReimbursed: totalReimbursed.toFixed(2),
         pendingReimbursement: pendingReimbursement.toFixed(2),
-        pendingCount: fuelSubmissions.filter((f: any) => f.status === 'pending').length,
-        approvedCount: fuelSubmissions.filter((f: any) => f.status === 'approved').length
+        pendingCount: (fuelSubmissions as FuelSubmission[]).filter((f) => f.status === 'pending').length,
+        approvedCount: (fuelSubmissions as FuelSubmission[]).filter((f) => f.status === 'approved').length
       },
       fuelSubmissions,
-      recentTrips: recentTrips.map((trip: any) => ({
+      recentTrips: (recentTrips as TripRecord[]).map((trip) => ({
         trip_id: trip.trip_id,
         date: trip.trip_date,
         route: `${trip.pickup_location} → ${trip.destination}`,
@@ -890,7 +905,7 @@ router.get(
     logger.info('Getting detailed trips for driver', { tenantId, driverId, date, status });
 
     let whereClause = 'WHERE t.driver_id = $1 AND t.tenant_id = $2';
-    const params: any[] = [driverId, tenantId];
+    const params: (string | number)[] = [driverId, tenantId];
     let paramCount = 3;
 
     if (date) {
@@ -945,7 +960,7 @@ router.get(
     );
 
     return res.json({
-      trips: trips.map((trip: any) => ({
+      trips: (trips as TripRecord[]).map((trip) => ({
         trip_id: trip.trip_id,
         date: trip.trip_date,
         dayOfWeek: trip.day_of_week,
@@ -1161,19 +1176,19 @@ router.get(
     );
 
     // Calculate fuel statistics
-    const totalLitres = fuelUsage.reduce((sum: number, f: any) => sum + parseFloat(f.litres || '0'), 0);
-    const totalCost = fuelUsage.reduce((sum: number, f: any) => sum + parseFloat(f.cost || '0'), 0);
+    const totalLitres = (fuelUsage as FuelUsageRecord[]).reduce((sum: number, f) => sum + parseFloat(String(f.litres) || '0'), 0);
+    const totalCost = (fuelUsage as FuelUsageRecord[]).reduce((sum: number, f) => sum + parseFloat(String(f.cost) || '0'), 0);
     const averagePricePerLitre = totalLitres > 0 ? totalCost / totalLitres : 0;
 
     // Group by month
-    const monthlyUsage: any = {};
-    fuelUsage.forEach((f: any) => {
+    const monthlyUsage: Record<string, { litres: number; cost: number; count: number }> = {};
+    (fuelUsage as FuelUsageRecord[]).forEach((f) => {
       const month = f.date.substring(0, 7); // YYYY-MM
       if (!monthlyUsage[month]) {
         monthlyUsage[month] = { litres: 0, cost: 0, count: 0 };
       }
-      monthlyUsage[month].litres += parseFloat(f.litres || '0');
-      monthlyUsage[month].cost += parseFloat(f.cost || '0');
+      monthlyUsage[month].litres += parseFloat(String(f.litres) || '0');
+      monthlyUsage[month].cost += parseFloat(String(f.cost) || '0');
       monthlyUsage[month].count++;
     });
 
@@ -1196,12 +1211,12 @@ router.get(
           cost: monthlyUsage[month].cost.toFixed(2),
           fillCount: monthlyUsage[month].count
         })),
-      recentUsage: fuelUsage.slice(0, 10).map((f: any) => ({
+      recentUsage: (fuelUsage as FuelUsageRecord[]).slice(0, 10).map((f) => ({
         fuel_id: f.fuel_id,
         date: f.date,
-        station: f.station,
-        litres: parseFloat(f.litres || '0').toFixed(2),
-        cost: parseFloat(f.cost || '0').toFixed(2),
+        station: f.location,
+        litres: parseFloat(String(f.litres) || '0').toFixed(2),
+        cost: parseFloat(String(f.cost) || '0').toFixed(2),
         pricePerLitre: parseFloat(f.price_per_litre || '0').toFixed(3),
         mileage: f.mileage,
         status: f.status
@@ -1275,7 +1290,7 @@ router.get(
             assignedSince: currentVehicle.created_at
           }
         : null,
-      assignmentHistory: assignmentHistory.map((v: any) => ({
+      assignmentHistory: (assignmentHistory as VehicleAssignment[]).map((v) => ({
         vehicle_id: v.vehicle_id,
         registration: v.registration,
         make: v.make,
@@ -1339,11 +1354,11 @@ router.get(
     // Calculate training status
     const now = new Date();
 
-    const trainingStatus: any[] = [];
-    const alerts: any[] = [];
+    const trainingStatus: TrainingStatus[] = [];
+    const alerts: Alert[] = [];
 
-    trainingTypes.forEach((type: any) => {
-      const record = trainingRecords.find((r: any) => r.training_type_id === type.training_type_id);
+    (trainingTypes as TrainingType[]).forEach((type) => {
+      const record = (trainingRecords as TrainingRecord[]).find((r) => r.training_type_id === type.training_type_id);
 
       let status = 'not_completed';
       let priority = 'low';
@@ -1409,13 +1424,13 @@ router.get(
 
     // Sort alerts by priority
     alerts.sort((a, b) => {
-      const priorityOrder: any = { critical: 0, high: 1, medium: 2, low: 3 };
+      const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 
     const summary = {
       totalTrainingTypes: trainingTypes.length,
-      mandatoryCount: trainingTypes.filter((t: any) => t.is_mandatory).length,
+      mandatoryCount: (trainingTypes as TrainingType[]).filter((t) => t.is_mandatory).length,
       completedCount: trainingStatus.filter(t => t.status === 'valid' || t.status === 'expiring_soon').length,
       expiredCount: trainingStatus.filter(t => t.status === 'expired').length,
       expiringSoonCount: trainingStatus.filter(t => t.status === 'expiring_soon').length,
@@ -1429,7 +1444,7 @@ router.get(
       summary,
       trainingStatus,
       alerts,
-      recentTraining: trainingRecords.slice(0, 5).map((r: any) => ({
+      recentTraining: (trainingRecords as TrainingRecord[]).slice(0, 5).map((r) => ({
         training_record_id: r.training_record_id,
         trainingName: r.training_name,
         category: r.category,
