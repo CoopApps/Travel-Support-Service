@@ -11,27 +11,6 @@ const router = Router();
  * 150 customers and 30 drivers with realistic UK names, addresses, and schedules
  */
 
-const DEMO_CUSTOMERS = [
-  // Elderly customers with various mobility needs and paying organizations
-  { first_name: 'Margaret', last_name: 'Thompson', phone: '07700 900001', email: 'margaret.thompson@example.com', address: '12 High Street, Sheffield', postcode: 'S1 2GE', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ground floor pickup', paying_org: 'Sheffield City Council' },
-  { first_name: 'Arthur', last_name: 'Davies', phone: '07700 900002', email: 'arthur.davies@example.com', address: '45 Church Lane, Rotherham', postcode: 'S60 2BX', mobility_needs: 'Walking frame', medical_notes: 'Needs assistance to vehicle', paying_org: 'Age UK Sheffield' },
-  { first_name: 'Dorothy', last_name: 'Evans', phone: '07700 900003', email: 'dorothy.evans@example.com', address: '78 Park Road, Doncaster', postcode: 'DN1 3JQ', mobility_needs: 'Wheelchair user', medical_notes: 'Electric wheelchair', paying_org: 'NHS South Yorkshire ICB' },
-  { first_name: 'George', last_name: 'Wilson', phone: '07700 900004', email: 'george.wilson@example.com', address: '23 Station Road, Barnsley', postcode: 'S70 2AB', mobility_needs: 'Walking stick', medical_notes: 'Slow walker', paying_org: 'Self-Pay' },
-  { first_name: 'Betty', last_name: 'Roberts', phone: '07700 900005', email: 'betty.roberts@example.com', address: '56 Oak Avenue, Chesterfield', postcode: 'S40 1TY', mobility_needs: 'Wheelchair user', medical_notes: 'Manual wheelchair', paying_org: 'British Red Cross' },
-  { first_name: 'William', last_name: 'Jones', phone: '07700 900006', email: 'william.jones@example.com', address: '89 Victoria Street, Sheffield', postcode: 'S3 7QL', mobility_needs: 'Walking frame', medical_notes: 'Requires extra time', paying_org: 'Rotherham Borough Council' },
-  { first_name: 'Joyce', last_name: 'Brown', phone: '07700 900007', email: 'joyce.brown@example.com', address: '34 Meadow Lane, Rotherham', postcode: 'S61 4RB', mobility_needs: 'None', medical_notes: 'Independent', paying_org: 'Self-Pay' },
-  { first_name: 'Albert', last_name: 'Taylor', phone: '07700 900008', email: 'albert.taylor@example.com', address: '67 Bridge Street, Doncaster', postcode: 'DN2 5FB', mobility_needs: 'Walking stick', medical_notes: 'Arthritis', paying_org: 'Macmillan Cancer Support' },
-  { first_name: 'Doris', last_name: 'White', phone: '07700 900009', email: 'doris.white@example.com', address: '90 Castle Road, Barnsley', postcode: 'S71 3HP', mobility_needs: 'Wheelchair user', medical_notes: 'Requires ramp', paying_org: 'Barnsley Metropolitan Council' },
-  { first_name: 'Frederick', last_name: 'Martin', phone: '07700 900010', email: 'frederick.martin@example.com', address: '12 Queen Street, Chesterfield', postcode: 'S41 8NG', mobility_needs: 'Walking frame', medical_notes: 'Balance issues', paying_org: 'Sheffield Carers Centre' },
-  // Continue with varied names and locations (total 150)
-  { first_name: 'Vera', last_name: 'Jackson', phone: '07700 900011', email: 'vera.jackson@example.com', address: '45 King Street, Sheffield', postcode: 'S1 3BR', mobility_needs: 'None', medical_notes: 'Good mobility', paying_org: 'Alzheimer\'s Society' },
-  { first_name: 'Harold', last_name: 'Lewis', phone: '07700 900012', email: 'harold.lewis@example.com', address: '78 Mill Lane, Rotherham', postcode: 'S60 3TB', mobility_needs: 'Walking stick', medical_notes: 'Hearing aid user', paying_org: 'Scope Disability Charity' },
-  { first_name: 'Ethel', last_name: 'Walker', phone: '07700 900013', email: 'ethel.walker@example.com', address: '23 School Road, Doncaster', postcode: 'DN3 2PQ', mobility_needs: 'Wheelchair user', medical_notes: 'Oxygen user', paying_org: 'Marie Curie' },
-  { first_name: 'Norman', last_name: 'Hall', phone: '07700 900014', email: 'norman.hall@example.com', address: '56 Church Street, Barnsley', postcode: 'S72 8QW', mobility_needs: 'Walking frame', medical_notes: 'Recent hip surgery', paying_org: 'Independent Age' },
-  { first_name: 'Gladys', last_name: 'Allen', phone: '07700 900015', email: 'gladys.allen@example.com', address: '89 Market Place, Chesterfield', postcode: 'S43 1DB', mobility_needs: 'None', medical_notes: 'Visually impaired', paying_org: 'Contact the Elderly' },
-  // Add more customers with varied profiles (continuing to 150)
-];
-
 // Define paying organizations - realistic UK charities, councils, and healthcare providers
 const PAYING_ORGS = [
   'Self-Pay',
@@ -52,26 +31,119 @@ const PAYING_ORGS = [
   'Royal Voluntary Service'
 ];
 
-// Generate additional 135 customers programmatically
-for (let i = 16; i <= 150; i++) {
-  const firstNames = ['Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica', 'Thomas', 'Sarah', 'Charles', 'Karen', 'Christopher', 'Nancy', 'Daniel'];
-  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
-  const streets = ['High Street', 'Main Road', 'Park Lane', 'Church Road', 'Station Street', 'Victoria Avenue', 'Albert Road', 'Queens Drive', 'King Street', 'Mill Lane'];
-  const cities = ['Sheffield', 'Rotherham', 'Doncaster', 'Barnsley', 'Chesterfield'];
-  const postcodes = ['S1 1AB', 'S60 2CD', 'DN1 3EF', 'S70 4GH', 'S40 5IJ'];
-  const mobilityOptions = ['None', 'Walking stick', 'Walking frame', 'Wheelchair user', 'Mobility scooter'];
-  const medicalOptions = ['Independent', 'Requires assistance', 'Oxygen user', 'Hearing aid user', 'Visually impaired', 'Diabetic', 'Heart condition'];
+// Destinations for customer schedules
+const DESTINATIONS = [
+  'Sheffield Royal Hallamshire Hospital',
+  'Northern General Hospital',
+  'Rotherham Hospital',
+  'Doncaster Royal Infirmary',
+  'Chesterfield Royal Hospital',
+  'Meadowhall Shopping Centre',
+  'Sheffield City Centre',
+  'Rotherham Town Centre',
+  'Crystal Peaks Shopping Centre',
+  'Sheffield Carers Centre',
+  'Age UK Day Centre',
+  'Community Centre Sheffield',
+  'Barnsley Town Hall',
+  'Doncaster Market',
+  'Sheffield Cathedral',
+  'GP Surgery Ecclesall Road',
+  'Physiotherapy Clinic',
+  'Day Care Centre',
+  'Social Club',
+  'Library'
+];
+
+// Unique first names (150 unique names)
+const FIRST_NAMES = [
+  'Margaret', 'Arthur', 'Dorothy', 'George', 'Betty', 'William', 'Joyce', 'Albert', 'Doris', 'Frederick',
+  'Vera', 'Harold', 'Ethel', 'Norman', 'Gladys', 'Stanley', 'Edith', 'Ernest', 'Florence', 'Walter',
+  'Elsie', 'Roy', 'Irene', 'Frank', 'Violet', 'Kenneth', 'Lily', 'Dennis', 'Rose', 'Ronald',
+  'Grace', 'Gordon', 'Ivy', 'Bernard', 'Olive', 'Leonard', 'Jean', 'Cyril', 'Edna', 'Sidney',
+  'Phyllis', 'Herbert', 'Marjorie', 'Leslie', 'Maureen', 'Reginald', 'Joan', 'Douglas', 'Hilda', 'Eric',
+  'Alice', 'Raymond', 'Sheila', 'Clifford', 'Beryl', 'Edwin', 'Sylvia', 'Victor', 'Audrey', 'Geoffrey',
+  'Winifred', 'Edgar', 'Eileen', 'Derek', 'Mabel', 'Horace', 'Kathleen', 'Cecil', 'Gertrude', 'Wilfred',
+  'Beatrice', 'Lionel', 'Evelyn', 'Percy', 'Nora', 'Alec', 'Lillian', 'Ralph', 'Muriel', 'Arnold',
+  'Dora', 'Bertram', 'Clara', 'Wilbur', 'Blanche', 'Archibald', 'Myrtle', 'Horace', 'Nellie', 'Basil',
+  'Bessie', 'Cedric', 'Ruth', 'Malcolm', 'Enid', 'Nigel', 'Pauline', 'Rodney', 'Christine', 'Terence',
+  'Pamela', 'Brian', 'Janet', 'Colin', 'Barbara', 'Graham', 'Susan', 'Trevor', 'Linda', 'Keith',
+  'Patricia', 'Peter', 'Mary', 'Paul', 'Jennifer', 'David', 'Elizabeth', 'Andrew', 'Sarah', 'Stephen',
+  'Anne', 'Richard', 'Margaret', 'Michael', 'Helen', 'Robert', 'Carol', 'John', 'Diane', 'James',
+  'Brenda', 'Alan', 'Julie', 'Ian', 'Angela', 'Christopher', 'Wendy', 'Anthony', 'Catherine', 'Martin',
+  'Sandra', 'Philip', 'Valerie', 'Simon', 'Gillian', 'Mark', 'Jacqueline', 'Nicholas', 'Lorraine', 'Edward'
+];
+
+// Unique last names (150 unique names)
+const LAST_NAMES = [
+  'Thompson', 'Davies', 'Evans', 'Wilson', 'Roberts', 'Jones', 'Brown', 'Taylor', 'White', 'Martin',
+  'Jackson', 'Lewis', 'Walker', 'Hall', 'Allen', 'Clarke', 'King', 'Wright', 'Hill', 'Scott',
+  'Green', 'Adams', 'Baker', 'Nelson', 'Carter', 'Mitchell', 'Perez', 'Roberts', 'Turner', 'Phillips',
+  'Campbell', 'Parker', 'Edwards', 'Collins', 'Stewart', 'Morris', 'Rogers', 'Reed', 'Cook', 'Morgan',
+  'Bell', 'Murphy', 'Bailey', 'Rivera', 'Cooper', 'Richardson', 'Cox', 'Howard', 'Ward', 'Torres',
+  'Peterson', 'Gray', 'Ramirez', 'James', 'Watson', 'Brooks', 'Kelly', 'Sanders', 'Price', 'Bennett',
+  'Wood', 'Barnes', 'Ross', 'Henderson', 'Coleman', 'Jenkins', 'Perry', 'Powell', 'Long', 'Patterson',
+  'Hughes', 'Flores', 'Washington', 'Butler', 'Simmons', 'Foster', 'Gonzales', 'Bryant', 'Alexander', 'Russell',
+  'Griffin', 'Diaz', 'Hayes', 'Myers', 'Ford', 'Hamilton', 'Graham', 'Sullivan', 'Wallace', 'Woods',
+  'Cole', 'West', 'Jordan', 'Owens', 'Reynolds', 'Fisher', 'Ellis', 'Harrison', 'Gibson', 'McDonald',
+  'Cruz', 'Marshall', 'Ortiz', 'Gomez', 'Murray', 'Freeman', 'Wells', 'Webb', 'Simpson', 'Stevens',
+  'Tucker', 'Porter', 'Hunter', 'Hicks', 'Crawford', 'Henry', 'Boyd', 'Mason', 'Morales', 'Kennedy',
+  'Warren', 'Dixon', 'Ramos', 'Reyes', 'Burns', 'Gordon', 'Shaw', 'Holmes', 'Rice', 'Robertson',
+  'Hunt', 'Black', 'Daniels', 'Palmer', 'Mills', 'Nichols', 'Grant', 'Knight', 'Ferguson', 'Rose',
+  'Stone', 'Hawkins', 'Dunn', 'Perkins', 'Hudson', 'Spencer', 'Gardner', 'Stephens', 'Payne', 'Pierce'
+];
+
+const STREETS = [
+  'High Street', 'Main Road', 'Park Lane', 'Church Road', 'Station Street',
+  'Victoria Avenue', 'Albert Road', 'Queens Drive', 'King Street', 'Mill Lane',
+  'Oak Avenue', 'Elm Grove', 'Maple Close', 'Birch Way', 'Cedar Court',
+  'London Road', 'Manchester Road', 'Abbey Lane', 'Brook Street', 'Castle Road'
+];
+
+const CITIES = ['Sheffield', 'Rotherham', 'Doncaster', 'Barnsley', 'Chesterfield'];
+const POSTCODES = ['S1 1AB', 'S60 2CD', 'DN1 3EF', 'S70 4GH', 'S40 5IJ', 'S2 3TY', 'S61 1PQ', 'DN2 4RT', 'S71 2WE', 'S41 7LM'];
+const MOBILITY_OPTIONS = ['None', 'Walking stick', 'Walking frame', 'Wheelchair user', 'Mobility scooter'];
+const MEDICAL_OPTIONS = ['Independent', 'Requires assistance', 'Oxygen user', 'Hearing aid user', 'Visually impaired', 'Diabetic', 'Heart condition'];
+
+// Day patterns for schedules
+const SCHEDULE_PATTERNS = [
+  { days: ['Monday', 'Wednesday', 'Friday'], time: '09:00' },
+  { days: ['Tuesday', 'Thursday'], time: '10:00' },
+  { days: ['Monday', 'Friday'], time: '14:00' },
+  { days: ['Wednesday'], time: '11:00' },
+  { days: ['Tuesday', 'Thursday'], time: '13:30' },
+  { days: ['Monday', 'Wednesday'], time: '15:00' },
+  { days: ['Friday'], time: '09:30' },
+  { days: ['Monday', 'Tuesday', 'Wednesday'], time: '10:30' },
+];
+
+// Generate 150 unique customers with schedules
+const DEMO_CUSTOMERS: any[] = [];
+for (let i = 0; i < 150; i++) {
+  const schedulePattern = SCHEDULE_PATTERNS[i % SCHEDULE_PATTERNS.length];
+  const destination = DESTINATIONS[i % DESTINATIONS.length];
+
+  // Create schedule object with days and destination
+  const schedule = {
+    recurring: schedulePattern.days.map(day => ({
+      day,
+      time: schedulePattern.time,
+      destination,
+      return_journey: true
+    }))
+  };
 
   DEMO_CUSTOMERS.push({
-    first_name: firstNames[i % firstNames.length],
-    last_name: lastNames[i % lastNames.length],
-    phone: `07700 ${900000 + i}`,
-    email: `customer${i}@example.com`,
-    address: `${i} ${streets[i % streets.length]}, ${cities[i % cities.length]}`,
-    postcode: postcodes[i % postcodes.length],
-    mobility_needs: mobilityOptions[i % mobilityOptions.length],
-    medical_notes: medicalOptions[i % medicalOptions.length],
-    paying_org: PAYING_ORGS[i % PAYING_ORGS.length]
+    first_name: FIRST_NAMES[i],
+    last_name: LAST_NAMES[i],
+    phone: `07700 ${900001 + i}`,
+    email: `${FIRST_NAMES[i].toLowerCase()}.${LAST_NAMES[i].toLowerCase()}@example.com`,
+    address: `${i + 1} ${STREETS[i % STREETS.length]}, ${CITIES[i % CITIES.length]}`,
+    postcode: POSTCODES[i % POSTCODES.length],
+    mobility_needs: MOBILITY_OPTIONS[i % MOBILITY_OPTIONS.length],
+    medical_notes: MEDICAL_OPTIONS[i % MEDICAL_OPTIONS.length],
+    paying_org: PAYING_ORGS[i % PAYING_ORGS.length],
+    schedule
   });
 }
 
