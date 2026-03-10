@@ -17,7 +17,10 @@ import {
   CreateCustomerDto,
   UpdateCustomerDto,
   CustomerListQuery,
-  CustomerListResponse
+  CustomerListResponse,
+  DaySchedule,
+  PaymentSplit,
+  CustomerSchedule,
 } from '../types/customer.types';
 import {
   encrypt,
@@ -43,7 +46,7 @@ const CUSTOMER_PII_FIELDS = {
 /**
  * Encrypt PII fields before storing in database
  */
-function encryptCustomerPII(data: any): any {
+function encryptCustomerPII<T extends Record<string, unknown>>(data: T): T {
   if (!isPIIEncryptionEnabled()) {
     return data;
   }
@@ -52,15 +55,15 @@ function encryptCustomerPII(data: any): any {
 
   // Searchable fields (deterministic encryption - same input = same output)
   for (const field of CUSTOMER_PII_FIELDS.searchable) {
-    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
-      result[field] = encryptSearchable(result[field]);
+    if (result[field] && typeof result[field] === 'string' && (result[field] as string).trim()) {
+      result[field] = encryptSearchable(result[field] as string) as T[Extract<keyof T, string>];
     }
   }
 
   // Encrypted fields (random IV - more secure but not searchable)
   for (const field of CUSTOMER_PII_FIELDS.encrypted) {
-    if (result[field] && typeof result[field] === 'string' && result[field].trim()) {
-      result[field] = encrypt(result[field]);
+    if (result[field] && typeof result[field] === 'string' && (result[field] as string).trim()) {
+      result[field] = encrypt(result[field] as string) as T[Extract<keyof T, string>];
     }
   }
 
@@ -70,7 +73,7 @@ function encryptCustomerPII(data: any): any {
 /**
  * Decrypt PII fields when reading from database
  */
-function decryptCustomerPII(data: any): any {
+function decryptCustomerPII<T extends Record<string, unknown>>(data: T | null): T | null {
   if (!data || !isPIIEncryptionEnabled()) {
     return data;
   }
@@ -80,14 +83,14 @@ function decryptCustomerPII(data: any): any {
   // Decrypt searchable fields
   for (const field of CUSTOMER_PII_FIELDS.searchable) {
     if (result[field] && typeof result[field] === 'string') {
-      result[field] = decryptSearchable(result[field]);
+      result[field] = decryptSearchable(result[field] as string) as T[Extract<keyof T, string>];
     }
   }
 
   // Decrypt encrypted fields
   for (const field of CUSTOMER_PII_FIELDS.encrypted) {
     if (result[field] && typeof result[field] === 'string') {
-      result[field] = decrypt(result[field]);
+      result[field] = decrypt(result[field] as string) as T[Extract<keyof T, string>];
     }
   }
 
@@ -194,8 +197,8 @@ router.get(
       customer_id: number;
       name: string;
       has_split_payment: boolean;
-      payment_split: any;
-      schedule: any;
+      payment_split: PaymentSplit | null;
+      schedule: CustomerSchedule | null;
       reminder_opt_in: boolean;
       reminder_preference: string;
       is_login_enabled: boolean;
@@ -304,7 +307,7 @@ router.get(
           stats.schedule.hasSchedule++;
 
           // Check each day for times and destinations
-          Object.values(schedule).forEach((day: any) => {
+          Object.values(schedule).forEach((day: DaySchedule) => {
             if (day.pickup_time || day.drop_off_time) {
               stats.schedule.withPickupTimes++;
             }
@@ -503,7 +506,7 @@ router.get(
 
     // Build WHERE clause dynamically
     const conditions: string[] = ['c.tenant_id = $1', 'c.is_active = true'];
-    const params: any[] = [tenantId];
+    const params: (string | number | boolean)[] = [tenantId];
     let paramCount = 2;
 
     // Search filter (name, email, phone, address)
@@ -654,7 +657,7 @@ router.get(
 
     // Build WHERE clause (same as list endpoint)
     const conditions: string[] = ['c.tenant_id = $1', 'c.is_active = true'];
-    const params: any[] = [tenantId];
+    const params: (string | number | boolean)[] = [tenantId];
     let paramCount = 2;
 
     if (search && typeof search === 'string' && search.trim()) {
@@ -746,7 +749,7 @@ router.get(
     ];
 
     // Escape CSV values
-    const escapeCsvValue = (value: any): string => {
+    const escapeCsvValue = (value: unknown): string => {
       if (value === null || value === undefined) return '';
       const str = String(value);
       // If contains comma, newline, or quotes, wrap in quotes and escape quotes
@@ -1202,11 +1205,12 @@ router.post(
           name: result?.name,
         });
         results.summary.created++;
-      } catch (error: any) {
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         results.errors.push({
           row: rowNumber,
           name: customerData.name,
-          error: error.message,
+          error: errorMessage,
         });
         results.summary.failed++;
       }
@@ -1276,11 +1280,11 @@ router.put(
 
         // Build dynamic update query based on provided fields
         const updateFields: string[] = [];
-        const params: any[] = [tenantId, updateData.customer_id];
+        const params: (string | number | boolean | null | Record<string, unknown>)[] = [tenantId, updateData.customer_id];
         let paramIndex = 3;
 
         // Prepare PII data for encryption if any PII fields are being updated
-        const piiToEncrypt: any = {};
+        const piiToEncrypt: Record<string, string> = {};
         if (updateData.phone !== undefined) piiToEncrypt.phone = sanitizePhone(updateData.phone);
         if (updateData.email !== undefined) piiToEncrypt.email = sanitizeEmail(updateData.email);
         if (updateData.address !== undefined) piiToEncrypt.address = sanitizeInput(updateData.address, { maxLength: 500 });
@@ -1341,11 +1345,12 @@ router.put(
           customerId: updateData.customer_id,
         });
         results.summary.updated++;
-      } catch (error: any) {
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         results.errors.push({
           row: rowNumber,
           customerId: updateData.customer_id,
-          error: error.message,
+          error: errorMessage,
         });
         results.summary.failed++;
       }
@@ -1384,7 +1389,7 @@ router.post(
     }
 
     // Archive all customers in one query
-    const result = await query(
+    const result = await query<{ customer_id: number; name: string }>(
       `UPDATE tenant_customers
        SET archived = TRUE,
            archived_at = CURRENT_TIMESTAMP,
@@ -1405,7 +1410,7 @@ router.post(
       message: `${result.length} customer(s) archived successfully`,
       archived: result.length,
       requested: customer_ids.length,
-      customers: result.map((c: any) => ({ id: c.customer_id, name: c.name })),
+      customers: result.map((c) => ({ id: c.customer_id, name: c.name })),
     });
   })
 );
@@ -1433,7 +1438,7 @@ router.post(
     }
 
     // Soft delete all customers in one query
-    const result = await query(
+    const result = await query<{ customer_id: number; name: string }>(
       `UPDATE tenant_customers
        SET is_active = false, updated_at = CURRENT_TIMESTAMP
        WHERE tenant_id = $1 AND customer_id = ANY($2::int[]) AND is_active = true
@@ -1451,7 +1456,7 @@ router.post(
       message: `${result.length} customer(s) deleted successfully`,
       deleted: result.length,
       requested: customer_ids.length,
-      customers: result.map((c: any) => ({ id: c.customer_id, name: c.name })),
+      customers: result.map((c) => ({ id: c.customer_id, name: c.name })),
     });
   })
 );
