@@ -102,10 +102,42 @@ router.get(
 
     logger.info('Fetching pending timesheets', { tenantId });
 
+    // Query directly instead of using view (in case view doesn't exist)
     const pending = await query<TimesheetWithDriver>(`
-      SELECT * FROM view_pending_timesheet_approvals
-      WHERE tenant_id = $1
-      ORDER BY submitted_at ASC
+      SELECT
+        t.timesheet_id as id,
+        t.driver_id,
+        d.name as driver_name,
+        d.employment_type,
+        CASE
+          WHEN d.salary_structure IS NOT NULL
+            AND jsonb_typeof(d.salary_structure) = 'object'
+            AND (d.salary_structure->>'rate') IS NOT NULL
+          THEN (d.salary_structure->>'rate')::numeric
+          ELSE NULL
+        END as hourly_rate,
+        t.week_starting,
+        t.week_ending,
+        t.total_hours,
+        t.regular_hours,
+        t.overtime_hours,
+        t.total_pay,
+        t.status,
+        t.submitted_at,
+        t.driver_notes,
+        t.notes,
+        t.monday_hours,
+        t.tuesday_hours,
+        t.wednesday_hours,
+        t.thursday_hours,
+        t.friday_hours,
+        t.saturday_hours,
+        t.sunday_hours
+      FROM tenant_driver_timesheets t
+      LEFT JOIN tenant_drivers d ON t.driver_id = d.driver_id AND t.tenant_id = d.tenant_id
+      WHERE t.tenant_id = $1
+        AND t.status = 'submitted'
+      ORDER BY t.submitted_at ASC
     `, [tenantId]);
 
     res.json(pending);
