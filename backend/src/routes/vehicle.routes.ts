@@ -4,7 +4,25 @@ import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { query, queryOne } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errorTypes';
 import { logger } from '../utils/logger';
-import { CreateVehicleDto, UpdateVehicleDto, Vehicle } from '../types/vehicle.types';
+import {
+  CreateVehicleDto,
+  UpdateVehicleDto,
+  Vehicle,
+  VehicleStatsRow,
+  TripStatsRow,
+  MaintenanceCostRow,
+  VehicleUtilization,
+  VehicleWithStats,
+  UtilizationData,
+  TripStatistics,
+  FinancialStatistics,
+  IncidentStatistics,
+  VehicleIdleData,
+  IdleVehicle,
+  ArchiveVehicle,
+  ArchiveResult,
+  TripHistoryRow
+} from '../types/vehicle.types';
 
 const router: Router = express.Router();
 
@@ -31,7 +49,7 @@ router.get(
 
     // Build WHERE clause
     const conditions: string[] = ['v.tenant_id = $1', 'v.is_active = true'];
-    const params: any[] = [tenantId];
+    const params: (string | number | boolean)[] = [tenantId];
     let paramIndex = 2;
 
     if (driver_id) {
@@ -328,7 +346,7 @@ router.put(
     // COMPLEX UPDATE: Multiple fields
     // Build dynamic UPDATE SET clause
     const setClauses: string[] = [];
-    const params: any[] = [tenantId, vehicleId];
+    const params: (string | number | boolean | null)[] = [tenantId, vehicleId];
     let paramIndex = 3;
 
     // Map updateData fields to database columns
@@ -656,7 +674,7 @@ router.get(
     logger.info('Fetching enhanced vehicle stats', { tenantId });
 
     // Get all active vehicles with driver info
-    const vehicles = await query<any>(`
+    const vehicles = await query<VehicleStatsRow>(`
       SELECT
         v.vehicle_id,
         v.ownership,
@@ -672,7 +690,7 @@ router.get(
     `, [tenantId]);
 
     // Get trip statistics per vehicle
-    const tripStats = await query<any>(`
+    const tripStats = await query<TripStatsRow>(`
       SELECT
         vehicle_id,
         COUNT(*) as trip_count,
@@ -684,7 +702,7 @@ router.get(
     `, [tenantId]);
 
     // Get maintenance costs per vehicle
-    const maintenanceCosts = await query<any>(`
+    const maintenanceCosts = await query<MaintenanceCostRow>(`
       SELECT
         vehicle_id,
         COALESCE(SUM(cost), 0) as total_maintenance_cost,
@@ -718,7 +736,7 @@ router.get(
     const currentYear = new Date().getFullYear();
     let totalAge = 0;
 
-    vehicles.forEach((vehicle: any) => {
+    vehicles.forEach((vehicle: VehicleStatsRow) => {
       // Composition
       if (vehicle.ownership === 'owned') composition.owned++;
       else if (vehicle.ownership === 'leased') composition.leased++;
@@ -731,9 +749,9 @@ router.get(
       if (vehicle.wheelchair_accessible) utilization.wheelchairAccessible++;
 
       // Financial
-      financial.totalMonthlyLease += parseFloat(vehicle.lease_monthly_cost || '0');
-      financial.totalMonthlyInsurance += parseFloat(vehicle.insurance_monthly_cost || '0');
-      financial.totalMileage += parseInt(vehicle.mileage || '0', 10);
+      financial.totalMonthlyLease += parseFloat(String(vehicle.lease_monthly_cost || '0'));
+      financial.totalMonthlyInsurance += parseFloat(String(vehicle.insurance_monthly_cost || '0'));
+      financial.totalMileage += parseInt(String(vehicle.mileage || '0'), 10);
 
       // Age calculation
       if (vehicle.year) {
@@ -744,13 +762,13 @@ router.get(
     financial.averageAge = vehicles.length > 0 ? parseFloat((totalAge / vehicles.length).toFixed(1)) : 0;
 
     // Trip statistics
-    const tripStatsMap = new Map();
-    tripStats.forEach((stat: any) => {
+    const tripStatsMap = new Map<number, TripStatsRow>();
+    tripStats.forEach((stat: TripStatsRow) => {
       tripStatsMap.set(stat.vehicle_id, stat);
     });
 
-    const maintenanceMap = new Map();
-    maintenanceCosts.forEach((cost: any) => {
+    const maintenanceMap = new Map<number, MaintenanceCostRow>();
+    maintenanceCosts.forEach((cost: MaintenanceCostRow) => {
       maintenanceMap.set(cost.vehicle_id, cost);
     });
 
@@ -758,25 +776,25 @@ router.get(
     let totalRevenue = 0;
     let totalMaintenanceCost = 0;
 
-    tripStats.forEach((stat: any) => {
-      totalTrips += parseInt(stat.trip_count || '0', 10);
-      totalRevenue += parseFloat(stat.total_revenue || '0');
+    tripStats.forEach((stat: TripStatsRow) => {
+      totalTrips += parseInt(String(stat.trip_count || '0'), 10);
+      totalRevenue += parseFloat(String(stat.total_revenue || '0'));
     });
 
-    maintenanceCosts.forEach((cost: any) => {
-      totalMaintenanceCost += parseFloat(cost.total_maintenance_cost || '0');
+    maintenanceCosts.forEach((cost: MaintenanceCostRow) => {
+      totalMaintenanceCost += parseFloat(String(cost.total_maintenance_cost || '0'));
     });
 
     // Calculate vehicle utilization data
-    const vehicleUtilization = vehicles.map((v: any) => {
+    const vehicleUtilization: VehicleUtilization[] = vehicles.map((v: VehicleStatsRow): VehicleUtilization => {
       const tripStat = tripStatsMap.get(v.vehicle_id);
       const maintenance = maintenanceMap.get(v.vehicle_id);
 
       return {
         vehicle_id: v.vehicle_id,
-        trips: parseInt(tripStat?.trip_count || '0', 10),
-        revenue: parseFloat(tripStat?.total_revenue || '0'),
-        maintenanceCost: parseFloat(maintenance?.total_maintenance_cost || '0')
+        trips: parseInt(String(tripStat?.trip_count || '0'), 10),
+        revenue: parseFloat(String(tripStat?.total_revenue || '0')),
+        maintenanceCost: parseFloat(String(maintenance?.total_maintenance_cost || '0'))
       };
     });
 
@@ -786,8 +804,8 @@ router.get(
     res.json({
       summary: {
         totalVehicles: vehicles.length,
-        activeVehicles: vehicles.filter((v: any) => !v.archived).length,
-        archivedVehicles: vehicles.filter((v: any) => v.archived).length
+        activeVehicles: vehicles.filter((v: VehicleStatsRow) => !v.archived).length,
+        archivedVehicles: vehicles.filter((v: VehicleStatsRow) => v.archived).length
       },
       composition,
       utilization,
@@ -827,7 +845,7 @@ router.get(
     logger.info('Fetching vehicle utilization', { tenantId, vehicleId });
 
     // Get vehicle details
-    const vehicle = await queryOne<any>(`
+    const vehicle = await queryOne<Vehicle & { assigned_driver_name?: string }>(`
       SELECT
         v.*,
         d.name as assigned_driver_name
@@ -841,7 +859,7 @@ router.get(
     }
 
     // Get trip statistics (all time, last 30 days, last 90 days)
-    const tripStatsAll = await queryOne<any>(`
+    const tripStatsAll = await queryOne<TripStatistics & { first_trip: string | null; last_trip: string | null }>(`
       SELECT
         COUNT(*) as total_trips,
         COUNT(*) FILTER (WHERE status = 'completed') as completed_trips,
@@ -853,7 +871,7 @@ router.get(
       WHERE tenant_id = $1 AND vehicle_id = $2
     `, [tenantId, vehicleId]);
 
-    const tripStats30 = await queryOne<any>(`
+    const tripStats30 = await queryOne<TripStatistics>(`
       SELECT
         COUNT(*) as total_trips,
         COUNT(*) FILTER (WHERE status = 'completed') as completed_trips,
@@ -863,7 +881,7 @@ router.get(
         AND trip_date >= CURRENT_DATE - INTERVAL '30 days'
     `, [tenantId, vehicleId]);
 
-    const tripStats90 = await queryOne<any>(`
+    const tripStats90 = await queryOne<TripStatistics>(`
       SELECT
         COUNT(*) as total_trips,
         COUNT(*) FILTER (WHERE status = 'completed') as completed_trips,
@@ -874,7 +892,7 @@ router.get(
     `, [tenantId, vehicleId]);
 
     // Get maintenance statistics
-    const maintenanceStats = await queryOne<any>(`
+    const maintenanceStats = await queryOne<{ maintenance_count: string | number; total_cost: string | number; last_maintenance: string | null }>(`
       SELECT
         COUNT(*) as maintenance_count,
         COALESCE(SUM(cost), 0) as total_cost,
@@ -884,7 +902,7 @@ router.get(
     `, [tenantId, vehicleId]);
 
     // Get incident statistics
-    const incidentStats = await queryOne<any>(`
+    const incidentStats = await queryOne<IncidentStatistics>(`
       SELECT
         COUNT(*) as incident_count,
         COUNT(*) FILTER (WHERE severity = 'critical') as critical_incidents,
@@ -984,7 +1002,7 @@ router.get(
     logger.info('Fetching fleet utilization', { tenantId, sortBy, sortOrder });
 
     // Get all vehicles with trip counts and revenue
-    const vehicles = await query<any>(`
+    const vehicles = await query<VehicleWithStats>(`
       SELECT
         v.vehicle_id,
         v.registration,
@@ -1009,7 +1027,7 @@ router.get(
 
     // Calculate utilization metrics for each vehicle
     const now = new Date();
-    const utilizationData = vehicles.map((vehicle: any) => {
+    const utilizationData: UtilizationData[] = vehicles.map((vehicle: VehicleWithStats): UtilizationData => {
       const tripCount = parseInt(vehicle.trip_count || '0', 10);
       const completedTrips = parseInt(vehicle.completed_trips || '0', 10);
       const revenue = parseFloat(vehicle.revenue || '0');
@@ -1059,14 +1077,14 @@ router.get(
     const sortField = (sortBy as string).toLowerCase();
     const order = (sortOrder as string).toLowerCase();
 
-    utilizationData.sort((a: any, b: any) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
+    utilizationData.sort((a: UtilizationData, b: UtilizationData) => {
+      let aVal: string | number = (a as Record<string, unknown>)[sortField] as string | number;
+      let bVal: string | number = (b as Record<string, unknown>)[sortField] as string | number;
 
       // Convert to numbers for numeric fields
       if (['trips', 'revenue', 'utilizationrate', 'tripsperday'].includes(sortField)) {
-        aVal = parseFloat(aVal || '0');
-        bVal = parseFloat(bVal || '0');
+        aVal = parseFloat(String(aVal || '0'));
+        bVal = parseFloat(String(bVal || '0'));
       }
 
       if (order === 'desc') {
@@ -1079,12 +1097,12 @@ router.get(
     // Calculate summary statistics
     const summary = {
       totalVehicles: utilizationData.length,
-      neverUsed: utilizationData.filter((v: any) => v.status === 'Never Used').length,
-      idle: utilizationData.filter((v: any) => v.status === 'Idle').length,
-      underutilized: utilizationData.filter((v: any) => v.status === 'Underutilized').length,
-      highlyUtilized: utilizationData.filter((v: any) => v.status === 'Highly Utilized').length,
-      totalTrips: utilizationData.reduce((sum: number, v: any) => sum + v.trips, 0),
-      totalRevenue: utilizationData.reduce((sum: number, v: any) => sum + parseFloat(v.revenue), 0).toFixed(2)
+      neverUsed: utilizationData.filter((v: UtilizationData) => v.status === 'Never Used').length,
+      idle: utilizationData.filter((v: UtilizationData) => v.status === 'Idle').length,
+      underutilized: utilizationData.filter((v: UtilizationData) => v.status === 'Underutilized').length,
+      highlyUtilized: utilizationData.filter((v: UtilizationData) => v.status === 'Highly Utilized').length,
+      totalTrips: utilizationData.reduce((sum: number, v: UtilizationData) => sum + v.trips, 0),
+      totalRevenue: utilizationData.reduce((sum: number, v: UtilizationData) => sum + parseFloat(v.revenue), 0).toFixed(2)
     };
 
     res.json({
@@ -1111,7 +1129,7 @@ router.get(
 
     // Build WHERE clause
     const conditions: string[] = ['t.tenant_id = $1', 't.vehicle_id = $2'];
-    const params: any[] = [tenantId, vehicleId];
+    const params: (string | number | boolean)[] = [tenantId, vehicleId];
     let paramIndex = 3;
 
     if (status) {
@@ -1134,7 +1152,7 @@ router.get(
 
     params.push(parseInt(limit as string));
 
-    const trips = await query<any>(`
+    const trips = await query<TripHistoryRow>(`
       SELECT
         t.trip_id,
         t.trip_date,
@@ -1177,7 +1195,17 @@ router.get(
     logger.info('Fetching vehicle financial summary', { tenantId, vehicleId });
 
     // Get vehicle details
-    const vehicle = await queryOne<any>(`
+    const vehicle = await queryOne<{
+      vehicle_id: number;
+      registration: string;
+      make: string;
+      model: string;
+      year: number;
+      ownership: string;
+      lease_monthly_cost: number;
+      insurance_monthly_cost: number;
+      created_at: Date;
+    }>(`
       SELECT
         vehicle_id,
         registration,
@@ -1197,7 +1225,7 @@ router.get(
     }
 
     // Get revenue from trips
-    const revenue = await queryOne<any>(`
+    const revenue = await queryOne<{ total_revenue: string | number; completed_trips: string | number }>(`
       SELECT
         COALESCE(SUM(CASE WHEN status = 'completed' THEN price ELSE 0 END), 0) as total_revenue,
         COUNT(*) FILTER (WHERE status = 'completed') as completed_trips
@@ -1206,7 +1234,7 @@ router.get(
     `, [tenantId, vehicleId]);
 
     // Get maintenance costs
-    const maintenanceCosts = await queryOne<any>(`
+    const maintenanceCosts = await queryOne<{ total_cost: string | number; maintenance_count: string | number }>(`
       SELECT
         COALESCE(SUM(cost), 0) as total_cost,
         COUNT(*) as maintenance_count
@@ -1215,7 +1243,7 @@ router.get(
     `, [tenantId, vehicleId]);
 
     // Get incident costs
-    const incidentCosts = await queryOne<any>(`
+    const incidentCosts = await queryOne<{ total_cost: string | number; incident_count: string | number }>(`
       SELECT
         COALESCE(SUM(actual_cost), 0) as total_cost,
         COUNT(*) as incident_count
@@ -1308,7 +1336,7 @@ router.get(
     const idleDays = parseInt(days as string);
 
     // Get vehicles with their last trip date
-    const vehicles = await query<any>(`
+    const vehicles = await query<VehicleIdleData>(`
       SELECT
         v.vehicle_id,
         v.registration,
@@ -1331,11 +1359,11 @@ router.get(
     `, [tenantId]);
 
     const now = new Date();
-    const idleVehicles: any[] = [];
-    const neverUsedVehicles: any[] = [];
+    const idleVehicles: IdleVehicle[] = [];
+    const neverUsedVehicles: IdleVehicle[] = [];
 
-    vehicles.forEach((vehicle: any) => {
-      const totalTrips = parseInt(vehicle.total_trips || '0', 10);
+    vehicles.forEach((vehicle: VehicleIdleData) => {
+      const totalTrips = parseInt(String(vehicle.total_trips || '0'), 10);
 
       if (totalTrips === 0) {
         // Never used
@@ -1349,7 +1377,7 @@ router.get(
           driver: vehicle.driver_name,
           status: 'Never Used',
           totalTrips: 0,
-          monthlyCost: (parseFloat(vehicle.lease_monthly_cost || '0') + parseFloat(vehicle.insurance_monthly_cost || '0')).toFixed(2)
+          monthlyCost: (parseFloat(String(vehicle.lease_monthly_cost || '0')) + parseFloat(String(vehicle.insurance_monthly_cost || '0'))).toFixed(2)
         });
       } else if (vehicle.last_trip_date) {
         const lastTripDate = new Date(vehicle.last_trip_date);
@@ -1368,7 +1396,7 @@ router.get(
             totalTrips,
             lastTripDate: vehicle.last_trip_date,
             daysSinceLastTrip,
-            monthlyCost: (parseFloat(vehicle.lease_monthly_cost || '0') + parseFloat(vehicle.insurance_monthly_cost || '0')).toFixed(2)
+            monthlyCost: (parseFloat(String(vehicle.lease_monthly_cost || '0')) + parseFloat(String(vehicle.insurance_monthly_cost || '0'))).toFixed(2)
           });
         }
       }
@@ -1420,7 +1448,7 @@ router.put(
     logger.info('Archiving vehicle', { tenantId, vehicleId, reason });
 
     // Verify vehicle exists
-    const vehicle = await queryOne<any>(`
+    const vehicle = await queryOne<ArchiveVehicle>(`
       SELECT vehicle_id, registration, make, model, archived
       FROM tenant_vehicles
       WHERE tenant_id = $1 AND vehicle_id = $2 AND is_active = true
@@ -1436,7 +1464,7 @@ router.put(
     }
 
     // Archive the vehicle
-    const result = await query<any>(`
+    const result = await query<ArchiveResult>(`
       UPDATE tenant_vehicles
       SET archived = TRUE,
           archived_at = CURRENT_TIMESTAMP,
@@ -1445,7 +1473,7 @@ router.put(
           updated_at = CURRENT_TIMESTAMP
       WHERE tenant_id = $1 AND vehicle_id = $2
       RETURNING vehicle_id, registration, make, model
-    `, [tenantId, vehicleId, (req as any).user?.userId || null, reason || null]);
+    `, [tenantId, vehicleId, (req as Record<string, unknown>).user?.userId || null, reason || null]);
 
     res.json({
       message: 'Vehicle archived successfully',
@@ -1473,7 +1501,7 @@ router.put(
     logger.info('Unarchiving vehicle', { tenantId, vehicleId });
 
     // Verify vehicle exists and is archived
-    const vehicle = await queryOne<any>(`
+    const vehicle = await queryOne<ArchiveVehicle>(`
       SELECT vehicle_id, registration, make, model, archived
       FROM tenant_vehicles
       WHERE tenant_id = $1 AND vehicle_id = $2 AND is_active = true
@@ -1489,7 +1517,7 @@ router.put(
     }
 
     // Unarchive the vehicle
-    const result = await query<any>(`
+    const result = await query<ArchiveResult>(`
       UPDATE tenant_vehicles
       SET archived = FALSE,
           archived_at = NULL,
@@ -1534,7 +1562,7 @@ router.get(
 
     // Build WHERE clause
     const conditions: string[] = ['i.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: (string | number | boolean)[] = [tenantId];
     let paramIndex = 2;
 
     if (vehicle_id) {
@@ -1777,7 +1805,7 @@ router.put(
 
     // Build dynamic UPDATE query
     const updateFields: string[] = [];
-    const params: any[] = [];
+    const params: (string | number | boolean | null)[] = [];
     let paramIndex = 1;
 
     const allowedFields = [
