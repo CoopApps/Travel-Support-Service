@@ -637,11 +637,16 @@ router.get(
           'YZ78ABC', 'AB90CDE'])
         )
       `;
+      const fuelCardsQuery = `
+        SELECT COUNT(*) as count FROM tenant_fuelcards
+        WHERE tenant_id = $1 AND card_number_last_four BETWEEN '4500' AND '4523'
+      `;
 
-      const [customersResult, driversResult, vehiclesResult] = await Promise.all([
+      const [customersResult, driversResult, vehiclesResult, fuelCardsResult] = await Promise.all([
         client.query(customersQuery, [tenantId]),
         client.query(driversQuery, [tenantId]),
-        client.query(vehiclesQuery, [tenantId])
+        client.query(vehiclesQuery, [tenantId]),
+        client.query(fuelCardsQuery, [tenantId])
       ]);
 
       client.release();
@@ -649,14 +654,16 @@ router.get(
       const customerCount = parseInt(customersResult.rows[0].count);
       const driverCount = parseInt(driversResult.rows[0].count);
       const vehicleCount = parseInt(vehiclesResult.rows[0].count);
-      const isImported = customerCount > 0 || driverCount > 0 || vehicleCount > 0;
+      const fuelCardCount = parseInt(fuelCardsResult.rows[0].count);
+      const isImported = customerCount > 0 || driverCount > 0 || vehicleCount > 0 || fuelCardCount > 0;
 
       return res.json({
         success: true,
         isImported,
         customerCount,
         driverCount,
-        vehicleCount
+        vehicleCount,
+        fuelCardCount
       });
     } catch (error: any) {
       client.release();
