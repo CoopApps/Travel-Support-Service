@@ -4,6 +4,18 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { verifyTenantAccess } from '../middleware/verifyTenantAccess';
 import { getDbClient } from '../config/database';
 import { logger } from '../utils/logger';
+import {
+  TripForOptimization,
+  GeocodedTrip,
+  DriverForOptimization,
+  GoogleMapsResponse,
+  GoogleMapsRow,
+  GoogleMapsElement,
+  OptimizationScore,
+  RouteAnalytics,
+  DriverUtilization,
+  PeakHour,
+} from '../types/route-optimizer.types';
 
 const router = Router();
 
@@ -54,11 +66,11 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
 /**
  * Optimize route using nearest neighbor algorithm
  */
-function optimizeRouteOrder(trips: any[], distances: number[][]): any[] {
+function optimizeRouteOrder(trips: TripForOptimization[], distances: number[][]): TripForOptimization[] {
   if (trips.length <= 1) return trips;
 
   const visited = new Set<number>();
-  const optimized: any[] = [];
+  const optimized: TripForOptimization[] = [];
   let current = 0; // Start with first trip
 
   visited.add(current);
@@ -104,7 +116,7 @@ router.post(
 
     try {
       // Fetch full trip details from database
-      const tripIds = trips.map((t: any) => t.trip_id);
+      const tripIds = (trips as TripForOptimization[]).map((t) => t.trip_id);
       const tripQuery = `
         SELECT trip_id, customer_name, pickup_location, pickup_address,
                destination, destination_address, pickup_time, status
@@ -136,12 +148,12 @@ router.post(
           logger.debug('Attempting to use Google Maps Distance Matrix API for route optimization');
 
           // Prepare origins (destinations of each trip)
-          const origins = fullTrips.map((t: any) => t.destination_address || t.destination);
+          const origins = (fullTrips as TripForOptimization[]).map((t) => t.destination_address || t.destination);
           // Prepare destinations (pickup locations of each trip)
-          const destinations = fullTrips.map((t: any) => t.pickup_address || t.pickup_location);
+          const destinations = (fullTrips as TripForOptimization[]).map((t) => t.pickup_address || t.pickup_location);
 
           // Call Google Maps Distance Matrix API
-          const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+          const response = await axios.get<GoogleMapsResponse>('https://maps.googleapis.com/maps/api/distancematrix/json', {
             params: {
               origins: origins.join('|'),
               destinations: destinations.join('|'),
@@ -152,9 +164,9 @@ router.post(
 
           if (response.data.status === 'OK') {
             // Build distance matrix from Google Maps response
-            distances = response.data.rows.map((row: any) =>
-              row.elements.map((element: any) => {
-                if (element.status === 'OK') {
+            distances = response.data.rows.map((row: GoogleMapsRow) =>
+              row.elements.map((element: GoogleMapsElement) => {
+                if (element.status === 'OK' && element.distance) {
                   // Convert meters to miles
                   return element.distance.value * 0.000621371;
                 }
@@ -171,8 +183,8 @@ router.post(
             const optimizedTrips = optimizeRouteOrder(fullTrips, distances);
 
             // Calculate total distance for optimized order
-            const optimizedIndices = optimizedTrips.map((trip: any) =>
-              fullTrips.findIndex((t: any) => t.trip_id === trip.trip_id)
+            const optimizedIndices = optimizedTrips.map((trip) =>
+              (fullTrips as TripForOptimization[]).findIndex((t) => t.trip_id === trip.trip_id)
             );
             for (let i = 0; i < optimizedIndices.length - 1; i++) {
               totalDistanceAfter += distances[optimizedIndices[i]][optimizedIndices[i + 1]];
@@ -198,8 +210,9 @@ router.post(
           } else {
             throw new Error(`Google Maps API returned status: ${response.data.status}`);
           }
-        } catch (googleError: any) {
-          logger.warn('Google Maps failed, falling back to Haversine', { error: googleError.message });
+        } catch (googleError) {
+          const errorMessage = googleError instanceof Error ? googleError.message : 'Unknown error';
+          logger.warn('Google Maps failed, falling back to Haversine', { error: errorMessage });
           optimizationMethod = 'haversine';
           warning = 'Using estimated distances (Google Maps unavailable). Results may be less accurate.';
         }
@@ -212,16 +225,16 @@ router.post(
       if (optimizationMethod === 'haversine') {
         // Geocode all addresses (with fallback to mock)
         const geocodedTrips = await Promise.all(
-          fullTrips.map(async (trip: any) => {
-            const pickupCoords = await geocodeAddress(trip.pickup_address || trip.pickup_location);
-            const destCoords = await geocodeAddress(trip.destination_address || trip.destination);
+          (fullTrips as TripForOptimization[]).map(async (trip): Promise<GeocodedTrip> => {
+            const pickupCoords = await geocodeAddress(trip.pickup_address || String(trip.pickup_location));
+            const destCoords = await geocodeAddress(trip.destination_address || String(trip.destination));
             return { ...trip, pickupCoords, destCoords };
           })
         );
 
         // Build distance matrix (destination of i to pickup of j)
-        distances = geocodedTrips.map((tripI: any) =>
-          geocodedTrips.map((tripJ: any) => {
+        distances = geocodedTrips.map((tripI) =>
+          geocodedTrips.map((tripJ) => {
             if (!tripI.destCoords || !tripJ.pickupCoords) return 0;
             return haversineDistance(
               tripI.destCoords.lat,
@@ -241,8 +254,8 @@ router.post(
         const optimizedTrips = optimizeRouteOrder(fullTrips, distances);
 
         // Calculate total distance for optimized order
-        const optimizedIndices = optimizedTrips.map((trip: any) =>
-          fullTrips.findIndex((t: any) => t.trip_id === trip.trip_id)
+        const optimizedIndices = optimizedTrips.map((trip) =>
+          (fullTrips as TripForOptimization[]).findIndex((t) => t.trip_id === trip.trip_id)
         );
         for (let i = 0; i < optimizedIndices.length - 1; i++) {
           totalDistanceAfter += distances[optimizedIndices[i]][optimizedIndices[i + 1]];
@@ -323,8 +336,8 @@ router.get(
 
       // Calculate scores for each driver-date combination
       const scores = await Promise.all(
-        result.rows.map(async (row: any) => {
-          const trips = row.trips;
+        result.rows.map(async (row: Record<string, unknown>) => {
+          const trips = row.trips as TripForOptimization[];
 
           if (trips.length < 2) {
             return {
@@ -376,9 +389,9 @@ router.get(
             // Fallback to Haversine if Google failed or unavailable
             if (!useGoogle) {
               const geocodedTrips = await Promise.all(
-                trips.map(async (trip: any) => {
-                  const pickupCoords = await geocodeAddress(trip.pickup_address || trip.pickup_location);
-                  const destCoords = await geocodeAddress(trip.destination_address || trip.destination);
+                trips.map(async (trip): Promise<GeocodedTrip> => {
+                  const pickupCoords = await geocodeAddress(trip.pickup_address || String(trip.pickup_location));
+                  const destCoords = await geocodeAddress(trip.destination_address || String(trip.destination));
                   return { ...trip, pickupCoords, destCoords };
                 })
               );
@@ -397,10 +410,10 @@ router.get(
 
             if (useGoogle) {
               // Build distance matrix with Google
-              const origins = trips.map((t: any) => t.destination_address || t.destination);
-              const destinations = trips.map((t: any) => t.pickup_address || t.pickup_location);
+              const origins = trips.map((t) => t.destination_address || t.destination);
+              const destinations = trips.map((t) => t.pickup_address || t.pickup_location);
 
-              const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+              const response = await axios.get<GoogleMapsResponse>('https://maps.googleapis.com/maps/api/distancematrix/json', {
                 params: {
                   origins: origins.join('|'),
                   destinations: destinations.join('|'),
@@ -410,9 +423,9 @@ router.get(
               });
 
               if (response.data.status === 'OK') {
-                response.data.rows.forEach((row: any) => {
-                  const rowDistances = row.elements.map((element: any) => {
-                    if (element.status === 'OK') {
+                response.data.rows.forEach((row: GoogleMapsRow) => {
+                  const rowDistances = row.elements.map((element: GoogleMapsElement) => {
+                    if (element.status === 'OK' && element.distance) {
                       return element.distance.value * 0.000621371;
                     }
                     return 0;
@@ -423,15 +436,15 @@ router.get(
             } else {
               // Build distance matrix with Haversine
               const geocodedTrips = await Promise.all(
-                trips.map(async (trip: any) => {
-                  const pickupCoords = await geocodeAddress(trip.pickup_address || trip.pickup_location);
-                  const destCoords = await geocodeAddress(trip.destination_address || trip.destination);
+                trips.map(async (trip): Promise<GeocodedTrip> => {
+                  const pickupCoords = await geocodeAddress(trip.pickup_address || String(trip.pickup_location));
+                  const destCoords = await geocodeAddress(trip.destination_address || String(trip.destination));
                   return { ...trip, pickupCoords, destCoords };
                 })
               );
 
-              geocodedTrips.forEach((tripI: any) => {
-                const row = geocodedTrips.map((tripJ: any) => {
+              geocodedTrips.forEach((tripI) => {
+                const row = geocodedTrips.map((tripJ) => {
                   if (!tripI.destCoords || !tripJ.pickupCoords) return 0;
                   return haversineDistance(
                     tripI.destCoords.lat,
@@ -448,8 +461,8 @@ router.get(
             const optimizedTrips = optimizeRouteOrder(trips, distances);
             let optimalDistance = 0;
 
-            const optimizedIndices = optimizedTrips.map((trip: any) =>
-              trips.findIndex((t: any) => t.trip_id === trip.trip_id)
+            const optimizedIndices = optimizedTrips.map((trip) =>
+              trips.findIndex((t) => t.trip_id === trip.trip_id)
             );
 
             for (let i = 0; i < optimizedIndices.length - 1; i++) {
@@ -565,28 +578,28 @@ router.post(
       const { routeOptimizationService } = require('../services/routeOptimization.service');
 
       // Prepare trip data
-      const trips = tripsResult.rows.map((t: any) => ({
-        trip_id: t.trip_id,
-        driver_id: t.driver_id,
-        date: t.date,
-        pickup_time: t.pickup_time,
+      const trips = tripsResult.rows.map((t: Record<string, unknown>): TripForOptimization => ({
+        trip_id: t.trip_id as number,
+        driver_id: t.driver_id as number | null,
+        date: t.date as string,
+        pickup_time: t.pickup_time as string,
         pickup_location: {
-          address: t.pickup_address || t.pickup_location,
-          postcode: t.pickup_postcode
+          address: (t.pickup_address as string) || (t.pickup_location as string),
+          postcode: t.pickup_postcode as string
         },
         destination: {
-          address: t.destination_address || t.destination,
-          postcode: t.destination_postcode
+          address: (t.destination_address as string) || (t.destination as string),
+          postcode: t.destination_postcode as string
         },
-        passengers: t.passengers
+        passengers: t.passengers as number
       }));
 
       // Prepare driver data
-      const drivers = driversResult.rows.map((d: any) => ({
-        driver_id: d.driver_id,
-        vehicle_capacity: d.vehicle_capacity || 8, // Default to 8-seater
+      const drivers = driversResult.rows.map((d: Record<string, unknown>): DriverForOptimization => ({
+        driver_id: d.driver_id as number,
+        vehicle_capacity: (d.vehicle_capacity as number) || 8, // Default to 8-seater
         start_location: d.home_address ? {
-          address: d.home_address,
+          address: d.home_address as string,
           postcode: d.home_postcode
         } : undefined
       }));
@@ -605,10 +618,11 @@ router.post(
         driverCount: drivers.length,
         dateRange: { startDate, endDate }
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error in batch optimization', { error });
       client.release();
-      return res.status(500).json({ error: 'Failed to batch optimize routes', details: error.message });
+      return res.status(500).json({ error: 'Failed to batch optimize routes', details: errorMessage });
     }
   })
 );
@@ -656,18 +670,20 @@ router.post(
       const { routeOptimizationService } = require('../services/routeOptimization.service');
 
       // Prepare trip data
-      const trips = tripsResult.rows.map((t: any) => ({
-        trip_id: t.trip_id,
-        passengers: t.passengers,
+      const trips = tripsResult.rows.map((t: Record<string, unknown>): TripForOptimization => ({
+        trip_id: t.trip_id as number,
+        passengers: t.passengers as number,
         pickup_location: {
-          address: t.pickup_address || t.pickup_location,
-          postcode: t.pickup_postcode
+          address: (t.pickup_address as string) || (t.pickup_location as string),
+          postcode: t.pickup_postcode as string
         },
         destination: {
-          address: t.destination_address || t.destination,
-          postcode: t.destination_postcode
+          address: (t.destination_address as string) || (t.destination as string),
+          postcode: t.destination_postcode as string
         },
-        pickup_time: t.pickup_time
+        pickup_time: t.pickup_time as string,
+        date: '',
+        driver_id: null
       }));
 
       // Run capacity optimization
@@ -677,8 +693,8 @@ router.post(
       });
 
       // Calculate statistics
-      const totalPassengers = trips.reduce((sum: number, t: any) => sum + (t.passengers || 0), 0);
-      const averageCapacityUsed = routes.reduce((sum: number, r: any) => sum + (r.capacity_used || 0), 0) / routes.length;
+      const totalPassengers = trips.reduce((sum: number, t) => sum + (t.passengers || 0), 0);
+      const averageCapacityUsed = routes.reduce((sum: number, r: Record<string, unknown>) => sum + ((r.capacity_used as number) || 0), 0) / routes.length;
       const vehiclesNeeded = routes.length;
       const vehiclesSaved = Math.max(0, trips.length - vehiclesNeeded);
 
@@ -694,10 +710,11 @@ router.post(
           efficiency: Math.round((vehiclesSaved / trips.length) * 100)
         }
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error in capacity optimization', { error });
       client.release();
-      return res.status(500).json({ error: 'Failed to optimize capacity', details: error.message });
+      return res.status(500).json({ error: 'Failed to optimize capacity', details: errorMessage });
     }
   })
 );
@@ -795,18 +812,19 @@ router.get(
           totalHours: parseFloat((totalMinutes / 60).toFixed(2)),
           tripsPerDriver: driversUsed > 0 ? parseFloat((totalTrips / driversUsed).toFixed(2)) : 0
         },
-        driverUtilization: utilizationResult.rows.map((r: any) => ({
-          driverId: r.driver_id,
-          tripCount: parseInt(r.trip_count),
-          totalDistance: parseFloat(parseFloat(r.total_distance).toFixed(2)),
-          activeDays: Math.ceil((new Date(r.last_trip).getTime() - new Date(r.first_trip).getTime()) / (1000 * 60 * 60 * 24)) + 1
+        driverUtilization: utilizationResult.rows.map((r: Record<string, unknown>): DriverUtilization => ({
+          driverId: r.driver_id as number,
+          driverName: '',
+          tripCount: parseInt(String(r.trip_count)),
+          utilization: parseFloat(parseFloat(String(r.total_distance)).toFixed(2))
         })),
-        peakHours: peakTimesResult.rows.map((r: any) => ({
-          hour: parseInt(r.hour),
-          tripCount: parseInt(r.trip_count)
+        peakHours: peakTimesResult.rows.map((r: Record<string, unknown>): PeakHour => ({
+          hour: parseInt(String(r.hour)),
+          tripCount: parseInt(String(r.trip_count))
         }))
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error fetching route analytics', { error });
       client.release();
       return res.status(500).json({ error: 'Failed to fetch analytics', details: error.message });
