@@ -6,7 +6,7 @@ Working through **Month 1 Critical Fixes** - removing 'any' types from the top 1
 
 ---
 
-## ✅ Completed Files (3 of 10)
+## ✅ Completed Files (4 of 10)
 
 ### 1. **customer.routes.ts** (14 'any' → 0)
 
@@ -87,6 +87,46 @@ Working through **Month 1 Critical Fixes** - removing 'any' types from the top 1
 
 ---
 
+### 4. **vehicle.routes.ts** (24 'any' → 0)
+
+**New Types File Enhanced:** `src/types/vehicle.types.ts`
+
+**12+ Interfaces Added:**
+- `VehicleStatsRow` - Vehicle statistics for enhanced stats endpoint
+- `TripStatsRow` - Trip count and revenue aggregations per vehicle
+- `MaintenanceCostRow` - Maintenance cost aggregations
+- `VehicleUtilization` - Vehicle utilization metrics (trips, revenue, costs)
+- `VehicleWithStats` - Vehicle with trip statistics for fleet utilization
+- `UtilizationData` - Detailed utilization data with calculated metrics
+- `TripStatistics` - Trip counts and revenue statistics
+- `FinancialStatistics` - Financial summary (revenue, costs, profit)
+- `IncidentStatistics` - Incident counts and costs
+- `VehicleIdleData` - Idle vehicle data with last trip information
+- `IdleVehicle` - Idle vehicle report structure
+- `ArchiveVehicle`, `ArchiveResult` - Archive operation types
+- `TripHistoryRow` - Trip history query result
+
+**Fixes Applied:**
+- Typed all params arrays as `(string | number | boolean | null)[]`
+- Typed enhanced-stats queries with specific row types
+- Typed all forEach/map/filter/reduce callbacks explicitly
+- Fixed fleet-utilization with VehicleWithStats and UtilizationData
+- Fixed idle-report with VehicleIdleData and IdleVehicle
+- Fixed archive operations with ArchiveVehicle and ArchiveResult
+- Typed sort callback with proper type assertions for dynamic field access
+- Fixed financial-summary queries with inline type definitions
+- Typed trip-history query with TripHistoryRow
+
+**Impact:**
+- Safer vehicle statistics calculations
+- Type-safe utilization metrics
+- Better autocomplete for vehicle data structures
+- Prevent runtime errors from missing vehicle/trip data
+- Type-safe archive/unarchive operations
+- Catch errors at compile-time for financial calculations
+
+---
+
 ## 📊 Overall Progress
 
 | File | Before | After | Status |
@@ -94,7 +134,7 @@ Working through **Month 1 Critical Fixes** - removing 'any' types from the top 1
 | **customer.routes.ts** | 14 any | 0 | ✅ **COMPLETE** |
 | **route-optimizer.routes.ts** | 36 any | 0 | ✅ **COMPLETE** |
 | **driver-dashboard.routes.ts** | 29 any | 0 | ✅ **COMPLETE** |
-| **vehicle.routes.ts** | 24 any | 24 | ⏳ Pending |
+| **vehicle.routes.ts** | 24 any | 0 | ✅ **COMPLETE** |
 | **trip.routes.ts** | 20 any | 20 | ⏳ Pending |
 | **dashboard.routes.ts** | 18 any | 18 | ⏳ Pending |
 | **bus-regular-passengers.routes.ts** | 16 any | 16 | ⏳ Pending |
@@ -102,18 +142,16 @@ Working through **Month 1 Critical Fixes** - removing 'any' types from the top 1
 | **bus-analytics.routes.ts** | 13 any | 13 | ⏳ Pending |
 | **fuelcard.routes.ts** | 12 any | 12 | ⏳ Pending |
 
-**Total Fixed:** 79 'any' types (14 + 36 + 29)
-**Remaining:** ~143 'any' types across 7 files
+**Total Fixed:** 103 'any' types (14 + 36 + 29 + 24)
+**Remaining:** ~119 'any' types across 6 files
 
 ---
 
 ## 🎯 Next Steps
 
 ### High Priority (Largest Files):
-1. **driver-dashboard.routes.ts** (29 'any', 1,445 lines) - Complex driver metrics
-2. **vehicle.routes.ts** (24 'any', 1,905 lines) - Fleet management
-3. **trip.routes.ts** (20 'any', 1,737 lines) - Trip CRUD operations
-4. **dashboard.routes.ts** (18 'any', 1,347 lines) - Dashboard aggregations
+1. **trip.routes.ts** (20 'any', 1,737 lines) - Trip CRUD operations
+2. **dashboard.routes.ts** (18 'any', 1,347 lines) - Dashboard aggregations
 
 ### Medium Priority:
 5. **bus-regular-passengers.routes.ts** (16 'any')
@@ -195,5 +233,6 @@ if (response.data.status === 'OK') {
 - `bf74f53` - Fix customer.routes.ts (14 'any' → 0)
 - `9109a95` - Fix route-optimizer.routes.ts (36 'any' → 0)
 - `f1ca768` - Fix driver-dashboard.routes.ts (29 'any' → 0)
+- `e7bfd4b` - Fix vehicle.routes.ts (24 'any' → 0)
 
-**Next Session:** Continue with vehicle.routes.ts (24 'any' types)
+**Next Session:** Continue with trip.routes.ts (20 'any' types)
